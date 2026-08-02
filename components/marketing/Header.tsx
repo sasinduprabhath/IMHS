@@ -23,25 +23,18 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <motion.header
-      className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-chart-grid shadow-sm transition-all duration-300"
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
+    <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-chart-grid shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <motion.div whileHover={{ scale: 1.04 }} transition={{ duration: 0.2 }}>
-            <Image
-              src="/logo.png"
-              alt="IMHS Logo"
-              width={160}
-              height={50}
-              className="h-10 w-auto object-contain"
-              priority
-            />
-          </motion.div>
+          <Image
+            src="/logo.png"
+            alt="IMHS Logo"
+            width={160}
+            height={50}
+            className="h-10 w-auto object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -74,27 +67,23 @@ export function Header() {
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
           <Link href="/contact">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-              <Button
-                size="sm"
-                className="gap-1.5 font-semibold text-xs bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-md"
-              >
-                <PhoneCall className="w-3.5 h-3.5" />
-                Inquire / Enroll
-              </Button>
-            </motion.div>
+            <Button
+              size="sm"
+              className="gap-1.5 font-semibold text-xs bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-sm"
+            >
+              <PhoneCall className="w-3.5 h-3.5 text-white" />
+              Inquire / Enroll
+            </Button>
           </Link>
           <Link href="/login">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 font-semibold text-xs border-chart-grid text-ink hover:text-clinical-teal hover:border-clinical-teal bg-white"
-              >
-                <LogIn className="w-3.5 h-3.5 text-clinical-teal" />
-                Portal Login
-              </Button>
-            </motion.div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 font-semibold text-xs border-clinical-teal/40 text-clinical-teal hover:bg-clinical-teal hover:text-white transition-colors group bg-white shadow-xs"
+            >
+              <LogIn className="w-3.5 h-3.5 text-clinical-teal group-hover:text-white transition-colors" />
+              Portal Login
+            </Button>
           </Link>
         </div>
 
@@ -165,6 +154,6 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

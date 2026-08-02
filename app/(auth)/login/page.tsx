@@ -110,20 +110,29 @@ function LoginForm() {
           </div>
         </div>
 
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="pt-1">
-          <Button type="submit" disabled={loading}
-            className="w-full gap-2 font-semibold py-3 text-sm bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 shadow-md">
+        <div className="pt-1">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full gap-2 font-semibold py-3 text-sm bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 shadow-md transition-colors font-sans"
+          >
             {loading ? (
-              <span className="flex items-center gap-2">
-                <motion.div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                  animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }} />
+              <span className="flex items-center justify-center gap-2 text-white">
+                <motion.div
+                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                />
                 Authenticating...
               </span>
             ) : (
-              <><LogIn className="w-4 h-4" /> Sign In to Portal</>
+              <span className="flex items-center justify-center gap-2 text-white font-semibold">
+                <LogIn className="w-4 h-4 text-white shrink-0" />
+                Sign In to Portal
+              </span>
             )}
           </Button>
-        </motion.div>
+        </div>
       </form>
 
       <div className="pt-3 border-t border-chart-grid/60 text-center space-y-2">
