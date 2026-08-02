@@ -28,6 +28,7 @@ export default async function AdminStudentsDirectoryPage() {
 
   const students = rawStudents.map((s) => ({
     id: s.id,
+    studentId: s.studentId || `IWPH-${s.id.slice(0, 6)}`,
     name: s.name,
     email: s.email,
     phone: s.phone,

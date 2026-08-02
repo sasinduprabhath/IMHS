@@ -13,6 +13,7 @@ import {
 
 interface StudentItem {
   id: string;
+  studentId?: string;
   name: string;
   email: string;
   phone: string;
@@ -39,6 +40,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
     (s) =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.email.toLowerCase().includes(search.toLowerCase()) ||
+      (s.studentId && s.studentId.toLowerCase().includes(search.toLowerCase())) ||
       s.phone.includes(search)
   );
 
@@ -106,7 +108,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
           <Search className="w-4 h-4 absolute left-3 top-3 text-sage" />
           <input
             type="text"
-            placeholder="Search by student name, email, or WhatsApp phone..."
+            placeholder="Search by name, Reg ID (e.g. IWPH4131), email, or phone..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all font-sans"
@@ -131,7 +133,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
           <table className="w-full text-left text-xs font-sans">
             <thead>
               <tr className="border-b border-chart-grid bg-linen/50 text-sage uppercase font-mono text-[10px]">
-                <th className="p-4">Student Profile</th>
+                <th className="p-4">Student Profile & Reg ID</th>
                 <th className="p-4">WhatsApp & Email</th>
                 <th className="p-4">Active Course Enrollments</th>
                 <th className="p-4">Completed Lessons</th>
@@ -156,7 +158,11 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                         </div>
                         <div>
                           <div className="font-semibold text-ink text-sm">{st.name}</div>
-                          <div className="text-[10px] font-mono text-sage">ID: {st.id.slice(0, 8)}...</div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.2 rounded">
+                              Reg ID: {st.studentId || `IWPH-${st.id.slice(0, 5)}`}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </td>

@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   id           String   @id @default(cuid())
+  studentId    String?  @unique // e.g. "IWPH4131"
   name         String
   email        String   @unique
   phone        String
