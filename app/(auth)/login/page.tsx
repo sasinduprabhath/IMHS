@@ -162,9 +162,9 @@ export default function LoginPage() {
             transition={{ duration: 0.5 }}
             className="text-center space-y-2"
           >
-            <span className="inline-block font-mono text-[11px] uppercase tracking-widest bg-clinical-teal-surface text-clinical-teal px-3 py-1 rounded font-bold border border-clinical-teal/20">
-              <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 text-clinical-teal" />
-              INVITE-ONLY STUDENT & ADMIN PORTAL
+            <span className="inline-block font-mono text-[11px] uppercase tracking-widest bg-clinical-teal-surface text-clinical-teal px-3.5 py-1.5 rounded-full font-bold border border-clinical-teal/20 shadow-xs">
+              <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1.5 text-clinical-teal" />
+              SECURE IMHS ACADEMIC & CLINICAL PORTAL
             </span>
           </motion.div>
 
