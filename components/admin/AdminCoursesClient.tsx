@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
   BookOpen, Plus, Edit3, Eye, CheckCircle2, XCircle,
-  Users, Layers, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight
+  Users, Layers, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink
 } from "lucide-react";
 
 interface CourseItem {
@@ -123,9 +123,91 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
         </span>
       </div>
 
-      {/* ── Courses Table ── */}
+      {/* ── Courses Container ── */}
       <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
-        <div className="overflow-x-auto">
+        
+        {/* 📱 Mobile Card View (screens < md) */}
+        <div className="block md:hidden divide-y divide-chart-grid/60">
+          {paginatedCourses.length === 0 ? (
+            <div className="p-8 text-center text-sage font-mono space-y-2">
+              <BookOpen className="w-8 h-8 mx-auto text-sage/50" />
+              <div>No courses matched &ldquo;{search}&rdquo;.</div>
+            </div>
+          ) : (
+            paginatedCourses.map((course) => {
+              const lessonsCount = course.chapters.reduce(
+                (acc, ch) => acc + ch.lessons.length,
+                0
+              );
+              const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
+
+              return (
+                <div
+                  key={course.id}
+                  className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold inline-block">
+                        {courseCode}
+                      </span>
+                      <h3 className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                        {course.title}
+                      </h3>
+                    </div>
+
+                    <div className="shrink-0">
+                      {course.published ? (
+                        <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
+                          <CheckCircle2 className="w-3 h-3 text-green-600" /> Live
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 bg-chart-red/10 text-chart-red border border-chart-red/20 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
+                          <XCircle className="w-3 h-3 text-chart-red" /> Draft
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-linen/50 p-2.5 rounded border border-chart-grid/50 font-mono text-xs">
+                    <div>
+                      <span className="text-sage text-[10px] block uppercase">Fee:</span>
+                      <span className="font-bold text-clinical-teal">{formatCurrency(course.price)}</span>
+                    </div>
+
+                    <div>
+                      <span className="text-sage text-[10px] block uppercase">Structure:</span>
+                      <span className="font-bold text-ink">{course.chapters.length} ch · {lessonsCount} les</span>
+                    </div>
+
+                    <div>
+                      <span className="text-sage text-[10px] block uppercase">Students:</span>
+                      <span className="font-bold text-ink">{course._count.enrollments}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-chart-grid/40">
+                    <Link href={`/admin/courses/${course.id}/edit`} className="flex-1">
+                      <Button size="sm" className="w-full h-8 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0">
+                        <Edit3 className="w-3 h-3" /> Syllabus Builder
+                      </Button>
+                    </Link>
+
+                    <Link href={`/courses/${course.slug}`} target="_blank">
+                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 text-sage">
+                        <Eye className="w-3 h-3" /> Preview
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* 💻 Desktop Table View (screens >= md) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs font-sans">
             <thead>
               <tr className="border-b border-chart-grid bg-linen/50 text-sage uppercase font-mono text-[10px]">
@@ -154,13 +236,18 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                   const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
 
                   return (
-                    <tr key={course.id} className="hover:bg-linen/30 transition-colors group">
+                    <tr
+                      key={course.id}
+                      className="hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                    >
                       <td className="p-4 font-semibold text-ink">
                         <div className="flex items-center gap-2.5">
-                          <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold">
+                          <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold group-hover:bg-clinical-teal group-hover:text-white transition-colors">
                             {courseCode}
                           </span>
-                          <span className="truncate max-w-xs text-sm">{course.title}</span>
+                          <span className="truncate max-w-xs text-sm group-hover:text-clinical-teal transition-colors">
+                            {course.title}
+                          </span>
                         </div>
                       </td>
 
@@ -194,13 +281,13 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/admin/courses/${course.id}/edit`}>
-                            <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0">
+                            <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 shadow-xs">
                               <Edit3 className="w-3 h-3" /> Syllabus Builder
                             </Button>
                           </Link>
 
                           <Link href={`/courses/${course.slug}`} target="_blank">
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1 text-sage">
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1 text-sage shadow-xs">
                               <Eye className="w-3 h-3" /> Preview
                             </Button>
                           </Link>

@@ -9,7 +9,7 @@ import { createPasswordResetWALink } from "@/lib/whatsapp";
 import {
   Search, UserPlus, MessageCircle, KeyRound, Edit3,
   Users, CheckCircle2, Copy, Check, RefreshCw, X, Save,
-  ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight
+  ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink
 } from "lucide-react";
 
 interface StudentItem {
@@ -133,7 +133,6 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
 
       const data = await res.json();
       if (res.ok && data.success) {
-        // Update local state
         setStudents((prev) =>
           prev.map((s) =>
             s.id === editModalStudent.id
@@ -179,21 +178,117 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-mono text-sage hidden md:inline">
+        <div className="flex items-center justify-between sm:justify-end gap-3">
+          <span className="text-xs font-mono text-sage">
             Total <strong className="text-ink">{filteredStudents.length}</strong> students
           </span>
           <Link href="/admin/students/new">
-            <Button className="gap-2 text-xs font-semibold bg-chart-red hover:bg-chart-red-hover text-white border-0">
+            <Button className="gap-2 text-xs font-semibold bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-sm">
               <UserPlus className="w-4 h-4" /> Onboard Student
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* Directory Table */}
+      {/* Directory Content Container */}
       <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
-        <div className="overflow-x-auto">
+        
+        {/* 📱 Mobile Card View (screens < md) */}
+        <div className="block md:hidden divide-y divide-chart-grid/60">
+          {paginatedStudents.length === 0 ? (
+            <div className="p-8 text-center text-sage font-mono space-y-2">
+              <Users className="w-8 h-8 mx-auto text-sage/50" />
+              <div>No student accounts matched your query &ldquo;{search}&rdquo;.</div>
+            </div>
+          ) : (
+            paginatedStudents.map((st) => (
+              <div
+                key={st.id}
+                onClick={() => router.push(`/admin/students/${st.id}`)}
+                className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 active:bg-linen cursor-pointer group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-sm shrink-0">
+                      {st.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                        {st.name}
+                      </div>
+                      <span className="inline-block mt-0.5 text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.2 rounded">
+                        Reg ID: {st.studentId}
+                      </span>
+                    </div>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-sage group-hover:text-clinical-teal shrink-0 mt-1" />
+                </div>
+
+                <div className="text-xs font-mono text-ink-muted space-y-1 bg-linen/50 p-2.5 rounded border border-chart-grid/50">
+                  <div className="truncate text-ink font-sans font-medium">{st.email}</div>
+                  <div className="text-clinical-teal text-[11px]">{st.phone}</div>
+                </div>
+
+                {/* Course Badges */}
+                <div className="space-y-1">
+                  <div className="text-[10px] font-mono text-sage uppercase">Enrolled Courses:</div>
+                  {st.enrollments.length === 0 ? (
+                    <span className="text-[10px] font-mono text-sage bg-linen px-2 py-0.5 rounded border border-chart-grid inline-block">
+                      No active courses
+                    </span>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {st.enrollments.map((e) => (
+                        <span
+                          key={e.course.id}
+                          className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold truncate max-w-[200px]"
+                        >
+                          {e.course.title}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Card Actions Footer */}
+                <div className="flex items-center justify-between pt-2 border-t border-chart-grid/40 text-xs">
+                  <div className="flex items-center gap-1 font-mono text-[11px] text-ink">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal" />
+                    <span className="font-bold">{st.progress.length}</span>
+                    <span className="text-sage text-[10px]">done</span>
+                  </div>
+
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-[11px] gap-1 border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10"
+                      onClick={() => openEditModal(st)}
+                    >
+                      <Edit3 className="w-3 h-3 text-clinical-teal" /> Edit
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-[11px] gap-1"
+                      onClick={() => {
+                        setResetModalStudent(st);
+                        setNewTempPassword("");
+                        setResetSuccessLink(null);
+                      }}
+                    >
+                      <KeyRound className="w-3 h-3 text-chart-red" /> Reset
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 💻 Desktop Table View (screens >= md) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs font-sans">
             <thead>
               <tr className="border-b border-chart-grid bg-linen/50 text-sage uppercase font-mono text-[10px]">
@@ -217,12 +312,12 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                   <tr
                     key={st.id}
                     onClick={() => router.push(`/admin/students/${st.id}`)}
-                    className="hover:bg-linen/40 transition-colors group cursor-pointer"
+                    className="hover:bg-clinical-teal/5 transition-all duration-200 group cursor-pointer border-l-4 border-l-transparent hover:border-l-clinical-teal"
                     title="Click row to view full student profile"
                   >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-xs">
+                        <div className="w-8 h-8 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-xs group-hover:scale-105 transition-transform">
                           {st.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -276,7 +371,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2.5 text-[11px] gap-1 font-semibold border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10"
+                          className="h-7 px-2.5 text-[11px] gap-1 font-semibold border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10 shadow-xs"
                           onClick={() => openEditModal(st)}
                         >
                           <Edit3 className="w-3 h-3 text-clinical-teal" />
@@ -286,7 +381,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2 text-[11px] gap-1"
+                          className="h-7 px-2 text-[11px] gap-1 shadow-xs"
                           onClick={() => {
                             setResetModalStudent(st);
                             setNewTempPassword("");
