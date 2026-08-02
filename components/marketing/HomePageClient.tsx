@@ -135,7 +135,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. CLEAN & SIMPLE HERO SECTION ─────────────────────────────── */}
-      <section className="relative min-h-[85vh] flex items-center justify-center bg-gradient-to-b from-clinical-teal-surface/40 via-surface to-surface px-4 sm:px-6 lg:px-8 pt-28 pb-16 border-b border-chart-grid">
+      <section className="relative min-h-[85vh] flex items-center justify-center bg-gradient-to-b from-clinical-teal-surface/40 via-surface to-surface px-4 sm:px-6 lg:px-8 pt-6 sm:pt-24 pb-10 sm:pb-16 border-b border-chart-grid">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
@@ -218,18 +218,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   className="object-cover object-top"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
-                
-                {/* Bottom Badge inside photo */}
-                <div className="absolute bottom-3 left-3 right-3 bg-surface/95 backdrop-blur-md p-3 rounded-xl border border-chart-grid shadow-lg flex items-center justify-between text-left">
-                  <div>
-                    <h4 className="text-[11px] font-bold text-ink font-sans">Institute of Medicine & Health Sciences</h4>
-                    <p className="text-[10px] font-mono text-clinical-teal">Maharagama Campus · Est. 2019</p>
-                  </div>
-                  <span className="bg-clinical-teal text-white font-mono text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0">
-                    Accredited
-                  </span>
-                </div>
               </div>
             </motion.div>
 
@@ -271,12 +259,18 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="pt-4 flex items-center justify-center lg:justify-start gap-3 border-t border-chart-grid w-full"
+              className="flex items-center gap-3 pt-2"
             >
-              <div className="flex gap-1 text-amber-500">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
+              <div className="flex -space-x-2">
+                <div className="w-8 h-8 rounded-full border-2 border-white bg-clinical-teal text-white flex items-center justify-center text-[10px] font-bold">
+                  DR
+                </div>
+                <div className="w-8 h-8 rounded-full border-2 border-white bg-chart-red text-white flex items-center justify-center text-[10px] font-bold">
+                  RN
+                </div>
+                <div className="w-8 h-8 rounded-full border-2 border-white bg-sage text-white flex items-center justify-center text-[10px] font-bold">
+                  ST
+                </div>
               </div>
               <div className="text-sm font-sans font-bold text-ink">
                 Over <span className="text-chart-red font-mono">3,500+</span> Active Students
@@ -300,18 +294,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 className="object-cover object-top"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
-              
-              {/* Bottom Badge inside photo */}
-              <div className="absolute bottom-4 left-4 right-4 bg-surface/95 backdrop-blur-md p-3.5 rounded-xl border border-chart-grid shadow-lg flex items-center justify-between">
-                <div>
-                  <h4 className="text-xs font-bold text-ink font-sans">Institute of Medicine & Health Sciences</h4>
-                  <p className="text-[11px] font-mono text-clinical-teal">Maharagama Campus · Est. 2019</p>
-                </div>
-                <span className="bg-clinical-teal text-white font-mono text-[10px] font-bold px-2.5 py-1 rounded-full">
-                  Accredited
-                </span>
-              </div>
             </div>
           </motion.div>
 
