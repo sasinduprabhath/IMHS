@@ -110,6 +110,7 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
                     alt={selectedMember.name}
                     fill
                     className="object-cover"
+                    unoptimized={selectedMember.photoUrl?.startsWith("http")}
                   />
                 </div>
                 <div className="min-w-0">

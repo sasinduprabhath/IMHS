@@ -420,12 +420,18 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                     {/* Cover Photo Frame */}
                     <div className="relative h-48 bg-linen overflow-hidden">
                       {course.coverImage ? (
-                        <Image
-                          src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
-                          alt={course.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
+                        (() => {
+                          const imgSrc = formatGoogleDriveImageUrl(course.coverImage) || course.coverImage;
+                          return (
+                            <Image
+                              src={imgSrc}
+                              alt={course.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              unoptimized={imgSrc.startsWith("http")}
+                            />
+                          );
+                        })()
                       ) : (
                         <div className="absolute inset-0 bg-gradient-to-br from-clinical-teal/20 to-chart-red/20 flex items-center justify-center">
                           <BookOpen className="w-12 h-12 text-clinical-teal/40" />

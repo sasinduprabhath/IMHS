@@ -119,6 +119,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                       fill
                       className="object-cover object-center"
                       priority
+                      unoptimized={coverSrc.startsWith("http")}
                     />
                     {/* Subtle bottom gradient for badge legibility */}
                     <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ink/80 to-transparent" />
@@ -317,7 +318,13 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   {displayInstructors.map((f: any) => (
                     <div key={f.id} className="flex items-center gap-3 p-3 border border-chart-grid rounded-xl bg-linen/20 hover:border-clinical-teal/30 transition-all group">
                       <div className="w-10 h-10 relative rounded-full overflow-hidden border-2 border-chart-grid group-hover:border-clinical-teal/40 transition-colors shrink-0">
-                        <Image src={f.photoUrl || "/lecturer.jpeg"} alt={f.name} fill className="object-cover" />
+                        <Image
+                          src={f.photoUrl || "/lecturer.jpeg"}
+                          alt={f.name}
+                          fill
+                          className="object-cover"
+                          unoptimized={!!f.photoUrl?.startsWith("http")}
+                        />
                       </div>
                       <div className="min-w-0">
                         <h4 className="text-xs font-semibold text-ink truncate">{f.name}</h4>
