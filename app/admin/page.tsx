@@ -111,9 +111,6 @@ export default async function AdminOverviewPage() {
               <span className="font-mono text-[10px] sm:text-xs text-chart-red uppercase font-bold tracking-wider bg-chart-red/10 border border-chart-red/20 px-3 py-0.5 rounded-full">
                 INSTITUTIONAL ADMINISTRATION
               </span>
-              <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-mono text-green-700 bg-green-50 border border-green-200 px-2.5 py-0.5 rounded-full font-semibold">
-                <Database className="w-3.5 h-3.5 text-green-600" /> MySQL Live Sync
-              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink">
               Executive Administration Dashboard

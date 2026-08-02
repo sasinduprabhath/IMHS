@@ -90,9 +90,6 @@ export default async function StudentDashboardPage() {
                 <span className="font-mono text-[10px] text-clinical-teal font-semibold uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-clinical-teal/20 block w-fit">
                   IMHS CLINICAL CANDIDATE
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full font-semibold">
-                  <ShieldCheck className="w-3 h-3 text-green-600" /> Active Student
-                </span>
               </div>
             </div>
 
@@ -100,9 +97,6 @@ export default async function StudentDashboardPage() {
               <div className="hidden sm:flex flex-wrap items-center gap-2">
                 <span className="font-mono text-[11px] text-clinical-teal font-semibold uppercase tracking-wider bg-white px-2.5 py-0.5 rounded border border-clinical-teal/20">
                   IMHS CLINICAL CANDIDATE
-                </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-                  <ShieldCheck className="w-3 h-3 text-green-600" /> Active Student
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink">
