@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   Clock,
   Users,
+  HelpCircle,
 } from "lucide-react";
 
 export const revalidate = 60;
@@ -123,52 +124,78 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                 <h2 className="text-xl font-display font-semibold text-ink">
                   Syllabus & Lesson Breakdown
                 </h2>
-                <p className="text-xs font-mono text-sage mt-0.5">
-                  {course.chapters.length} Chapters • {totalLessons} Lessons
-                </p>
+                {(() => {
+                  const allLessons = course.chapters.flatMap((ch: any) => ch.lessons);
+                  const questionsCount = allLessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                  const lessonsCount = allLessons.length - questionsCount;
+
+                  return (
+                    <p className="text-xs font-mono text-sage mt-0.5">
+                      {course.chapters.length} Chapters • {lessonsCount} Video & Document Lessons
+                      {questionsCount > 0 && ` • ${questionsCount} Practice Questions`}
+                    </p>
+                  );
+                })()}
               </div>
-              <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-chart-red bg-chart-red-light px-3 py-1 rounded">
+              <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-chart-red bg-chart-red/10 border border-chart-red/20 px-3 py-1 rounded">
                 <Lock className="w-3.5 h-3.5" /> Enrolled Access Only
               </div>
             </div>
 
             <div className="space-y-6">
-              {course.chapters.map((chapter: any, idx: number) => (
-                <div key={chapter.id} className="border border-chart-grid/80 rounded p-4 bg-linen/50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold font-mono text-ink">
-                      {chapter.title}
-                    </h3>
-                    <span className="text-[11px] font-mono text-sage">
-                      {chapter.lessons.length} Lessons
-                    </span>
+              {course.chapters.map((chapter: any) => {
+                const chQuestions = chapter.lessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                const chLessons = chapter.lessons.length - chQuestions;
+
+                return (
+                  <div key={chapter.id} className="border border-chart-grid/80 rounded p-4 bg-linen/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold font-mono text-ink">
+                        {chapter.title}
+                      </h3>
+                      <span className="text-[11px] font-mono text-sage">
+                        {chLessons > 0 ? `${chLessons} Lessons` : ""}{chQuestions > 0 ? ` ${chQuestions} Questions` : ""}
+                      </span>
+                    </div>
+
+                    <ul className="space-y-2 pt-1 border-t border-chart-grid/50">
+                      {chapter.lessons.map((lesson: any) => {
+                        const isQuiz = lesson.type === "QUIZ" || lesson.title?.startsWith("Quiz Q");
+                        const isDocument = !isQuiz && (lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId));
+                        const isPptx = lesson.title?.toLowerCase().includes("pptx") || lesson.driveFileId?.toLowerCase().includes("pptx");
+                        const docLabel = isPptx ? "PPTX" : "PDF";
+
+                        return (
+                          <li key={lesson.id} className="flex items-center justify-between text-xs text-ink-muted pl-2 py-1">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              {isQuiz ? (
+                                <HelpCircle className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                              ) : isDocument ? (
+                                <FileText className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              ) : (
+                                <Video className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
+                              )}
+                              <span className="truncate">{lesson.title}</span>
+                            </div>
+                            
+                            <span className="flex items-center gap-1 font-mono text-[10px] shrink-0">
+                              {isQuiz ? (
+                                <span className="text-purple-700 font-semibold bg-purple-50 border border-purple-200 px-2 py-0.5 rounded inline-flex items-center gap-1">
+                                  <HelpCircle className="w-3 h-3" /> Practice Question
+                                </span>
+                              ) : (
+                                <span className="text-sage">
+                                  <Lock className="w-3 h-3 inline mr-1" /> {isDocument ? `Locked ${docLabel}` : "Locked Video"}
+                                </span>
+                              )}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
-
-                  <ul className="space-y-2 pt-1 border-t border-chart-grid/50">
-                    {chapter.lessons.map((lesson: any) => {
-                      const isDocument = lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId);
-                      const isPptx = lesson.title?.toLowerCase().includes("pptx") || lesson.driveFileId?.toLowerCase().includes("pptx");
-                      const docLabel = isPptx ? "PPTX" : "PDF";
-
-                      return (
-                        <li key={lesson.id} className="flex items-center justify-between text-xs text-ink-muted pl-2 py-1">
-                          <div className="flex items-center gap-2">
-                            {isDocument ? (
-                              <FileText className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                            ) : (
-                              <Video className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
-                            )}
-                            <span>{lesson.title}</span>
-                          </div>
-                          <span className="flex items-center gap-1 font-mono text-[10px] text-sage">
-                            <Lock className="w-3 h-3" /> {isDocument ? `Locked ${docLabel}` : "Locked Video"}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
