@@ -50,7 +50,7 @@ async function main() {
   const termNames: Map<string, string> = new Map(); // term_id -> term_name
   const termTaxonomies: Map<string, string> = new Map(); // term_taxonomy_id -> term_id
 
-  const wpUsers: { id: string; login: string; pass: string; email: string; name: string }[] = [];
+  const wpUsers: { id: string; login: string; pass: string; email: string; name: string; phone?: string }[] = [];
 
   const fileStream = fs.createReadStream(targetSqlPath, { encoding: "utf8" });
   const rl = readline.createInterface({
@@ -142,7 +142,7 @@ async function main() {
           email: u.email,
           studentId: u.login.toUpperCase(),
           name: u.name || u.login,
-          phone: "+94770000000",
+          phone: u.phone ?? "",          // phone required by schema; legacy WP users have none
           passwordHash: u.pass, // Intact $wp$ bcrypt hash
           role,
           status: "ACTIVE",
