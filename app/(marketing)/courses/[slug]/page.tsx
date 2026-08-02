@@ -6,8 +6,6 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
-import { DoseCurve } from "@/components/marketing/DoseCurve";
-import { MolecularGridBackground } from "@/components/marketing/MolecularGridBackground";
 import {
   BookOpen,
   PhoneCall,
@@ -24,6 +22,7 @@ import {
   MessageCircle,
   Star,
   Layers,
+  ShieldCheck,
 } from "lucide-react";
 
 export const revalidate = 60;
@@ -69,7 +68,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
     course = cData;
     faculty = fData;
   } catch (error) {
-    console.error("Course detail DB connection error (MySQL):", error);
+    console.error("Course detail DB error:", error);
   }
 
   if (!course || !course.published) notFound();
@@ -88,141 +87,150 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
     : null;
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="min-h-screen bg-linen/20">
 
-      {/* ── POSTER HERO ────────────────────────────────────────────────── */}
-      <section className="relative min-h-[62vh] flex flex-col justify-end overflow-hidden">
-        {/* Full-bleed cover image */}
-        {coverSrc ? (
-          <div className="absolute inset-0">
-            <Image
-              src={coverSrc}
-              alt={course.title}
-              fill
-              className="object-cover object-center"
-              priority
-            />
-          </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/90 to-clinical-teal/40" />
-        )}
-
-        {/* Multi-layer gradient overlay for text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-transparent" />
-
-        {/* Top bar — back link floats over image */}
-        <div className="absolute top-0 left-0 right-0 pt-24 px-4 sm:px-6 lg:px-8 z-20">
-          <div className="max-w-7xl mx-auto">
-            <Link
-              href="/courses"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-white/60 hover:text-white transition-colors group"
-            >
-              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              Back to Course Catalog
-            </Link>
-          </div>
+      {/* ── TOP NAV BAR (back link) ─────────────────────────────────────── */}
+      <div className="border-b border-chart-grid bg-white/80 backdrop-blur-sm sticky top-16 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center">
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-sage hover:text-clinical-teal transition-colors group"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Course Catalog
+          </Link>
         </div>
+      </div>
 
-        {/* Course info overlaid on poster */}
-        <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 pt-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
-            {/* Left: identity */}
-            <div className="lg:col-span-8 space-y-4">
-              {/* Badges */}
+      {/* ── MAIN LAYOUT ─────────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          {/* ══ LEFT: POSTER IMAGE (sticky, tall) ═══════════════════════════ */}
+          <div className="lg:col-span-4 xl:col-span-3">
+            <div className="sticky top-32">
+              {/* Poster card */}
+              <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid/50 bg-ink">
+                {coverSrc ? (
+                  <div className="relative w-full aspect-[3/4]">
+                    <Image
+                      src={coverSrc}
+                      alt={course.title}
+                      fill
+                      className="object-cover object-center"
+                      priority
+                    />
+                    {/* Subtle bottom gradient for badge legibility */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ink/80 to-transparent" />
+                    {/* Course code badge on poster */}
+                    <div className="absolute bottom-4 left-4">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold text-white bg-ink/60 backdrop-blur-sm border border-white/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        {courseCode}
+                      </span>
+                    </div>
+                    {/* Stars top right */}
+                    <div className="absolute top-3 right-3 flex items-center gap-0.5 bg-ink/50 backdrop-blur-sm rounded-full px-2 py-1">
+                      {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 fill-chart-red text-chart-red" />)}
+                    </div>
+                  </div>
+                ) : (
+                  /* No-image fallback poster */
+                  <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-ink via-clinical-teal/30 to-chart-red/20 flex flex-col items-center justify-center gap-4 p-6">
+                    <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
+                      <BookOpen className="w-8 h-8 text-white/60" />
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-[10px] font-mono font-bold text-clinical-teal uppercase tracking-widest">{courseCode}</p>
+                      <p className="text-sm font-display font-semibold text-white text-center leading-snug">{course.title}</p>
+                    </div>
+                    <div className="absolute bottom-4 left-4 right-4 flex justify-center">
+                      <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest">IMHS Accredited</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Enrollment count badge below poster */}
+              <div className="mt-3 flex items-center justify-center gap-4 text-xs font-mono text-sage">
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-clinical-teal" />
+                  {course.totalEnrolled || 450}+ Enrolled
+                </span>
+                <span className="text-chart-grid">·</span>
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-sage" />
+                  IMHS Accredited
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ══ MIDDLE: Course info + Syllabus + Instructors ════════════════ */}
+          <div className="lg:col-span-5 xl:col-span-6 space-y-6">
+
+            {/* Course identity */}
+            <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-white bg-white/15 backdrop-blur-sm border border-white/25 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
                   {courseCode}
                 </span>
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-white/70 border border-white/20 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  <Award className="w-3 h-3" /> Accredited Clinical Certification
+                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-sage border border-sage/25 bg-sage/5 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <Award className="w-3 h-3" /> Accredited Certification
                 </span>
               </div>
 
-              {/* Title */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white leading-tight drop-shadow-lg">
+              <h1 className="text-2xl sm:text-3xl font-display font-bold text-ink leading-snug">
                 {course.title}
               </h1>
 
-              {/* Stats row */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
-                <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
+              {/* Stats pills */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
                   <Layers className="w-3.5 h-3.5 text-clinical-teal" />
                   {course.chapters.length} Chapters
                 </span>
-                <span className="text-white/30">·</span>
-                <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
+                <span className="text-chart-grid text-xs">·</span>
+                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
                   <Video className="w-3.5 h-3.5 text-clinical-teal" />
                   {lessonsCount} Lessons
                 </span>
                 {questionsCount > 0 && (
                   <>
-                    <span className="text-white/30">·</span>
-                    <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
-                      <HelpCircle className="w-3.5 h-3.5 text-purple-300" />
-                      {questionsCount} Practice Questions
+                    <span className="text-chart-grid text-xs">·</span>
+                    <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
+                      <HelpCircle className="w-3.5 h-3.5 text-purple-400" />
+                      {questionsCount} Practice Qs
                     </span>
                   </>
                 )}
-                <span className="text-white/30">·</span>
-                <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
-                  <Users className="w-3.5 h-3.5 text-clinical-teal" />
-                  {course.totalEnrolled || 450}+ Enrolled
-                </span>
-                <span className="text-white/30">·</span>
-                <span className="flex items-center gap-0.5">
-                  {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-chart-red text-chart-red" />)}
+                <span className="text-chart-grid text-xs">·</span>
+                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
+                  <Clock className="w-3.5 h-3.5 text-amber-500" />
+                  {course.enrollmentValidity || "Lifetime"} Access
                 </span>
               </div>
             </div>
 
-            {/* Right: price teaser floating over poster (desktop) */}
-            <div className="lg:col-span-4 hidden lg:flex justify-end items-end">
-              <div className="text-right space-y-1">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-white/50">Total Course Fee</p>
-                <p className="text-4xl font-mono font-bold text-white drop-shadow-lg">{formatCurrency(course.price)}</p>
-                <p className="text-[11px] text-white/50">Lifetime portal access &amp; certification</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── MAIN CONTENT ─────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-          {/* ── LEFT COL: Description + Syllabus + Instructors ── */}
-          <div className="lg:col-span-8 space-y-8">
-
-            {/* About this course */}
-            <div className="bg-white border border-chart-grid rounded-2xl p-6 sm:p-8 shadow-sm space-y-3">
-              <h2 className="text-xs font-mono uppercase tracking-widest text-sage font-bold">
-                About This Course
-              </h2>
-              <p className="text-base text-ink-muted leading-relaxed font-sans">
-                {course.description}
-              </p>
+            {/* Description */}
+            <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm space-y-2">
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold">About This Course</h2>
+              <p className="text-sm text-ink-muted leading-relaxed font-sans">{course.description}</p>
             </div>
 
-            {/* What you'll get */}
-            <div className="bg-white border border-chart-grid rounded-2xl p-6 sm:p-8 shadow-sm">
-              <h2 className="text-xs font-mono uppercase tracking-widest text-sage font-bold mb-4">
-                What's Included
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* What's included (compact grid) */}
+            <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm">
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold mb-3">What&apos;s Included</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
-                  { icon: Video, text: "Domain-locked HD video lectures" },
-                  { icon: FileText, text: "PDF lab reference guides & case studies" },
+                  { icon: Video, text: "HD video lectures (domain-locked)" },
+                  { icon: FileText, text: "PDF lab guides & case studies" },
                   { icon: Award, text: "Official IMHS Completion Certificate" },
-                  { icon: MessageCircle, text: "WhatsApp administrator support" },
+                  { icon: MessageCircle, text: "WhatsApp admin support" },
                   { icon: Clock, text: `${course.enrollmentValidity || "Lifetime"} portal access` },
                   { icon: GraduationCap, text: "SLMC exam preparation materials" },
                 ].map(({ icon: Icon, text }) => (
-                  <div key={text} className="flex items-center gap-2.5 text-sm text-ink">
-                    <div className="w-6 h-6 rounded-lg bg-clinical-teal/10 border border-clinical-teal/15 flex items-center justify-center shrink-0">
-                      <Icon className="w-3.5 h-3.5 text-clinical-teal" />
-                    </div>
+                  <div key={text} className="flex items-center gap-2 text-xs text-ink">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
                     {text}
                   </div>
                 ))}
@@ -231,84 +239,63 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
             {/* Syllabus */}
             <div className="bg-white border border-chart-grid rounded-2xl overflow-hidden shadow-sm">
-              {/* Syllabus header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-chart-grid bg-linen/40">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-chart-grid bg-linen/40">
                 <div>
-                  <h2 className="text-base font-display font-semibold text-ink">
-                    Syllabus &amp; Lesson Breakdown
-                  </h2>
-                  <p className="text-xs font-mono text-sage mt-0.5">
-                    {course.chapters.length} Chapters · {lessonsCount} Video &amp; Document Lessons
-                    {questionsCount > 0 && ` · ${questionsCount} Practice Questions`}
+                  <h2 className="text-sm font-display font-semibold text-ink">Syllabus &amp; Lesson Breakdown</h2>
+                  <p className="text-[10px] font-mono text-sage mt-0.5">
+                    {course.chapters.length} Chapters · {lessonsCount} Lessons
+                    {questionsCount > 0 && ` · ${questionsCount} Practice Qs`}
                   </p>
                 </div>
-                <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-chart-red bg-chart-red/8 border border-chart-red/20 px-3 py-1.5 rounded-full">
-                  <Lock className="w-3 h-3" /> Enrolled Access Only
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-chart-red bg-chart-red/8 border border-chart-red/20 px-2.5 py-1 rounded-full">
+                  <Lock className="w-3 h-3" /> Enrolled Only
                 </span>
               </div>
 
-              {/* Chapter accordion rows */}
-              <div className="divide-y divide-chart-grid/60">
+              <div className="divide-y divide-chart-grid/50">
                 {course.chapters.map((chapter: any, idx: number) => {
-                  const chQuestions = chapter.lessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
-                  const chLessons = chapter.lessons.length - chQuestions;
-
+                  const chQ = chapter.lessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                  const chL = chapter.lessons.length - chQ;
                   return (
                     <div key={chapter.id}>
-                      {/* Chapter header */}
-                      <div className="flex items-center gap-4 px-6 py-4 bg-linen/20 hover:bg-linen/40 transition-colors">
-                        <div className="w-7 h-7 rounded-lg bg-clinical-teal text-white text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                      <div className="flex items-center gap-3 px-5 py-3 bg-linen/20">
+                        <div className="w-6 h-6 rounded-lg bg-clinical-teal text-white text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
                           {String(idx + 1).padStart(2, "0")}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold font-sans text-ink truncate">
-                            {chapter.title}
-                          </h3>
-                          <p className="text-[10px] font-mono text-sage mt-0.5">
-                            {chLessons > 0 ? `${chLessons} lesson${chLessons > 1 ? "s" : ""}` : ""}
-                            {chLessons > 0 && chQuestions > 0 ? " · " : ""}
-                            {chQuestions > 0 ? `${chQuestions} question${chQuestions > 1 ? "s" : ""}` : ""}
+                          <h3 className="text-xs font-semibold font-sans text-ink truncate">{chapter.title}</h3>
+                          <p className="text-[10px] font-mono text-sage">
+                            {chL > 0 ? `${chL} lesson${chL > 1 ? "s" : ""}` : ""}
+                            {chL > 0 && chQ > 0 ? " · " : ""}
+                            {chQ > 0 ? `${chQ} question${chQ > 1 ? "s" : ""}` : ""}
                           </p>
                         </div>
                       </div>
-
-                      {/* Lessons list */}
-                      <ul className="divide-y divide-chart-grid/30">
+                      <ul className="divide-y divide-chart-grid/25">
                         {chapter.lessons.map((lesson: any) => {
                           const isQuiz = lesson.type === "QUIZ" || lesson.title?.startsWith("Quiz Q");
-                          const isDocument = !isQuiz && (lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId));
-                          const isPptx = lesson.title?.toLowerCase().includes("pptx") || lesson.driveFileId?.toLowerCase().includes("pptx");
-                          const docLabel = isPptx ? "PPTX" : "PDF";
-
+                          const isDoc = !isQuiz && (lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId));
+                          const isPptx = lesson.title?.toLowerCase().includes("pptx");
                           return (
-                            <li key={lesson.id} className="flex items-center justify-between px-6 py-3 hover:bg-linen/10 transition-colors group">
-                              <div className="flex items-center gap-3 overflow-hidden min-w-0">
-                                <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${
+                            <li key={lesson.id} className="flex items-center justify-between px-5 py-2.5 hover:bg-linen/10 transition-colors">
+                              <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
+                                <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
                                   isQuiz ? "bg-purple-50 border border-purple-200" :
-                                  isDocument ? "bg-amber-50 border border-amber-200" :
-                                  "bg-clinical-teal/8 border border-clinical-teal/15"
-                                }`}>
-                                  {isQuiz ? (
-                                    <HelpCircle className="w-3 h-3 text-purple-600" />
-                                  ) : isDocument ? (
-                                    <FileText className="w-3 h-3 text-amber-600" />
-                                  ) : (
-                                    <Video className="w-3 h-3 text-clinical-teal" />
-                                  )}
+                                  isDoc ? "bg-amber-50 border border-amber-200" :
+                                  "bg-clinical-teal/8 border border-clinical-teal/15"}`}>
+                                  {isQuiz ? <HelpCircle className="w-2.5 h-2.5 text-purple-600" /> :
+                                   isDoc ? <FileText className="w-2.5 h-2.5 text-amber-600" /> :
+                                   <Video className="w-2.5 h-2.5 text-clinical-teal" />}
                                 </div>
-                                <span className="text-xs text-ink-muted truncate group-hover:text-ink transition-colors">
-                                  {lesson.title}
-                                </span>
+                                <span className="text-xs text-ink-muted truncate">{lesson.title}</span>
                               </div>
-                              <span className="shrink-0 ml-3">
+                              <span className="shrink-0 ml-2">
                                 {isQuiz ? (
-                                  <span className="text-[10px] font-mono font-bold text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
-                                    Practice Q
-                                  </span>
+                                  <span className="text-[9px] font-mono font-bold text-purple-600 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-full">Q</span>
                                 ) : (
-                                  <span className="text-[10px] font-mono text-sage flex items-center gap-1">
-                                    <Lock className="w-2.5 h-2.5" />
-                                    {isDocument ? docLabel : "Video"}
+                                  <span className="text-[9px] font-mono text-sage flex items-center gap-0.5">
+                                    <Lock className="w-2 h-2" />
+                                    {isDoc ? (isPptx ? "PPTX" : "PDF") : "Video"}
                                   </span>
                                 )}
                               </span>
@@ -324,22 +311,17 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
             {/* Instructors */}
             {displayInstructors.length > 0 && (
-              <div className="bg-white border border-chart-grid rounded-2xl p-6 sm:p-8 shadow-sm space-y-4">
-                <div>
-                  <h2 className="text-xs font-mono uppercase tracking-widest text-sage font-bold">
-                    Course Instructors
-                  </h2>
-                  <p className="text-[11px] font-mono text-sage/70 mt-0.5">Senior faculty leading this program</p>
-                </div>
+              <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm space-y-3">
+                <h2 className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold">Course Instructors</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {displayInstructors.map((f: any) => (
-                    <div key={f.id} className="flex items-center gap-3 p-4 border border-chart-grid rounded-xl bg-linen/20 hover:border-clinical-teal/30 hover:bg-clinical-teal/3 transition-all group">
-                      <div className="w-12 h-12 relative rounded-full overflow-hidden border-2 border-chart-grid group-hover:border-clinical-teal/40 transition-colors shrink-0">
+                    <div key={f.id} className="flex items-center gap-3 p-3 border border-chart-grid rounded-xl bg-linen/20 hover:border-clinical-teal/30 transition-all group">
+                      <div className="w-10 h-10 relative rounded-full overflow-hidden border-2 border-chart-grid group-hover:border-clinical-teal/40 transition-colors shrink-0">
                         <Image src={f.photoUrl || "/lecturer.jpeg"} alt={f.name} fill className="object-cover" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-sm font-semibold text-ink font-sans truncate">{f.name}</h4>
-                        <p className="text-[11px] font-mono text-clinical-teal truncate">{f.title}</p>
+                        <h4 className="text-xs font-semibold text-ink truncate">{f.name}</h4>
+                        <p className="text-[10px] font-mono text-clinical-teal truncate">{f.title}</p>
                       </div>
                     </div>
                   ))}
@@ -348,67 +330,64 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
             )}
           </div>
 
-          {/* ── RIGHT COL: Sticky enrollment card ── */}
-          <div className="lg:col-span-4">
-            <div className="sticky top-24 space-y-4">
+          {/* ══ RIGHT: Sticky enrollment card ══════════════════════════════ */}
+          <div className="lg:col-span-3 xl:col-span-3">
+            <div className="sticky top-32 space-y-4">
 
-              {/* Main enrollment card — no image here, poster above is the image */}
-              <div className="bg-white border border-chart-grid rounded-2xl overflow-hidden shadow-lg">
-                {/* No-image fallback accent bar */}
-                {!coverSrc && (
-                  <div className="h-2 bg-gradient-to-r from-clinical-teal to-chart-red" />
-                )}
+              {/* Enrollment card */}
+              <div className="bg-white border border-chart-grid rounded-2xl overflow-hidden shadow-xl">
+                {/* Teal-red accent stripe at top */}
+                <div className="h-1.5 bg-gradient-to-r from-clinical-teal via-clinical-teal to-chart-red" />
 
                 <div className="p-5 space-y-5">
-                  {/* Price */}
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-mono uppercase tracking-widest text-sage">Total Course Fee</p>
+                  {/* Price block */}
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-mono uppercase tracking-widest text-sage">Total Course Fee</p>
                     <p className="text-3xl font-mono font-bold text-clinical-teal">{formatCurrency(course.price)}</p>
-                    <p className="text-[11px] text-ink-muted">Lifetime portal access &amp; printable certification.</p>
+                    <p className="text-[10px] text-ink-muted">Lifetime portal access &amp; certification</p>
                   </div>
 
-                  {/* CTA */}
+                  {/* Primary CTA */}
                   <div className="space-y-2">
                     <Link href={createCourseInquiryWALink(course.title)} target="_blank" rel="noopener noreferrer" className="block">
-                      <button className="w-full flex items-center justify-center gap-2 bg-chart-red hover:bg-chart-red-hover text-white font-bold text-sm py-3 px-5 rounded-full transition-colors shadow-md shadow-chart-red/20">
+                      <button className="w-full flex items-center justify-center gap-2 bg-chart-red hover:bg-chart-red-hover text-white font-bold text-sm py-3 px-5 rounded-full transition-all shadow-lg shadow-chart-red/20 hover:shadow-chart-red/30 hover:-translate-y-px">
                         <PhoneCall className="w-4 h-4" />
                         Inquire &amp; Enroll Now
                       </button>
                     </Link>
                     <Link href="/contact" className="block">
-                      <button className="w-full flex items-center justify-center gap-2 border border-chart-grid text-ink-muted hover:border-clinical-teal/40 hover:text-clinical-teal font-medium text-xs py-2.5 px-5 rounded-full transition-colors bg-linen/30">
+                      <button className="w-full flex items-center justify-center gap-2 border border-chart-grid text-ink-muted hover:border-clinical-teal/50 hover:text-clinical-teal text-xs py-2.5 px-5 rounded-full transition-colors bg-linen/30">
                         Send an inquiry form
                       </button>
                     </Link>
-                    <p className="text-[10px] text-center text-sage font-mono pt-0.5">
-                      Portal credentials delivered via WhatsApp
+                    <p className="text-[9px] text-center text-sage font-mono">
+                      Credentials delivered via WhatsApp
                     </p>
                   </div>
 
-                  {/* Course specs */}
-                  <div className="border-t border-chart-grid/60 pt-4 space-y-2.5">
+                  {/* Spec rows */}
+                  <div className="border-t border-chart-grid/50 pt-4 space-y-2.5">
                     {[
-                      { icon: Clock, text: course.enrollmentValidity || "Lifetime Access", label: "Validity" },
-                      { icon: Users, text: `${course.totalEnrolled || 450}+ Students`, label: "Enrolled" },
-                      { icon: Layers, text: `${course.chapters.length} Chapters · ${lessonsCount} Lessons`, label: "Content" },
-                    ].map(({ icon: Icon, text, label }) => (
-                      <div key={label} className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-2 text-ink-muted font-mono">
-                          <Icon className="w-3.5 h-3.5 text-clinical-teal" />
-                          {label}
+                      { icon: Clock, label: "Validity", value: course.enrollmentValidity || "Lifetime" },
+                      { icon: Users, label: "Enrolled", value: `${course.totalEnrolled || 450}+ Students` },
+                      { icon: Layers, label: "Content", value: `${course.chapters.length} Ch · ${lessonsCount} Lessons` },
+                    ].map(({ icon: Icon, label, value }) => (
+                      <div key={label} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-[11px] font-mono text-ink-muted">
+                          <Icon className="w-3.5 h-3.5 text-clinical-teal" /> {label}
                         </span>
-                        <span className="font-semibold text-ink text-right">{text}</span>
+                        <span className="text-[11px] font-semibold text-ink">{value}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Feature checkmarks */}
-                  <div className="space-y-1.5 pt-1">
+                  {/* Checkmarks */}
+                  <div className="space-y-1.5 border-t border-chart-grid/50 pt-3">
                     {[
-                      "Domain-locked HD video lectures",
-                      "PDF lab guides & case studies",
-                      "Official IMHS certificate",
-                      "WhatsApp support access",
+                      "HD video lectures",
+                      "PDF lab guides & cases",
+                      "IMHS completion certificate",
+                      "WhatsApp support",
                     ].map((f) => (
                       <div key={f} className="flex items-center gap-2 text-[11px] text-ink-muted">
                         <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
@@ -419,13 +398,13 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                 </div>
               </div>
 
-              {/* WhatsApp quick-contact card */}
-              <div className="bg-clinical-teal/5 border border-clinical-teal/20 rounded-2xl p-4 space-y-2 text-center">
-                <p className="text-xs font-mono text-sage uppercase tracking-wider">Have questions?</p>
+              {/* WhatsApp nudge */}
+              <div className="bg-clinical-teal/5 border border-clinical-teal/20 rounded-xl p-3 text-center">
+                <p className="text-[10px] font-mono text-sage uppercase tracking-wider mb-1.5">Have questions?</p>
                 <Link href={createCourseInquiryWALink(course.title)} target="_blank" rel="noopener noreferrer">
-                  <button className="flex items-center justify-center gap-2 w-full py-2 text-xs font-semibold text-clinical-teal hover:text-clinical-teal-hover transition-colors">
+                  <button className="flex items-center justify-center gap-2 w-full text-xs font-semibold text-clinical-teal hover:text-clinical-teal-hover transition-colors py-1">
                     <MessageCircle className="w-4 h-4" />
-                    Chat with an advisor on WhatsApp
+                    Chat on WhatsApp
                   </button>
                 </Link>
               </div>
