@@ -460,13 +460,21 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                         </p>
                       </div>
 
-                      {/* Course Meta (Chapters, Lessons, Validity, Total Enrolled) */}
+                      {/* Course Meta (Chapters, Lessons, Questions, Validity, Total Enrolled) */}
                       <div className="space-y-1.5 pt-2 border-t border-chart-grid/60">
                         <div className="flex items-center justify-between text-[11px] font-mono text-sage">
-                          <span className="flex items-center gap-1">
-                            <BookOpen className="w-3.5 h-3.5 text-clinical-teal" />
-                            {course.chapters.length} Ch · {totalLessons} Lessons
-                          </span>
+                          {(() => {
+                            const allItems = course.chapters.flatMap((ch) => ch.lessons);
+                            const qCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                            const lCount = allItems.length - qCount;
+
+                            return (
+                              <span className="flex items-center gap-1">
+                                <BookOpen className="w-3.5 h-3.5 text-clinical-teal" />
+                                {course.chapters.length} Ch · {lCount} Lessons {qCount > 0 ? `· ${qCount} Questions` : ""}
+                              </span>
+                            );
+                          })()}
                           <span className="flex items-center gap-1 text-ink font-semibold">
                             <Clock className="w-3.5 h-3.5 text-amber-600" />
                             {course.enrollmentValidity || "Lifetime Access"}

@@ -177,7 +177,17 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
 
                     <div>
                       <span className="text-sage text-[10px] block uppercase">Structure:</span>
-                      <span className="font-bold text-ink">{course.chapters.length} ch · {lessonsCount} les</span>
+                      {(() => {
+                        const allItems = course.chapters.flatMap((ch) => ch.lessons);
+                        const qCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                        const lCount = allItems.length - qCount;
+
+                        return (
+                          <span className="font-bold text-ink">
+                            {course.chapters.length} ch · {lCount} les {qCount > 0 ? `· ${qCount} q` : ""}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     <div>
@@ -268,7 +278,23 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                       </td>
 
                       <td className="p-4 font-mono text-ink-muted">
-                        <span className="font-bold text-ink">{course.chapters.length}</span> chapters · <span className="font-bold text-ink">{lessonsCount}</span> lessons
+                        {(() => {
+                          const allItems = course.chapters.flatMap((ch) => ch.lessons);
+                          const questionsCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                          const lessonsCount = allItems.length - questionsCount;
+
+                          return (
+                            <div>
+                              <span className="font-bold text-ink">{course.chapters.length}</span> chapters ·{" "}
+                              <span className="font-bold text-ink">{lessonsCount}</span> lessons
+                              {questionsCount > 0 && (
+                                <span className="font-bold text-clinical-teal text-[11px] block">
+                                  + {questionsCount} practice questions
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       <td className="p-4 font-mono">

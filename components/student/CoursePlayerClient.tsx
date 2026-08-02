@@ -18,6 +18,7 @@ import {
   ArrowLeft,
   CheckSquare,
   Lock,
+  HelpCircle,
 } from "lucide-react";
 
 interface Lesson {
@@ -150,7 +151,8 @@ export function CoursePlayerClient({
                   {chapter.lessons.map((lesson) => {
                     const isSelected = lesson.id === currentLessonId;
                     const isDone = completedLessonIds.has(lesson.id);
-                    const isDocument = lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId);
+                    const isQuiz = lesson.type === "QUIZ" || lesson.title?.startsWith("Quiz Q");
+                    const isDocument = !isQuiz && (lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId));
                     const isPptx = lesson.title?.toLowerCase().includes("pptx") || lesson.driveFileId?.toLowerCase().includes("pptx");
                     const docBadge = isPptx ? "PPTX" : "PDF";
 
@@ -184,12 +186,14 @@ export function CoursePlayerClient({
                         <span className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1 ${
                           isSelected
                             ? "bg-white/20 text-white"
-                            : isDocument
-                              ? "bg-amber-100 text-amber-800 border border-amber-200"
-                              : "bg-blue-50 text-blue-700 border border-blue-200"
+                            : isQuiz
+                              ? "bg-purple-100 text-purple-800 border border-purple-200"
+                              : isDocument
+                                ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                : "bg-blue-50 text-blue-700 border border-blue-200"
                         }`}>
-                          {isDocument ? <FileText className="w-3 h-3" /> : <Video className="w-3 h-3" />}
-                          {isDocument ? docBadge : "VIDEO"}
+                          {isQuiz ? <HelpCircle className="w-3 h-3 text-purple-700" /> : isDocument ? <FileText className="w-3 h-3" /> : <Video className="w-3 h-3" />}
+                          {isQuiz ? "QUESTION" : isDocument ? docBadge : "VIDEO"}
                         </span>
                       </button>
                     );
@@ -204,8 +208,33 @@ export function CoursePlayerClient({
         <div className="lg:col-span-8 space-y-6">
           {currentLesson ? (
             <div className="space-y-6">
-              {/* Conditional Renderer: VIDEO vs DOCUMENT (PDF / PPTX) */}
-              {currentLesson.type === "DOCUMENT" || (!currentLesson.vimeoVideoId && currentLesson.driveFileId) ? (
+              {/* Conditional Renderer: QUIZ vs DOCUMENT (PDF / PPTX) vs VIDEO */}
+              {currentLesson.type === "QUIZ" || currentLesson.title?.startsWith("Quiz Q") ? (
+                <div className="bg-surface rounded-card overflow-hidden border-2 border-chart-grid p-6 sm:p-8 space-y-6 shadow-paper-stack min-h-[500px]">
+                  <div className="flex items-center gap-3 border-b border-chart-grid pb-4">
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 border border-purple-200 flex items-center justify-center shrink-0">
+                      <HelpCircle className="w-5 h-5 text-purple-700" />
+                    </div>
+                    <div>
+                      <span className="font-mono text-[10px] text-purple-700 font-bold uppercase tracking-wider block bg-purple-50 border border-purple-200 px-2 py-0.5 rounded w-max">
+                        PRACTICE QUESTION & CLINICAL RATIONALE
+                      </span>
+                      <h3 className="text-base sm:text-lg font-semibold text-ink font-sans mt-0.5">
+                        {currentLesson.title}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {currentLesson.content ? (
+                    <div
+                      className="prose prose-sm text-ink max-w-none font-sans leading-relaxed space-y-4"
+                      dangerouslySetInnerHTML={{ __html: currentLesson.content }}
+                    />
+                  ) : (
+                    <p className="text-xs font-mono text-sage">No detailed explanation provided for this practice question.</p>
+                  )}
+                </div>
+              ) : currentLesson.type === "DOCUMENT" || (!currentLesson.vimeoVideoId && currentLesson.driveFileId) ? (
                 <div className="bg-surface rounded-card overflow-hidden border-2 border-chart-grid relative shadow-paper-stack flex flex-col min-h-[600px] sm:min-h-[700px] w-full">
                   <div className="bg-linen border-b border-chart-grid p-3 sm:p-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2.5 min-w-0">
