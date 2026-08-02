@@ -13,22 +13,14 @@ import {
   MoveDown,
   Video,
   FileText,
-  BookOpen,
   CheckCircle2,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Edit3,
-  Search,
 } from "lucide-react";
 
 interface LessonInput {
   id?: string;
   title: string;
   order: number;
-  type?: "VIDEO" | "DOCUMENT" | "QUIZ";
+  type?: "VIDEO" | "DOCUMENT";
   vimeoVideoId: string;
   driveFileId: string;
   content: string;
@@ -73,8 +65,6 @@ interface CourseBuilderProps {
   };
 }
 
-const QUIZZES_PER_PAGE = 5;
-
 export function CourseBuilderClient({ course }: CourseBuilderProps) {
   const router = useRouter();
 
@@ -94,16 +84,9 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
   const [published, setPublished] = useState(course.published);
   const [coverImage, setCoverImage] = useState(course.coverImage || "");
 
-  // Separate regular Chapters from the Question Bank chapter
-  const isQuestionBankChapter = (ch: { title: string }) =>
-    ch.title.toLowerCase().includes("question bank") || ch.title.toLowerCase().includes("practice quiz");
-
-  const initialRegularChapters = course.chapters.filter((ch) => !isQuestionBankChapter(ch));
-  const initialQuestionBankChapter = course.chapters.find((ch) => isQuestionBankChapter(ch));
-
-  // Regular Lecture Chapters State
+  // Lecture Chapters State
   const [chapters, setChapters] = useState<ChapterInput[]>(
-    initialRegularChapters.map((ch) => ({
+    course.chapters.map((ch) => ({
       id: ch.id,
       title: ch.title,
       order: ch.order,
@@ -119,30 +102,8 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
     }))
   );
 
-  // Question Bank State
-  const [quizQuestions, setQuizQuestions] = useState<LessonInput[]>(
-    initialQuestionBankChapter
-      ? initialQuestionBankChapter.lessons.map((l) => ({
-          id: l.id,
-          title: l.title,
-          order: l.order,
-          type: "QUIZ",
-          vimeoVideoId: "",
-          driveFileId: "",
-          content: l.content || "",
-        }))
-      : []
-  );
-
-  const [quizPage, setQuizPage] = useState(1);
-  const [quizSearch, setQuizSearch] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-
-  // Question Creator / Modal State
-  const [newQuestionTitle, setNewQuestionTitle] = useState("");
-  const [newQuestionExplanation, setNewQuestionExplanation] = useState("");
-  const [editingQuizIdx, setEditingQuizIdx] = useState<number | null>(null);
 
   // Chapter Manipulation
   const addChapter = () => {
@@ -229,54 +190,6 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
     });
   };
 
-  // Quiz Question Bank Manipulation
-  const addQuizQuestion = () => {
-    if (!newQuestionTitle.trim()) {
-      alert("Please enter a question title.");
-      return;
-    }
-
-    const nextOrder = quizQuestions.length + 1;
-    const formattedTitle = newQuestionTitle.startsWith("Quiz Q")
-      ? newQuestionTitle
-      : `Quiz Q${nextOrder}: ${newQuestionTitle}`;
-
-    setQuizQuestions((prev) => [
-      ...prev,
-      {
-        title: formattedTitle,
-        order: nextOrder,
-        type: "QUIZ",
-        vimeoVideoId: "",
-        driveFileId: "",
-        content: newQuestionExplanation || "<p>Detailed clinical explanation and correct answer rationale.</p>",
-      },
-    ]);
-
-    setNewQuestionTitle("");
-    setNewQuestionExplanation("");
-    setQuizPage(Math.ceil((quizQuestions.length + 1) / QUIZZES_PER_PAGE));
-  };
-
-  const removeQuizQuestion = (qIdx: number) => {
-    if (confirm("Are you sure you want to delete this practice question?")) {
-      setQuizQuestions((prev) => prev.filter((_, idx) => idx !== qIdx));
-    }
-  };
-
-  const updateQuizQuestion = (qIdx: number, titleVal: string, contentVal: string) => {
-    setQuizQuestions((prev) => {
-      const next = [...prev];
-      next[qIdx] = {
-        ...next[qIdx],
-        title: titleVal,
-        content: contentVal,
-      };
-      return next;
-    });
-    setEditingQuizIdx(null);
-  };
-
   // Save All Changes to Server
   const handleSaveAll = async () => {
     setIsSaving(true);
@@ -303,31 +216,11 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
         }),
       });
 
-      // Assemble final chapters array: regular chapters + Question Bank chapter
-      const allChaptersToSave = [...chapters];
-
-      if (quizQuestions.length > 0) {
-        allChaptersToSave.push({
-          id: initialQuestionBankChapter?.id,
-          title: "Practice Quizzes & Clinical Question Bank",
-          order: 999,
-          lessons: quizQuestions.map((q, idx) => ({
-            id: q.id,
-            title: q.title.startsWith("Quiz Q") ? q.title : `Quiz Q${idx + 1}: ${q.title}`,
-            order: idx + 1,
-            type: "QUIZ",
-            vimeoVideoId: "",
-            driveFileId: "",
-            content: q.content,
-          })),
-        });
-      }
-
       // 2. Save Chapter/Lesson Builder Structure
       const res = await fetch(`/api/admin/courses/${course.id}/builder`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chapters: allChaptersToSave }),
+        body: JSON.stringify({ chapters }),
       });
 
       if (res.ok) {
@@ -343,21 +236,6 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
       setIsSaving(false);
     }
   };
-
-  // Filter & Pagination logic for Quiz Question Bank
-  const filteredQuizzes = quizQuestions.filter(
-    (q) =>
-      q.title.toLowerCase().includes(quizSearch.toLowerCase()) ||
-      q.content.toLowerCase().includes(quizSearch.toLowerCase())
-  );
-
-  const totalQuizPages = Math.max(1, Math.ceil(filteredQuizzes.length / QUIZZES_PER_PAGE));
-  const validQuizPage = Math.min(quizPage, totalQuizPages);
-  const quizStartIndex = (validQuizPage - 1) * QUIZZES_PER_PAGE;
-  const paginatedQuizzes = filteredQuizzes.slice(
-    quizStartIndex,
-    quizStartIndex + QUIZZES_PER_PAGE
-  );
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -393,7 +271,7 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
       {saveSuccess && (
         <div className="bg-clinical-teal-surface border border-clinical-teal/30 p-4 rounded text-xs font-mono text-clinical-teal flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-clinical-teal" />
-          <span>Course metadata, syllabus chapters, and quiz question bank saved successfully!</span>
+          <span>Course metadata and syllabus chapters saved successfully!</span>
         </div>
       )}
 
@@ -700,247 +578,6 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* ── Section 03: Quizzes & Clinical Question Bank Builder ── */}
-      <div className="bg-surface border-2 border-purple-200 p-6 rounded-card space-y-6 shadow-paper">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-purple-200 pb-4">
-          <div>
-            <span className="font-mono text-xs text-purple-700 font-bold uppercase tracking-wider block">
-              PRACTICE EXAM BANK
-            </span>
-            <h2 className="text-xl font-display font-semibold text-ink flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-purple-700" />
-              03 / Quizzes & Clinical Question Bank ({quizQuestions.length} Questions)
-            </h2>
-            <p className="text-xs text-ink-muted mt-0.5 font-sans">
-              Manage clinical exam questions, correct option rationale, and student practice question banks.
-            </p>
-          </div>
-
-          <span className="bg-purple-100 text-purple-800 border border-purple-200 text-xs font-mono px-3 py-1 rounded-full font-bold self-start sm:self-auto">
-            {quizQuestions.length} Total Questions
-          </span>
-        </div>
-
-        {/* Create New Practice Question Form */}
-        <div className="bg-purple-50/50 border border-purple-200 p-4 rounded-card space-y-3">
-          <h3 className="text-xs font-mono font-bold text-purple-900 uppercase flex items-center gap-1.5">
-            <Plus className="w-4 h-4 text-purple-700" /> Add New Clinical Practice Question
-          </h3>
-
-          <div className="space-y-3 text-xs">
-            <div>
-              <label className="block font-mono text-purple-900 mb-1 font-medium">Question Title / Prompt</label>
-              <input
-                type="text"
-                placeholder="e.g. Which of the following antibiotics is known for broad spectrum activity?"
-                value={newQuestionTitle}
-                onChange={(e) => setNewQuestionTitle(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-purple-200 rounded font-sans text-ink font-semibold"
-              />
-            </div>
-
-            <div>
-              <label className="block font-mono text-purple-900 mb-1 font-medium">
-                Detailed Options & Clinical Rationale (HTML formatted)
-              </label>
-              <textarea
-                rows={3}
-                placeholder="<p><strong>Correct Option: Loratadine</strong></p><p>Explanation: Non-sedating antihistamine used for allergic reactions...</p>"
-                value={newQuestionExplanation}
-                onChange={(e) => setNewQuestionExplanation(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-purple-200 rounded font-mono text-xs text-ink"
-              />
-            </div>
-
-            <Button
-              type="button"
-              onClick={addQuizQuestion}
-              className="bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold gap-1.5 h-8 px-4"
-            >
-              <Plus className="w-4 h-4" /> Add Question to Bank
-            </Button>
-          </div>
-        </div>
-
-        {/* Search & Pagination Toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-linen/50 p-3 rounded border border-chart-grid">
-          <div className="relative max-w-sm w-full">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-sage" />
-            <input
-              type="text"
-              placeholder="Search question title or rationale..."
-              value={quizSearch}
-              onChange={(e) => {
-                setQuizSearch(e.target.value);
-                setQuizPage(1);
-              }}
-              className="w-full pl-8 pr-3 py-1.5 bg-white border border-chart-grid rounded text-xs text-ink font-sans"
-            />
-          </div>
-
-          <span className="text-xs font-mono text-sage">
-            Showing <strong className="text-ink">{paginatedQuizzes.length}</strong> of{" "}
-            <strong className="text-ink">{filteredQuizzes.length}</strong> filtered questions
-          </span>
-        </div>
-
-        {/* Paginated Quiz Questions List */}
-        <div className="space-y-3">
-          {paginatedQuizzes.length === 0 ? (
-            <div className="p-8 text-center text-sage font-mono text-xs bg-linen/30 rounded border border-chart-grid space-y-1">
-              <HelpCircle className="w-6 h-6 mx-auto text-purple-400" />
-              <div>No quiz questions found matching your filter query.</div>
-            </div>
-          ) : (
-            paginatedQuizzes.map((q, pIdx) => {
-              const actualIdx = quizQuestions.findIndex((item) => item.title === q.title);
-              const isEditing = editingQuizIdx === actualIdx;
-
-              return (
-                <div
-                  key={actualIdx}
-                  className="bg-white border border-purple-200 p-4 rounded-card space-y-3 shadow-xs hover:border-purple-400 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-3 border-b border-purple-100 pb-2.5">
-                    <div className="flex items-center gap-2 flex-1">
-                      <span className="font-mono text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200 px-2 py-0.5 rounded shrink-0">
-                        Q{actualIdx + 1}
-                      </span>
-                      <h4 className="font-semibold text-ink text-sm font-sans flex-1">
-                        {q.title}
-                      </h4>
-                    </div>
-
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setEditingQuizIdx(isEditing ? null : actualIdx)}
-                        className="p-1.5 text-sage hover:text-purple-700 text-xs font-mono flex items-center gap-1"
-                        title="Edit Question"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>{isEditing ? "Cancel" : "Edit"}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeQuizQuestion(actualIdx)}
-                        className="p-1.5 text-chart-red hover:text-chart-red-hover text-xs font-mono"
-                        title="Delete Question"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {isEditing ? (
-                    <div className="space-y-3 bg-purple-50/50 p-3 rounded border border-purple-200 text-xs">
-                      <div>
-                        <label className="block font-mono text-purple-900 mb-1 font-bold">Edit Question Title</label>
-                        <input
-                          type="text"
-                          defaultValue={q.title}
-                          id={`edit-title-${actualIdx}`}
-                          className="w-full px-3 py-1.5 bg-white border border-chart-grid rounded font-sans font-semibold text-ink"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-mono text-purple-900 mb-1 font-bold">Edit Rationale / Options HTML</label>
-                        <textarea
-                          rows={4}
-                          defaultValue={q.content}
-                          id={`edit-content-${actualIdx}`}
-                          className="w-full px-3 py-1.5 bg-white border border-chart-grid rounded font-mono text-xs text-ink"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => {
-                          const tVal = (document.getElementById(`edit-title-${actualIdx}`) as HTMLInputElement)?.value;
-                          const cVal = (document.getElementById(`edit-content-${actualIdx}`) as HTMLTextAreaElement)?.value;
-                          updateQuizQuestion(actualIdx, tVal, cVal);
-                        }}
-                        className="bg-purple-700 hover:bg-purple-800 text-white font-semibold text-xs"
-                      >
-                        Save Question Updates
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="bg-linen/40 p-3 rounded border border-chart-grid/50 font-sans text-xs text-ink leading-relaxed">
-                      <div
-                        className="prose prose-sm max-w-none text-ink line-clamp-3"
-                        dangerouslySetInnerHTML={{ __html: q.content }}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Pagination Controls for Question Bank */}
-        {filteredQuizzes.length > 0 && (
-          <div className="p-3 bg-linen/50 border border-chart-grid rounded flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
-            <div className="text-sage text-[11px]">
-              Showing <strong className="text-ink">{quizStartIndex + 1}</strong> to{" "}
-              <strong className="text-ink">
-                {Math.min(quizStartIndex + QUIZZES_PER_PAGE, filteredQuizzes.length)}
-              </strong>{" "}
-              of <strong className="text-ink">{filteredQuizzes.length}</strong> questions
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={validQuizPage <= 1}
-                onClick={() => setQuizPage(1)}
-                className="h-7 w-7 p-0"
-                title="First Page"
-              >
-                <ChevronsLeft className="w-3.5 h-3.5" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={validQuizPage <= 1}
-                onClick={() => setQuizPage((p) => Math.max(1, p - 1))}
-                className="h-7 w-7 p-0"
-                title="Previous Page"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </Button>
-
-              <span className="px-2.5 py-0.5 bg-white border border-chart-grid rounded text-ink font-semibold">
-                Page {validQuizPage} of {totalQuizPages}
-              </span>
-
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={validQuizPage >= totalQuizPages}
-                onClick={() => setQuizPage((p) => Math.min(totalQuizPages, p + 1))}
-                className="h-7 w-7 p-0"
-                title="Next Page"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={validQuizPage >= totalQuizPages}
-                onClick={() => setQuizPage(totalQuizPages)}
-                className="h-7 w-7 p-0"
-                title="Last Page"
-              >
-                <ChevronsRight className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
