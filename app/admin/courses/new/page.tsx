@@ -665,13 +665,22 @@ export default function NewCoursePage() {
           title: form.title,
           slug: form.slug,
           description: form.description,
-          price: Number(form.price),
-          originalPrice: form.originalPrice !== "" ? Number(form.originalPrice) : null,
+          price: typeof form.price === "number" ? form.price : Number(form.price) || 0,
+          originalPrice: form.originalPrice !== "" && form.originalPrice !== null ? Number(form.originalPrice) : null,
           type: form.type,
           category: form.category,
           level: form.level,
           published: form.published,
           coverImage: form.coverImage || null,
+          chapters: form.chapters.map((ch) => ({
+            title: ch.title,
+            lessons: ch.lessons.map((l) => ({
+              title: l.title,
+              type: l.type,
+              vimeoVideoId: l.vimeoVideoId || null,
+              driveFileId: l.driveFileId || null,
+            })),
+          })),
         }),
       });
 
