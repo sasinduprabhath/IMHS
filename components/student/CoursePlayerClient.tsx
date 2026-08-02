@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
-import { getEmbeddedDocumentUrl, getDocumentDownloadUrl } from "@/lib/utils";
+import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl } from "@/lib/utils";
 import {
   CheckCircle2,
   Circle,
@@ -259,9 +259,10 @@ export function CoursePlayerClient({
                   className="bg-ink rounded-card overflow-hidden border border-chart-grid aspect-video relative shadow-paper-stack select-none group/player"
                 >
                   <iframe
-                    src={`https://player.vimeo.com/video/${currentLesson.vimeoVideoId}?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&dnt=1`}
+                    src={getVimeoEmbedUrl(currentLesson.vimeoVideoId)}
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
                     className="w-full h-full border-0"
                     title="Protected Clinical Stream"
                   />
