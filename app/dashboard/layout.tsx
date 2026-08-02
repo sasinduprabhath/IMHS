@@ -1,10 +1,8 @@
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { StudentPortalNav } from "@/components/student/StudentPortalNav";
+import { StudentSidebar } from "@/components/student/StudentSidebar";
 
 export default async function StudentLayout({
   children,
@@ -18,10 +16,15 @@ export default async function StudentLayout({
   }
 
   return (
-    <div className="min-h-screen bg-linen flex flex-col font-sans">
-      <StudentPortalNav user={session.user} />
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+    <div className="min-h-screen bg-linen flex flex-row font-sans">
+      {/* Left Sidebar */}
+      <StudentSidebar user={session.user} />
+
+      {/* Main content area */}
+      <main className="flex-1 min-w-0 pt-14 lg:pt-0 overflow-auto">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </div>
       </main>
     </div>
   );

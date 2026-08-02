@@ -241,10 +241,12 @@ export function CoursePlayerClient({
                       <button
                         key={lesson.id}
                         onClick={() => handleSelectLesson(lesson.id)}
-                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 ${
+                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 border-l-2 ${
                           isSelected
-                            ? "bg-clinical-teal text-white font-semibold shadow-sm"
-                            : "hover:bg-linen text-ink"
+                            ? "bg-clinical-teal text-white font-semibold shadow-sm border-l-white/40"
+                            : isDone
+                            ? "hover:bg-linen text-ink border-l-clinical-teal/30"
+                            : "hover:bg-linen text-ink border-l-transparent"
                         }`}
                       >
                         <div className="flex items-center gap-2 overflow-hidden flex-1">
@@ -428,51 +430,65 @@ export function CoursePlayerClient({
                 </div>
               ) : (
                 /* Domain-Locked Vimeo Video Frame with Anti-Piracy Protection Shield */
-                <div
-                  onContextMenu={(e) => e.preventDefault()}
-                  className="bg-ink rounded-card overflow-hidden border border-chart-grid aspect-video relative shadow-paper-stack select-none group/player"
-                >
-                  <iframe
-                    src={getVimeoEmbedUrl(currentLesson.vimeoVideoId)}
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    className="w-full h-full border-0"
-                    title="Protected Clinical Stream"
-                  />
-
-                  <div className="absolute top-0 inset-x-0 h-12 bg-transparent pointer-events-auto z-10" />
-
-                  <div className="absolute top-3 right-3 z-20 pointer-events-none opacity-40 group-hover/player:opacity-90 transition-opacity bg-black/80 backdrop-blur-md border border-white/10 text-white text-[10px] font-mono px-2.5 py-1 rounded flex items-center gap-1.5 shadow-md">
-                    <Lock className="w-3 h-3 text-clinical-teal" />
-                    <span>Domain Locked Stream</span>
+                <div className="bg-white border border-chart-grid rounded-2xl overflow-hidden shadow-sm">
+                  {/* Stage header with type badge */}
+                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-chart-grid bg-linen/40">
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
+                      <Video className="w-3.5 h-3.5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono uppercase tracking-wider text-sage font-bold">Video Lecture</p>
+                      <p className="text-xs font-semibold text-ink">{currentLesson.title}</p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1.5 text-[10px] font-mono text-sage">
+                      <Lock className="w-3 h-3 text-clinical-teal" />
+                      Domain Locked
+                    </div>
+                  </div>
+                  {/* Video stage */}
+                  <div
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="bg-ink aspect-video relative select-none group/player"
+                  >
+                    <iframe
+                      src={getVimeoEmbedUrl(currentLesson.vimeoVideoId)}
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      className="w-full h-full border-0"
+                      title="Protected Clinical Stream"
+                    />
+                    <div className="absolute top-0 inset-x-0 h-12 bg-transparent pointer-events-auto z-10" />
                   </div>
                 </div>
               )}
 
               {/* Lesson Controls & Completion Action */}
-              <div className="bg-surface border border-chart-grid p-6 rounded-card space-y-6">
+              <div className="bg-white border border-chart-grid p-5 rounded-2xl shadow-sm space-y-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-chart-grid pb-4">
                   <div>
-                    <span className="font-mono text-[10px] text-sage uppercase font-semibold">
-                      CURRENT LESSON
+                    <span className="font-mono text-[10px] text-sage uppercase font-bold tracking-wider">
+                      Current Lesson
                     </span>
-                    <h2 className="text-xl font-display font-semibold text-ink">
+                    <h2 className="text-base font-semibold text-ink mt-0.5">
                       {currentLesson.title}
                     </h2>
                   </div>
 
+                  {/* Mark Complete — becomes outline once done; Next becomes primary */}
                   <Button
                     onClick={handleToggleComplete}
                     disabled={isUpdating}
                     variant={isCurrentCompleted ? "outline" : "default"}
                     size="sm"
-                    className={`gap-2 font-semibold ${
-                      isCurrentCompleted ? "border-clinical-teal text-clinical-teal" : ""
+                    className={`gap-2 font-semibold rounded-xl shrink-0 ${
+                      isCurrentCompleted
+                        ? "border-clinical-teal text-clinical-teal hover:bg-clinical-teal/5"
+                        : "bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
                     }`}
                   >
                     <CheckSquare className="w-4 h-4" />
-                    {isCurrentCompleted ? "Completed (Click to Unmark)" : "Mark as Complete"}
+                    {isCurrentCompleted ? "✓ Completed (click to undo)" : "Mark as Completed"}
                   </Button>
                 </div>
 
@@ -522,30 +538,35 @@ export function CoursePlayerClient({
                 )}
               </div>
 
-              {/* Prev / Next Lesson Navigation Bar */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+              {/* Prev / Next Lesson Navigation Bar — primary button handoff */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 {prevLesson ? (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleSelectLesson(prevLesson.id)}
-                    className="w-full sm:w-auto gap-2 text-xs font-semibold justify-center sm:justify-start"
+                    className="w-full sm:w-auto gap-2 text-xs font-semibold justify-center sm:justify-start rounded-xl"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span className="truncate max-w-[200px]">{prevLesson.title}</span>
+                    <span className="truncate max-w-[180px]">{prevLesson.title}</span>
                   </Button>
                 ) : (
                   <div className="hidden sm:block" />
                 )}
 
                 {nextLesson ? (
+                  /* Next becomes primary (teal fill) only after current lesson is marked complete */
                   <Button
-                    variant="default"
+                    variant={isCurrentCompleted ? "default" : "outline"}
                     size="sm"
                     onClick={() => handleSelectLesson(nextLesson.id)}
-                    className="w-full sm:w-auto gap-2 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 justify-center sm:justify-end"
+                    className={`w-full sm:w-auto gap-2 text-xs font-semibold justify-center sm:justify-end rounded-xl ${
+                      isCurrentCompleted
+                        ? "bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
+                        : ""
+                    }`}
                   >
-                    <span className="truncate max-w-[200px]">{nextLesson.title}</span>
+                    <span className="truncate max-w-[180px]">{nextLesson.title}</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 ) : (
