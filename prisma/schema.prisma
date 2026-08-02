@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String
+  passwordHash String
+  role         String   @default("STUDENT") // "ADMIN" | "STUDENT"
+  status       String   @default("ACTIVE")  // "ACTIVE" | "FROZEN"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  enrollments  Enrollment[]
+  progress     LessonProgress[]
+}
+
+model Course {
+  id                 String   @id @default(cuid())
+  title              String
+  slug               String   @unique
+  description        String   @db.Text
+  price              Float    @default(0.0)
+  originalPrice      Float?
+  type               String   @default("Course") // "Course" | "Bundle"
+  category           String   @default("Modern Pharmacy")
+  level              String   @default("All Levels") // "All Levels" | "Beginner" | "Intermediate" | "Expert"
+  enrollmentValidity String   @default("Lifetime Access")
+  totalEnrolled      Int      @default(450)
+  published          Boolean  @default(false)
+  coverImage         String?
+  createdAt          DateTime @default(now())
+
+  chapters           Chapter[]
+  enrollments        Enrollment[]
+}
+
+model Chapter {
+  id       String @id @default(cuid())
+  title    String
+  order    Int
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons  Lesson[]
+}
+
+model Lesson {
+  id           String  @id @default(cuid())
+  title        String
+  order        Int
+  type         String  @default("VIDEO") // "VIDEO" | "DOCUMENT"
+  vimeoVideoId String?
+  driveFileId  String?
+  content      String? @db.Text
+  chapterId    String
+  chapter      Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  progress     LessonProgress[]
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  status     String   @default("ACTIVE") // "ACTIVE" | "FROZEN"
+  enrolledAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  completedAt DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  studentName String
+  courseTaken String?
+  quote       String   @db.Text
+  photoUrl    String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model FacultyMember {
+  id       String @id @default(cuid())
+  name     String
+  title    String
+  bio      String @db.Text
+  photoUrl String?
+  order    Int    @default(0)
+}
+
+model ContactInquiry {
+  id              String   @id @default(cuid())
+  name            String
+  phone           String
+  email           String?
+  courseInterest  String?
+  message         String   @db.Text
+  createdAt       DateTime @default(now())
+  resolved        Boolean  @default(false)
+}

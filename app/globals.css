@@ -1,0 +1,67 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+:root {
+  --ink: 15 26 36;
+  --linen: 244 246 249;
+  --clinical-teal: 14 87 164;
+  --chart-red: 241 103 38;
+  --sage: 112 136 158;
+  --chart-grid: 212 220 228;
+  --surface: 255 255 255;
+}
+
+body {
+  background-color: rgb(var(--linen));
+  color: rgb(var(--ink));
+  font-family: var(--font-ibm-plex-sans), sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-ibm-plex-sans), sans-serif;
+  color: rgb(var(--ink));
+}
+
+/* Radial gradient utility */
+.bg-gradient-radial {
+  background: radial-gradient(circle at center, var(--tw-gradient-stops));
+}
+
+/* Smooth page transition */
+main {
+  animation: pageIn 0.35s ease-out;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F4F6F9;
+  border-left: 1px solid #D4DCE4;
+}
+::-webkit-scrollbar-thumb {
+  background: #70889E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0E57A4;
+}
+
+/* Hero pt adjustment for fixed header */
+.hero-pt-header {
+  padding-top: 5rem;
+}
