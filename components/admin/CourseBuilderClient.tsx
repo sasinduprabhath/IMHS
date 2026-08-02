@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { FormattedText } from "@/components/ui/formatted-text";
 import {
   ArrowLeft,
   Save,
@@ -719,9 +720,10 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                   </button>
                 </div>
 
-                <p className="text-xs text-ink leading-relaxed font-sans whitespace-pre-line pt-1">
-                  {ann.content}
-                </p>
+                <FormattedText
+                  content={ann.content}
+                  className="text-xs text-ink pt-1 font-sans"
+                />
               </div>
             ))
           )}

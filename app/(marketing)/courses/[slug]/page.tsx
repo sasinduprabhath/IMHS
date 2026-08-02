@@ -7,6 +7,7 @@ import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
+import { FormattedText } from "@/components/ui/formatted-text";
 import {
   BookOpen,
   PhoneCall,
@@ -138,9 +139,10 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                 <h3 className="text-base font-semibold text-ink font-sans">
                   {course.announcements[0].title}
                 </h3>
-                <p className="text-xs text-ink-muted leading-relaxed font-sans mt-1 whitespace-pre-line">
-                  {course.announcements[0].content}
-                </p>
+                <FormattedText
+                  content={course.announcements[0].content}
+                  className="text-xs text-ink mt-1"
+                />
               </div>
             </div>
           )}

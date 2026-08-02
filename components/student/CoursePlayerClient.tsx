@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
 import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl } from "@/lib/utils";
+import { FormattedText } from "@/components/ui/formatted-text";
 import {
   CheckCircle2,
   Circle,
@@ -160,9 +161,10 @@ export function CoursePlayerClient({
             <h3 className="text-sm sm:text-base font-semibold text-ink font-sans">
               {course.announcements[0].title}
             </h3>
-            <p className="text-xs text-ink-muted leading-relaxed font-sans mt-1 whitespace-pre-line">
-              {course.announcements[0].content}
-            </p>
+            <FormattedText
+              content={course.announcements[0].content}
+              className="text-xs text-ink mt-1"
+            />
           </div>
         </div>
       )}
@@ -408,9 +410,10 @@ export function CoursePlayerClient({
                     <h4 className="font-mono text-xs text-sage uppercase tracking-wider font-semibold">
                       Clinical Notes & Guidance
                     </h4>
-                    <p className="text-sm text-ink leading-relaxed whitespace-pre-line font-sans">
-                      {currentLesson.content}
-                    </p>
+                    <FormattedText
+                      content={currentLesson.content}
+                      className="text-sm text-ink font-sans"
+                    />
                   </div>
                 )}
 
