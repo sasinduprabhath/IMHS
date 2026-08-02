@@ -4,10 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { createPasswordResetWALink, formatPhoneForWhatsApp } from "@/lib/whatsapp";
+import { createPasswordResetWALink } from "@/lib/whatsapp";
 import {
-  Search, UserPlus, MessageCircle, KeyRound, Eye, BookOpen,
-  Users, CheckCircle2, Copy, Check, ShieldCheck, RefreshCw, X, AlertCircle
+  Search, UserPlus, MessageCircle, KeyRound, Eye,
+  Users, CheckCircle2, Copy, Check, RefreshCw, X,
+  ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight
 } from "lucide-react";
 
 interface StudentItem {
@@ -22,9 +23,12 @@ interface StudentItem {
   progress: { lessonId: string }[];
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export function StudentDirectoryClient({ initialStudents }: { initialStudents: StudentItem[] }) {
   const [students, setStudents] = useState<StudentItem[]>(initialStudents);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [resetModalStudent, setResetModalStudent] = useState<StudentItem | null>(null);
   const [newTempPassword, setNewTempPassword] = useState("");
   const [resetSuccessLink, setResetSuccessLink] = useState<string | null>(null);
@@ -37,6 +41,16 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
       s.email.toLowerCase().includes(search.toLowerCase()) ||
       s.phone.includes(search)
   );
+
+  const totalPages = Math.max(1, Math.ceil(filteredStudents.length / ITEMS_PER_PAGE));
+  const validPage = Math.min(currentPage, totalPages);
+  const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
+  const paginatedStudents = filteredStudents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
 
   const handleGenerateRandomPass = () => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -94,14 +108,14 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
             type="text"
             placeholder="Search by student name, email, or WhatsApp phone..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all font-sans"
           />
         </div>
 
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-sage hidden md:inline">
-            Showing <strong className="text-ink">{filteredStudents.length}</strong> of {students.length} students
+            Total <strong className="text-ink">{filteredStudents.length}</strong> students
           </span>
           <Link href="/admin/students/new">
             <Button className="gap-2 text-xs font-semibold bg-chart-red hover:bg-chart-red-hover text-white border-0">
@@ -125,7 +139,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
               </tr>
             </thead>
             <tbody className="divide-y divide-chart-grid/60">
-              {filteredStudents.length === 0 ? (
+              {paginatedStudents.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-12 text-center text-sage font-mono space-y-2">
                     <Users className="w-8 h-8 mx-auto text-sage/50" />
@@ -133,7 +147,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                   </td>
                 </tr>
               ) : (
-                filteredStudents.map((st) => (
+                paginatedStudents.map((st) => (
                   <tr key={st.id} className="hover:bg-linen/30 transition-colors group">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -206,6 +220,67 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
             </tbody>
           </table>
         </div>
+
+        {/* ── Pagination Controls ── */}
+        {filteredStudents.length > 0 && (
+          <div className="p-4 border-t border-chart-grid bg-linen/30 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
+            <div className="text-sage text-[11px]">
+              Showing <strong className="text-ink">{startIndex + 1}</strong> to{" "}
+              <strong className="text-ink">
+                {Math.min(startIndex + ITEMS_PER_PAGE, filteredStudents.length)}
+              </strong>{" "}
+              of <strong className="text-ink">{filteredStudents.length}</strong> students
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={validPage <= 1}
+                onClick={() => setCurrentPage(1)}
+                className="h-8 w-8 p-0"
+                title="First Page"
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={validPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="h-8 w-8 p-0"
+                title="Previous Page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+
+              <span className="px-3 py-1 bg-white border border-chart-grid rounded text-ink font-semibold">
+                Page {validPage} of {totalPages}
+              </span>
+
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={validPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="h-8 w-8 p-0"
+                title="Next Page"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={validPage >= totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+                className="h-8 w-8 p-0"
+                title="Last Page"
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Password Reset Modal */}
