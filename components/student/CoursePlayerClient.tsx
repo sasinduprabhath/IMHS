@@ -22,6 +22,7 @@ import {
   HelpCircle,
   Megaphone,
   Award,
+  Calendar,
 } from "lucide-react";
 
 interface Lesson {
@@ -75,6 +76,8 @@ export function CoursePlayerClient({
   const router = useRouter();
   const allLessons = course.chapters.flatMap((ch) => ch.lessons);
 
+  // Selection mode: "LESSON" or "ANNOUNCEMENT"
+  const [selectedAnnouncementId, setSelectedAnnouncementId] = useState<string | null>(null);
   const [currentLessonId, setCurrentLessonId] = useState<string>(
     allLessons[0]?.id || ""
   );
@@ -88,8 +91,12 @@ export function CoursePlayerClient({
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
+  const currentAnnouncement = course.announcements?.find(
+    (a) => a.id === selectedAnnouncementId
+  );
+
   const isCurrentCompleted = completedLessonIds.has(currentLesson?.id || "");
-  const progressPercent = Math.round((completedLessonIds.size / allLessons.length) * 100);
+  const progressPercent = Math.round((completedLessonIds.size / Math.max(1, allLessons.length)) * 100);
 
   const handleToggleComplete = async () => {
     if (!currentLesson || isUpdating) return;
@@ -120,6 +127,15 @@ export function CoursePlayerClient({
     }
   };
 
+  const handleSelectAnnouncement = (annId: string) => {
+    setSelectedAnnouncementId(annId);
+  };
+
+  const handleSelectLesson = (lessonId: string) => {
+    setSelectedAnnouncementId(null);
+    setCurrentLessonId(lessonId);
+  };
+
   return (
     <div className="space-y-6">
       {/* Navigation Header */}
@@ -146,29 +162,6 @@ export function CoursePlayerClient({
         </div>
       </div>
 
-      {/* 📢 Official Course Announcements Banner */}
-      {course.announcements && course.announcements.length > 0 && (
-        <div className="bg-chart-red/5 border-2 border-chart-red/30 p-5 rounded-card space-y-2 shadow-paper animate-in fade-in">
-          <div className="flex items-center justify-between border-b border-chart-red/20 pb-2">
-            <span className="font-mono text-xs font-bold text-chart-red uppercase tracking-wider bg-chart-red/10 border border-chart-red/20 px-2.5 py-1 rounded flex items-center gap-1.5">
-              <Megaphone className="w-4 h-4" /> Official Batch Announcement
-            </span>
-            <span className="text-[11px] font-mono text-sage">
-              {new Date(course.announcements[0].createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-semibold text-ink font-sans">
-              {course.announcements[0].title}
-            </h3>
-            <FormattedText
-              content={course.announcements[0].content}
-              className="text-xs text-ink mt-1"
-            />
-          </div>
-        </div>
-      )}
-
       {/* Main Layout: Left Sidebar Chapters & Right Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Sidebar Chapter Accordion (4 Cols) */}
@@ -183,6 +176,53 @@ export function CoursePlayerClient({
           </div>
 
           <div className="divide-y divide-chart-grid/60 max-h-[600px] overflow-y-auto">
+            
+            {/* 📢 Announcements Chapter Section inside Syllabus Sidebar */}
+            {course.announcements && course.announcements.length > 0 && (
+              <div className="p-3 bg-chart-red/5 border-b border-chart-red/20 space-y-2">
+                <h3 className="text-xs font-mono font-bold uppercase text-chart-red flex items-center gap-1.5 px-1">
+                  <Megaphone className="w-3.5 h-3.5" /> Official Batch Announcements ({course.announcements.length})
+                </h3>
+                <div className="space-y-1">
+                  {course.announcements.map((ann) => {
+                    const isSelected = selectedAnnouncementId === ann.id;
+
+                    return (
+                      <button
+                        key={ann.id}
+                        onClick={() => handleSelectAnnouncement(ann.id)}
+                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 ${
+                          isSelected
+                            ? "bg-chart-red text-white font-semibold shadow-sm"
+                            : "hover:bg-chart-red/10 text-ink bg-white/60 border border-chart-red/20"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden flex-1">
+                          <Megaphone
+                            className={`w-4 h-4 shrink-0 ${
+                              isSelected ? "text-white" : "text-chart-red"
+                            }`}
+                          />
+                          <span className="truncate">{ann.title}</span>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded shrink-0 ${
+                            isSelected
+                              ? "bg-white/20 text-white"
+                              : "bg-chart-red/10 text-chart-red border border-chart-red/20"
+                          }`}
+                        >
+                          NOTICE
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Standard Syllabus Chapters */}
             {course.chapters.map((chapter) => (
               <div key={chapter.id} className="p-3 space-y-2">
                 <h3 className="text-xs font-mono font-semibold text-ink px-1">
@@ -190,7 +230,7 @@ export function CoursePlayerClient({
                 </h3>
                 <div className="space-y-1">
                   {chapter.lessons.map((lesson) => {
-                    const isSelected = lesson.id === currentLessonId;
+                    const isSelected = !selectedAnnouncementId && lesson.id === currentLessonId;
                     const isDone = completedLessonIds.has(lesson.id);
                     const isQuiz = lesson.type === "QUIZ" || lesson.title?.startsWith("Quiz Q");
                     const isDocument = !isQuiz && (lesson.type === "DOCUMENT" || (!lesson.vimeoVideoId && !!lesson.driveFileId));
@@ -200,7 +240,7 @@ export function CoursePlayerClient({
                     return (
                       <button
                         key={lesson.id}
-                        onClick={() => setCurrentLessonId(lesson.id)}
+                        onClick={() => handleSelectLesson(lesson.id)}
                         className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 ${
                           isSelected
                             ? "bg-clinical-teal text-white font-semibold shadow-sm"
@@ -246,7 +286,7 @@ export function CoursePlayerClient({
 
           {/* Assigned Course Instructors Widget */}
           {course.instructors && course.instructors.length > 0 && (
-            <div className="mt-4 bg-surface border border-chart-grid rounded-card p-4 space-y-3">
+            <div className="p-4 bg-surface border-t border-chart-grid space-y-3">
               <h3 className="text-xs font-mono font-semibold uppercase text-ink flex items-center gap-1.5 border-b border-chart-grid pb-2">
                 <Award className="w-4 h-4 text-clinical-teal" /> Course Instructors
               </h3>
@@ -277,7 +317,41 @@ export function CoursePlayerClient({
 
         {/* Right Main Video & Lesson Content Pane (8 Cols) */}
         <div className="lg:col-span-8 space-y-6">
-          {currentLesson ? (
+          
+          {/* RENDER MODE A: ANNOUNCEMENT SELECTED */}
+          {selectedAnnouncementId && currentAnnouncement ? (
+            <div className="bg-surface rounded-card overflow-hidden border-2 border-chart-red/30 p-6 sm:p-8 space-y-6 shadow-paper-stack min-h-[500px]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-chart-grid pb-4">
+                <div className="space-y-1">
+                  <span className="font-mono text-[10px] text-chart-red font-bold uppercase tracking-wider block bg-chart-red/10 border border-chart-red/20 px-2.5 py-0.5 rounded w-max">
+                    📢 OFFICIAL BATCH ANNOUNCEMENT
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-display font-semibold text-ink mt-1">
+                    {currentAnnouncement.title}
+                  </h2>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs font-mono text-sage shrink-0">
+                  <Calendar className="w-4 h-4 text-chart-red" />
+                  <span>
+                    {new Date(currentAnnouncement.createdAt).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              <FormattedText
+                content={currentAnnouncement.content}
+                className="text-sm text-ink leading-relaxed font-sans"
+              />
+            </div>
+          ) : currentLesson ? (
+            /* RENDER MODE B: LESSON SELECTED */
             <div className="space-y-6">
               {/* Conditional Renderer: QUIZ vs DOCUMENT (PDF / PPTX) vs VIDEO */}
               {currentLesson.type === "QUIZ" || currentLesson.title?.startsWith("Quiz Q") ? (
@@ -367,10 +441,8 @@ export function CoursePlayerClient({
                     title="Protected Clinical Stream"
                   />
 
-                  {/* Top Invisible Shield to prevent clicking external Vimeo header links */}
                   <div className="absolute top-0 inset-x-0 h-12 bg-transparent pointer-events-auto z-10" />
 
-                  {/* Anti-Piracy Watermark Badge */}
                   <div className="absolute top-3 right-3 z-20 pointer-events-none opacity-40 group-hover/player:opacity-90 transition-opacity bg-black/80 backdrop-blur-md border border-white/10 text-white text-[10px] font-mono px-2.5 py-1 rounded flex items-center gap-1.5 shadow-md">
                     <Lock className="w-3 h-3 text-clinical-teal" />
                     <span>Domain Locked Stream</span>
@@ -456,7 +528,7 @@ export function CoursePlayerClient({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentLessonId(prevLesson.id)}
+                    onClick={() => handleSelectLesson(prevLesson.id)}
                     className="w-full sm:w-auto gap-2 text-xs font-semibold justify-center sm:justify-start"
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -470,7 +542,7 @@ export function CoursePlayerClient({
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => setCurrentLessonId(nextLesson.id)}
+                    onClick={() => handleSelectLesson(nextLesson.id)}
                     className="w-full sm:w-auto gap-2 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 justify-center sm:justify-end"
                   >
                     <span className="truncate max-w-[200px]">{nextLesson.title}</span>
@@ -483,7 +555,7 @@ export function CoursePlayerClient({
             </div>
           ) : (
             <div className="bg-surface border border-chart-grid p-12 rounded-card text-center">
-              <p className="text-xs font-mono text-sage">Select a lesson from the syllabus to view.</p>
+              <p className="text-xs font-mono text-sage">Select a lesson or announcement from the syllabus to view.</p>
             </div>
           )}
         </div>
