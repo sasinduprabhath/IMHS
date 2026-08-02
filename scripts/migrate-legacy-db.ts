@@ -1,6 +1,5 @@
 import fs from "fs";
 import readline from "readline";
-import path from "path";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -34,7 +33,7 @@ async function main() {
   const targetSqlPath = process.argv[2] || process.env.SQL_BACKUP_PATH || defaultSqlPath;
 
   console.log("=========================================================================");
-  console.log(" 🚀 STARTING FULL ONE-CLICK MASTER MIGRATION FOR IMHS CLINICAL PORTAL");
+  console.log(" 🚀 STARTING FULL MASTER DATA SYNC & MIGRATION FOR IMHS CLINICAL PORTAL");
   console.log("=========================================================================");
   console.log(`📁 Source SQL Dump File: ${targetSqlPath}`);
 
@@ -50,10 +49,8 @@ async function main() {
   const attachedFiles: Map<string, string> = new Map(); // att_id -> relative file path
   const termNames: Map<string, string> = new Map(); // term_id -> term_name
   const termTaxonomies: Map<string, string> = new Map(); // term_taxonomy_id -> term_id
-  const postTermRelationships: Map<string, string[]> = new Map(); // post_id -> term_taxonomy_ids[]
 
-  const rawUsers: any[] = [];
-  const rawPosts: any[] = [];
+  const wpUsers: { id: string; login: string; pass: string; email: string; name: string }[] = [];
 
   const fileStream = fs.createReadStream(targetSqlPath, { encoding: "utf8" });
   const rl = readline.createInterface({
@@ -66,7 +63,24 @@ async function main() {
   for await (const line of rl) {
     lineCount++;
 
-    // 1. Parse wp_postmeta thumbnail & attached file
+    // 1. Parse wp_users
+    if (line.includes("INSERT INTO `wp_users`")) {
+      const tuples = line.split(/\),\s*\(/);
+      for (const t of tuples) {
+        const match = t.match(/^\(?\s*(\d+),\s*'([^']+)',\s*'([^']+)',\s*'([^']+)',\s*'([^']*)'/);
+        if (match) {
+          wpUsers.push({
+            id: match[1],
+            login: match[2],
+            pass: match[3],
+            email: match[4],
+            name: match[5] || match[2],
+          });
+        }
+      }
+    }
+
+    // 2. Parse wp_postmeta thumbnail & attached file
     if (line.includes("'_thumbnail_id'")) {
       const regex = /\((\d+),\s*(\d+),\s*'_thumbnail_id',\s*'(\d+)'\)/g;
       let match;
@@ -83,7 +97,7 @@ async function main() {
       }
     }
 
-    // 2. Parse wp_terms
+    // 3. Parse wp_terms
     if (line.includes("INSERT INTO `wp_terms`")) {
       const regex = /\((\d+),\s*'([^']+)',\s*'([^']+)',\s*\d+\)/g;
       let match;
@@ -92,7 +106,7 @@ async function main() {
       }
     }
 
-    // 3. Parse wp_term_taxonomy
+    // 4. Parse wp_term_taxonomy
     if (line.includes("INSERT INTO `wp_term_taxonomy`")) {
       const regex = /\((\d+),\s*(\d+),\s*'([^']+)'/g;
       let match;
@@ -102,28 +116,44 @@ async function main() {
         }
       }
     }
-
-    // 4. Parse wp_term_relationships
-    if (line.includes("INSERT INTO `wp_term_relationships`")) {
-      const regex = /\((\d+),\s*(\d+),\s*\d+\)/g;
-      let match;
-      while ((match = regex.exec(line)) !== null) {
-        const objectId = match[1];
-        const termTaxId = match[2];
-        const existing = postTermRelationships.get(objectId) || [];
-        existing.push(termTaxId);
-        postTermRelationships.set(objectId, existing);
-      }
-    }
   }
 
   console.log(`✅ Parsed ${lineCount} lines from SQL dump.`);
+  console.log(`- Users found in dump: ${wpUsers.length}`);
   console.log(`- Attached File Links found: ${attachedFiles.size}`);
-  console.log(`- Course Thumbnail Mappings found: ${postMetaThumbnail.size}`);
-  console.log(`- Category Terms found: ${termNames.size}\n`);
+  console.log(`- Course Thumbnail Mappings found: ${postMetaThumbnail.size}\n`);
 
-  // Phase 1: Update Prisma Database Courses with Categories & Cover Images
-  console.log("🔄 Phase 1: Syncing Course Categories and Cover Images in Database...");
+  // Phase 1: Sync Users from SQL dump into Prisma DB
+  console.log("🔄 Phase 1: Syncing Users & Passwords from SQL dump...");
+  let syncedUsersCount = 0;
+  for (const u of wpUsers) {
+    if (!u.email || !u.email.includes("@")) continue;
+
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: u.email }, { studentId: u.login }],
+      },
+    });
+
+    if (!existingUser) {
+      const role = u.login.toLowerCase().includes("admin") || u.email.toLowerCase().includes("admin") ? "ADMIN" : "STUDENT";
+      await prisma.user.create({
+        data: {
+          email: u.email,
+          studentId: u.login.toUpperCase(),
+          name: u.name || u.login,
+          passwordHash: u.pass, // Intact $wp$ bcrypt hash
+          role,
+          status: "ACTIVE",
+        },
+      });
+      syncedUsersCount++;
+    }
+  }
+  console.log(`✅ Phase 1 Complete: Synced ${syncedUsersCount} new User accounts into database.\n`);
+
+  // Phase 2: Update Prisma Database Courses with Categories & Cover Images
+  console.log("🔄 Phase 2: Syncing Course Categories and Cover Images in Database...");
   const courses = await prisma.course.findMany();
   let updatedCoursesCount = 0;
 
@@ -171,10 +201,10 @@ async function main() {
     updatedCoursesCount++;
   }
 
-  console.log(`✅ Phase 1 Complete: Updated ${updatedCoursesCount} courses in database.\n`);
+  console.log(`✅ Phase 2 Complete: Synced Categories & Cover Images for ${updatedCoursesCount} courses.\n`);
 
   console.log("=========================================================================");
-  console.log("  🎉 MASTER MIGRATION COMPLETED SUCCESSFULLY!");
+  console.log("  🎉 FULL DATA SYNC & MASTER MIGRATION COMPLETED SUCCESSFULLY!");
   console.log("=========================================================================");
 }
 
