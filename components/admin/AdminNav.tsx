@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Users, BookOpen, LayoutDashboard, UserPlus,
-  LogOut, ArrowLeft, Menu, X, ShieldCheck, Sparkles, ExternalLink
+  LogOut, ArrowLeft, Menu, X, ShieldCheck, MessageSquare, ExternalLink
 } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/students", label: "Students", icon: Users, exact: false },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, exact: false },
+  { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare, exact: false },
 ];
 
 export function AdminNav({ user }: { user: any }) {
