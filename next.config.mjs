@@ -29,6 +29,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "docs.google.com",
       },
+      {
+        protocol: "https",
+        hostname: "imhsedu.com",
+      },
+      {
+        protocol: "http",
+        hostname: "imhsedu.com",
+      },
     ],
   },
   async headers() {
