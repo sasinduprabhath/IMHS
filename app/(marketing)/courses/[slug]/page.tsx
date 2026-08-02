@@ -90,81 +90,98 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   return (
     <div className="overflow-x-hidden">
 
-      {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
-      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-24 pb-10 px-4 sm:px-6 lg:px-8">
-        <MolecularGridBackground />
+      {/* ── POSTER HERO ────────────────────────────────────────────────── */}
+      <section className="relative min-h-[62vh] flex flex-col justify-end overflow-hidden">
+        {/* Full-bleed cover image */}
+        {coverSrc ? (
+          <div className="absolute inset-0">
+            <Image
+              src={coverSrc}
+              alt={course.title}
+              fill
+              className="object-cover object-center"
+              priority
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink/90 to-clinical-teal/40" />
+        )}
 
-        <div className="relative z-10 max-w-7xl mx-auto">
-          {/* Back breadcrumb — tight to top, no wasted space */}
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-sage hover:text-clinical-teal transition-colors mb-6 group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Back to Course Catalog
-          </Link>
+        {/* Multi-layer gradient overlay for text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-transparent" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-            {/* Left: course identity */}
+        {/* Top bar — back link floats over image */}
+        <div className="absolute top-0 left-0 right-0 pt-24 px-4 sm:px-6 lg:px-8 z-20">
+          <div className="max-w-7xl mx-auto">
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-white/60 hover:text-white transition-colors group"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+              Back to Course Catalog
+            </Link>
+          </div>
+        </div>
+
+        {/* Course info overlaid on poster */}
+        <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 pt-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
+            {/* Left: identity */}
             <div className="lg:col-span-8 space-y-4">
-              {/* Breadcrumb badges */}
+              {/* Badges */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-white bg-white/15 backdrop-blur-sm border border-white/25 px-2.5 py-1 rounded-full uppercase tracking-wider">
                   {courseCode}
                 </span>
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-sage border border-sage/25 bg-sage/5 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-white/70 border border-white/20 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full uppercase tracking-wider">
                   <Award className="w-3 h-3" /> Accredited Clinical Certification
                 </span>
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-ink leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white leading-tight drop-shadow-lg">
                 {course.title}
               </h1>
 
-              {/* Quick stats row */}
-              <div className="flex flex-wrap items-center gap-4 pt-1">
-                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
+              {/* Stats row */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
+                <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
                   <Layers className="w-3.5 h-3.5 text-clinical-teal" />
                   {course.chapters.length} Chapters
                 </span>
-                <span className="text-chart-grid">·</span>
-                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
+                <span className="text-white/30">·</span>
+                <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
                   <Video className="w-3.5 h-3.5 text-clinical-teal" />
                   {lessonsCount} Lessons
                 </span>
                 {questionsCount > 0 && (
                   <>
-                    <span className="text-chart-grid">·</span>
-                    <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
-                      <HelpCircle className="w-3.5 h-3.5 text-purple-500" />
+                    <span className="text-white/30">·</span>
+                    <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
+                      <HelpCircle className="w-3.5 h-3.5 text-purple-300" />
                       {questionsCount} Practice Questions
                     </span>
                   </>
                 )}
-                <span className="text-chart-grid">·</span>
-                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
+                <span className="text-white/30">·</span>
+                <span className="flex items-center gap-1.5 text-xs font-mono text-white/70">
                   <Users className="w-3.5 h-3.5 text-clinical-teal" />
                   {course.totalEnrolled || 450}+ Enrolled
                 </span>
-                <span className="text-chart-grid">·</span>
+                <span className="text-white/30">·</span>
                 <span className="flex items-center gap-0.5">
                   {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-chart-red text-chart-red" />)}
                 </span>
               </div>
-
-              {/* Dose Curve motif */}
-              <div className="pt-2 w-48">
-                <DoseCurve variant="divider" />
-              </div>
             </div>
 
-            {/* Right: price teaser (desktop only) */}
+            {/* Right: price teaser floating over poster (desktop) */}
             <div className="lg:col-span-4 hidden lg:flex justify-end items-end">
               <div className="text-right space-y-1">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-sage">Total Course Fee</p>
-                <p className="text-4xl font-mono font-bold text-clinical-teal">{formatCurrency(course.price)}</p>
-                <p className="text-[11px] text-ink-muted">Lifetime portal access & certification</p>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-white/50">Total Course Fee</p>
+                <p className="text-4xl font-mono font-bold text-white drop-shadow-lg">{formatCurrency(course.price)}</p>
+                <p className="text-[11px] text-white/50">Lifetime portal access &amp; certification</p>
               </div>
             </div>
           </div>
@@ -335,24 +352,11 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
           <div className="lg:col-span-4">
             <div className="sticky top-24 space-y-4">
 
-              {/* Main enrollment card */}
+              {/* Main enrollment card — no image here, poster above is the image */}
               <div className="bg-white border border-chart-grid rounded-2xl overflow-hidden shadow-lg">
-                {/* Cover image */}
-                {coverSrc ? (
-                  <div className="relative h-44 overflow-hidden">
-                    <Image src={coverSrc} alt={course.title} fill className="object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/30 to-transparent" />
-                    {/* Category badge over image */}
-                    <div className="absolute bottom-3 left-3">
-                      <span className="text-[10px] font-mono font-bold text-white bg-ink/70 backdrop-blur-sm border border-white/20 px-2 py-1 rounded-full">
-                        {courseCode}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative h-28 bg-gradient-to-br from-clinical-teal/15 to-chart-red/10 flex items-center justify-center">
-                    <BookOpen className="w-12 h-12 text-clinical-teal/30" />
-                  </div>
+                {/* No-image fallback accent bar */}
+                {!coverSrc && (
+                  <div className="h-2 bg-gradient-to-r from-clinical-teal to-chart-red" />
                 )}
 
                 <div className="p-5 space-y-5">
