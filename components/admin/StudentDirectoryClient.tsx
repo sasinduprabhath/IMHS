@@ -241,7 +241,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                       {st.enrollments.map((e) => (
                         <span
                           key={e.course.id}
-                          className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold truncate max-w-[200px]"
+                          className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold whitespace-normal leading-normal"
                         >
                           {e.course.title}
                         </span>
@@ -344,12 +344,12 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                           No active courses
                         </span>
                       ) : (
-                        <div className="flex flex-wrap gap-1 max-w-xs">
+                        <div className="flex flex-wrap gap-1">
                           {st.enrollments.map((e) => (
                             <span
                               key={e.course.id}
                               title={e.course.title}
-                              className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold truncate max-w-[180px]"
+                              className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold whitespace-normal leading-normal"
                             >
                               {e.course.title}
                             </span>

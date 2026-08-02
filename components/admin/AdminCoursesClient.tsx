@@ -242,10 +242,10 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                     >
                       <td className="p-4 font-semibold text-ink">
                         <div className="flex items-center gap-2.5">
-                          <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold group-hover:bg-clinical-teal group-hover:text-white transition-colors">
+                          <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold group-hover:bg-clinical-teal group-hover:text-white transition-colors shrink-0">
                             {courseCode}
                           </span>
-                          <span className="truncate max-w-xs text-sm group-hover:text-clinical-teal transition-colors">
+                          <span className="text-sm group-hover:text-clinical-teal transition-colors font-sans">
                             {course.title}
                           </span>
                         </div>

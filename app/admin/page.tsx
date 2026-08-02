@@ -305,7 +305,7 @@ export default async function AdminOverviewPage() {
                         </td>
 
                         <td className="px-5 py-3.5">
-                          <span className="font-semibold text-clinical-teal text-xs line-clamp-1 max-w-[220px]">
+                          <span className="font-semibold text-clinical-teal text-xs block leading-snug">
                             {enr.course.title}
                           </span>
                         </td>
@@ -358,9 +358,9 @@ export default async function AdminOverviewPage() {
               <div className="space-y-3.5">
                 {recentCourses.map((c) => (
                   <div key={c.id} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-ink truncate max-w-[180px]">{c.title}</span>
-                      <span className="font-mono text-[11px] text-clinical-teal font-bold">
+                    <div className="flex items-center justify-between text-xs gap-2">
+                      <span className="font-semibold text-ink leading-snug">{c.title}</span>
+                      <span className="font-mono text-[11px] text-clinical-teal font-bold shrink-0">
                         {c._count?.enrollments || 0} students
                       </span>
                     </div>
