@@ -20,23 +20,27 @@ export default async function AdminOverviewPage() {
   let totalStudents = 0;
   let totalCourses = 0;
   let publishedCourses = 0;
-  let recentEnrollments: any[] = [];
+  let recentStudents: any[] = [];
   let contactInquiriesCount = 0;
   let recentCourses: any[] = [];
   let isDbConnected = true;
 
   try {
-    const [students, courses, published, enrollments, inquiries, courseList] =
+    const [students, courses, published, studentList, inquiries, courseList] =
       await Promise.all([
         prisma.user.count({ where: { role: "STUDENT" } }),
         prisma.course.count(),
         prisma.course.count({ where: { published: true } }),
-        prisma.enrollment.findMany({
-          take: 8,
-          orderBy: { enrolledAt: "desc" },
+        prisma.user.findMany({
+          where: { role: "STUDENT" },
+          take: 6,
+          orderBy: { createdAt: "desc" },
           include: {
-            user: { select: { id: true, studentId: true, name: true, email: true, phone: true } },
-            course: { select: { id: true, title: true, slug: true } },
+            enrollments: {
+              include: {
+                course: true,
+              },
+            },
           },
         }),
         prisma.contactInquiry.count({ where: { resolved: false } }),
@@ -52,7 +56,7 @@ export default async function AdminOverviewPage() {
     totalStudents = students;
     totalCourses = courses;
     publishedCourses = published;
-    recentEnrollments = enrollments;
+    recentStudents = studentList;
     contactInquiriesCount = inquiries;
     recentCourses = courseList;
   } catch (error) {
@@ -79,7 +83,7 @@ export default async function AdminOverviewPage() {
     },
     {
       label: "Recent Onboardings",
-      value: recentEnrollments.length,
+      value: recentStudents.length,
       sub: "Newly enrolled candidates",
       icon: TrendingUp,
       badge: "Recent Enrollees",
@@ -206,7 +210,7 @@ export default async function AdminOverviewPage() {
             </Link>
           </div>
 
-          {recentEnrollments.length === 0 ? (
+          {recentStudents.length === 0 ? (
             <div className="py-16 text-center space-y-3">
               <Users className="w-10 h-10 text-sage/40 mx-auto" />
               <p className="text-xs font-mono text-sage">No recent student registrations found.</p>
@@ -218,25 +222,25 @@ export default async function AdminOverviewPage() {
             </div>
           ) : (
             <div>
-              {/* 📱 Mobile Responsive Cards (< md screens) */}
+              {/* 📱 Mobile Card View (< md screens) */}
               <div className="block md:hidden divide-y divide-chart-grid/60">
-                {recentEnrollments.map((enr) => (
+                {recentStudents.map((st) => (
                   <Link
-                    key={enr.id}
-                    href={`/admin/students/${enr.user.id}`}
-                    className="block p-4 space-y-2.5 hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                    key={st.id}
+                    href={`/admin/students/${st.id}`}
+                    className="p-4 block space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-sm shrink-0">
-                          {enr.user.name?.charAt(0).toUpperCase()}
+                        <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-xs shrink-0">
+                          {st.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
-                            {enr.user.name}
+                            {st.name}
                           </div>
                           <span className="inline-block mt-0.5 text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.2 rounded">
-                            Reg ID: {enr.user.studentId || `IWPH-${enr.user.id.slice(0, 5)}`}
+                            Reg ID: {st.studentId || `IWPH-${st.id.slice(0, 5)}`}
                           </span>
                         </div>
                       </div>
@@ -245,16 +249,23 @@ export default async function AdminOverviewPage() {
                     </div>
 
                     <div className="text-xs font-mono text-ink-muted space-y-1 bg-linen/50 p-2.5 rounded border border-chart-grid/50">
-                      <div className="truncate text-ink font-sans font-medium">{enr.user.email}</div>
-                      <div className="text-clinical-teal text-[11px]">{enr.user.phone}</div>
+                      <div className="truncate text-ink font-sans font-medium">{st.email}</div>
+                      <div className="text-clinical-teal text-[11px]">{st.phone}</div>
                     </div>
 
                     <div className="flex items-center justify-between text-xs pt-1">
-                      <span className="font-mono text-[11px] text-clinical-teal font-bold truncate max-w-[200px]">
-                        {enr.course.title}
-                      </span>
-                      <span className="text-[10px] font-mono text-sage">
-                        {new Date(enr.enrolledAt).toLocaleDateString("en-GB", {
+                      <div className="flex flex-wrap gap-1">
+                        {st.enrollments.map((e: any) => (
+                          <span
+                            key={e.course.id}
+                            className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold"
+                          >
+                            {e.course.title}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-[10px] font-mono text-sage shrink-0">
+                        {new Date(st.createdAt).toLocaleDateString("en-GB", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
@@ -272,46 +283,57 @@ export default async function AdminOverviewPage() {
                     <tr className="border-b border-chart-grid bg-linen/30 text-sage uppercase font-mono text-[10px]">
                       <th className="px-5 py-3">Student Name & Reg ID</th>
                       <th className="px-5 py-3">Contact Information</th>
-                      <th className="px-5 py-3">Enrolled Program</th>
-                      <th className="px-5 py-3">Enrolled Date</th>
+                      <th className="px-5 py-3">Enrolled Program(s)</th>
+                      <th className="px-5 py-3">Onboarded Date</th>
                       <th className="px-5 py-3 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-chart-grid/50">
-                    {recentEnrollments.map((enr) => (
+                    {recentStudents.map((st) => (
                       <tr
-                        key={enr.id}
+                        key={st.id}
                         className="hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal cursor-pointer"
                       >
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-xs group-hover:scale-105 transition-transform">
-                              {enr.user.name?.charAt(0).toUpperCase()}
+                              {st.name?.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
-                                {enr.user.name}
+                                {st.name}
                               </div>
                               <span className="inline-block mt-0.5 text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.2 rounded">
-                                Reg ID: {enr.user.studentId || `IWPH-${enr.user.id.slice(0, 5)}`}
+                                Reg ID: {st.studentId || `IWPH-${st.id.slice(0, 5)}`}
                               </span>
                             </div>
                           </div>
                         </td>
 
-                        <td className="px-5 py-3.5 font-mono text-ink-muted">
-                          <div className="text-xs text-ink font-sans font-medium">{enr.user.email}</div>
-                          <div className="text-[11px] text-clinical-teal font-mono">{enr.user.phone}</div>
+                        <td className="px-5 py-3.5 font-mono">
+                          <div className="text-xs text-ink font-sans font-medium">{st.email}</div>
+                          <div className="text-[11px] text-clinical-teal">{st.phone}</div>
                         </td>
 
                         <td className="px-5 py-3.5">
-                          <span className="font-semibold text-clinical-teal text-xs block leading-snug">
-                            {enr.course.title}
-                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {st.enrollments.length === 0 ? (
+                              <span className="text-[10px] font-mono text-sage italic">No enrolled programs</span>
+                            ) : (
+                              st.enrollments.map((e: any) => (
+                                <span
+                                  key={e.course.id}
+                                  className="font-semibold text-clinical-teal text-xs block leading-snug bg-clinical-teal/10 border border-clinical-teal/20 px-2 py-0.5 rounded font-mono"
+                                >
+                                  {e.course.title}
+                                </span>
+                              ))
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-5 py-3.5 font-mono text-sage text-xs">
-                          {new Date(enr.enrolledAt).toLocaleDateString("en-GB", {
+                          {new Date(st.createdAt).toLocaleDateString("en-GB", {
                             day: "2-digit",
                             month: "short",
                             year: "numeric",
@@ -319,11 +341,11 @@ export default async function AdminOverviewPage() {
                         </td>
 
                         <td className="px-5 py-3.5 text-right">
-                          <Link href={`/admin/students/${enr.user.id}`}>
+                          <Link href={`/admin/students/${st.id}`}>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-[11px] h-7 px-3 font-semibold border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10 shadow-xs"
+                              className="h-7 px-3 text-[11px] font-semibold border-chart-grid hover:border-clinical-teal hover:text-clinical-teal transition-colors"
                             >
                               Profile
                             </Button>

@@ -180,13 +180,12 @@ export default async function StudentDashboardPage() {
               const isComplete = pct === 100;
               const isStarted = doneCount > 0;
 
-              return (
+              const cardContent = (
                 <div
-                  key={course.id}
-                  className={`bg-surface border rounded-card overflow-hidden transition-all duration-300 group flex flex-col shadow-paper ${
+                  className={`bg-surface border rounded-card overflow-hidden transition-all duration-300 group flex flex-col shadow-paper h-full ${
                     isFrozen
-                      ? "border-chart-red/40 bg-chart-red/5"
-                      : "border-chart-grid hover:border-clinical-teal/40 hover:shadow-xl"
+                      ? "border-chart-red/40 bg-chart-red/5 cursor-not-allowed"
+                      : "border-chart-grid hover:border-clinical-teal hover:shadow-xl cursor-pointer"
                   }`}
                 >
                   {/* Top Progress Indicator Bar */}
@@ -220,7 +219,7 @@ export default async function StudentDashboardPage() {
                           </span>
                         ) : null}
                       </div>
-                      <h3 className="text-base font-semibold font-sans text-ink leading-snug line-clamp-2">
+                      <h3 className="text-base font-semibold font-sans text-ink leading-snug line-clamp-2 group-hover:text-clinical-teal transition-colors">
                         {course.title}
                       </h3>
                     </div>
@@ -264,24 +263,30 @@ export default async function StudentDashboardPage() {
                           </Button>
                         </Link>
                       ) : (
-                        <Link href={`/dashboard/courses/${course.slug}`}>
-                          <Button
-                            className={`w-full gap-2 font-semibold group/btn text-xs ${
-                              isComplete
-                                ? "bg-green-600 hover:bg-green-700 text-white border-0"
-                                : "bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
-                            }`}
-                            size="sm"
-                          >
-                            <PlayCircle className="w-4 h-4" />
-                            {!isStarted ? "Start Learning" : isComplete ? "Review Syllabus" : "Continue Program"}
-                            <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform ml-auto" />
-                          </Button>
-                        </Link>
+                        <Button
+                          className={`w-full gap-2 font-semibold group/btn text-xs ${
+                            isComplete
+                              ? "bg-green-600 hover:bg-green-700 text-white border-0"
+                              : "bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
+                          }`}
+                          size="sm"
+                        >
+                          <PlayCircle className="w-4 h-4" />
+                          {!isStarted ? "Start Learning" : isComplete ? "Review Syllabus" : "Continue Program"}
+                          <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform ml-auto" />
+                        </Button>
                       )}
                     </div>
                   </div>
                 </div>
+              );
+
+              return isFrozen ? (
+                <React.Fragment key={course.id}>{cardContent}</React.Fragment>
+              ) : (
+                <Link key={course.id} href={`/dashboard/courses/${course.slug}`} className="block">
+                  {cardContent}
+                </Link>
               );
             })}
           </div>

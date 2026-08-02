@@ -8,9 +8,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-clinical-teal text-surface hover:bg-chart-red shadow-paper transition-all duration-200",
+          "bg-clinical-teal text-white hover:bg-clinical-teal-hover shadow-paper transition-all duration-200",
         outline:
-          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal hover:text-surface transition-all duration-200",
+          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal hover:text-white transition-all duration-200",
         secondary:
           "bg-sage-light text-ink hover:bg-sage transition-all duration-200",
         danger:

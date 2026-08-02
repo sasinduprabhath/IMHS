@@ -175,7 +175,7 @@ export function CoursePlayerClient({
             </span>
           </div>
 
-          <div className="divide-y divide-chart-grid/60 max-h-[600px] overflow-y-auto">
+          <div className="divide-y divide-chart-grid/60 max-h-[70vh] min-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-clinical-teal/20 hover:scrollbar-thumb-clinical-teal/40">
             
             {/* 📢 Announcements Chapter Section inside Syllabus Sidebar */}
             {course.announcements && course.announcements.length > 0 && (
