@@ -172,10 +172,14 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                           No active courses
                         </span>
                       ) : (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
                           {st.enrollments.map((e) => (
-                            <span key={e.course.id} className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold">
-                              {e.course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
+                            <span
+                              key={e.course.id}
+                              title={e.course.title}
+                              className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold truncate max-w-[180px]"
+                            >
+                              {e.course.title}
                             </span>
                           ))}
                         </div>
