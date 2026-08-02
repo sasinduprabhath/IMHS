@@ -8,6 +8,27 @@ import { sanitizeString, sanitizeEmail } from "@/lib/sanitization";
 
 export const dynamic = "force-dynamic";
 
+async function generateNextStudentId(): Promise<string> {
+  const lastUser = await prisma.user.findFirst({
+    where: {
+      studentId: { startsWith: "IWPH" },
+    },
+    orderBy: { createdAt: "desc" },
+    select: { studentId: true },
+  });
+
+  if (lastUser && lastUser.studentId) {
+    const match = lastUser.studentId.match(/IWPH(\d+)/i);
+    if (match && match[1]) {
+      const nextNum = parseInt(match[1], 10) + 1;
+      return `IWPH${nextNum}`;
+    }
+  }
+
+  const totalCount = await prisma.user.count({ where: { role: "STUDENT" } });
+  return `IWPH${5000 + totalCount + 1}`;
+}
+
 const createStudentSchema = z.object({
   name: z.string().min(2, "Name is required").max(100, "Name too long"),
   email: z.string().email("Valid email is required").max(150, "Email too long"),
@@ -70,10 +91,12 @@ export async function POST(req: Request) {
     }
 
     const passwordHash = await bcrypt.hash(cleanPassword, 12);
+    const studentId = await generateNextStudentId();
 
     // Create user and enrollments in transaction
     const newUser = await prisma.user.create({
       data: {
+        studentId,
         name: cleanName,
         email: cleanEmail,
         phone: cleanPhone,

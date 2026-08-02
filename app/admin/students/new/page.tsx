@@ -40,6 +40,7 @@ export default function AddStudentOnboardingPage() {
     name: string;
     email: string;
     phone: string;
+    studentId?: string;
     tempPass: string;
     courseTitles: string[];
     waLink: string;
@@ -108,6 +109,8 @@ export default function AddStudentOnboardingPage() {
           .filter((c) => selectedCourseIds.includes(c.id))
           .map((c) => c.title);
 
+        const studentId = data.student?.studentId || "NEW";
+
         const waLink = createStudentCredentialsWALink(
           phone,
           name,
@@ -120,6 +123,7 @@ export default function AddStudentOnboardingPage() {
           name,
           email,
           phone,
+          studentId,
           tempPass: tempPassword,
           courseTitles: enrolledTitles,
           waLink,
@@ -187,6 +191,7 @@ export default function AddStudentOnboardingPage() {
             </div>
 
             <div className="space-y-1">
+              <div><span className="text-sage">Student Reg ID:</span> <span className="font-bold text-clinical-teal">{createdStudentData.studentId}</span></div>
               <div><span className="text-sage">Email:</span> {createdStudentData.email}</div>
               <div><span className="text-sage">Phone:</span> {createdStudentData.phone}</div>
               <div><span className="text-sage">Temp Pass:</span> <span className="font-bold text-chart-red">{createdStudentData.tempPass}</span></div>
