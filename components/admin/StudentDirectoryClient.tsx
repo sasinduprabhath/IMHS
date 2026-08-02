@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { createPasswordResetWALink } from "@/lib/whatsapp";
 import {
-  Search, UserPlus, MessageCircle, KeyRound, Eye,
-  Users, CheckCircle2, Copy, Check, RefreshCw, X,
+  Search, UserPlus, MessageCircle, KeyRound, Edit3,
+  Users, CheckCircle2, Copy, Check, RefreshCw, X, Save,
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight
 } from "lucide-react";
 
@@ -27,14 +28,25 @@ interface StudentItem {
 const ITEMS_PER_PAGE = 20;
 
 export function StudentDirectoryClient({ initialStudents }: { initialStudents: StudentItem[] }) {
+  const router = useRouter();
   const [students, setStudents] = useState<StudentItem[]>(initialStudents);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Password reset modal state
   const [resetModalStudent, setResetModalStudent] = useState<StudentItem | null>(null);
   const [newTempPassword, setNewTempPassword] = useState("");
   const [resetSuccessLink, setResetSuccessLink] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Edit details modal state
+  const [editModalStudent, setEditModalStudent] = useState<StudentItem | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editStudentId, setEditStudentId] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const filteredStudents = students.filter(
     (s) =>
@@ -94,6 +106,58 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
     }
   };
 
+  const openEditModal = (st: StudentItem) => {
+    setEditModalStudent(st);
+    setEditName(st.name);
+    setEditEmail(st.email);
+    setEditPhone(st.phone);
+    setEditStudentId(st.studentId || "");
+  };
+
+  const handleSaveEditStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editModalStudent) return;
+
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`/api/admin/students/${editModalStudent.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName,
+          email: editEmail,
+          phone: editPhone,
+          studentId: editStudentId,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        // Update local state
+        setStudents((prev) =>
+          prev.map((s) =>
+            s.id === editModalStudent.id
+              ? {
+                  ...s,
+                  name: editName,
+                  email: editEmail,
+                  phone: editPhone,
+                  studentId: editStudentId,
+                }
+              : s
+          )
+        );
+        setEditModalStudent(null);
+      } else {
+        alert(data.message || "Failed to update student details");
+      }
+    } catch {
+      alert("Error updating student details");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedLink(true);
@@ -150,14 +214,21 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                 </tr>
               ) : (
                 paginatedStudents.map((st) => (
-                  <tr key={st.id} className="hover:bg-linen/30 transition-colors group">
+                  <tr
+                    key={st.id}
+                    onClick={() => router.push(`/admin/students/${st.id}`)}
+                    className="hover:bg-linen/40 transition-colors group cursor-pointer"
+                    title="Click row to view full student profile"
+                  >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-xs">
                           {st.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="font-semibold text-ink text-sm">{st.name}</div>
+                          <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                            {st.name}
+                          </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.2 rounded">
                               Reg ID: {st.studentId}
@@ -200,8 +271,18 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                       </div>
                     </td>
 
-                    <td className="p-4 text-right">
+                    <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2.5 text-[11px] gap-1 font-semibold border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10"
+                          onClick={() => openEditModal(st)}
+                        >
+                          <Edit3 className="w-3 h-3 text-clinical-teal" />
+                          <span>Edit Details</span>
+                        </Button>
+
                         <Button
                           size="sm"
                           variant="outline"
@@ -215,13 +296,6 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                           <KeyRound className="w-3 h-3 text-chart-red" />
                           <span>Reset Pass</span>
                         </Button>
-
-                        <Link href={`/admin/students/${st.id}`}>
-                          <Button size="sm" variant="default" className="h-7 px-2.5 text-[11px] gap-1 font-semibold">
-                            <Eye className="w-3 h-3" />
-                            <span>View Record</span>
-                          </Button>
-                        </Link>
                       </div>
                     </td>
                   </tr>
@@ -292,6 +366,109 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
           </div>
         )}
       </div>
+
+      {/* Edit Student Details Modal */}
+      <AnimatePresence>
+        {editModalStudent && (
+          <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-surface border border-chart-grid rounded-card shadow-2xl max-w-md w-full p-6 space-y-5"
+            >
+              <div className="flex items-center justify-between border-b border-chart-grid pb-3">
+                <div className="flex items-center gap-2">
+                  <Edit3 className="w-5 h-5 text-clinical-teal" />
+                  <h3 className="text-base font-display font-semibold text-ink">
+                    Edit Student Details
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setEditModalStudent(null)}
+                  className="text-sage hover:text-ink p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEditStudent} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono text-ink font-medium">
+                    Student Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-sans text-ink focus:outline-none focus:border-clinical-teal"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono text-ink font-medium">
+                    Student Reg ID *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editStudentId}
+                    onChange={(e) => setEditStudentId(e.target.value)}
+                    placeholder="e.g. IWPH4131"
+                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono text-ink font-medium">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono text-ink font-medium">
+                    WhatsApp Phone Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-3 border-t border-chart-grid">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full text-xs"
+                    onClick={() => setEditModalStudent(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSavingEdit}
+                    className="w-full gap-1.5 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    {isSavingEdit ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Password Reset Modal */}
       <AnimatePresence>

@@ -51,13 +51,14 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
-    const { status, name, email, phone } = body;
+    const { status, name, email, phone, studentId } = body;
 
     const updateData: any = {};
     if (status !== undefined) updateData.status = status; // "ACTIVE" | "FROZEN"
     if (name) updateData.name = name;
     if (email) updateData.email = email;
     if (phone) updateData.phone = phone;
+    if (studentId !== undefined) updateData.studentId = studentId;
 
     const updatedStudent = await prisma.user.update({
       where: { id },
