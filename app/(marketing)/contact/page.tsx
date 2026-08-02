@@ -66,7 +66,7 @@ export default function ContactPage() {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const inputClass = "w-full px-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all duration-200 font-sans placeholder:text-sage";
+  const inputClass = "w-full px-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal focus:ring-2 focus:ring-clinical-teal/15 focus:bg-white transition-all duration-200 font-sans placeholder:text-sage";
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
@@ -124,18 +124,52 @@ export default function ContactPage() {
                     key="success"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-clinical-teal/8 border border-clinical-teal/30 p-8 rounded-card text-center space-y-4"
+                    className="border border-clinical-teal/30 rounded-card overflow-hidden"
                   >
-                    <div className="w-16 h-16 bg-clinical-teal/15 rounded-full flex items-center justify-center mx-auto">
-                      <CheckCircle2 className="w-8 h-8 text-clinical-teal" />
+                    {/* Chart-readout header */}
+                    <div className="bg-linen/60 border-b border-clinical-teal/20 px-6 py-3 flex items-center justify-between">
+                      <p className="text-[9px] font-mono uppercase tracking-widest text-sage font-bold">
+                        Inquiry Received
+                      </p>
+                      <span className="text-[9px] font-mono text-sage">
+                        REF #{Date.now().toString().slice(-6)}
+                      </span>
                     </div>
-                    <h3 className="text-lg font-semibold text-ink font-display">Inquiry Submitted Successfully</h3>
-                    <p className="text-sm text-ink-muted leading-relaxed">
-                      Thank you! Our administrative desk has received your inquiry. You may also contact us on WhatsApp for instant onboarding.
-                    </p>
-                    <Button size="sm" variant="outline" onClick={() => setSubmitted(false)}>
-                      Send Another Message
-                    </Button>
+                    {/* Status row */}
+                    <div className="px-6 py-5 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-clinical-teal/10 border border-clinical-teal/20 rounded-full flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-5 h-5 text-clinical-teal" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-ink">Message received successfully</p>
+                          <p className="text-xs text-ink-muted mt-0.5">We&apos;ll reach out on WhatsApp shortly</p>
+                        </div>
+                      </div>
+                      <div className="border border-chart-grid rounded-xl divide-y divide-chart-grid/60">
+                        <div className="flex items-center justify-between px-4 py-2.5">
+                          <span className="text-[10px] font-mono uppercase text-sage tracking-wider">Status</span>
+                          <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-clinical-teal">
+                            <span className="w-1.5 h-1.5 rounded-full bg-clinical-teal inline-block animate-pulse" />
+                            PENDING REVIEW
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between px-4 py-2.5">
+                          <span className="text-[10px] font-mono uppercase text-sage tracking-wider">Response Via</span>
+                          <span className="text-[10px] font-mono font-bold text-ink">WhatsApp Desk</span>
+                        </div>
+                        <div className="flex items-center justify-between px-4 py-2.5">
+                          <span className="text-[10px] font-mono uppercase text-sage tracking-wider">Est. Response</span>
+                          <span className="text-[10px] font-mono font-bold text-ink">&lt; 24 Business Hours</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setSubmitted(false)}
+                        className="text-xs font-mono text-sage hover:text-ink underline underline-offset-2 transition-colors"
+                      >
+                        Send another message
+                      </button>
+                    </div>
                   </motion.div>
                 ) : (
                   <motion.form
@@ -202,13 +236,13 @@ export default function ContactPage() {
             </div>
 
             {/* Contact details */}
-            <div className="bg-surface border border-chart-grid rounded-card p-6 space-y-4 shadow-paper">
-              <h3 className="text-sm font-mono font-semibold text-ink uppercase tracking-wider border-b border-chart-grid pb-3">
-                Campus & Office
+            <div className="bg-surface border border-chart-grid rounded-card p-6 shadow-paper">
+              <h3 className="text-sm font-mono font-semibold text-ink uppercase tracking-wider border-b border-chart-grid pb-3 mb-1">
+                Campus &amp; Office
               </h3>
-              <div className="space-y-4">
+              <div className="divide-y divide-chart-grid/50">
                 {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-start gap-3">
+                  <div key={label} className="flex items-start gap-3 py-3">
                     <div className="w-8 h-8 bg-clinical-teal/10 rounded border border-clinical-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Icon className="w-4 h-4 text-clinical-teal" />
                     </div>

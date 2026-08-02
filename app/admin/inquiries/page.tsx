@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { AdminInquiriesClient } from "@/components/admin/AdminInquiriesClient";
 
 export const metadata = {
-  title: "Contact Form Submissions & Inquiries — IMHS Admin",
+  title: "Contact Form Submissions & Inquiries - IMHS Admin",
 };
 
 export const revalidate = 0;

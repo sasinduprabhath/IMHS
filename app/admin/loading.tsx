@@ -1,7 +1,7 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// This renders inside <main> in the admin layout — the sidebar persists.
+// This renders inside <main> in the admin layout - the sidebar persists.
 export default function AdminLoading() {
   return (
     <div className="space-y-6 animate-pulse">

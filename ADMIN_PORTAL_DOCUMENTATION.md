@@ -1,4 +1,4 @@
-# 🏥 IMHS Clinical Education Portal — Admin Panel Documentation
+# 🏥 IMHS Clinical Education Portal - Admin Panel Documentation
 
 > **Complete System Reference Guide**: Architecture, Pages, UI Layout, Workflows, Modals, and API Endpoints for the Institute of Medicine & Health Sciences (IMHS) Administration Control Panel.
 

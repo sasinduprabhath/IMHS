@@ -17,7 +17,7 @@ import {
   IdCard,
 } from "lucide-react";
 
-export const metadata = { title: "Admin Executive Dashboard — IMHS Console" };
+export const metadata = { title: "Admin Executive Dashboard - IMHS Console" };
 export const revalidate = 0;
 
 export default async function AdminOverviewPage() {
@@ -114,7 +114,7 @@ export default async function AdminOverviewPage() {
             </div>
           </div>
           <div className="text-3xl font-mono font-bold text-ink mb-3">
-            {isDbConnected ? totalStudents.toLocaleString() : "—"}
+            {isDbConnected ? totalStudents.toLocaleString() : "-"}
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
             <p className="text-xs text-ink-muted">Registered learner accounts</p>
@@ -140,7 +140,7 @@ export default async function AdminOverviewPage() {
                 {publishedCourses}{" "}
                 <span className="text-xl text-sage font-normal">/ {totalCourses}</span>
               </span>
-            ) : "—"}
+            ) : "-"}
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
             <p className="text-xs text-ink-muted">Published / total programs</p>
@@ -161,7 +161,7 @@ export default async function AdminOverviewPage() {
             </div>
           </div>
           <div className="text-3xl font-mono font-bold text-ink mb-3">
-            {isDbConnected ? recentStudents.length : "—"}
+            {isDbConnected ? recentStudents.length : "-"}
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
             <p className="text-xs text-ink-muted">Newly enrolled candidates</p>
@@ -174,36 +174,31 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Card: Action Required */}
-        <div className={`border rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 group ${
-          contactInquiriesCount > 0
+        <div className={`border rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 group ${contactInquiriesCount > 0
             ? "bg-chart-red/4 border-chart-red/30"
             : "bg-white border-chart-grid"
-        }`}>
+          }`}>
           <div className="flex items-center justify-between mb-4">
-            <span className={`text-[10px] font-mono uppercase tracking-widest font-bold ${
-              contactInquiriesCount > 0 ? "text-chart-red/70" : "text-sage"
-            }`}>Action Required</span>
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-              contactInquiriesCount > 0
+            <span className={`text-[10px] font-mono uppercase tracking-widest font-bold ${contactInquiriesCount > 0 ? "text-chart-red/70" : "text-sage"
+              }`}>Action Required</span>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${contactInquiriesCount > 0
                 ? "bg-chart-red/10 group-hover:bg-chart-red/20"
                 : "bg-linen group-hover:bg-linen/70"
-            }`}>
+              }`}>
               <AlertTriangle className={`w-4 h-4 ${contactInquiriesCount > 0 ? "text-chart-red" : "text-sage"}`} />
             </div>
           </div>
-          <div className={`text-3xl font-mono font-bold mb-3 ${
-            contactInquiriesCount > 0 ? "text-chart-red" : "text-ink"
-          }`}>
-            {isDbConnected ? contactInquiriesCount.toLocaleString() : "—"}
+          <div className={`text-3xl font-mono font-bold mb-3 ${contactInquiriesCount > 0 ? "text-chart-red" : "text-ink"
+            }`}>
+            {isDbConnected ? contactInquiriesCount.toLocaleString() : "-"}
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
             <p className="text-xs text-ink-muted">Pending student inquiries</p>
             <Link href="/admin/inquiries">
-              <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full cursor-pointer transition-colors ${
-                contactInquiriesCount > 0
+              <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full cursor-pointer transition-colors ${contactInquiriesCount > 0
                   ? "text-white bg-chart-red hover:bg-chart-red-hover"
                   : "text-sage bg-linen border border-chart-grid"
-              }`}>
+                }`}>
                 {contactInquiriesCount > 0 ? "Action needed" : "All clear"}
               </span>
             </Link>
@@ -323,7 +318,7 @@ export default async function AdminOverviewPage() {
                         {/* Contact */}
                         <td className="px-5 py-4">
                           <p className="text-xs text-ink font-medium leading-snug">{st.email}</p>
-                          <p className="text-[11px] text-clinical-teal font-mono mt-0.5">{st.phone || "—"}</p>
+                          <p className="text-[11px] text-clinical-teal font-mono mt-0.5">{st.phone || "-"}</p>
                         </td>
 
                         {/* Courses */}

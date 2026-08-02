@@ -5,9 +5,9 @@ import { HomePageClient } from "@/components/marketing/HomePageClient";
 export const revalidate = 60;
 
 export const metadata = {
-  title: "IMHS — Institute of Medicine and Health Sciences",
+  title: "IMHS - Institute of Medicine and Health Sciences",
   description:
-    "IMHS (Institute of Medicine & Health Sciences) — est. 2019. Professional pharmaceutical and clinical healthcare education for SLMC candidates, pharmacy graduates, and healthcare professionals in Sri Lanka.",
+    "IMHS (Institute of Medicine & Health Sciences) - est. 2019. Professional pharmaceutical and clinical healthcare education for SLMC candidates, pharmacy graduates, and healthcare professionals in Sri Lanka.",
 };
 
 export default async function Homepage() {

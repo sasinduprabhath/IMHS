@@ -353,7 +353,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   );
   const facultyOptions = unassignedFaculty.map((f) => ({
     value: f.id,
-    label: `${f.name} — ${f.title}`,
+    label: `${f.name} - ${f.title}`,
   }));
 
   const totalLessons = chapters.reduce((acc, c) => acc + c.lessons.length, 0);
@@ -419,8 +419,8 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
         {TABS.map(({ id, label, icon: Icon }) => {
           const badge =
             id === "instructors" ? assignedInstructors.length :
-            id === "announcements" ? announcements.length :
-            id === "syllabus" ? chapters.length : null;
+              id === "announcements" ? announcements.length :
+                id === "syllabus" ? chapters.length : null;
 
           return (
             <button
@@ -549,7 +549,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               </div>
               <div>
                 <label className="block text-xs font-mono text-ink font-bold mb-1.5">
-                  Original Price (LKR — Strikethrough)
+                  Original Price (LKR - Strikethrough)
                 </label>
                 <input
                   type="number"
@@ -620,7 +620,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-xs font-mono text-ink-muted">
-                    ⚠ Image failed to load — check the URL
+                    ⚠ Image failed to load - check the URL
                   </div>
                 )}
               </div>
@@ -630,7 +630,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               <div>
                 <p className="text-sm font-medium text-ink">Publish to Catalog</p>
                 <p className="text-xs text-ink-muted mt-0.5">
-                  {published ? "Visible to the public and enrollable." : "Hidden — only visible to admins."}
+                  {published ? "Visible to the public and enrollable." : "Hidden - only visible to admins."}
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -682,7 +682,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                     key={cIdx}
                     className="border border-chart-grid rounded-card overflow-hidden bg-surface shadow-paper"
                   >
-                    {/* Chapter Header — always visible */}
+                    {/* Chapter Header - always visible */}
                     <div className="flex items-center gap-2 px-4 py-3 bg-linen/50 border-b border-chart-grid/60">
                       {/* Collapse toggle */}
                       <button
@@ -751,7 +751,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                       </div>
                     </div>
 
-                    {/* Lessons — collapsible */}
+                    {/* Lessons - collapsible */}
                     {isOpen && (
                       <div>
                         {chapter.lessons.length === 0 ? (
@@ -838,7 +838,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                                         />
                                       )}
 
-                                      {/* Companion PDF — only shown for video lessons */}
+                                      {/* Companion PDF - only shown for video lessons */}
                                       {(lesson.type || "VIDEO") === "VIDEO" && (
                                         <input
                                           type="text"

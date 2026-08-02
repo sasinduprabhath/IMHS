@@ -11,7 +11,7 @@ import {
   Trophy, GraduationCap, FileText, Lock,
 } from "lucide-react";
 
-export const metadata = { title: "My Courses — IMHS Student Portal" };
+export const metadata = { title: "My Courses - IMHS Student Portal" };
 export const revalidate = 0;
 
 export default async function StudentDashboardPage() {
@@ -180,18 +180,16 @@ export default async function StudentDashboardPage() {
 
               const CardInner = (
                 <div
-                  className={`bg-white border rounded-2xl overflow-hidden flex flex-col h-full shadow-sm transition-all duration-200 ${
-                    isFrozen
+                  className={`bg-white border rounded-2xl overflow-hidden flex flex-col h-full shadow-sm transition-all duration-200 ${isFrozen
                       ? "border-chart-red/30"
                       : "border-chart-grid hover:border-clinical-teal/40 hover:shadow-md"
-                  }`}
+                    }`}
                 >
                   {/* Top progress accent */}
                   <div className="h-1 bg-linen relative overflow-hidden">
                     <div
-                      className={`absolute inset-y-0 left-0 transition-all duration-700 ${
-                        isFrozen ? "bg-chart-red/40" : isComplete ? "bg-clinical-teal" : "bg-clinical-teal"
-                      }`}
+                      className={`absolute inset-y-0 left-0 transition-all duration-700 ${isFrozen ? "bg-chart-red/40" : isComplete ? "bg-clinical-teal" : "bg-clinical-teal"
+                        }`}
                       style={{ width: `${Math.max(isFrozen ? 100 : 0, pct)}%` }}
                     />
                   </div>
@@ -263,7 +261,7 @@ export default async function StudentDashboardPage() {
                           className="flex w-full items-center justify-center gap-2 text-xs font-semibold font-mono border border-chart-red text-chart-red hover:bg-chart-red hover:text-white px-4 py-2 rounded-xl transition-all duration-200"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          Access Frozen — Contact Administration
+                          Access Frozen - Contact Administration
                         </a>
                       ) : (
                         <div className="flex items-center gap-2">

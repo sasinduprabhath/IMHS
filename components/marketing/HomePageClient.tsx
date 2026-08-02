@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { VitalLine } from "@/components/ui/vital-line";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
+import { DoseCurve } from "@/components/marketing/DoseCurve";
+import { BlisterDivider } from "@/components/marketing/BlisterDivider";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 import {
   RevealOnScroll,
@@ -152,32 +154,10 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 Sri Lanka Best{" "}
                 <span className="relative inline-block text-chart-red">
                   Healthcare
-                  {/* Dynamic Curved Underline Swoosh - Repeating 4-Second Loop */}
-                  <svg
-                    className="absolute -bottom-4 left-0 w-full h-5 sm:h-6 text-chart-red overflow-visible pointer-events-none"
-                    viewBox="0 0 500 160"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    preserveAspectRatio="none"
-                  >
-                    <motion.path
-                      d="M 10 140 C 130 45, 370 40, 490 135"
-                      stroke="currentColor"
-                      strokeWidth="26"
-                      strokeLinecap="round"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{
-                        pathLength: [0, 1, 1, 0],
-                        opacity: [0, 1, 1, 0],
-                      }}
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        times: [0, 0.35, 0.85, 1],
-                        ease: "easeInOut",
-                      }}
-                    />
-                  </svg>
+                  {/* Dose Curve — pharmacokinetic absorption curve under keyword */}
+                  <span className="absolute -bottom-5 left-0 w-full">
+                    <DoseCurve variant="hero" />
+                  </span>
                 </span>{" "}
                 Education
               </h1>
@@ -302,9 +282,11 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
 
       {/* ── 2. TRUST STRIP ─────────────────────────────────────────── */}
       <section className="bg-surface border-b border-chart-grid py-6">
+        {/* Blister pack rhythm divider at the top edge */}
+        <BlisterDivider className="mb-4" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center font-mono text-[10px] uppercase tracking-widest text-sage mb-5">
-            Recognized Standards & Certifications
+            Recognized Standards &amp; Certifications
           </p>
           <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -506,14 +488,17 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             {HOW_IT_WORKS.map(({ step, icon: Icon, title, body }, index) => (
               <StaggerItem key={step}>
                 <div className="relative text-center space-y-4 group">
-                  {/* Connector line */}
+                  {/* Dose Curve connector between steps */}
                   {index < HOW_IT_WORKS.length - 1 && (
-                    <div className="hidden md:block absolute top-10 left-[calc(50%+32px)] right-0 h-px border-t border-dashed border-chart-grid" />
+                    <div className="hidden md:block absolute top-10 left-[calc(50%+32px)] right-0 overflow-hidden">
+                      <DoseCurve variant="divider" />
+                    </div>
                   )}
 
                   <div className="relative mx-auto w-20 h-20 bg-clinical-teal-surface border border-clinical-teal/20 rounded-full flex items-center justify-center group-hover:border-clinical-teal group-hover:shadow-md transition-all duration-300">
                     <Icon className="w-8 h-8 text-clinical-teal" />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-chart-red rounded-full flex items-center justify-center">
+                    {/* Step number in sage — pharmacy-green accent */}
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-sage rounded-full flex items-center justify-center">
                       <span className="text-[10px] font-mono font-bold text-white">{step}</span>
                     </div>
                   </div>
@@ -567,7 +552,9 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                         ))}
                       </div>
                       <p className="text-sm text-ink-muted leading-relaxed italic flex-1">
-                        &ldquo;{t.quote}&rdquo;
+                        {/* ℞ glyph as opening quote — pharmacy identity detail */}
+                        <span className="font-mono text-chart-red text-lg font-bold not-italic mr-1">℞</span>
+                        {t.quote}
                       </p>
                       <div className="pt-2 border-t border-chart-grid/60">
                         <p className="text-sm font-semibold text-ink font-sans">{t.studentName}</p>

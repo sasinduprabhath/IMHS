@@ -64,7 +64,7 @@ function generateTempPassword(): string {
   return pass;
 }
 
-// ─── Step 1 — Personal Details ────────────────────────────────────────────────
+// ─── Step 1 - Personal Details ────────────────────────────────────────────────
 function Step1({
   form,
   setForm,
@@ -134,7 +134,7 @@ function Step1({
   );
 }
 
-// ─── Step 2 — Access Setup ────────────────────────────────────────────────────
+// ─── Step 2 - Access Setup ────────────────────────────────────────────────────
 function Step2({
   form,
   setForm,
@@ -234,7 +234,7 @@ function Step2({
                   <input
                     type="checkbox"
                     checked={checked}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     className="w-4 h-4 accent-clinical-teal shrink-0 ml-3"
                   />
                 </div>
@@ -247,7 +247,7 @@ function Step2({
   );
 }
 
-// ─── Step 3 — Confirm & Send ──────────────────────────────────────────────────
+// ─── Step 3 - Confirm & Send ──────────────────────────────────────────────────
 function Step3Confirm({
   confirmed,
   onAddAnother,
@@ -496,8 +496,8 @@ export default function AddStudentWizardPage() {
                     active
                       ? "bg-chart-red text-white shadow-md"
                       : done
-                      ? "bg-chart-red/20 text-chart-red border border-chart-red/30"
-                      : "bg-linen border border-chart-grid text-ink-muted"
+                        ? "bg-chart-red/20 text-chart-red border border-chart-red/30"
+                        : "bg-linen border border-chart-grid text-ink-muted"
                   )}
                 >
                   {done && step !== s.id ? (
@@ -592,7 +592,7 @@ export default function AddStudentWizardPage() {
           )}
         </div>
 
-        {/* Navigation Footer — hidden on step 3 confirmed */}
+        {/* Navigation Footer - hidden on step 3 confirmed */}
         {!(step === 3 && confirmed) && (
           <div className="px-6 py-4 border-t border-chart-grid flex items-center justify-between bg-linen/20">
             <Button

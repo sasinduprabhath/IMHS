@@ -22,10 +22,14 @@ import {
 const SIDEBAR_STORAGE_KEY = "imhs_student_sidebar_collapsed";
 
 const NAV_LINKS = [
-  { href: "/dashboard", label: "My Courses", icon: GraduationCap, exact: false,
-    match: (p: string) => p.startsWith("/dashboard") && !p.startsWith("/dashboard/profile") },
-  { href: "/dashboard/profile", label: "Profile", icon: UserCircle, exact: true,
-    match: (p: string) => p === "/dashboard/profile" },
+  {
+    href: "/dashboard", label: "My Courses", icon: GraduationCap, exact: false,
+    match: (p: string) => p.startsWith("/dashboard") && !p.startsWith("/dashboard/profile")
+  },
+  {
+    href: "/dashboard/profile", label: "Profile", icon: UserCircle, exact: true,
+    match: (p: string) => p === "/dashboard/profile"
+  },
 ];
 
 export function StudentSidebar({ user }: { user: any }) {
@@ -161,7 +165,7 @@ export function StudentSidebar({ user }: { user: any }) {
           collapsed && !isMobile ? "flex flex-col items-center gap-1" : ""
         )}
       >
-        {/* Admin Console — only for admin previewing student portal */}
+        {/* Admin Console - only for admin previewing student portal */}
         {user?.role === "ADMIN" && (
           <Link
             href="/admin"
@@ -217,7 +221,7 @@ export function StudentSidebar({ user }: { user: any }) {
           )}
         </button>
 
-        {/* Collapse toggle — desktop only */}
+        {/* Collapse toggle - desktop only */}
         {!isMobile && (
           <button
             onClick={toggleCollapse}

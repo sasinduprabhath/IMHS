@@ -6,7 +6,7 @@ import { FacultyClientModal } from "@/components/marketing/FacultyClientModal";
 import { Stethoscope, Users, Star, GraduationCap, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Faculty Directory — IMHS Senior Lecturers & Directors",
+  title: "Faculty Directory - IMHS Senior Lecturers & Directors",
   description: "Meet the senior consultants, pharmacists, and healthcare directors teaching at IMHS.",
 };
 

@@ -41,21 +41,21 @@ interface ChapterDraft {
 }
 
 interface CourseForm {
-  // Step 1 — Identity
+  // Step 1 - Identity
   title: string;
   slug: string;
   type: string;
   category: string;
-  // Step 2 — Pricing
+  // Step 2 - Pricing
   price: number | "";
   originalPrice: number | "";
-  // Step 3 — Details
+  // Step 3 - Details
   level: string;
   description: string;
   coverImage: string;
-  // Step 4 — Syllabus
+  // Step 4 - Syllabus
   chapters: ChapterDraft[];
-  // Step 5 — Publish
+  // Step 5 - Publish
   published: boolean;
 }
 
@@ -201,7 +201,7 @@ function Step2({
 
         <div>
           <label className="block text-xs font-mono text-ink font-bold mb-1.5">
-            Original Price (රු — Strikethrough, optional)
+            Original Price (රු - Strikethrough, optional)
           </label>
           <input
             type="number"
@@ -323,7 +323,7 @@ function Step3({
               />
             ) : (
               <div className="flex items-center justify-center h-full text-xs font-mono text-ink-muted">
-                ⚠ Image failed to load — check the URL
+                ⚠ Image failed to load - check the URL
               </div>
             )}
           </div>
@@ -376,18 +376,18 @@ function Step4({
       chapters: f.chapters.map((c) =>
         c.tempId === cId
           ? {
-              ...c,
-              lessons: [
-                ...c.lessons,
-                {
-                  tempId: uid(),
-                  title: `Lesson ${c.lessons.length + 1}`,
-                  type: "VIDEO",
-                  vimeoVideoId: "",
-                  driveFileId: "",
-                },
-              ],
-            }
+            ...c,
+            lessons: [
+              ...c.lessons,
+              {
+                tempId: uid(),
+                title: `Lesson ${c.lessons.length + 1}`,
+                type: "VIDEO",
+                vimeoVideoId: "",
+                driveFileId: "",
+              },
+            ],
+          }
           : c
       ),
     }));
@@ -398,9 +398,9 @@ function Step4({
       chapters: f.chapters.map((c) =>
         c.tempId === cId
           ? {
-              ...c,
-              lessons: c.lessons.map((l) => (l.tempId === lId ? { ...l, ...patch } : l)),
-            }
+            ...c,
+            lessons: c.lessons.map((l) => (l.tempId === lId ? { ...l, ...patch } : l)),
+          }
           : c
       ),
     }));
@@ -486,7 +486,7 @@ function Step4({
             {/* Lessons */}
             {chapter.lessons.length === 0 ? (
               <div className="px-4 py-3 text-xs font-mono text-sage">
-                No lessons — click <Plus className="w-3 h-3 inline" /> to add one.
+                No lessons - click <Plus className="w-3 h-3 inline" /> to add one.
               </div>
             ) : (
               <div className="divide-y divide-chart-grid/60">
@@ -732,8 +732,8 @@ export default function NewCoursePage() {
                     active
                       ? "bg-clinical-teal text-white shadow-md"
                       : done
-                      ? "bg-clinical-teal/20 text-clinical-teal border border-clinical-teal/30"
-                      : "bg-linen border border-chart-grid text-ink-muted"
+                        ? "bg-clinical-teal/20 text-clinical-teal border border-clinical-teal/30"
+                        : "bg-linen border border-chart-grid text-ink-muted"
                   )}
                 >
                   {done ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}

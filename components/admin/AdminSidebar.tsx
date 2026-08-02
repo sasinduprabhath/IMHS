@@ -95,7 +95,7 @@ export function AdminSidebar({ user }: { user: any }) {
           )}
         </Link>
 
-        {/* Admin badge — visible when expanded */}
+        {/* Admin badge - visible when expanded */}
         {(!collapsed || isMobile) && (
           <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-chart-red text-white px-2 py-0.5 rounded font-bold tracking-wider shadow-xs shrink-0 ml-auto">
             <ShieldCheck className="w-2.5 h-2.5" />
@@ -152,7 +152,7 @@ export function AdminSidebar({ user }: { user: any }) {
           );
         })}
 
-        {/* Quick Actions — visible when expanded */}
+        {/* Quick Actions - visible when expanded */}
         {(!collapsed || isMobile) && (
           <>
             <div className="pt-4 pb-1">
@@ -180,7 +180,7 @@ export function AdminSidebar({ user }: { user: any }) {
         )}
       </nav>
 
-      {/* Footer — Student Portal + Sign Out */}
+      {/* Footer - Student Portal + Sign Out */}
       <div
         className={cn(
           "border-t border-chart-grid py-3 px-2 space-y-0.5 shrink-0",
@@ -220,7 +220,7 @@ export function AdminSidebar({ user }: { user: any }) {
           )}
         </button>
 
-        {/* Collapse toggle — desktop only */}
+        {/* Collapse toggle - desktop only */}
         {!isMobile && (
           <button
             onClick={toggleCollapse}

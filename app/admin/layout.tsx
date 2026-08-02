@@ -21,7 +21,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-linen font-sans">
-      {/* Left sidebar — sticky, full height */}
+      {/* Left sidebar - sticky, full height */}
       <AdminSidebar user={session.user} />
 
       {/* Main content area */}

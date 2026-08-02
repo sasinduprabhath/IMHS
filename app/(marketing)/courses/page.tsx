@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/utils";
 import { RevealOnScroll, StaggerChildren, StaggerItem, HoverCard, AnimatedGrid, GlowOrb } from "@/components/ui/animations";
 import { Button } from "@/components/ui/button";
 import { CourseSearchClient } from "@/components/marketing/CourseSearchClient";
+import { BlisterDivider } from "@/components/marketing/BlisterDivider";
 import {
   BookOpen, Clock, Users, Star, ArrowRight, Search,
   GraduationCap, ShieldCheck, PhoneCall
@@ -13,7 +14,7 @@ import {
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 
 export const metadata = {
-  title: "Course Catalog — IMHS Clinical Education Programs",
+  title: "Course Catalog - IMHS Clinical Education Programs",
   description: "Browse accredited pharmaceutical, clinical pathology, and healthcare education courses at IMHS, Sri Lanka.",
 };
 
@@ -82,6 +83,8 @@ export default async function CoursesCatalogPage() {
 
       {/* ── SEARCH & COURSES ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
+        {/* Blister-cell rhythm at top of grid */}
+        <BlisterDivider className="mb-2" />
         <CourseSearchClient courses={courses} />
       </section>
 

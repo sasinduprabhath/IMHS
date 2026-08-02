@@ -176,7 +176,7 @@ export function CoursePlayerClient({
           </div>
 
           <div className="divide-y divide-chart-grid/60 max-h-[70vh] min-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-clinical-teal/20 hover:scrollbar-thumb-clinical-teal/40">
-            
+
             {/* 📢 Announcements Chapter Section inside Syllabus Sidebar */}
             {course.announcements && course.announcements.length > 0 && (
               <div className="p-3 bg-chart-red/5 border-b border-chart-red/20 space-y-2">
@@ -191,27 +191,24 @@ export function CoursePlayerClient({
                       <button
                         key={ann.id}
                         onClick={() => handleSelectAnnouncement(ann.id)}
-                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 ${
-                          isSelected
+                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 ${isSelected
                             ? "bg-chart-red text-white font-semibold shadow-sm"
                             : "hover:bg-chart-red/10 text-ink bg-white/60 border border-chart-red/20"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2 overflow-hidden flex-1">
                           <Megaphone
-                            className={`w-4 h-4 shrink-0 ${
-                              isSelected ? "text-white" : "text-chart-red"
-                            }`}
+                            className={`w-4 h-4 shrink-0 ${isSelected ? "text-white" : "text-chart-red"
+                              }`}
                           />
                           <span className="truncate">{ann.title}</span>
                         </div>
 
                         <span
-                          className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded shrink-0 ${
-                            isSelected
+                          className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded shrink-0 ${isSelected
                               ? "bg-white/20 text-white"
                               : "bg-chart-red/10 text-chart-red border border-chart-red/20"
-                          }`}
+                            }`}
                         >
                           NOTICE
                         </span>
@@ -241,40 +238,36 @@ export function CoursePlayerClient({
                       <button
                         key={lesson.id}
                         onClick={() => handleSelectLesson(lesson.id)}
-                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 border-l-2 ${
-                          isSelected
+                        className={`w-full text-left p-2.5 rounded text-xs transition-colors flex items-center justify-between gap-2 border-l-2 ${isSelected
                             ? "bg-clinical-teal text-white font-semibold shadow-sm border-l-white/40"
                             : isDone
-                            ? "hover:bg-linen text-ink border-l-clinical-teal/30"
-                            : "hover:bg-linen text-ink border-l-transparent"
-                        }`}
+                              ? "hover:bg-linen text-ink border-l-clinical-teal/30"
+                              : "hover:bg-linen text-ink border-l-transparent"
+                          }`}
                       >
                         <div className="flex items-center gap-2 overflow-hidden flex-1">
                           {isDone ? (
                             <CheckCircle2
-                              className={`w-4 h-4 shrink-0 ${
-                                isSelected ? "text-white" : "text-clinical-teal"
-                              }`}
+                              className={`w-4 h-4 shrink-0 ${isSelected ? "text-white" : "text-clinical-teal"
+                                }`}
                             />
                           ) : (
                             <Circle
-                              className={`w-4 h-4 shrink-0 ${
-                                isSelected ? "text-white" : "text-sage"
-                              }`}
+                              className={`w-4 h-4 shrink-0 ${isSelected ? "text-white" : "text-sage"
+                                }`}
                             />
                           )}
                           <span className="truncate">{lesson.title}</span>
                         </div>
 
-                        <span className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1 ${
-                          isSelected
+                        <span className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1 ${isSelected
                             ? "bg-white/20 text-white"
                             : isQuiz
                               ? "bg-purple-100 text-purple-800 border border-purple-200"
                               : isDocument
                                 ? "bg-amber-100 text-amber-800 border border-amber-200"
                                 : "bg-blue-50 text-blue-700 border border-blue-200"
-                        }`}>
+                          }`}>
                           {isQuiz ? <HelpCircle className="w-3 h-3 text-purple-700" /> : isDocument ? <FileText className="w-3 h-3" /> : <Video className="w-3 h-3" />}
                           {isQuiz ? "QUESTION" : isDocument ? docBadge : "VIDEO"}
                         </span>
@@ -319,7 +312,7 @@ export function CoursePlayerClient({
 
         {/* Right Main Video & Lesson Content Pane (8 Cols) */}
         <div className="lg:col-span-8 space-y-6">
-          
+
           {/* RENDER MODE A: ANNOUNCEMENT SELECTED */}
           {selectedAnnouncementId && currentAnnouncement ? (
             <div className="bg-surface rounded-card overflow-hidden border-2 border-chart-red/30 p-6 sm:p-8 space-y-6 shadow-paper-stack min-h-[500px]">
@@ -475,17 +468,16 @@ export function CoursePlayerClient({
                     </h2>
                   </div>
 
-                  {/* Mark Complete — becomes outline once done; Next becomes primary */}
+                  {/* Mark Complete - becomes outline once done; Next becomes primary */}
                   <Button
                     onClick={handleToggleComplete}
                     disabled={isUpdating}
                     variant={isCurrentCompleted ? "outline" : "default"}
                     size="sm"
-                    className={`gap-2 font-semibold rounded-xl shrink-0 ${
-                      isCurrentCompleted
+                    className={`gap-2 font-semibold rounded-xl shrink-0 ${isCurrentCompleted
                         ? "border-clinical-teal text-clinical-teal hover:bg-clinical-teal/5"
                         : "bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
-                    }`}
+                      }`}
                   >
                     <CheckSquare className="w-4 h-4" />
                     {isCurrentCompleted ? "✓ Completed (click to undo)" : "Mark as Completed"}
@@ -538,7 +530,7 @@ export function CoursePlayerClient({
                 )}
               </div>
 
-              {/* Prev / Next Lesson Navigation Bar — primary button handoff */}
+              {/* Prev / Next Lesson Navigation Bar - primary button handoff */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 {prevLesson ? (
                   <Button
@@ -560,11 +552,10 @@ export function CoursePlayerClient({
                     variant={isCurrentCompleted ? "default" : "outline"}
                     size="sm"
                     onClick={() => handleSelectLesson(nextLesson.id)}
-                    className={`w-full sm:w-auto gap-2 text-xs font-semibold justify-center sm:justify-end rounded-xl ${
-                      isCurrentCompleted
+                    className={`w-full sm:w-auto gap-2 text-xs font-semibold justify-center sm:justify-end rounded-xl ${isCurrentCompleted
                         ? "bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
                         : ""
-                    }`}
+                      }`}
                   >
                     <span className="truncate max-w-[180px]">{nextLesson.title}</span>
                     <ChevronRight className="w-4 h-4" />

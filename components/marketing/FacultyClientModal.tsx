@@ -89,56 +89,62 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
       {/* Modal Popup for Quick View */}
       {selectedMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface border border-chart-grid rounded-card max-w-lg w-full p-6 md:p-8 space-y-6 relative shadow-2xl">
+          <div className="bg-surface border border-chart-grid rounded-card max-w-lg w-full relative shadow-2xl overflow-hidden">
             <button
               onClick={() => setSelectedMember(null)}
-              className="absolute top-4 right-4 p-2 text-ink-muted hover:text-chart-red transition-colors"
+              className="absolute top-4 right-4 p-2 text-ink-muted hover:text-chart-red transition-colors z-10"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 relative rounded-full overflow-hidden border-2 border-clinical-teal shrink-0">
-                <Image
-                  src={selectedMember.name.toLowerCase().includes("isuru") ? "/isuru.png" : (selectedMember.photoUrl || "/isuru.png")}
-                  alt={selectedMember.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold font-sans text-ink">
-                  {selectedMember.name}
-                </h3>
-                <p className="text-xs font-mono text-clinical-teal mt-0.5">
-                  {selectedMember.title}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono bg-clinical-teal-surface text-clinical-teal px-2 py-0.5 rounded">
-                    <Stethoscope className="w-3 h-3" /> Senior Faculty
+            {/* Chart-record header */}
+            <div className="px-6 py-5 border-b border-chart-grid bg-linen/40">
+              <p className="text-[9px] font-mono uppercase tracking-widest text-sage font-bold mb-3">
+                Consultant Profile Chart
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-clinical-teal shrink-0">
+                  <Image
+                    src={selectedMember.name.toLowerCase().includes("isuru") ? "/isuru.png" : (selectedMember.photoUrl || "/isuru.png")}
+                    alt={selectedMember.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold font-display text-ink leading-tight">
+                    {selectedMember.name}
+                  </h3>
+                  <p className="text-xs font-mono text-clinical-teal mt-0.5">
+                    {selectedMember.title}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 mt-1.5 text-[10px] font-mono font-bold border border-sage/30 text-sage bg-sage/5 px-2.5 py-0.5 rounded-full">
+                    <Stethoscope className="w-3 h-3" /> Senior Faculty · IMHS
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2 border-t border-chart-grid pt-4">
-              <h4 className="font-mono text-xs text-sage uppercase tracking-wider font-semibold flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-chart-red" /> Clinical Background & Biography
+            {/* Bio section */}
+            <div className="px-6 py-5 border-b border-chart-grid/60 space-y-2">
+              <h4 className="font-mono text-[10px] text-sage uppercase tracking-wider font-bold flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-chart-red" /> Clinical Background &amp; Biography
               </h4>
               <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-sans whitespace-pre-line">
                 {selectedMember.bio}
               </p>
             </div>
 
-            <div className="pt-2 flex justify-between items-center border-t border-chart-grid/60">
+            {/* Actions */}
+            <div className="px-6 py-4 flex justify-between items-center">
               <Link href={getProfileLink(selectedMember)}>
-                <Button size="sm" className="gap-1.5 text-xs font-semibold bg-clinical-teal text-white border-0">
+                <Button size="sm" className="gap-1.5 text-xs font-semibold bg-clinical-teal text-white border-0 rounded-full">
                   Full Page Profile &rarr;
                 </Button>
               </Link>
-              <Button size="sm" variant="outline" onClick={() => setSelectedMember(null)}>
-                Close Window
+              <Button size="sm" variant="outline" onClick={() => setSelectedMember(null)} className="rounded-full text-xs">
+                Close
               </Button>
             </div>
           </div>

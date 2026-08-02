@@ -3,14 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AnimatedGrid, GlowOrb, RevealOnScroll, StaggerChildren, StaggerItem } from "@/components/ui/animations";
+import { DoseCurve } from "@/components/marketing/DoseCurve";
+import { MolecularGridBackground } from "@/components/marketing/MolecularGridBackground";
 import {
   ShieldCheck, Award, GraduationCap, Users, ArrowRight,
   CheckCircle2, Target, Microscope, HeartPulse, Star
 } from "lucide-react";
 
 export const metadata = {
-  title: "About IMHS — Institute of Medicine and Health Sciences",
-  description: "Learn about IMHS, established in 2019 — Sri Lanka's standard-setting pharmaceutical and clinical healthcare education institute.",
+  title: "About IMHS - Institute of Medicine and Health Sciences",
+  description: "Learn about IMHS, established in 2019 - Sri Lanka's standard-setting pharmaceutical and clinical healthcare education institute.",
 };
 
 const LEVELS = [
@@ -127,7 +129,9 @@ export default function AboutPage() {
           <RevealOnScroll direction="right" delay={0.2}>
             <div className="relative">
               <div className="absolute -inset-2 bg-gradient-to-br from-clinical-teal/20 to-chart-red/10 rounded-2xl blur-2xl" />
-              <div className="relative bg-surface border border-chart-grid p-4 rounded-card shadow-paper-stack space-y-3">
+              <div className="relative bg-surface border border-chart-grid p-4 rounded-card shadow-paper-stack space-y-3 overflow-hidden">
+                {/* Molecular grid texture in corner */}
+                <MolecularGridBackground className="opacity-60 rounded-card" />
                 <div className="relative h-96 rounded overflow-hidden border border-chart-grid">
                   <Image
                     src="/lecturer.jpeg"
@@ -160,11 +164,12 @@ export default function AboutPage() {
           <StaggerChildren className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {VALUES.map(({ icon: Icon, title, body }) => (
               <StaggerItem key={title}>
-                <div className="bg-surface border border-chart-grid rounded-card p-6 text-center space-y-3 hover:border-clinical-teal/40 hover:shadow-paper transition-all duration-300 h-full">
-                  <div className="w-12 h-12 bg-clinical-teal/10 rounded border border-clinical-teal/20 flex items-center justify-center mx-auto">
-                    <Icon className="w-6 h-6 text-clinical-teal" />
+                <div className="bg-surface border border-chart-grid rounded-card p-6 text-center space-y-3 hover:border-sage/40 hover:shadow-paper transition-all duration-300 h-full group">
+                  {/* Capsule-style icon container with sage outline */}
+                  <div className="inline-flex items-center gap-2 border border-sage/30 text-sage rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider mb-1 group-hover:border-sage/60 group-hover:bg-sage/5 transition-colors">
+                    <Icon className="w-3.5 h-3.5" />
+                    {title}
                   </div>
-                  <h3 className="text-sm font-semibold text-ink font-sans">{title}</h3>
                   <p className="text-xs text-ink-muted leading-relaxed">{body}</p>
                 </div>
               </StaggerItem>
@@ -178,7 +183,12 @@ export default function AboutPage() {
         <RevealOnScroll className="text-center space-y-2">
           <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">STRUCTURED CURRICULUM PATHWAYS</span>
           <h2 className="text-3xl md:text-4xl font-display font-semibold text-ink">Choose Your Learning Level</h2>
-          <p className="text-base text-ink-muted max-w-xl mx-auto">From foundational pharmacy science to advanced industrial manufacturing — a pathway for every healthcare professional.</p>
+          <p className="text-base text-ink-muted max-w-xl mx-auto">From foundational pharmacy science to advanced industrial manufacturing - a pathway for every healthcare professional.</p>
+        </RevealOnScroll>
+
+        {/* Dose Curve timeline connecting the level sequence */}
+        <RevealOnScroll className="hidden md:block px-8">
+          <DoseCurve variant="timeline" steps={4} className="opacity-60" />
         </RevealOnScroll>
 
         <StaggerChildren className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -188,8 +198,13 @@ export default function AboutPage() {
                 <div className="absolute top-0 right-0 w-24 h-24 opacity-5 font-mono font-bold text-6xl text-ink flex items-start justify-end pr-2 pt-1 select-none">
                   {step}
                 </div>
-                <span className={`font-mono text-xs font-bold ${color === "chart-red" ? "text-chart-red" : "text-clinical-teal"}`}>
-                  {step} / {label}
+                {/* Step number in sage — pharmacy-green accent */}
+                <span className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+                  color === "chart-red"
+                    ? "text-chart-red border-chart-red/30 bg-chart-red/5"
+                    : "text-sage border-sage/30 bg-sage/5"
+                }`}>
+                  {step} &middot; {label}
                 </span>
                 <h3 className="text-base font-semibold text-ink font-sans">{title}</h3>
                 <p className="text-xs text-ink-muted leading-relaxed">{body}</p>
