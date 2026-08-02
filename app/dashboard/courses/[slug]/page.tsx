@@ -49,28 +49,42 @@ export default async function CoursePlayerPage({ params }: { params: Promise<{ s
     notFound();
   }
 
-  // Security Check: Verify user has an ACTIVE Enrollment record for this course (unless ADMIN)
+  let blockedChapterIds: string[] = [];
+  let blockedLessonIds: string[] = [];
+
+  // Fetch enrollment to get blocked chapters / lessons for non-admins
+  const enrollment = await prisma.enrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId: course.id,
+      },
+    },
+  });
+
   if (session.user.role !== "ADMIN") {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { status: true },
     });
 
-    if (user?.status === "FROZEN") {
+    if (user?.status === "FROZEN" || !enrollment || enrollment.status === "FROZEN") {
       redirect("/dashboard");
     }
+  }
 
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId: course.id,
-        },
-      },
-    });
-
-    if (!enrollment || enrollment.status === "FROZEN") {
-      redirect("/dashboard");
+  if (enrollment?.blockedChapterIds) {
+    try {
+      blockedChapterIds = JSON.parse(enrollment.blockedChapterIds);
+    } catch {
+      blockedChapterIds = [];
+    }
+  }
+  if (enrollment?.blockedLessonIds) {
+    try {
+      blockedLessonIds = JSON.parse(enrollment.blockedLessonIds);
+    } catch {
+      blockedLessonIds = [];
     }
   }
 
@@ -86,6 +100,8 @@ export default async function CoursePlayerPage({ params }: { params: Promise<{ s
     <CoursePlayerClient
       course={course}
       initialCompletedLessonIds={completedLessonIds}
+      blockedChapterIds={blockedChapterIds}
+      blockedLessonIds={blockedLessonIds}
     />
   );
 }

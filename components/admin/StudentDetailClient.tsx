@@ -23,16 +23,33 @@ import {
   RotateCcw,
   Sparkles,
   IdCard,
-  ChevronRight
+  ChevronRight,
+  Lock,
+  Unlock,
+  ChevronDown,
+  ChevronUp,
+  Layers
 } from "lucide-react";
+
+interface LessonDetail {
+  id: string;
+  title: string;
+  order: number;
+  type?: string | null;
+}
+
+interface ChapterDetail {
+  id: string;
+  title: string;
+  order: number;
+  lessons: LessonDetail[];
+}
 
 interface CourseDetail {
   id: string;
   title: string;
   slug: string;
-  chapters: {
-    lessons: { id: string }[];
-  }[];
+  chapters: ChapterDetail[];
 }
 
 interface StudentDetailProps {
@@ -47,6 +64,8 @@ interface StudentDetailProps {
     enrollments: {
       id: string;
       status?: string; // "ACTIVE" | "FROZEN"
+      blockedChapterIds?: string | null;
+      blockedLessonIds?: string | null;
       course: CourseDetail;
     }[];
     progress: { lessonId: string }[];
@@ -62,6 +81,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
   const [isAssigning, setIsAssigning] = useState(false);
   const [isTogglingAccountStatus, setIsTogglingAccountStatus] = useState(false);
   const [togglingEnrollmentId, setTogglingEnrollmentId] = useState<string | null>(null);
+  const [expandedAccessEnrollmentId, setExpandedAccessEnrollmentId] = useState<string | null>(null);
 
   // Password Reset state
   const [resetModalOpen, setResetModalOpen] = useState(false);
@@ -110,6 +130,68 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
       }
     } catch {
       alert("Error updating course status.");
+    } finally {
+      setTogglingEnrollmentId(null);
+    }
+  };
+
+  const handleToggleBlockChapter = async (enr: any, chapterId: string) => {
+    let currentBlocked: string[] = [];
+    try {
+      currentBlocked = JSON.parse(enr.blockedChapterIds || "[]");
+    } catch {
+      currentBlocked = [];
+    }
+    const isBlocked = currentBlocked.includes(chapterId);
+    const nextBlocked = isBlocked
+      ? currentBlocked.filter((id: string) => id !== chapterId)
+      : [...currentBlocked, chapterId];
+
+    setTogglingEnrollmentId(enr.id);
+    try {
+      const res = await fetch(`/api/admin/students/${student.id}/enrollments`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enrollmentId: enr.id, blockedChapterIds: nextBlocked }),
+      });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        alert("Failed to update blocked chapters.");
+      }
+    } catch {
+      alert("Error updating blocked chapters.");
+    } finally {
+      setTogglingEnrollmentId(null);
+    }
+  };
+
+  const handleToggleBlockLesson = async (enr: any, lessonId: string) => {
+    let currentBlocked: string[] = [];
+    try {
+      currentBlocked = JSON.parse(enr.blockedLessonIds || "[]");
+    } catch {
+      currentBlocked = [];
+    }
+    const isBlocked = currentBlocked.includes(lessonId);
+    const nextBlocked = isBlocked
+      ? currentBlocked.filter((id: string) => id !== lessonId)
+      : [...currentBlocked, lessonId];
+
+    setTogglingEnrollmentId(enr.id);
+    try {
+      const res = await fetch(`/api/admin/students/${student.id}/enrollments`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enrollmentId: enr.id, blockedLessonIds: nextBlocked }),
+      });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        alert("Failed to update blocked lessons.");
+      }
+    } catch {
+      alert("Error updating blocked lessons.");
     } finally {
       setTogglingEnrollmentId(null);
     }
@@ -393,33 +475,157 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                     </span>
                   </div>
 
-                  {/* Freeze/Reactivate Course Button */}
-                  <div className="pt-2 border-t border-chart-grid/60 flex items-center justify-between gap-2">
-                    <Link
-                      href={`/courses/${course.slug}`}
-                      target="_blank"
-                      className="text-xs font-mono text-sage hover:text-clinical-teal inline-flex items-center gap-1"
-                    >
-                      Course Catalogue <ChevronRight className="w-3 h-3" />
-                    </Link>
+                  {/* Freeze/Reactivate Course Button & Granular Access Controls */}
+                  <div className="pt-2 border-t border-chart-grid/60 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedAccessEnrollmentId(
+                            expandedAccessEnrollmentId === enr.id ? null : enr.id
+                          )
+                        }
+                        className="text-xs font-mono text-clinical-teal font-semibold hover:underline inline-flex items-center gap-1"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        Granular Content Blocks
+                        {expandedAccessEnrollmentId === enr.id ? (
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        )}
+                      </button>
 
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={togglingEnrollmentId === enr.id}
-                      onClick={() => handleToggleEnrollmentStatus(enr.id, enr.status)}
-                      className={`text-[11px] h-8 px-3 gap-1.5 font-semibold ${
-                        isCourseFrozen
-                          ? "bg-white border-green-600 text-green-700 hover:bg-green-50"
-                          : "bg-white border-chart-red/40 text-chart-red hover:bg-chart-red/10"
-                      }`}
-                    >
-                      {isCourseFrozen ? (
-                        <><RotateCcw className="w-3 h-3" /> Reactivate Access</>
-                      ) : (
-                        <><PauseCircle className="w-3 h-3" /> Freeze Access</>
-                      )}
-                    </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={togglingEnrollmentId === enr.id}
+                        onClick={() => handleToggleEnrollmentStatus(enr.id, enr.status)}
+                        className={`text-[11px] h-8 px-3 gap-1.5 font-semibold ${
+                          isCourseFrozen
+                            ? "bg-white border-green-600 text-green-700 hover:bg-green-50"
+                            : "bg-white border-chart-red/40 text-chart-red hover:bg-chart-red/10"
+                        }`}
+                      >
+                        {isCourseFrozen ? (
+                          <><RotateCcw className="w-3 h-3" /> Reactivate Access</>
+                        ) : (
+                          <><PauseCircle className="w-3 h-3" /> Freeze Course</>
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Expanded Granular Block Drawer */}
+                    {expandedAccessEnrollmentId === enr.id && (
+                      <div className="bg-white border border-chart-grid rounded-lg p-3 space-y-3 text-xs animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between border-b border-chart-grid pb-2">
+                          <span className="font-mono text-[10px] uppercase font-bold text-sage">
+                            Block Chapters &amp; Lessons for this Student
+                          </span>
+                          <span className="text-[10px] font-mono text-chart-red font-semibold">
+                            Admin Control
+                          </span>
+                        </div>
+
+                        {(() => {
+                          let blockedChs: string[] = [];
+                          let blockedLss: string[] = [];
+                          try {
+                            blockedChs = JSON.parse(enr.blockedChapterIds || "[]");
+                          } catch {
+                            blockedChs = [];
+                          }
+                          try {
+                            blockedLss = JSON.parse(enr.blockedLessonIds || "[]");
+                          } catch {
+                            blockedLss = [];
+                          }
+
+                          if (!course.chapters || course.chapters.length === 0) {
+                            return (
+                              <p className="text-[11px] font-mono text-sage italic">
+                                No chapters in this course yet.
+                              </p>
+                            );
+                          }
+
+                          return (
+                            <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                              {course.chapters.map((ch, cIdx) => {
+                                const isChBlocked = blockedChs.includes(ch.id);
+
+                                return (
+                                  <div
+                                    key={ch.id}
+                                    className="border border-chart-grid/60 rounded p-2.5 bg-linen/20 space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between font-mono font-semibold">
+                                      <span className="text-ink flex items-center gap-1.5 truncate">
+                                        <Layers className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
+                                        CH {cIdx + 1}: {ch.title}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        disabled={togglingEnrollmentId === enr.id}
+                                        onClick={() => handleToggleBlockChapter(enr, ch.id)}
+                                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors ${
+                                          isChBlocked
+                                            ? "bg-chart-red text-white"
+                                            : "bg-white border border-chart-grid text-ink hover:border-chart-red hover:text-chart-red"
+                                        }`}
+                                      >
+                                        {isChBlocked ? "🔒 Chapter Blocked" : "Block Entire Chapter"}
+                                      </button>
+                                    </div>
+
+                                    {/* Lessons */}
+                                    <div className="pl-4 space-y-1.5 border-t border-chart-grid/40 pt-1.5">
+                                      {ch.lessons.map((ls) => {
+                                        const isLsBlocked = blockedLss.includes(ls.id);
+                                        const effectiveBlocked = isChBlocked || isLsBlocked;
+
+                                        return (
+                                          <div
+                                            key={ls.id}
+                                            className="flex items-center justify-between text-[11px] py-1"
+                                          >
+                                            <span
+                                              className={`truncate max-w-[65%] ${
+                                                effectiveBlocked ? "text-chart-red line-through" : "text-ink-muted"
+                                              }`}
+                                            >
+                                              {ls.title}
+                                            </span>
+                                            <button
+                                              type="button"
+                                              disabled={togglingEnrollmentId === enr.id || isChBlocked}
+                                              onClick={() => handleToggleBlockLesson(enr, ls.id)}
+                                              className={`px-2 py-0.5 rounded text-[9px] font-mono font-semibold ${
+                                                isChBlocked
+                                                  ? "bg-chart-red/10 text-chart-red opacity-60 cursor-not-allowed"
+                                                  : isLsBlocked
+                                                  ? "bg-chart-red text-white"
+                                                  : "bg-white border border-chart-grid text-sage hover:border-chart-red hover:text-chart-red"
+                                              }`}
+                                            >
+                                              {isChBlocked
+                                                ? "Blocked (via Ch)"
+                                                : isLsBlocked
+                                                ? "🔒 Blocked"
+                                                : "Block Lesson"}
+                                            </button>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

@@ -49,6 +49,7 @@ model Chapter {
   id       String @id @default(cuid())
   title    String
   order    Int
+  isLocked Boolean @default(false)
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -60,6 +61,7 @@ model Lesson {
   title        String
   order        Int
   type         String  @default("VIDEO") // "VIDEO" | "DOCUMENT" | "QUIZ"
+  isLocked     Boolean @default(false)
   vimeoVideoId String?
   driveFileId  String?
   content      String? @db.Text
@@ -89,11 +91,13 @@ model CourseInstructor {
 }
 
 model Enrollment {
-  id         String   @id @default(cuid())
-  userId     String
-  courseId   String
-  status     String   @default("ACTIVE") // "ACTIVE" | "FROZEN"
-  enrolledAt DateTime @default(now())
+  id                String   @id @default(cuid())
+  userId            String
+  courseId          String
+  status            String   @default("ACTIVE") // "ACTIVE" | "FROZEN"
+  blockedChapterIds String?  @db.Text           // JSON array string of blocked chapter IDs
+  blockedLessonIds  String?  @db.Text           // JSON array string of blocked lesson IDs
+  enrolledAt        DateTime @default(now())
 
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)

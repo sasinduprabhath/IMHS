@@ -49,7 +49,7 @@ export async function POST(
   }
 }
 
-// PATCH toggle enrollment status between ACTIVE and FROZEN
+// PATCH update enrollment status (ACTIVE / FROZEN) or granular blocked chapters/lessons
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -61,18 +61,34 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { enrollmentId, status } = await req.json();
+    const body = await req.json();
+    const { enrollmentId, status, blockedChapterIds, blockedLessonIds } = body;
 
-    if (!enrollmentId || !status) {
+    if (!enrollmentId) {
       return NextResponse.json(
-        { success: false, message: "Enrollment ID and status required" },
+        { success: false, message: "Enrollment ID is required" },
         { status: 400 }
       );
     }
 
+    const updateData: any = {};
+    if (status !== undefined) {
+      updateData.status = status;
+    }
+    if (blockedChapterIds !== undefined) {
+      updateData.blockedChapterIds = Array.isArray(blockedChapterIds)
+        ? JSON.stringify(blockedChapterIds)
+        : blockedChapterIds;
+    }
+    if (blockedLessonIds !== undefined) {
+      updateData.blockedLessonIds = Array.isArray(blockedLessonIds)
+        ? JSON.stringify(blockedLessonIds)
+        : blockedLessonIds;
+    }
+
     const enrollment = await prisma.enrollment.update({
       where: { id: enrollmentId },
-      data: { status }, // "ACTIVE" | "FROZEN"
+      data: updateData,
       include: { course: true },
     });
 
