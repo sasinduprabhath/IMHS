@@ -150,7 +150,6 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-linen flex flex-col font-sans">
-      <Header />
       <div className="flex-1 relative flex items-center justify-center overflow-hidden px-4 pt-28 pb-16">
         <AnimatedGrid className="text-chart-grid/30" />
         <GlowOrb color="#0E57A4" size={500} className="-top-32 -left-32 opacity-15" />
