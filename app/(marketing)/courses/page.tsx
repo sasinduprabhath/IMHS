@@ -28,6 +28,9 @@ export default async function CoursesCatalogPage() {
         chapters: {
           include: { lessons: true },
         },
+        _count: {
+          select: { enrollments: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

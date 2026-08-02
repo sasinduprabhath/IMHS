@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Dr. Isuru Wijesinghe – IMHS",
+  title: "Dr. Isuru Wijesinghe - IMHS",
   description:
     "Official academic profile of Dr. Isuru Wijesinghe, Executive Director & Senior Lecturer at the Institute of Medicine and Health Sciences (IMHS), Sri Lanka.",
 };
@@ -150,21 +150,21 @@ export default async function DrIsuruWijesinghePage() {
 
               <div className="space-y-4 text-sm sm:text-base text-ink-muted leading-relaxed font-sans">
                 <p>
-                  <strong>Dr. Isuru Wijesinghe</strong> serves as the Executive Director and Senior Lecturer at the 
-                  <strong> Institute of Medicine and Health Sciences (IMHS)</strong>, Maharagama, Sri Lanka. With over 
-                  fifteen years of distinguished academic lecturing and clinical pharmacy research leadership, he has 
+                  <strong>Dr. Isuru Wijesinghe</strong> serves as the Executive Director and Senior Lecturer at the
+                  <strong> Institute of Medicine and Health Sciences (IMHS)</strong>, Maharagama, Sri Lanka. With over
+                  fifteen years of distinguished academic lecturing and clinical pharmacy research leadership, he has
                   been at the forefront of modernizing healthcare education across Sri Lanka.
                 </p>
                 <p>
-                  Dr. Wijesinghe holds a <strong>Ph.D. in Pharmaceutical Sciences</strong>, a Master of Science (MSc), 
-                  and a Bachelor of Pharmacy (B.Pharm Honours). His teaching philosophy bridges rigorous clinical theory 
-                  with real-world hospital and retail pharmacy practice, preparing students for official 
+                  Dr. Wijesinghe holds a <strong>Ph.D. in Pharmaceutical Sciences</strong>, a Master of Science (MSc),
+                  and a Bachelor of Pharmacy (B.Pharm Honours). His teaching philosophy bridges rigorous clinical theory
+                  with real-world hospital and retail pharmacy practice, preparing students for official
                   <strong> Sri Lanka Medical Council (SLMC)</strong> registration examinations and pharmaceutical industry careers.
                 </p>
                 <p>
-                  Under his academic directorship, IMHS has established state-of-the-art curriculum frameworks in 
-                  Modern Pharmacy, Pharmaceutical Manufacturing (GMP QA/QC), and Medical Laboratory Technology (MLT), 
-                  enabling hundreds of clinical graduates to transition into senior roles at leading hospitals, research 
+                  Under his academic directorship, IMHS has established state-of-the-art curriculum frameworks in
+                  Modern Pharmacy, Pharmaceutical Manufacturing (GMP QA/QC), and Medical Laboratory Technology (MLT),
+                  enabling hundreds of clinical graduates to transition into senior roles at leading hospitals, research
                   institutes, and pharmaceutical manufacturing facilities nationwide.
                 </p>
               </div>

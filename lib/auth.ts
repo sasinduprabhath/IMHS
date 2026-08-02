@@ -96,6 +96,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as any).role;
         token.phone = (user as any).phone;
+        token.status = (user as any).status;
       }
       return token;
     },
@@ -104,6 +105,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
         (session.user as any).phone = token.phone as string;
+        (session.user as any).status = token.status as string;
       }
       return session;
     },

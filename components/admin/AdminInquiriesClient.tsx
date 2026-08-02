@@ -3,10 +3,12 @@
 import React, { useState } from "react";
 import { formatPhoneForWhatsApp } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
+import { CustomSelect } from "@/components/ui/custom-select";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import {
   MessageSquare, Search, MessageCircle, CheckCircle2,
   Clock, Check, X, Filter, ChevronLeft, ChevronRight,
-  ChevronsLeft, ChevronsRight, Mail, Phone, User
+  ChevronsLeft, ChevronsRight, Mail, Phone, User, Trash2
 } from "lucide-react";
 
 interface InquiryItem {
@@ -16,6 +18,7 @@ interface InquiryItem {
   email?: string | null;
   courseInterest?: string | null;
   message: string;
+  status: string; // PENDING | CONTACTED | ENROLLED | CLOSED
   createdAt: string | Date;
   resolved: boolean;
 }
@@ -25,9 +28,9 @@ const ITEMS_PER_PAGE = 20;
 export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: InquiryItem[] }) {
   const [inquiries, setInquiries] = useState<InquiryItem[]>(initialInquiries);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "PENDING" | "RESOLVED">("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const filtered = inquiries.filter((inq) => {
     const q = search.toLowerCase();
@@ -41,8 +44,7 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
 
     const matchesStatus =
       statusFilter === "ALL" ||
-      (statusFilter === "PENDING" && !inq.resolved) ||
-      (statusFilter === "RESOLVED" && inq.resolved);
+      (inq.status || (inq.resolved ? "CLOSED" : "PENDING")) === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -52,23 +54,18 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
   const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
   const paginatedInquiries = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleSearchChange = (val: string) => {
-    setSearch(val);
-    setCurrentPage(1);
-  };
-
-  const handleToggleResolved = async (inquiryId: string, currentResolved: boolean) => {
-    setTogglingId(inquiryId);
+  const handleUpdateStatus = async (inquiryId: string, newStatus: string) => {
+    setUpdatingId(inquiryId);
     try {
       const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resolved: !currentResolved }),
+        body: JSON.stringify({ status: newStatus }),
       });
 
       if (res.ok) {
         setInquiries((prev) =>
-          prev.map((i) => (i.id === inquiryId ? { ...i, resolved: !currentResolved } : i))
+          prev.map((i) => (i.id === inquiryId ? { ...i, status: newStatus, resolved: newStatus === "CLOSED" || newStatus === "ENROLLED" } : i))
         );
       } else {
         alert("Failed to update inquiry status.");
@@ -76,7 +73,7 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
     } catch {
       alert("Error updating inquiry status.");
     } finally {
-      setTogglingId(null);
+      setUpdatingId(null);
     }
   };
 
@@ -117,7 +114,10 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
             type="text"
             placeholder="Search by student name, phone, email, or message content..."
             value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full pl-9 pr-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all font-sans"
           />
         </div>
@@ -212,8 +212,8 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled={togglingId === inq.id}
-                    onClick={() => handleToggleResolved(inq.id, inq.resolved)}
+                    disabled={updatingId === inq.id}
+                    onClick={() => handleUpdateStatus(inq.id, inq.status === "CLOSED" ? "PENDING" : "CLOSED")}
                     className={`h-8 px-3 text-[11px] gap-1 font-semibold ${
                       inq.resolved
                         ? "bg-white border-chart-grid text-ink-muted hover:bg-linen"
@@ -306,8 +306,8 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                         <Button
                           size="sm"
                           variant="outline"
-                          disabled={togglingId === inq.id}
-                          onClick={() => handleToggleResolved(inq.id, inq.resolved)}
+                          disabled={updatingId === inq.id}
+                          onClick={() => handleUpdateStatus(inq.id, inq.status === "CLOSED" ? "PENDING" : "CLOSED")}
                           className={`h-7 px-2.5 text-[11px] font-semibold ${
                             inq.resolved
                               ? "bg-white border-chart-grid text-ink-muted hover:bg-linen"

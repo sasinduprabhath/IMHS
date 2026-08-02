@@ -141,6 +141,7 @@ model ContactInquiry {
   email           String?
   courseInterest  String?
   message         String   @db.Text
+  status          String   @default("PENDING") // "PENDING" | "CONTACTED" | "ENROLLED" | "CLOSED"
   createdAt       DateTime @default(now())
   resolved        Boolean  @default(false)
 }

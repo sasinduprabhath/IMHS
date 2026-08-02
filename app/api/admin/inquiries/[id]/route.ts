@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function PATCH(
+export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -19,7 +19,8 @@ export async function PATCH(
     const updated = await prisma.contactInquiry.update({
       where: { id },
       data: {
-        resolved: body.resolved,
+        status: body.status || undefined,
+        resolved: body.status === "CLOSED" || body.status === "ENROLLED" ? true : body.resolved,
       },
     });
 
@@ -27,5 +28,35 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating inquiry:", error);
     return NextResponse.json({ error: "Failed to update inquiry" }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return PUT(request, { params });
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    await prisma.contactInquiry.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting inquiry:", error);
+    return NextResponse.json({ error: "Failed to delete inquiry" }, { status: 500 });
   }
 }

@@ -28,7 +28,7 @@ const CONTACT_INFO = [
   { icon: MapPin, label: "Campus Address", value: "210/2/1, High Level Road, Maharagama, Sri Lanka" },
   { icon: Mail, label: "Email", value: "info.imhsedu@gmail.com" },
   { icon: PhoneCall, label: "WhatsApp Hotline", value: "+94 77 802 5050" },
-  { icon: Clock, label: "Office Hours", value: "Mon–Sat · 8:00 AM – 6:00 PM" },
+  { icon: Clock, label: "Office Hours", value: "Mon-Sat · 8:00 AM - 6:00 PM" },
   { icon: Globe, label: "Website", value: "imhsedu.com" },
 ];
 

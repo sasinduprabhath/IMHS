@@ -142,6 +142,7 @@ async function main() {
           email: u.email,
           studentId: u.login.toUpperCase(),
           name: u.name || u.login,
+          phone: "+94770000000",
           passwordHash: u.pass, // Intact $wp$ bcrypt hash
           role,
           status: "ACTIVE",

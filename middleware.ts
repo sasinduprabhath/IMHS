@@ -39,6 +39,10 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
+
+    if (token.status === "FROZEN") {
+      return NextResponse.redirect(new URL("/login?error=account_frozen", req.url));
+    }
   }
 
   return NextResponse.next();

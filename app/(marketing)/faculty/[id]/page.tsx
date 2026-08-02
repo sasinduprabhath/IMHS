@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     // Ignore DB error during build
   }
   return {
-    title: member ? `${member.name} – IMHS Faculty` : "Faculty Profile – IMHS",
+    title: member ? `${member.name} - IMHS Faculty` : "Faculty Profile - IMHS",
   };
 }
 

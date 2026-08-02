@@ -24,6 +24,9 @@ export interface CourseItem {
   enrollmentValidity?: string | null;
   totalEnrolled?: number | null;
   coverImage?: string | null;
+  _count?: {
+    enrollments: number;
+  };
   chapters: {
     id: string;
     lessons: { id: string }[];
@@ -446,10 +449,26 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                     {/* Body Content */}
                     <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between text-[11px] font-mono text-clinical-teal font-semibold">
-                          <span>{course.category || "General"}</span>
-                          <span className="text-sage">{course.level || "All Levels"}</span>
-                        </div>
+                        {(() => {
+                          let displayCat = course.category;
+                          if (!displayCat || displayCat === "General" || displayCat === "General Healthcare") {
+                            const t = course.title.toLowerCase();
+                            const s = course.slug.toLowerCase();
+                            if (t.includes("pharmacy") || s.includes("pharmacy")) displayCat = "Pharmacy Practice";
+                            else if (t.includes("laboratory") || t.includes("lab") || s.includes("lab")) displayCat = "Medical Laboratory Technology";
+                            else if (t.includes("manufacturing") || s.includes("manufacturing")) displayCat = "Pharmaceutical Manufacturing";
+                            else if (t.includes("revision") || t.includes("slmc") || s.includes("slmc")) displayCat = "SLMC Exam Prep & Revision";
+                            else if (t.includes("pharma") || s.includes("pharma")) displayCat = "Pharmaceutical Sciences";
+                            else displayCat = "Clinical Medicine";
+                          }
+
+                          return (
+                            <div className="flex items-center justify-between text-[11px] font-mono text-clinical-teal font-semibold">
+                              <span className="truncate">{displayCat}</span>
+                              <span className="text-sage shrink-0 ml-2">{course.level || "All Levels"}</span>
+                            </div>
+                          );
+                        })()}
                         
                         <h3 className="text-base font-semibold font-sans text-ink leading-snug line-clamp-2 group-hover:text-clinical-teal transition-colors">
                           {course.title}
@@ -461,29 +480,39 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                       </div>
 
                       {/* Course Meta (Chapters, Lessons, Questions, Validity, Total Enrolled) */}
-                      <div className="space-y-1.5 pt-2 border-t border-chart-grid/60">
-                        <div className="flex items-center justify-between text-[11px] font-mono text-sage">
+                      <div className="space-y-2 pt-2 border-t border-chart-grid/60">
+                        <div className="flex items-center justify-between text-[11px] font-mono text-sage gap-2">
                           {(() => {
                             const allItems = course.chapters.flatMap((ch) => ch.lessons);
                             const qCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
                             const lCount = allItems.length - qCount;
 
                             return (
-                              <span className="flex items-center gap-1">
-                                <BookOpen className="w-3.5 h-3.5 text-clinical-teal" />
+                              <span className="flex items-center gap-1 truncate min-w-0">
+                                <BookOpen className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
                                 {course.chapters.length} Ch · {lCount} Lessons {qCount > 0 ? `· ${qCount} Questions` : ""}
                               </span>
                             );
                           })()}
-                          <span className="flex items-center gap-1 text-ink font-semibold">
-                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          <span className="flex items-center gap-1 text-ink font-semibold whitespace-nowrap shrink-0">
+                            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                             {course.enrollmentValidity || "Lifetime Access"}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 text-[11px] font-mono text-sage">
-                          <Users className="w-3.5 h-3.5 text-clinical-teal" />
-                          <span>{course.totalEnrolled || 450}+ Students Enrolled</span>
-                        </div>
+
+                        {(() => {
+                          const dbEnrolled = course._count?.enrollments || 0;
+                          const fallbackEnrolled = course.totalEnrolled || 0;
+                          const count = dbEnrolled > 0 ? dbEnrolled : fallbackEnrolled;
+                          const enrolledText = count > 0 ? `${count} Enrolled Students` : "Active Enrollment Open";
+
+                          return (
+                            <div className="flex items-center gap-1 text-[11px] font-mono text-sage">
+                              <Users className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
+                              <span>{enrolledText}</span>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Price Section */}
