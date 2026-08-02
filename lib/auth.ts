@@ -52,8 +52,13 @@ export const authOptions: NextAuthOptions = {
           searchEmail = "admin@imhs.edu.lk";
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: searchEmail },
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: searchEmail },
+              { studentId: searchEmail.toUpperCase() },
+            ],
+          },
         });
 
         if (!user) {
@@ -64,9 +69,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Your account has been frozen by administration. Contact IMHS desk.");
         }
 
+        // Clean WordPress bcrypt prefix ($wp$) if present
+        const cleanHash = user.passwordHash.replace(/^\$wp\$/, "");
         const isValidPassword = await bcrypt.compare(
           password,
-          user.passwordHash
+          cleanHash
         );
 
         if (!isValidPassword) {

@@ -160,7 +160,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                           <div className="font-semibold text-ink text-sm">{st.name}</div>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.2 rounded">
-                              Reg ID: {st.studentId || `IWPH-${st.id.slice(0, 5)}`}
+                              Reg ID: {st.studentId}
                             </span>
                           </div>
                         </div>
