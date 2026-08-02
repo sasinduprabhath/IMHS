@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function NewCoursePage() {
@@ -188,14 +189,14 @@ export default function NewCoursePage() {
               <label className="block text-xs font-mono text-ink font-medium mb-1">
                 Course Type
               </label>
-              <select
+              <CustomSelect
+                options={[
+                  { value: "Course", label: "Course" },
+                  { value: "Bundle", label: "Bundle" },
+                ]}
                 value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="w-full px-3 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
-              >
-                <option value="Course">Course</option>
-                <option value="Bundle">Bundle</option>
-              </select>
+                onChange={setType}
+              />
             </div>
 
             <div>
@@ -207,7 +208,7 @@ export default function NewCoursePage() {
                 placeholder="e.g. Modern Pharmacy Course"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-sans text-ink focus:outline-none focus:border-clinical-teal"
+                className="w-full px-3 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs font-sans text-ink focus:outline-none focus:border-clinical-teal"
               />
             </div>
 
@@ -215,16 +216,16 @@ export default function NewCoursePage() {
               <label className="block text-xs font-mono text-ink font-medium mb-1">
                 Level
               </label>
-              <select
+              <CustomSelect
+                options={[
+                  { value: "All Levels", label: "All Levels" },
+                  { value: "Beginner", label: "Beginner" },
+                  { value: "Intermediate", label: "Intermediate" },
+                  { value: "Expert", label: "Expert" },
+                ]}
                 value={level}
-                onChange={(e) => setLevel(e.target.value)}
-                className="w-full px-3 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
-              >
-                <option value="All Levels">All Levels</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Expert">Expert</option>
-              </select>
+                onChange={setLevel}
+              />
             </div>
           </div>
 

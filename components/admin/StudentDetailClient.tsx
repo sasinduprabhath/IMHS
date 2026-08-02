@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { VitalLine } from "@/components/ui/vital-line";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { createPasswordResetWALink, formatPhoneForWhatsApp } from "@/lib/whatsapp";
 import {
   User,
@@ -299,18 +300,13 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
             </p>
           ) : (
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-              <select
+              <CustomSelect
+                options={unassignedCourses.map((c) => ({ value: c.id, label: c.title }))}
                 value={selectedCourseToAssign}
-                onChange={(e) => setSelectedCourseToAssign(e.target.value)}
-                className="w-full flex-1 px-3.5 py-2.5 bg-white border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal font-sans truncate"
-              >
-                <option value="">-- Select Course to Assign --</option>
-                {unassignedCourses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedCourseToAssign}
+                placeholder="-- Select Course to Assign --"
+                className="flex-1"
+              />
 
               <Button
                 size="sm"

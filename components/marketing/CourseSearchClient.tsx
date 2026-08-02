@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import {
   Search, BookOpen, FileText, ArrowRight, Filter,
@@ -170,18 +171,20 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
 
           <div className="flex items-center gap-2">
             <label className="text-xs font-mono text-sage hidden sm:inline">Sort by:</label>
-            <select
+            <CustomSelect
+              options={[
+                { value: "newest", label: "Release Date (newest first)" },
+                { value: "oldest", label: "Release Date (oldest first)" },
+                { value: "title-az", label: "Course Title (a-z)" },
+                { value: "title-za", label: "Course Title (z-a)" },
+                { value: "price-low", label: "Price (low to high)" },
+                { value: "price-high", label: "Price (high to low)" },
+              ]}
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal focus:bg-white"
-            >
-              <option value="newest">Release Date (newest first)</option>
-              <option value="oldest">Release Date (oldest first)</option>
-              <option value="title-az">Course Title (a-z)</option>
-              <option value="title-za">Course Title (z-a)</option>
-              <option value="price-low">Price (low to high)</option>
-              <option value="price-high">Price (high to low)</option>
-            </select>
+              onChange={setSortBy}
+              placeholder="Sort Catalogue"
+              className="w-56"
+            />
           </div>
         </div>
       </div>
