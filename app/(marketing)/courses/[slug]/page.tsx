@@ -62,6 +62,14 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
               },
             },
           },
+          announcements: {
+            orderBy: { createdAt: "desc" },
+          },
+          instructors: {
+            include: {
+              facultyMember: true,
+            },
+          },
         },
       }),
       prisma.facultyMember.findMany({
@@ -114,6 +122,28 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
               {course.description}
             </p>
           </div>
+
+          {/* Official Course Announcements Banner */}
+          {course.announcements && course.announcements.length > 0 && (
+            <div className="bg-chart-red/5 border-2 border-chart-red/30 p-6 rounded-card space-y-3 shadow-paper">
+              <div className="flex items-center gap-2 border-b border-chart-red/20 pb-3">
+                <span className="font-mono text-xs font-bold text-chart-red uppercase tracking-wider bg-chart-red/10 border border-chart-red/20 px-2.5 py-1 rounded flex items-center gap-1.5">
+                  📢 Official Course Announcement
+                </span>
+                <span className="text-xs font-mono text-sage">
+                  {new Date(course.announcements[0].createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-ink font-sans">
+                  {course.announcements[0].title}
+                </h3>
+                <p className="text-xs text-ink-muted leading-relaxed font-sans mt-1 whitespace-pre-line">
+                  {course.announcements[0].content}
+                </p>
+              </div>
+            </div>
+          )}
 
           <VitalLine variant="hero" animated={false} />
 
@@ -200,23 +230,32 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
           </div>
 
           {/* Instructor Bios */}
-          <div className="bg-surface border border-chart-grid p-6 sm:p-8 rounded-card space-y-4">
+          <div className="bg-surface border border-chart-grid p-6 sm:p-8 rounded-card space-y-4 shadow-paper">
             <h2 className="text-xl font-display font-semibold text-ink flex items-center gap-2">
               <Award className="w-5 h-5 text-clinical-teal" /> Course Instructors
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              {faculty.map((f: any) => (
-                <div key={f.id} className="flex items-center gap-3 p-3 border border-chart-grid rounded bg-linen/30">
-                  <div className="w-12 h-12 relative rounded-full overflow-hidden border border-chart-grid shrink-0">
-                    <Image src={f.photoUrl || "/lecturer.jpeg"} alt={f.name} fill className="object-cover" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-ink font-sans">{f.name}</h4>
-                    <p className="text-[11px] font-mono text-clinical-teal">{f.title}</p>
-                  </div>
+            {(() => {
+              const displayInstructors =
+                course.instructors && course.instructors.length > 0
+                  ? course.instructors.map((i: any) => i.facultyMember)
+                  : faculty;
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {displayInstructors.map((f: any) => (
+                    <div key={f.id} className="flex items-center gap-3 p-3 border border-chart-grid rounded bg-linen/30">
+                      <div className="w-12 h-12 relative rounded-full overflow-hidden border border-chart-grid shrink-0">
+                        <Image src={f.photoUrl || "/lecturer.jpeg"} alt={f.name} fill className="object-cover" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-ink font-sans">{f.name}</h4>
+                        <p className="text-[11px] font-mono text-clinical-teal">{f.title}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
         </div>
 

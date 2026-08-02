@@ -11,19 +11,33 @@ export const revalidate = 0;
 
 export default async function AdminCourseEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const course = await prisma.course.findUnique({
-    where: { id },
-    include: {
-      chapters: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
+  
+  const [course, allFaculty] = await Promise.all([
+    prisma.course.findUnique({
+      where: { id },
+      include: {
+        chapters: {
+          orderBy: { order: "asc" },
+          include: {
+            lessons: {
+              orderBy: { order: "asc" },
+            },
+          },
+        },
+        announcements: {
+          orderBy: { createdAt: "desc" },
+        },
+        instructors: {
+          include: {
+            facultyMember: true,
           },
         },
       },
-    },
-  });
+    }),
+    prisma.facultyMember.findMany({
+      orderBy: { order: "asc" },
+    }),
+  ]);
 
   if (!course) {
     notFound();
@@ -31,7 +45,7 @@ export default async function AdminCourseEditPage({ params }: { params: Promise<
 
   return (
     <div className="space-y-6">
-      <CourseBuilderClient course={course} />
+      <CourseBuilderClient course={course} allFaculty={allFaculty} />
     </div>
   );
 }

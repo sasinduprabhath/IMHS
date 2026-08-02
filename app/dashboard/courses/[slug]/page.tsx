@@ -34,6 +34,14 @@ export default async function CoursePlayerPage({ params }: { params: Promise<{ s
           },
         },
       },
+      announcements: {
+        orderBy: { createdAt: "desc" },
+      },
+      instructors: {
+        include: {
+          facultyMember: true,
+        },
+      },
     },
   });
 

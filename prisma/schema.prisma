@@ -41,6 +41,8 @@ model Course {
 
   chapters           Chapter[]
   enrollments        Enrollment[]
+  announcements      CourseAnnouncement[]
+  instructors        CourseInstructor[]
 }
 
 model Chapter {
@@ -57,7 +59,7 @@ model Lesson {
   id           String  @id @default(cuid())
   title        String
   order        Int
-  type         String  @default("VIDEO") // "VIDEO" | "DOCUMENT"
+  type         String  @default("VIDEO") // "VIDEO" | "DOCUMENT" | "QUIZ"
   vimeoVideoId String?
   driveFileId  String?
   content      String? @db.Text
@@ -65,6 +67,25 @@ model Lesson {
   chapter      Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   progress     LessonProgress[]
+}
+
+model CourseAnnouncement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model CourseInstructor {
+  id              String        @id @default(cuid())
+  courseId        String
+  facultyMemberId String
+  course          Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  facultyMember   FacultyMember @relation(fields: [facultyMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, facultyMemberId])
 }
 
 model Enrollment {
@@ -109,6 +130,8 @@ model FacultyMember {
   bio      String @db.Text
   photoUrl String?
   order    Int    @default(0)
+
+  instructors CourseInstructor[]
 }
 
 model ContactInquiry {

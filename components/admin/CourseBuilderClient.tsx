@@ -2,8 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { CustomSelect } from "@/components/ui/custom-select";
 import {
   ArrowLeft,
   Save,
@@ -14,6 +16,13 @@ import {
   Video,
   FileText,
   CheckCircle2,
+  Bell,
+  UserCheck,
+  UserPlus,
+  Users,
+  Award,
+  Megaphone,
+  X,
 } from "lucide-react";
 
 interface LessonInput {
@@ -31,6 +40,21 @@ interface ChapterInput {
   title: string;
   order: number;
   lessons: LessonInput[];
+}
+
+interface AnnouncementItem {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string | Date;
+}
+
+interface FacultyMember {
+  id: string;
+  name: string;
+  title: string;
+  bio: string;
+  photoUrl: string | null;
 }
 
 interface CourseBuilderProps {
@@ -62,10 +86,16 @@ interface CourseBuilderProps {
         content?: string | null;
       }[];
     }[];
+    announcements?: AnnouncementItem[];
+    instructors?: {
+      id: string;
+      facultyMember: FacultyMember;
+    }[];
   };
+  allFaculty: FacultyMember[];
 }
 
-export function CourseBuilderClient({ course }: CourseBuilderProps) {
+export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) {
   const router = useRouter();
 
   // Course Metadata State
@@ -102,8 +132,119 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
     }))
   );
 
+  // Announcements State
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(
+    course.announcements || []
+  );
+  const [newAnnTitle, setNewAnnTitle] = useState("");
+  const [newAnnContent, setNewAnnContent] = useState("");
+  const [isAddingAnn, setIsAddingAnn] = useState(false);
+
+  // Assigned Instructors State
+  const [assignedInstructors, setAssignedInstructors] = useState<FacultyMember[]>(
+    course.instructors ? course.instructors.map((i) => i.facultyMember) : []
+  );
+  const [selectedFacultyId, setSelectedFacultyId] = useState("");
+  const [isAssigningFaculty, setIsAssigningFaculty] = useState(false);
+
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Announcement Functions
+  const handleAddAnnouncement = async () => {
+    if (!newAnnTitle.trim() || !newAnnContent.trim()) {
+      alert("Please enter both announcement title and content.");
+      return;
+    }
+    setIsAddingAnn(true);
+    try {
+      const res = await fetch(`/api/admin/courses/${course.id}/announcements`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newAnnTitle,
+          content: newAnnContent,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.announcement) {
+        setAnnouncements((prev) => [data.announcement, ...prev]);
+        setNewAnnTitle("");
+        setNewAnnContent("");
+      } else {
+        alert(data.error || "Failed to add announcement.");
+      }
+    } catch {
+      alert("Error adding announcement.");
+    } finally {
+      setIsAddingAnn(false);
+    }
+  };
+
+  const handleDeleteAnnouncement = async (announcementId: string) => {
+    if (!confirm("Are you sure you want to delete this announcement?")) return;
+    try {
+      const res = await fetch(
+        `/api/admin/courses/${course.id}/announcements?announcementId=${announcementId}`,
+        { method: "DELETE" }
+      );
+      if (res.ok) {
+        setAnnouncements((prev) => prev.filter((a) => a.id !== announcementId));
+      } else {
+        alert("Failed to delete announcement.");
+      }
+    } catch {
+      alert("Error deleting announcement.");
+    }
+  };
+
+  // Instructor Assignment Functions
+  const handleAssignInstructor = async () => {
+    if (!selectedFacultyId) {
+      alert("Please select a lecturer to assign.");
+      return;
+    }
+    setIsAssigningFaculty(true);
+    try {
+      const res = await fetch(`/api/admin/courses/${course.id}/instructors`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ facultyMemberId: selectedFacultyId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.instructor) {
+        const newlyAssigned = data.instructor.facultyMember;
+        setAssignedInstructors((prev) => {
+          if (prev.some((f) => f.id === newlyAssigned.id)) return prev;
+          return [...prev, newlyAssigned];
+        });
+        setSelectedFacultyId("");
+      } else {
+        alert(data.error || "Failed to assign instructor.");
+      }
+    } catch {
+      alert("Error assigning instructor.");
+    } finally {
+      setIsAssigningFaculty(false);
+    }
+  };
+
+  const handleRemoveInstructor = async (facultyMemberId: string) => {
+    if (!confirm("Are you sure you want to remove this instructor from the course?")) return;
+    try {
+      const res = await fetch(
+        `/api/admin/courses/${course.id}/instructors?facultyMemberId=${facultyMemberId}`,
+        { method: "DELETE" }
+      );
+      if (res.ok) {
+        setAssignedInstructors((prev) => prev.filter((f) => f.id !== facultyMemberId));
+      } else {
+        alert("Failed to remove instructor.");
+      }
+    } catch {
+      alert("Error removing instructor.");
+    }
+  };
 
   // Chapter Manipulation
   const addChapter = () => {
@@ -230,12 +371,21 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
       } else {
         alert("Failed to save syllabus structure.");
       }
-    } catch (e) {
+    } catch {
       alert("Error saving course syllabus");
     } finally {
       setIsSaving(false);
     }
   };
+
+  // Unassigned Faculty Filter Options
+  const unassignedFaculty = allFaculty.filter(
+    (f) => !assignedInstructors.some((a) => a.id === f.id)
+  );
+  const facultyOptions = unassignedFaculty.map((f) => ({
+    value: f.id,
+    label: `${f.name} — ${f.title}`,
+  }));
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -393,11 +543,196 @@ export function CourseBuilderClient({ course }: CourseBuilderProps) {
         </div>
       </div>
 
-      {/* ── Section 02: Chapter & Lesson Sequence Builder ── */}
+      {/* ── Section 02: Assigned Lecturers / Course Instructors ── */}
+      <div className="bg-surface border border-chart-grid p-6 rounded-card space-y-4 shadow-paper">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-chart-grid pb-3">
+          <div>
+            <span className="font-mono text-xs text-clinical-teal font-bold uppercase tracking-wider block">
+              FACULTY ASSIGNMENTS
+            </span>
+            <h2 className="text-lg font-display font-semibold text-ink flex items-center gap-2">
+              <Award className="w-5 h-5 text-clinical-teal" />
+              02 / Course Instructors & Lecturers ({assignedInstructors.length})
+            </h2>
+            <p className="text-xs text-ink-muted mt-0.5 font-sans">
+              Assign lecturers to be displayed on the public course view page as official Course Instructors.
+            </p>
+          </div>
+        </div>
+
+        {/* Assign Lecturer Control */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-linen/40 p-3.5 rounded border border-chart-grid">
+          <div className="flex-1">
+            <label className="block text-[11px] font-mono text-sage uppercase font-bold mb-1">
+              Select Lecturer to Assign
+            </label>
+            <CustomSelect
+              options={facultyOptions}
+              value={selectedFacultyId}
+              onChange={(val) => setSelectedFacultyId(val)}
+              placeholder="Choose a faculty lecturer from database..."
+            />
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleAssignInstructor}
+            disabled={isAssigningFaculty || !selectedFacultyId}
+            className="sm:self-end h-10 px-4 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 gap-1.5 shrink-0"
+          >
+            <UserPlus className="w-4 h-4" /> Assign Instructor
+          </Button>
+        </div>
+
+        {/* Assigned Instructors List */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          {assignedInstructors.length === 0 ? (
+            <div className="sm:col-span-2 p-6 text-center text-sage font-mono text-xs bg-linen/20 rounded border border-chart-grid">
+              No faculty instructors currently assigned to this course.
+            </div>
+          ) : (
+            assignedInstructors.map((faculty) => (
+              <div
+                key={faculty.id}
+                className="flex items-center justify-between p-3 border border-chart-grid rounded-card bg-white shadow-xs"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 relative rounded-full overflow-hidden border border-chart-grid shrink-0">
+                    <Image
+                      src={faculty.photoUrl || "/lecturer.jpeg"}
+                      alt={faculty.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-semibold text-ink font-sans truncate">
+                      {faculty.name}
+                    </h4>
+                    <p className="text-[11px] font-mono text-clinical-teal truncate">
+                      {faculty.title}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleRemoveInstructor(faculty.id)}
+                  className="p-1.5 text-sage hover:text-chart-red transition-colors shrink-0"
+                  title="Remove Instructor"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ── Section 03: Course Announcements ── */}
+      <div className="bg-surface border border-chart-grid p-6 rounded-card space-y-4 shadow-paper">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-chart-grid pb-3">
+          <div>
+            <span className="font-mono text-xs text-chart-red font-bold uppercase tracking-wider block">
+              STUDENT BROADCAST NOTICES
+            </span>
+            <h2 className="text-lg font-display font-semibold text-ink flex items-center gap-2">
+              <Megaphone className="w-5 h-5 text-chart-red" />
+              03 / Course Announcements & Broadcast Notices ({announcements.length})
+            </h2>
+            <p className="text-xs text-ink-muted mt-0.5 font-sans">
+              Post official batch announcements, live revision schedules, and exam updates for enrolled students.
+            </p>
+          </div>
+        </div>
+
+        {/* Add Announcement Form */}
+        <div className="bg-chart-red/5 border border-chart-red/20 p-4 rounded-card space-y-3">
+          <h3 className="text-xs font-mono font-bold text-chart-red uppercase flex items-center gap-1.5">
+            <Plus className="w-4 h-4 text-chart-red" /> Post New Student Announcement
+          </h3>
+
+          <div className="space-y-3 text-xs">
+            <div>
+              <label className="block font-mono text-ink mb-1 font-medium">Announcement Title</label>
+              <input
+                type="text"
+                placeholder="e.g. 📢 Batch 12 Live Revision & Q&A Session Schedule"
+                value={newAnnTitle}
+                onChange={(e) => setNewAnnTitle(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-chart-grid rounded font-sans text-ink font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block font-mono text-ink mb-1 font-medium">Announcement Message Content</label>
+              <textarea
+                rows={3}
+                placeholder="Dear Students, live online revision and SLMC mock practice review will be held this Saturday..."
+                value={newAnnContent}
+                onChange={(e) => setNewAnnContent(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-chart-grid rounded font-sans text-xs text-ink leading-relaxed"
+              />
+            </div>
+
+            <Button
+              type="button"
+              onClick={handleAddAnnouncement}
+              disabled={isAddingAnn}
+              className="bg-chart-red hover:bg-chart-red-hover text-white text-xs font-semibold gap-1.5 h-8 px-4 border-0"
+            >
+              <Megaphone className="w-3.5 h-3.5" /> Post Announcement
+            </Button>
+          </div>
+        </div>
+
+        {/* Announcements List */}
+        <div className="space-y-3 pt-1">
+          {announcements.length === 0 ? (
+            <div className="p-6 text-center text-sage font-mono text-xs bg-linen/20 rounded border border-chart-grid">
+              No official announcements posted for this course yet.
+            </div>
+          ) : (
+            announcements.map((ann) => (
+              <div
+                key={ann.id}
+                className="bg-white border border-chart-grid p-4 rounded-card space-y-2 shadow-xs"
+              >
+                <div className="flex items-start justify-between gap-3 border-b border-chart-grid/40 pb-2">
+                  <div>
+                    <h4 className="font-semibold text-ink text-sm font-sans flex items-center gap-2">
+                      <Megaphone className="w-4 h-4 text-chart-red shrink-0" />
+                      {ann.title}
+                    </h4>
+                    <span className="text-[10px] font-mono text-sage block mt-0.5">
+                      Posted: {new Date(ann.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAnnouncement(ann.id)}
+                    className="p-1 text-chart-red hover:text-chart-red-hover transition-colors shrink-0"
+                    title="Delete Announcement"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <p className="text-xs text-ink leading-relaxed font-sans whitespace-pre-line pt-1">
+                  {ann.content}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ── Section 04: Chapter & Lesson Sequence Builder ── */}
       <div className="space-y-6">
         <div className="flex items-center justify-between border-b border-chart-grid pb-3">
           <h2 className="text-xl font-display font-semibold text-ink">
-            02 / Chapter & Lesson Sequence Builder ({chapters.length} Chapters)
+            04 / Chapter & Lesson Sequence Builder ({chapters.length} Chapters)
           </h2>
           <Button onClick={addChapter} size="sm" variant="outline" className="gap-1 text-xs">
             <Plus className="w-4 h-4 text-clinical-teal" /> Add Lecture Chapter

@@ -19,6 +19,8 @@ import {
   CheckSquare,
   Lock,
   HelpCircle,
+  Megaphone,
+  Award,
 } from "lucide-react";
 
 interface Lesson {
@@ -46,6 +48,21 @@ interface CoursePlayerProps {
     slug: string;
     description: string;
     chapters: Chapter[];
+    announcements?: {
+      id: string;
+      title: string;
+      content: string;
+      createdAt: string | Date;
+    }[];
+    instructors?: {
+      id: string;
+      facultyMember: {
+        id: string;
+        name: string;
+        title: string;
+        photoUrl: string | null;
+      };
+    }[];
   };
   initialCompletedLessonIds: string[];
 }
@@ -128,6 +145,28 @@ export function CoursePlayerClient({
         </div>
       </div>
 
+      {/* 📢 Official Course Announcements Banner */}
+      {course.announcements && course.announcements.length > 0 && (
+        <div className="bg-chart-red/5 border-2 border-chart-red/30 p-5 rounded-card space-y-2 shadow-paper animate-in fade-in">
+          <div className="flex items-center justify-between border-b border-chart-red/20 pb-2">
+            <span className="font-mono text-xs font-bold text-chart-red uppercase tracking-wider bg-chart-red/10 border border-chart-red/20 px-2.5 py-1 rounded flex items-center gap-1.5">
+              <Megaphone className="w-4 h-4" /> Official Batch Announcement
+            </span>
+            <span className="text-[11px] font-mono text-sage">
+              {new Date(course.announcements[0].createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+            </span>
+          </div>
+          <div>
+            <h3 className="text-sm sm:text-base font-semibold text-ink font-sans">
+              {course.announcements[0].title}
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed font-sans mt-1 whitespace-pre-line">
+              {course.announcements[0].content}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Main Layout: Left Sidebar Chapters & Right Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Sidebar Chapter Accordion (4 Cols) */}
@@ -202,6 +241,36 @@ export function CoursePlayerClient({
               </div>
             ))}
           </div>
+
+          {/* Assigned Course Instructors Widget */}
+          {course.instructors && course.instructors.length > 0 && (
+            <div className="mt-4 bg-surface border border-chart-grid rounded-card p-4 space-y-3">
+              <h3 className="text-xs font-mono font-semibold uppercase text-ink flex items-center gap-1.5 border-b border-chart-grid pb-2">
+                <Award className="w-4 h-4 text-clinical-teal" /> Course Instructors
+              </h3>
+              <div className="space-y-2">
+                {course.instructors.map((ins) => (
+                  <div key={ins.id} className="flex items-center gap-2.5 p-2 bg-linen/30 rounded border border-chart-grid/60">
+                    <div className="w-8 h-8 relative rounded-full overflow-hidden border border-chart-grid shrink-0">
+                      <img
+                        src={ins.facultyMember.photoUrl || "/lecturer.jpeg"}
+                        alt={ins.facultyMember.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-semibold text-ink truncate font-sans">
+                        {ins.facultyMember.name}
+                      </div>
+                      <div className="text-[10px] font-mono text-clinical-teal truncate">
+                        {ins.facultyMember.title}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Main Video & Lesson Content Pane (8 Cols) */}
