@@ -124,29 +124,6 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
             </p>
           </div>
 
-          {/* Official Course Announcements Banner */}
-          {course.announcements && course.announcements.length > 0 && (
-            <div className="bg-chart-red/5 border-2 border-chart-red/30 p-6 rounded-card space-y-3 shadow-paper">
-              <div className="flex items-center gap-2 border-b border-chart-red/20 pb-3">
-                <span className="font-mono text-xs font-bold text-chart-red uppercase tracking-wider bg-chart-red/10 border border-chart-red/20 px-2.5 py-1 rounded flex items-center gap-1.5">
-                  📢 Official Course Announcement
-                </span>
-                <span className="text-xs font-mono text-sage">
-                  {new Date(course.announcements[0].createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-                </span>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-ink font-sans">
-                  {course.announcements[0].title}
-                </h3>
-                <FormattedText
-                  content={course.announcements[0].content}
-                  className="text-xs text-ink mt-1"
-                />
-              </div>
-            </div>
-          )}
-
           <VitalLine variant="hero" animated={false} />
 
           {/* Syllabus Outline (No Video Player - Anti-Piracy Boundary) */}
