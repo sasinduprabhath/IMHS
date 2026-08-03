@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { AnimatedGrid, GlowOrb, RevealOnScroll } from "@/components/ui/animations";
+import { AnimatedGrid, GlowOrb } from "@/components/ui/animations";
 import { VitalLine } from "@/components/ui/vital-line";
 import {
   DNAHelix,
@@ -17,12 +17,11 @@ import {
   MedicalScannerBeam,
 } from "@/components/marketing/PharmacyAnimations";
 import {
-  Image as ImageIcon,
   X,
   Maximize2,
   Calendar,
-  Play,
   Video,
+  Play,
 } from "lucide-react";
 
 export interface GalleryItem {
@@ -30,7 +29,6 @@ export interface GalleryItem {
   type: "image" | "video";
   title: string;
   src: string;
-  poster?: string;
   description: string;
   date: string;
 }
@@ -51,15 +49,15 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
         <MedicalCross size={22} color="#F16726" className="absolute top-20 left-1/4 opacity-30" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-5">
-          <RxCredentialBadge label="INSTITUTIONAL GALLERY & VIDEOS" />
+          <RxCredentialBadge label="INSTITUTIONAL VIDEO GALLERY" />
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-ink leading-tight">
-            IMHS Campus &amp;{" "}
-            <span className="text-clinical-teal">Event Media Gallery</span>
+            IMHS Event &amp;{" "}
+            <span className="text-clinical-teal">Workshop Video Gallery</span>
           </h1>
 
           <p className="text-base sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            Explore video highlights and photo archives from annual convocations, laboratory practicals, clinical seminars, and campus workshops in Sri Lanka.
+            Watch official video recordings from IMHS convocations, laboratory practicals, clinical seminars, and campus workshops in Sri Lanka.
           </p>
 
           <div className="max-w-md mx-auto pt-2">
@@ -68,97 +66,81 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
         </div>
       </section>
 
-      {/* ── GALLERY GRID SECTION ── */}
+      {/* ── GALLERY VIDEO GRID SECTION ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10 relative">
         <PillCapsuleOrbs count={6} className="opacity-40" />
 
-        {/* Media Grid */}
+        {/* Video Grid */}
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start"
         >
           <AnimatePresence>
-            {items.map((item) => {
-              const isVideo = item.type === "video";
-              return (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
+            {items.map((item) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="group bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper hover:border-clinical-teal hover:shadow-paper-stack transition-all duration-300 flex flex-col justify-between"
+              >
+                {/* Auto Playing Video Container preserving natural Aspect Ratio */}
+                <div
                   onClick={() => setActiveItem(item)}
-                  className="group bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper hover:border-clinical-teal hover:shadow-paper-stack transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                  className="relative w-full bg-black flex items-center justify-center cursor-pointer overflow-hidden group"
                 >
-                  <div className="relative h-64 w-full overflow-hidden bg-ink">
-                    <MedicalScannerBeam />
+                  <MedicalScannerBeam />
+                  <video
+                    src={item.src}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-auto max-h-[500px] object-contain group-hover:scale-102 transition-transform duration-500"
+                  />
 
-                    {isVideo ? (
-                      <div className="relative w-full h-full">
-                        <video
-                          src={item.src}
-                          poster={item.poster}
-                          muted
-                          loop
-                          playsInline
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        {/* Video Play Overlay Icon */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-ink/30 group-hover:bg-ink/50 transition-colors">
-                          <div className="w-14 h-14 rounded-full bg-chart-red text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                            <Play className="w-6 h-6 fill-white ml-0.5" />
-                          </div>
-                        </div>
-                        <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-white bg-chart-red/90 px-2.5 py-1 rounded-full shadow-sm">
-                          <Video className="w-3 h-3" /> VIDEO
-                        </span>
-                      </div>
-                    ) : (
-                      <Image
-                        src={item.src}
-                        alt={item.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    )}
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-white bg-clinical-teal/80 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                        {isVideo ? <Play className="w-3.5 h-3.5 fill-white" /> : <Maximize2 className="w-3.5 h-3.5" />}
-                        {isVideo ? "Play Video" : "View Photo"}
-                      </span>
+                  {/* Play Overlay */}
+                  <div className="absolute inset-0 bg-ink/20 group-hover:bg-ink/40 transition-colors flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-chart-red/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <Play className="w-5 h-5 fill-white ml-0.5" />
                     </div>
                   </div>
 
-                  <div className="p-5 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-sage flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {item.date}
-                      </span>
-                      {isVideo && (
-                        <span className="text-[10px] font-mono text-chart-red font-bold flex items-center gap-1">
-                          <Video className="w-3 h-3" /> Event Video
-                        </span>
-                      )}
-                    </div>
+                  <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-white bg-chart-red/90 px-2.5 py-1 rounded-full shadow-sm z-10">
+                    <Video className="w-3 h-3" /> OFFICIAL VIDEO
+                  </span>
+                </div>
 
-                    <h3 className="text-base font-semibold font-sans text-ink group-hover:text-clinical-teal transition-colors">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-xs text-ink-muted line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
+                <div className="p-5 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-sage flex items-center gap-1">
+                      <Calendar className="w-3 h-3" /> {item.date}
+                    </span>
+                    <button
+                      onClick={() => setActiveItem(item)}
+                      className="text-xs font-mono font-bold text-clinical-teal hover:underline flex items-center gap-1"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" /> Fullscreen
+                    </button>
                   </div>
-                </motion.div>
-              );
-            })}
+
+                  <h3 className="text-base font-semibold font-sans text-ink group-hover:text-clinical-teal transition-colors">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-xs text-ink-muted leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </AnimatePresence>
         </motion.div>
       </section>
 
-      {/* ── LIGHTBOX MODAL (PHOTO & VIDEO PLAYER) ── */}
+      {/* ── LIGHTBOX MODAL (ENLARGED VIDEO PLAYER WITH SOUND) ── */}
       <AnimatePresence>
         {activeItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -166,32 +148,23 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-surface border border-chart-grid rounded-card max-w-3xl w-full overflow-hidden shadow-2xl relative"
+              className="bg-surface border border-chart-grid rounded-card max-w-4xl w-full overflow-hidden shadow-2xl relative"
             >
               <button
                 onClick={() => setActiveItem(null)}
-                className="absolute top-4 right-4 p-2 text-white bg-ink/60 rounded-full hover:bg-chart-red transition-colors z-30 shadow-md"
-                aria-label="Close media"
+                className="absolute top-4 right-4 p-2 text-white bg-ink/70 rounded-full hover:bg-chart-red transition-colors z-30 shadow-md"
+                aria-label="Close video player"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="relative h-80 sm:h-[420px] w-full bg-ink flex items-center justify-center">
-                {activeItem.type === "video" ? (
-                  <video
-                    src={activeItem.src}
-                    controls
-                    autoPlay
-                    className="w-full h-full object-contain bg-black"
-                  />
-                ) : (
-                  <Image
-                    src={activeItem.src}
-                    alt={activeItem.title}
-                    fill
-                    className="object-cover"
-                  />
-                )}
+              <div className="relative w-full bg-black flex items-center justify-center max-h-[70vh]">
+                <video
+                  src={activeItem.src}
+                  controls
+                  autoPlay
+                  className="w-full max-h-[70vh] object-contain bg-black"
+                />
               </div>
 
               <div className="p-6 space-y-3 bg-surface">
@@ -199,11 +172,9 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                   <span className="text-xs font-mono text-sage flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" /> IMHS Archive · {activeItem.date}
                   </span>
-                  {activeItem.type === "video" && (
-                    <span className="text-xs font-mono text-chart-red font-bold flex items-center gap-1">
-                      <Video className="w-3.5 h-3.5" /> Official Event Recording
-                    </span>
-                  )}
+                  <span className="text-xs font-mono text-chart-red font-bold flex items-center gap-1">
+                    <Video className="w-3.5 h-3.5" /> Event Recording
+                  </span>
                 </div>
 
                 <h3 className="text-xl font-display font-bold text-ink">
@@ -221,7 +192,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                     onClick={() => setActiveItem(null)}
                     className="rounded-full text-xs font-mono"
                   >
-                    Close Preview
+                    Close Player
                   </Button>
                 </div>
               </div>
