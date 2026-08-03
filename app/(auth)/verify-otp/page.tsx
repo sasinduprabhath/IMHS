@@ -342,7 +342,7 @@ function OtpForm() {
 
 export default function VerifyOtpPage() {
   return (
-    <div className="min-h-[calc(100vh-68px)] lg:h-[calc(100vh-68px)] flex font-sans overflow-hidden">
+    <div className="flex-1 flex font-sans overflow-hidden">
       {/* ── Left brand panel (same as login) ── */}
       <div
         className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-8 p-10 xl:p-12 relative overflow-hidden h-full"

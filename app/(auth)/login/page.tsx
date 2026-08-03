@@ -322,7 +322,7 @@ function LoginForm() {
 // ─────────────────────────────────────────────────────────────
 export default function LoginPage() {
   return (
-    <div className="h-[calc(100vh-68px)] flex font-sans overflow-hidden">
+    <div className="flex-1 flex font-sans overflow-hidden">
       {/* Left brand panel */}
       <div
         className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-6 p-8 xl:p-12 relative overflow-hidden h-full"
