@@ -29,7 +29,7 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {faculty.map((member) => {
           const profileHref = getProfileLink(member);
-          const photoSrc = member.photoUrl || "/lecturer.jpeg";
+          const photoSrc = member.photoUrl || "/faculty/avatar-placeholder.svg";
 
           return (
             <div
@@ -38,7 +38,7 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
             >
               <div className="space-y-4">
                 <Link href={profileHref} className="block">
-                  <div className="w-28 h-28 mx-auto relative rounded-full overflow-hidden border-2 border-chart-grid group-hover:border-clinical-teal transition-colors shadow-md">
+                  <div className="w-28 h-28 mx-auto relative rounded-full overflow-hidden border-2 border-chart-grid group-hover:border-clinical-teal transition-colors shadow-md bg-linen/50">
                     <Image
                       src={photoSrc}
                       alt={member.name}
@@ -104,9 +104,9 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
                 Consultant Profile Chart
               </p>
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-clinical-teal shrink-0">
+                <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-clinical-teal shrink-0 bg-linen/50">
                   <Image
-                    src={selectedMember.photoUrl || "/lecturer.jpeg"}
+                    src={selectedMember.photoUrl || "/faculty/avatar-placeholder.svg"}
                     alt={selectedMember.name}
                     fill
                     className="object-cover"

@@ -1,0 +1,38 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <rect width="400" height="400" rx="40" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Medical Cross Pattern in Background -->
+  <path d="M185 100 H215 V300 H185 Z" fill="#0E57A4" fill-opacity="0.06"/>
+  <path d="M100 185 H300 V215 H100 Z" fill="#0E57A4" fill-opacity="0.06"/>
+  
+  <!-- Outer Glow Ring -->
+  <circle cx="200" cy="160" r="75" stroke="#0E57A4" stroke-opacity="0.2" stroke-width="4" fill="none"/>
+
+  <!-- Head Circle -->
+  <circle cx="200" cy="160" r="65" fill="url(#avatarHeadGrad)"/>
+  
+  <!-- Shoulders / Body Shape -->
+  <path d="M80 340 C80 260 130 240 200 240 C270 240 320 260 320 340 Z" fill="url(#avatarBodyGrad)"/>
+  
+  <!-- Stethoscope / Medical Badge Icon Overlay -->
+  <g transform="translate(180, 290)">
+    <rect x="0" y="0" width="40" height="40" rx="20" fill="#F16726" />
+    <path d="M15 11 V18 C15 22 25 22 25 18 V11 M20 22 V27 M17 27 H23" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F7F6"/>
+      <stop offset="1" stop-color="#E5ECF2"/>
+    </linearGradient>
+    <linearGradient id="avatarHeadGrad" x1="135" y1="95" x2="265" y2="225" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E57A4" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#0E57A4" stop-opacity="0.45"/>
+    </linearGradient>
+    <linearGradient id="avatarBodyGrad" x1="80" y1="240" x2="320" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E57A4" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#0E57A4" stop-opacity="0.55"/>
+    </linearGradient>
+  </defs>
+</svg>
