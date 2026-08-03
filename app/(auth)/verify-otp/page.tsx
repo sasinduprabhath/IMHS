@@ -62,9 +62,9 @@ function OtpForm() {
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
   const handleDigitChange = (idx: number, val: string) => {
-    // Handle paste of full 6-digit code
-    if (val.length === 6 && /^\d{6}$/.test(val)) {
-      const arr = val.split("");
+    const cleanedDigits = val.replace(/\D/g, "");
+    if (cleanedDigits.length >= 6) {
+      const arr = cleanedDigits.slice(0, 6).split("");
       setDigits(arr);
       inputRefs.current[5]?.focus();
       return;
@@ -226,6 +226,7 @@ function OtpForm() {
               ref={(el) => { inputRefs.current[i] = el; }}
               type="text"
               inputMode="numeric"
+              autoComplete={i === 0 ? "one-time-code" : "off"}
               pattern="[0-9]*"
               maxLength={6}
               value={d}

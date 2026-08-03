@@ -42,7 +42,7 @@ export function buildOtpEmail(opts: {
   const { name, otp, waLink } = opts;
   const digits = otp.split("");
 
-  const subject = `Your IMHS Login Code: ${otp.slice(0, 3)} ${otp.slice(3)}`;
+  const subject = `Your IMHS Login Code is ${otp}`;
 
   const html = `
 <!DOCTYPE html>
@@ -75,22 +75,20 @@ export function buildOtpEmail(opts: {
           <tr>
             <td style="padding:32px 36px 28px;">
               <p style="margin:0 0 6px;font-size:15px;color:#4A5B70;">Hello, <strong style="color:#0A121E;">${name}</strong></p>
-              <p style="margin:0 0 28px;font-size:14px;color:#64748B;line-height:1.6;">
-                Use the verification code below to complete your login to the IMHS Student Portal.
+              <p style="margin:0 0 24px;font-size:14px;color:#64748B;line-height:1.6;">
+                Use the 6-digit verification code below to complete your login to the IMHS Student Portal.
                 This code expires in <strong>10 minutes</strong>.
               </p>
 
-              <!-- OTP Digits -->
-              <table align="center" cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
-                <tr>
-                  ${digits.map((d, i) => `
-                  <td style="padding:0 ${i === 2 ? "12px" : "4px"} 0 ${i === 3 ? "12px" : "4px"};">
-                    <div style="width:48px;height:64px;background:#EBF3FA;border:2px solid #BFDBFE;border-radius:12px;text-align:center;line-height:64px;font-size:28px;font-weight:800;color:#0E57A4;font-family:'Courier New',monospace;">
-                      ${d}
-                    </div>
-                  </td>`).join("")}
-                </tr>
-              </table>
+              <!-- OTP Digits Box (Copyable) -->
+              <div style="background:#EBF3FA;border:2px dashed #BFDBFE;border-radius:16px;padding:20px;text-align:center;margin:0 0 20px;">
+                <div style="font-size:11px;font-weight:700;color:#0E57A4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+                  📋 Your Verification Code (Tap to Copy)
+                </div>
+                <div style="font-size:36px;font-weight:800;color:#0E57A4;font-family:'Courier New',Consolas,monospace;letter-spacing:8px;user-select:all;-webkit-user-select:all;-moz-user-select:all;">
+                  ${otp}
+                </div>
+              </div>
 
               <p style="margin:0 0 8px;font-size:12px;color:#94A3B8;text-align:center;">
                 ⏱ Code expires in 10 minutes &nbsp;|&nbsp; Single-use only
