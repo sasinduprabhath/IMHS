@@ -28,6 +28,8 @@ const SESSIONS = [
     title: "Academic & SLMC Exam Mentorship",
     duration: "30 Mins",
     durationMins: 30,
+    priceLkr: 3500,
+    priceFormatted: "LKR 3,500",
     icon: GraduationCap,
     tag: "Exam Prep & Strategy",
     color: "text-clinical-teal border-clinical-teal/30 bg-clinical-teal/5",
@@ -39,6 +41,8 @@ const SESSIONS = [
     title: "Clinical & Hospital Career Guidance",
     duration: "45 Mins",
     durationMins: 45,
+    priceLkr: 5000,
+    priceFormatted: "LKR 5,000",
     icon: Stethoscope,
     tag: "Hospital & Career Pathways",
     color: "text-chart-blue border-chart-blue/30 bg-chart-blue/5",
@@ -50,6 +54,8 @@ const SESSIONS = [
     title: "Mock Viva & Interview Coaching",
     duration: "60 Mins",
     durationMins: 60,
+    priceLkr: 7500,
+    priceFormatted: "LKR 7,500",
     icon: MessageSquare,
     tag: "1-on-1 Oral Practice",
     color: "text-chart-orange border-chart-orange/30 bg-chart-orange/5",
@@ -165,6 +171,7 @@ export function DrIsuruBookingClient() {
           studentPhone,
           sessionType: selectedSession.id,
           durationMins: selectedSession.durationMins,
+          priceLkr: selectedSession.priceLkr,
           bookingDate: selectedDate,
           timeSlot: selectedTimeSlot,
           topicNotes,
@@ -264,9 +271,14 @@ export function DrIsuruBookingClient() {
                           <div className={`p-3 rounded-card border ${session.color}`}>
                             <Icon className="w-5 h-5" />
                           </div>
-                          <span className="text-[10px] font-mono font-bold text-sage bg-linen border border-chart-grid px-2.5 py-1 rounded-full">
-                            {session.duration}
-                          </span>
+                          <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold">
+                            <span className="text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-1 rounded-full">
+                              {session.priceFormatted}
+                            </span>
+                            <span className="text-sage bg-linen border border-chart-grid px-2.5 py-1 rounded-full">
+                              {session.duration}
+                            </span>
+                          </div>
                         </div>
 
                         <h4 className="text-base font-bold font-sans text-ink leading-snug">
@@ -499,8 +511,11 @@ export function DrIsuruBookingClient() {
                     <span>Selected Session: {selectedSession.title}</span>
                     <span className="text-clinical-teal">{selectedSession.duration}</span>
                   </div>
-                  <div className="text-ink-muted">
-                    Scheduled For: {selectedDate} at {selectedTimeSlot} (GMT+5:30)
+                  <div className="text-ink-muted flex items-center justify-between pt-1">
+                    <span>Scheduled: {selectedDate} at {selectedTimeSlot} (GMT+5:30)</span>
+                    <span className="font-bold text-clinical-teal bg-clinical-teal/10 px-2 py-0.5 rounded">
+                      Fee: {selectedSession.priceFormatted}
+                    </span>
                   </div>
                 </div>
 
@@ -552,6 +567,12 @@ export function DrIsuruBookingClient() {
                 <div className="flex items-center justify-between">
                   <span className="text-ink-muted">Date &amp; Time:</span>
                   <span className="font-semibold">{selectedDate} @ {confirmedBooking.timeSlot}</span>
+                </div>
+                <div className="flex items-center justify-between border-t border-chart-grid pt-2">
+                  <span className="text-ink-muted">Session Fee:</span>
+                  <span className="font-bold text-clinical-teal bg-clinical-teal/10 px-2.5 py-0.5 rounded">
+                    {selectedSession.priceFormatted}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between border-t border-chart-grid pt-2">
                   <span className="text-ink-muted">Status:</span>

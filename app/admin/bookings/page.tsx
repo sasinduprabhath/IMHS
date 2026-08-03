@@ -33,6 +33,7 @@ interface Booking {
   studentPhone: string;
   sessionType: string;
   durationMins: number;
+  priceLkr?: number;
   bookingDate: string;
   timeSlot: string;
   topicNotes?: string;
@@ -276,7 +277,12 @@ export default function AdminBookingsPage() {
                       <div className="font-semibold text-ink">
                         {b.sessionType.replace(/_/g, " ")}
                       </div>
-                      <div className="text-[10px] font-mono text-sage">{b.durationMins} Mins</div>
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-sage mt-0.5">
+                        <span>{b.durationMins} Mins</span>
+                        <span className="font-bold text-clinical-teal bg-clinical-teal/10 px-2 py-0.5 rounded">
+                          {b.priceLkr ? `LKR ${b.priceLkr.toLocaleString()}` : "Free / Included"}
+                        </span>
+                      </div>
                     </td>
 
                     <td className="py-4 px-4 space-y-0.5 font-mono text-ink">

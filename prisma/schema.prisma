@@ -157,6 +157,7 @@ model ConsultationBooking {
   studentPhone  String
   sessionType   String        // "MENTORSHIP" | "CLINICAL_CONSULTATION" | "MOCK_INTERVIEW"
   durationMins  Int           // 30, 45, 60
+  priceLkr      Float         @default(0)
   bookingDate   DateTime
   timeSlot      String        // e.g. "10:00 AM"
   topicNotes    String?       @db.Text
