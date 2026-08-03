@@ -50,13 +50,13 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
   return (
     <div className="space-y-6">
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-chart-grid pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#E2E8F0]">
         <div>
-          <span className="font-mono text-xs text-chart-red uppercase font-semibold tracking-wider">
+          <span className="font-mono text-[10px] text-[#F16726] uppercase font-bold tracking-widest">
             CURRICULUM MANAGEMENT
           </span>
-          <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink mt-0.5">
-            Course Manager & Syllabus Builder
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-ink mt-0.5">
+            Course Manager &amp; Syllabus Builder
           </h1>
           <p className="text-xs text-ink-muted mt-1 font-sans">
             Manage course publishing status, video module links, PDF downloads, and pricing.
@@ -64,9 +64,10 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
         </div>
 
         <Link href="/admin/courses/new">
-          <Button className="gap-2 font-semibold text-xs bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-md">
+          <button className="inline-flex items-center gap-2 font-semibold text-xs text-white px-4 py-2.5 rounded-xl transition-all hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)", boxShadow: "0 4px 12px rgba(241,103,38,.25)" }}>
             <Plus className="w-4 h-4" /> Create New Course
-          </Button>
+          </button>
         </Link>
       </div>
 

@@ -20,7 +20,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-linen font-sans">
+    <div className="flex min-h-screen font-sans"
+      style={{ background: "linear-gradient(160deg, #F0F5FB 0%, #F8FAFC 40%, #ffffff 100%)" }}>
       {/* Left sidebar - sticky, full height */}
       <AdminSidebar user={session.user} />
 

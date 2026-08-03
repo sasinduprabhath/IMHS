@@ -39,14 +39,14 @@ export default async function AdminStudentsDirectoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-chart-grid pb-4">
-        <span className="font-mono text-xs text-chart-red uppercase font-semibold">
+      <div className="border-b border-[#E2E8F0] pb-5">
+        <span className="font-mono text-[10px] text-[#F16726] uppercase font-bold tracking-widest">
           DIRECTORY MANAGEMENT
         </span>
-        <h1 className="text-3xl font-display font-semibold text-ink">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-ink mt-0.5">
           Enrolled Student Directory
         </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
+        <p className="text-sm text-ink-muted mt-1 font-sans">
           Manage student accounts, course enrollments, password resets, and WhatsApp links.
         </p>
       </div>

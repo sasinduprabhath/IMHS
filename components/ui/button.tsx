@@ -3,46 +3,28 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  // Base: Lexend (via font-sans), capsule-ready rounding, consistent transitions
-  // pressed: scale(0.98) tap-down; disabled: muted fill + 40% opacity text
-  [
-    "inline-flex items-center justify-center whitespace-nowrap rounded-btn",
-    "text-sm font-medium font-sans tracking-wide",
-    "transition-all duration-150 ease-in-out",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clinical-teal focus-visible:ring-offset-2",
-    "active:scale-[0.98]",                       // pressed tap-down — applied to ALL variants
-    "disabled:pointer-events-none",
-    "disabled:bg-chart-grid disabled:text-ink/40 disabled:shadow-none", // explicit disabled tokens
-  ].join(" "),
+  "inline-flex items-center justify-center whitespace-nowrap rounded-btn text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chart-red focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-sans tracking-wide",
   {
     variants: {
       variant: {
-        // Default: teal fill — hover darkens ~8%
         default:
-          "bg-clinical-teal text-white shadow-paper hover:bg-clinical-teal-hover",
-        // Outline: teal border — hover: 8%-opacity teal tint fill-sweep
+          "bg-clinical-teal text-white hover:bg-clinical-teal-hover shadow-paper transition-all duration-200",
         outline:
-          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal/8 hover:text-clinical-teal",
-        // Secondary: sage tint
+          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal hover:text-white transition-all duration-200",
         secondary:
-          "bg-sage-light text-ink hover:bg-sage/30",
-        // Danger: chart-red — hover darkens
+          "bg-sage-light text-ink hover:bg-sage transition-all duration-200",
         danger:
-          "bg-chart-red text-surface shadow-paper hover:bg-chart-red-hover",
-        // Ghost: transparent — hover: linen tint
+          "bg-chart-red text-surface hover:bg-chart-red-hover shadow-paper",
         ghost:
-          "text-ink hover:bg-linen hover:text-clinical-teal",
-        // Link: no background
+          "hover:bg-linen text-ink hover:text-clinical-teal",
         link:
-          "text-clinical-teal underline-offset-4 hover:underline p-0 h-auto shadow-none",
+          "text-clinical-teal underline-offset-4 hover:underline p-0 h-auto",
       },
       size: {
         default: "h-10 px-5 py-2",
         sm: "h-8 px-3 text-xs",
         lg: "h-12 px-7 text-base font-semibold",
         icon: "h-9 w-9 p-0",
-        // Capsule: pill-shaped — for marketing CTAs and booking actions
-        capsule: "h-10 px-6 rounded-full",
       },
     },
     defaultVariants: {

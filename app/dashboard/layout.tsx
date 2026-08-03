@@ -16,7 +16,8 @@ export default async function StudentLayout({
   }
 
   return (
-    <div className="min-h-screen bg-linen flex flex-row font-sans">
+    <div className="min-h-screen flex flex-row font-sans"
+      style={{ background: "linear-gradient(160deg, #F0F5FB 0%, #F8FAFC 40%, #ffffff 100%)" }}>
       {/* Left Sidebar */}
       <StudentSidebar user={session.user} />
 

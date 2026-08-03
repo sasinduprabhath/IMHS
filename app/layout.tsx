@@ -1,28 +1,28 @@
 import type { Metadata } from "next";
-import { Fraunces, Lexend, IBM_Plex_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { PageTransitionProvider } from "@/components/providers/PageTransitionProvider";
 
-
-const fraunces = Fraunces({
+const plusJakartaSans = Plus_Jakarta_Sans({
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-display",
   display: "swap",
 });
 
-const lexend = Lexend({
-  weight: ["400", "500", "600", "700"],
+const inter = Inter({
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-sans",
   display: "swap",
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
   subsets: ["latin"],
-  variable: "--font-ibm-plex-mono",
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -47,9 +47,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${lexend.variable} ${ibmPlexMono.variable}`}
+      className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-sans bg-linen text-ink min-h-screen flex flex-col antialiased">
+      <body className="font-sans bg-surface text-ink min-h-screen flex flex-col antialiased">
         <AuthProvider>
           <SmoothScrollProvider>
             <PageTransitionProvider>{children}</PageTransitionProvider>

@@ -70,31 +70,41 @@ export default async function AdminOverviewPage() {
     <div className="space-y-6">
 
       {/* ── 1. Executive Banner ─────────────────────────────────────────── */}
-      <div className="bg-white border border-chart-grid rounded-2xl p-6 md:p-8 shadow-sm relative overflow-hidden">
-        {/* Subtle decorative gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-clinical-teal/3 via-transparent to-transparent pointer-events-none rounded-2xl" />
+      <div className="relative rounded-2xl overflow-hidden p-7 md:p-8"
+        style={{
+          background: "linear-gradient(135deg, #0A1628 0%, #0C1A30 50%, #0d2040 100%)",
+          boxShadow: "0 8px 32px rgba(10,18,30,.25), 0 2px 8px rgba(10,18,30,.15)",
+        }}>
+        {/* Mesh overlay */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(ellipse 70% 50% at 80% 0%, rgba(14,87,164,.18) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 5% 100%, rgba(241,103,38,.12) 0%, transparent 50%)"
+          }} />
+        {/* 3px brand bar at top */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#F16726] via-[#0E57A4] to-[#F16726]" />
 
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold tracking-wider text-chart-red border border-chart-red/30 bg-chart-red/8 px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold tracking-wider text-[#FB923C] border border-[#F16726]/30 bg-[#F16726]/10 px-3 py-1 rounded-pill">
               <Activity className="w-3 h-3" /> Institutional Administration
             </span>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-ink leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-white leading-tight">
               Executive Administration Dashboard
             </h1>
-            <p className="text-sm text-ink-muted font-sans max-w-xl leading-relaxed">
+            <p className="text-sm text-white/55 font-sans max-w-xl leading-relaxed">
               Manage clinical programs, official student Reg IDs, course access holds, and admissions tracking.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link href="/admin/students/new">
-              <Button className="gap-2 bg-chart-red hover:bg-chart-red-hover text-white border-0 font-semibold shadow-sm text-sm h-10 px-5 rounded-xl">
+              <Button className="gap-2 text-white border-0 font-semibold text-sm h-10 px-5 rounded-xl"
+                style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)", boxShadow: "0 4px 12px rgba(241,103,38,.30)" }}>
                 <UserPlus className="w-4 h-4" /> Onboard Student
               </Button>
             </Link>
             <Link href="/admin/courses/new">
-              <Button variant="outline" className="gap-2 font-semibold bg-white border-chart-grid hover:border-clinical-teal hover:text-clinical-teal text-sm h-10 px-5 rounded-xl transition-colors">
+              <Button className="gap-2 font-semibold text-white border border-white/15 bg-white/10 hover:bg-white/18 text-sm h-10 px-5 rounded-xl transition-all backdrop-blur-sm">
                 <BookOpen className="w-4 h-4" /> Create Program
               </Button>
             </Link>
@@ -106,20 +116,22 @@ export default async function AdminOverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         {/* Card: Active Students */}
-        <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 group">
+        <div className="bg-white rounded-2xl p-5 transition-all duration-200 hover:shadow-card group"
+          style={{ border: "1px solid rgba(14,87,164,.14)", boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}>
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold">Active Students</span>
-            <div className="w-9 h-9 rounded-xl bg-clinical-teal/10 flex items-center justify-center group-hover:bg-clinical-teal/20 transition-colors">
-              <Users className="w-4 h-4 text-clinical-teal" />
+            <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: "#0E57A4" }}>Active Students</span>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+              style={{ background: "rgba(14,87,164,.08)" }}>
+              <Users className="w-4 h-4" style={{ color: "#0E57A4" }} />
             </div>
           </div>
-          <div className="text-3xl font-mono font-bold text-ink mb-3">
+          <div className="text-3xl font-display font-bold text-ink mb-3">
             {isDbConnected ? totalStudents.toLocaleString() : "-"}
           </div>
-          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#F1F5F9]">
             <p className="text-xs text-ink-muted truncate min-w-0">Registered learners</p>
             <Link href="/admin/students" className="shrink-0">
-              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer whitespace-nowrap">
+              <span className="text-[10px] font-mono font-bold text-[#0E57A4] bg-[#EBF3FA] border border-[#BFDBFE] px-2.5 py-0.5 rounded-pill hover:bg-[#BFDBFE]/50 transition-colors cursor-pointer whitespace-nowrap">
                 Active Roster
               </span>
             </Link>
@@ -127,14 +139,16 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Card: Course Curriculum */}
-        <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 group">
+        <div className="bg-white rounded-2xl p-5 transition-all duration-200 hover:shadow-card group"
+          style={{ border: "1px solid rgba(99,102,241,.14)", boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}>
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold">Course Curriculum</span>
-            <div className="w-9 h-9 rounded-xl bg-clinical-teal/10 flex items-center justify-center group-hover:bg-clinical-teal/20 transition-colors">
-              <BookOpen className="w-4 h-4 text-clinical-teal" />
+            <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: "#6366F1" }}>Course Curriculum</span>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+              style={{ background: "rgba(99,102,241,.08)" }}>
+              <BookOpen className="w-4 h-4" style={{ color: "#6366F1" }} />
             </div>
           </div>
-          <div className="text-3xl font-mono font-bold text-ink mb-3">
+          <div className="text-3xl font-display font-bold text-ink mb-3">
             {isDbConnected ? (
               <span>
                 {publishedCourses}{" "}
@@ -142,10 +156,11 @@ export default async function AdminOverviewPage() {
               </span>
             ) : "-"}
           </div>
-          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#F1F5F9]">
             <p className="text-xs text-ink-muted truncate min-w-0">Published programs</p>
             <Link href="/admin/courses" className="shrink-0">
-              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer whitespace-nowrap">
+              <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-pill hover:opacity-80 transition-colors cursor-pointer whitespace-nowrap"
+                style={{ color: "#6366F1", background: "rgba(99,102,241,.1)", border: "1px solid rgba(99,102,241,.2)" }}>
                 Live Catalog
               </span>
             </Link>
@@ -153,20 +168,23 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Card: Recent Onboardings */}
-        <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 group">
+        <div className="bg-white rounded-2xl p-5 transition-all duration-200 hover:shadow-card group"
+          style={{ border: "1px solid rgba(16,185,129,.14)", boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}>
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold">Recent Onboardings</span>
-            <div className="w-9 h-9 rounded-xl bg-clinical-teal/10 flex items-center justify-center group-hover:bg-clinical-teal/20 transition-colors">
-              <TrendingUp className="w-4 h-4 text-clinical-teal" />
+            <span className="text-[10px] font-mono uppercase tracking-widest font-bold" style={{ color: "#10B981" }}>Recent Onboardings</span>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+              style={{ background: "rgba(16,185,129,.08)" }}>
+              <TrendingUp className="w-4 h-4" style={{ color: "#10B981" }} />
             </div>
           </div>
-          <div className="text-3xl font-mono font-bold text-ink mb-3">
+          <div className="text-3xl font-display font-bold text-ink mb-3">
             {isDbConnected ? recentStudents.length : "-"}
           </div>
-          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#F1F5F9]">
             <p className="text-xs text-ink-muted truncate min-w-0">Newly enrolled</p>
             <Link href="/admin/students" className="shrink-0">
-              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer whitespace-nowrap">
+              <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-pill hover:opacity-80 transition-colors cursor-pointer whitespace-nowrap"
+                style={{ color: "#10B981", background: "rgba(16,185,129,.1)", border: "1px solid rgba(16,185,129,.2)" }}>
                 Recent Enrollees
               </span>
             </Link>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
@@ -44,7 +45,6 @@ export function AdminSidebar({ user }: { user: any }) {
     pendingBookingsCount: 0,
   });
 
-  // Fetch live notification counts
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -53,16 +53,13 @@ export function AdminSidebar({ user }: { user: any }) {
           const data = await res.json();
           setCounts(data);
         }
-      } catch (e) {
-        // ignore errors
-      }
+      } catch (e) {}
     };
     fetchCounts();
     const interval = setInterval(fetchCounts, 20000);
     return () => clearInterval(interval);
   }, []);
 
-  // Read collapse preference from localStorage after mount
   useEffect(() => {
     const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
     if (stored === "true") setCollapsed(true);
@@ -78,83 +75,59 @@ export function AdminSidebar({ user }: { user: any }) {
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 
-  // Sidebar content (shared between desktop & mobile)
-  const SidebarContent = ({
-    isMobile = false,
-  }: {
-    isMobile?: boolean;
-  }) => (
+  const adminInitials = user?.name
+    ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "AD";
+
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div
       className={cn(
-        "flex flex-col h-full bg-white border-r border-chart-grid select-none transition-all duration-300",
-        !isMobile && (collapsed ? "w-[72px]" : "w-[260px]")
+        "flex flex-col h-full select-none overflow-hidden",
+        "bg-gradient-to-b from-[#0C1A30] to-[#0A1628]",
+        !isMobile && (collapsed ? "w-[72px]" : "w-[260px]"),
+        "transition-all duration-300"
       )}
+      style={{ boxShadow: "4px 0 24px rgba(0,0,0,.30)" }}
     >
-      {/* Clinical accent bar */}
-      <div className="h-0.5 bg-gradient-to-r from-clinical-teal via-chart-red to-clinical-teal shrink-0" />
+      {/* Brand accent gradient bar */}
+      <div className="h-[3px] bg-gradient-to-r from-[#F16726] via-[#0E57A4] to-[#F16726] shrink-0" />
 
-      {/* Logo + Admin Badge */}
+      {/* Header — Logo + Admin Badge */}
       <div
         className={cn(
-          "flex items-center gap-3 px-4 py-4 border-b border-chart-grid shrink-0",
-          collapsed && !isMobile ? "justify-center px-2" : ""
+          "flex items-center gap-3 py-4 border-b border-white/8 shrink-0",
+          collapsed && !isMobile ? "justify-center px-2" : "px-4"
         )}
       >
-        <Link href="/admin" className="flex items-center gap-2.5 min-w-0 group">
-          {/* Expanded: Fraunces wordmark + Vital Line blip */}
-          {!(collapsed && !isMobile) && (
-            <div className="flex items-center gap-2 min-w-0">
-              {/* Vital Line blip: inline SVG accent */}
-              <svg
-                width="28"
-                height="20"
-                viewBox="0 0 28 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="shrink-0 opacity-90"
-                aria-hidden="true"
-              >
-                <polyline
-                  points="0,10 5,10 8,2 11,18 14,4 17,14 20,10 28,10"
-                  stroke="#0E57A4"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="none"
-                />
-              </svg>
-              {/* IMHS in Fraunces */}
-              <span
-                className="font-display text-base font-medium text-ink leading-none tracking-tight group-hover:text-clinical-teal transition-colors duration-200"
-                style={{ fontFamily: "var(--font-fraunces), serif" }}
-              >
-                IMHS
-              </span>
+        {collapsed && !isMobile ? (
+          <Link href="/admin" title="Admin Dashboard">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F16726] to-[#D95316] flex items-center justify-center shadow-glow-orange">
+              <ShieldCheck className="w-5 h-5 text-white" />
             </div>
-          )}
-
-          {/* Collapsed: teal shield icon */}
-          {collapsed && !isMobile && (
-            <div className="w-8 h-8 rounded-lg bg-clinical-teal flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4 text-white" />
-            </div>
-          )}
-        </Link>
-
-        {/* Admin badge - visible when expanded */}
-        {(!collapsed || isMobile) && (
-          <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-chart-red text-white px-2 py-0.5 rounded font-bold tracking-wider shadow-xs shrink-0 ml-auto">
-            <ShieldCheck className="w-2.5 h-2.5" />
-            Admin
-          </span>
+          </Link>
+        ) : (
+          <>
+            <Link href="/admin" className="flex items-center gap-2.5 min-w-0 group flex-1">
+              <Image
+                src="/logo.png"
+                alt="IMHS Admin"
+                width={110}
+                height={36}
+                className="h-7 w-auto object-contain brightness-0 invert opacity-90 transition-opacity group-hover:opacity-100"
+              />
+            </Link>
+            <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-[#F16726] text-white px-2 py-0.5 rounded-pill font-bold tracking-wider shadow-xs shrink-0">
+              <ShieldCheck className="w-2.5 h-2.5" />
+              Admin
+            </span>
+          </>
         )}
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
-        {/* Section Label */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
         {(!collapsed || isMobile) && (
-          <p className="text-[9px] font-mono uppercase text-ink-muted/60 font-bold tracking-widest px-2 pt-1 pb-2">
+          <p className="text-[9px] font-mono uppercase text-white/25 font-bold tracking-widest px-2 pt-1 pb-2">
             Navigation
           </p>
         )}
@@ -162,16 +135,9 @@ export function AdminSidebar({ user }: { user: any }) {
         {NAV_LINKS.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
 
-          // Calculate badge count
           let badgeCount = 0;
-          let badgeColor = "bg-chart-red text-white";
-          if (href === "/admin/inquiries") {
-            badgeCount = counts.unresolvedInquiriesCount;
-            badgeColor = "bg-chart-red text-white";
-          } else if (href === "/admin/bookings") {
-            badgeCount = counts.pendingBookingsCount;
-            badgeColor = "bg-chart-orange text-white";
-          }
+          if (href === "/admin/inquiries") badgeCount = counts.unresolvedInquiriesCount;
+          else if (href === "/admin/bookings") badgeCount = counts.pendingBookingsCount;
 
           return (
             <Link
@@ -180,39 +146,42 @@ export function AdminSidebar({ user }: { user: any }) {
               onClick={() => isMobile && setMobileOpen(false)}
               title={collapsed && !isMobile ? label : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-lg transition-all duration-150 group relative",
+                "flex items-center gap-3 rounded-xl transition-all duration-200 group relative",
                 collapsed && !isMobile
                   ? "justify-center w-10 h-10 mx-auto"
                   : "px-3 py-2.5",
                 active
-                  ? "bg-clinical-teal text-white font-semibold shadow-sm"
-                  : "text-ink-muted hover:text-ink hover:bg-linen/70"
+                  ? "bg-[#0E57A4]/30 text-white font-semibold border border-[#0E57A4]/40"
+                  : "text-white/55 hover:text-white hover:bg-white/8"
               )}
+              style={active ? { boxShadow: "0 2px 8px rgba(14,87,164,.25)" } : undefined}
             >
-              <div className="relative">
+              <div className="relative shrink-0">
                 <Icon
                   className={cn(
-                    "shrink-0 transition-all",
+                    "transition-all",
                     collapsed && !isMobile ? "w-5 h-5" : "w-4 h-4",
-                    active ? "text-white" : ""
+                    active ? "text-[#60A5FA]" : "text-white/55 group-hover:text-white"
                   )}
                 />
-                {/* Collapsed view badge dot */}
+                {/* Collapsed badge dot */}
                 {collapsed && !isMobile && badgeCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-chart-red ring-2 ring-white animate-pulse" />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#F16726] ring-2 ring-[#0A1628] animate-pulse" />
                 )}
               </div>
 
               {(!collapsed || isMobile) && (
                 <div className="flex items-center justify-between w-full min-w-0">
-                  <span className="text-sm font-sans font-medium leading-none truncate">
-                    {label}
-                  </span>
+                  <span className="text-sm font-sans font-medium leading-none truncate">{label}</span>
                   {badgeCount > 0 && (
                     <span
                       className={cn(
-                        "ml-auto text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-xs shrink-0 animate-pulse",
-                        active ? "bg-white text-clinical-teal" : badgeColor
+                        "ml-auto text-[10px] font-mono font-bold px-2 py-0.5 rounded-pill shadow-xs shrink-0 animate-pulse",
+                        active
+                          ? "bg-white/20 text-white"
+                          : href === "/admin/bookings"
+                          ? "bg-[#F16726]/20 text-[#FB923C] border border-[#F16726]/30"
+                          : "bg-[#F87171]/15 text-[#F87171] border border-[#F87171]/20"
                       )}
                     >
                       {badgeCount}
@@ -221,46 +190,44 @@ export function AdminSidebar({ user }: { user: any }) {
                 </div>
               )}
 
-              {/* Active indicator dot when collapsed */}
+              {/* Active bar indicator (collapsed) */}
               {active && collapsed && !isMobile && (
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-clinical-teal rounded-l-full" />
+                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#60A5FA] rounded-l-full" />
               )}
             </Link>
           );
         })}
 
-        {/* Quick Actions - visible when expanded */}
+        {/* Quick Actions */}
         {(!collapsed || isMobile) && (
-          <>
-            <div className="pt-4 pb-1">
-              <p className="text-[9px] font-mono uppercase text-ink-muted/60 font-bold tracking-widest px-2 pb-2">
-                Quick Actions
-              </p>
-              <Link
-                href="/admin/students/new"
-                onClick={() => isMobile && setMobileOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-sans font-semibold text-chart-red hover:bg-chart-red/8 hover:text-chart-red transition-colors group"
-              >
-                <UserPlus className="w-4 h-4 shrink-0" />
-                Add Student
-              </Link>
-              <Link
-                href="/admin/courses/new"
-                onClick={() => isMobile && setMobileOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-sans font-semibold text-clinical-teal hover:bg-clinical-teal/8 transition-colors group"
-              >
-                <Plus className="w-4 h-4 shrink-0" />
-                New Course
-              </Link>
-            </div>
-          </>
+          <div className="pt-4 pb-1">
+            <p className="text-[9px] font-mono uppercase text-white/25 font-bold tracking-widest px-2 pb-2">
+              Quick Actions
+            </p>
+            <Link
+              href="/admin/students/new"
+              onClick={() => isMobile && setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans font-semibold text-[#FB923C] hover:bg-[#F16726]/10 hover:text-[#FB923C] transition-all group"
+            >
+              <UserPlus className="w-4 h-4 shrink-0" />
+              Add Student
+            </Link>
+            <Link
+              href="/admin/courses/new"
+              onClick={() => isMobile && setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-sans font-semibold text-[#60A5FA] hover:bg-[#0E57A4]/10 transition-all group"
+            >
+              <Plus className="w-4 h-4 shrink-0" />
+              New Course
+            </Link>
+          </div>
         )}
       </nav>
 
-      {/* Footer - Student Portal + Sign Out */}
+      {/* Footer */}
       <div
         className={cn(
-          "border-t border-chart-grid py-3 px-2 space-y-0.5 shrink-0",
+          "border-t border-white/8 py-3 px-2 space-y-0.5 shrink-0",
           collapsed && !isMobile ? "flex flex-col items-center gap-1" : ""
         )}
       >
@@ -269,44 +236,34 @@ export function AdminSidebar({ user }: { user: any }) {
           title={collapsed && !isMobile ? "Student Portal" : undefined}
           onClick={() => isMobile && setMobileOpen(false)}
           className={cn(
-            "flex items-center gap-3 rounded-lg transition-colors text-ink-muted hover:text-clinical-teal hover:bg-linen/70",
-            collapsed && !isMobile
-              ? "w-10 h-10 justify-center"
-              : "px-3 py-2.5"
+            "flex items-center gap-3 rounded-xl transition-all text-white/45 hover:text-white hover:bg-white/8",
+            collapsed && !isMobile ? "w-10 h-10 justify-center" : "px-3 py-2.5"
           )}
         >
           <ArrowLeft className="w-4 h-4 shrink-0" />
-          {(!collapsed || isMobile) && (
-            <span className="text-sm font-sans">Student Portal</span>
-          )}
+          {(!collapsed || isMobile) && <span className="text-sm font-sans">Student Portal</span>}
         </Link>
 
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           title={collapsed && !isMobile ? "Sign Out" : undefined}
           className={cn(
-            "flex items-center gap-3 rounded-lg transition-colors text-ink-muted hover:text-chart-red hover:bg-chart-red/8 w-full",
-            collapsed && !isMobile
-              ? "justify-center w-10 h-10 mx-auto"
-              : "px-3 py-2.5"
+            "flex items-center gap-3 rounded-xl transition-all text-white/45 hover:text-[#F87171] hover:bg-[#F87171]/8 w-full",
+            collapsed && !isMobile ? "justify-center w-10 h-10 mx-auto" : "px-3 py-2.5"
           )}
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          {(!collapsed || isMobile) && (
-            <span className="text-sm font-sans">Sign Out</span>
-          )}
+          {(!collapsed || isMobile) && <span className="text-sm font-sans">Sign Out</span>}
         </button>
 
-        {/* Collapse toggle - desktop only */}
+        {/* Collapse toggle */}
         {!isMobile && (
           <button
             onClick={toggleCollapse}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={cn(
-              "flex items-center gap-2 rounded-lg transition-colors text-ink-muted/60 hover:text-ink hover:bg-linen/70 mt-1",
-              collapsed
-                ? "justify-center w-10 h-10 mx-auto"
-                : "px-3 py-2 w-full"
+              "flex items-center gap-2 rounded-xl transition-all text-white/25 hover:text-white/60 hover:bg-white/6 mt-1",
+              collapsed ? "justify-center w-10 h-10 mx-auto" : "px-3 py-2 w-full"
             )}
           >
             {collapsed ? (
@@ -324,20 +281,17 @@ export function AdminSidebar({ user }: { user: any }) {
   );
 
   if (!mounted) {
-    // Render a placeholder to avoid hydration mismatch
     return (
       <>
-        {/* Desktop placeholder */}
-        <div className="hidden lg:block w-[260px] bg-white border-r border-chart-grid shrink-0" />
-        {/* Mobile top bar placeholder */}
-        <div className="lg:hidden h-14 bg-white border-b border-chart-grid fixed top-0 left-0 right-0 z-40" />
+        <div className="hidden lg:block w-[260px] bg-[#0A1628] shrink-0" />
+        <div className="lg:hidden h-14 bg-[#0A1628] border-b border-white/8 fixed top-0 left-0 right-0 z-40" />
       </>
     );
   }
 
   return (
     <>
-      {/* ── Desktop Sidebar ─────────────────────────────────────────── */}
+      {/* Desktop Sidebar */}
       <div
         className={cn(
           "hidden lg:flex flex-col shrink-0 sticky top-0 h-screen overflow-hidden transition-all duration-300",
@@ -347,62 +301,41 @@ export function AdminSidebar({ user }: { user: any }) {
         <SidebarContent />
       </div>
 
-      {/* ── Mobile Top Bar ──────────────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-chart-grid h-14 flex items-center px-4 gap-3 shadow-xs">
-        <div className="h-full w-0.5 absolute left-0 top-0 bg-gradient-to-b from-clinical-teal to-chart-red" />
+      {/* Mobile Top Bar */}
+      <div
+        className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0A1628] border-b border-white/8 h-14 flex items-center px-4 gap-3"
+        style={{ boxShadow: "0 2px 12px rgba(0,0,0,.4)" }}
+      >
+        <div className="h-full w-[3px] absolute left-0 top-0 bg-gradient-to-b from-[#F16726] to-[#0E57A4]" />
 
         <button
           onClick={() => setMobileOpen(true)}
-          className="p-2 rounded-md text-ink hover:text-clinical-teal hover:bg-linen transition-colors"
+          className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/8 transition-colors"
           aria-label="Open Navigation"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         <Link href="/admin" className="flex items-center gap-2">
-          <svg
-            width="22"
-            height="16"
-            viewBox="0 0 28 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="shrink-0 opacity-90"
-            aria-hidden="true"
-          >
-            <polyline
-              points="0,10 5,10 8,2 11,18 14,4 17,14 20,10 28,10"
-              stroke="#0E57A4"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </svg>
-          <span
-            className="text-sm font-medium text-ink leading-none"
-            style={{ fontFamily: "var(--font-fraunces), serif" }}
-          >
-            IMHS
-          </span>
+          <Image src="/logo.png" alt="IMHS" width={90} height={28} className="h-6 w-auto object-contain brightness-0 invert opacity-90" />
         </Link>
 
-        <span className="ml-auto inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-chart-red text-white px-2 py-0.5 rounded font-bold tracking-wider">
+        <span className="ml-auto inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-[#F16726] text-white px-2 py-0.5 rounded font-bold tracking-wider">
           <ShieldCheck className="w-2.5 h-2.5" />
           Admin
         </span>
 
         <Link href="/admin/students/new" className="ml-1">
-          <div className="p-2 rounded-md bg-chart-red text-white hover:bg-chart-red/90 transition-colors">
+          <div className="p-2 rounded-lg bg-[#F16726] text-white hover:bg-[#D95316] transition-colors">
             <UserPlus className="w-4 h-4" />
           </div>
         </Link>
       </div>
 
-      {/* ── Mobile Overlay Drawer ───────────────────────────────────── */}
+      {/* Mobile Overlay Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -410,27 +343,23 @@ export function AdminSidebar({ user }: { user: any }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileOpen(false)}
-              className="lg:hidden fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm"
+              className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             />
-
-            {/* Drawer */}
             <motion.div
               key="drawer"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="lg:hidden fixed left-0 top-0 bottom-0 z-50 w-72 flex flex-col overflow-hidden shadow-2xl"
+              className="lg:hidden fixed left-0 top-0 bottom-0 z-50 w-72 flex flex-col overflow-hidden"
             >
-              {/* Close button */}
               <button
                 onClick={() => setMobileOpen(false)}
-                className="absolute top-3 right-3 z-10 p-1.5 rounded-md text-ink-muted hover:text-ink hover:bg-linen transition-colors"
+                className="absolute top-4 right-3 z-10 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors"
                 aria-label="Close Navigation"
               >
                 <X className="w-4 h-4" />
               </button>
-
               <SidebarContent isMobile />
             </motion.div>
           </>

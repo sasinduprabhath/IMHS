@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { createFrozenCourseInquiryWALink } from "@/lib/whatsapp";
 import {
   BookOpen, PlayCircle, MessageSquare, ArrowRight,
-  Trophy, GraduationCap, FileText, Lock,
+  Trophy, GraduationCap, FileText, Lock, Sparkles,
+  Target, Zap, CheckCircle2, TrendingUp,
 } from "lucide-react";
 
 export const metadata = { title: "My Courses - IMHS Student Portal" };
@@ -63,94 +64,161 @@ export default async function StudentDashboardPage() {
     ? session.user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "ST";
   const regId = (session?.user as any)?.studentId || null;
+  const activeCount = enrollments.filter((e) => e.status === "ACTIVE").length;
+  const completedCourses = enrollments.filter((e) => {
+    const allL = e.course.chapters.flatMap((ch: any) => ch.lessons);
+    return allL.length > 0 && allL.every((l: any) => completedLessonIds.has(l.id));
+  }).length;
 
   return (
     <div className="space-y-8">
 
-      {/* ── Hero Banner ─────────────────────────────────────────────────── */}
-      <div className="relative bg-clinical-teal-surface border border-clinical-teal/20 rounded-2xl overflow-hidden p-6 md:p-8">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-clinical-teal/8 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+      {/* ── Hero Welcome Banner ──────────────────────────────────────────── */}
+      <div className="relative rounded-2xl overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, #0E57A4 0%, #1a6fc4 50%, #0d5fa8 100%)",
+          boxShadow: "0 8px 32px rgba(14,87,164,.30), 0 2px 8px rgba(14,87,164,.15)",
+        }}>
+        {/* Mesh gradient overlay */}
+        <div className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: "radial-gradient(ellipse 80% 60% at 80% 0%, rgba(255,255,255,.15) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 10% 100%, rgba(241,103,38,.20) 0%, transparent 50%)"
+          }} />
 
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="relative z-10 p-7 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {/* Avatar */}
-          <div className="w-14 h-14 rounded-2xl bg-clinical-teal text-white flex items-center justify-center font-mono font-bold text-xl shadow-md border-2 border-white shrink-0">
-            {studentInitials}
+          <div className="relative shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center font-display font-bold text-white text-2xl shadow-float">
+              {studentInitials}
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-[#0E57A4] rounded-full" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <span className="inline-block font-mono text-[10px] uppercase font-bold tracking-widest text-clinical-teal bg-white/80 border border-clinical-teal/20 px-2.5 py-0.5 rounded mb-1.5">
-              IMHS CLINICAL CANDIDATE
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink leading-tight">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold tracking-widest text-white/70 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-pill">
+                <Sparkles className="w-2.5 h-2.5" />
+                IMHS Clinical Candidate
+              </span>
+              {regId && (
+                <span className="font-mono text-[10px] text-white/50 bg-white/8 border border-white/15 px-2 py-0.5 rounded-pill uppercase tracking-wider">
+                  {regId}
+                </span>
+              )}
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-white leading-tight">
               Welcome back, {studentFirstName}! 👋
             </h1>
-            <p className="text-sm text-ink-muted font-sans mt-1 leading-relaxed">
+            <p className="text-sm text-white/65 font-sans mt-1 leading-relaxed">
               Your portal gives you full access to video lectures, lab references, and certification progress.
             </p>
           </div>
+
+          {/* Overall progress ring area */}
+          {totalLessons > 0 && (
+            <div className="hidden sm:flex flex-col items-center gap-1 shrink-0 bg-white/8 border border-white/15 rounded-2xl px-6 py-4 backdrop-blur-sm">
+              <div className="text-3xl font-display font-bold text-white">{overallProgress}%</div>
+              <div className="text-[10px] font-mono uppercase text-white/50 tracking-widest">Complete</div>
+              <div className="w-16 bg-white/15 rounded-full h-1.5 mt-1">
+                <div
+                  className="h-full bg-white rounded-full transition-all duration-1000"
+                  style={{ width: `${overallProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Vitals Strip ────────────────────────────────────────────────── */}
-      <div className="bg-white border border-chart-grid rounded-2xl overflow-hidden shadow-sm">
-        <div className="grid grid-cols-3 divide-x divide-chart-grid">
-          {/* Enrolled */}
-          <div className="px-5 py-4 text-center">
-            <p className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold mb-1">Enrolled</p>
-            <p className="text-3xl font-mono font-bold text-ink">{enrollments.length}</p>
-            <div className="mt-2 flex justify-center">
-              <div className="w-8 h-0.5 bg-clinical-teal/30 rounded-full" />
+      {/* ── Bento Stats Grid ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            label: "Enrolled",
+            value: enrollments.length,
+            icon: BookOpen,
+            color: "#0E57A4",
+            bg: "rgba(14,87,164,.06)",
+            border: "rgba(14,87,164,.14)",
+            suffix: "",
+          },
+          {
+            label: "Active Courses",
+            value: activeCount,
+            icon: Zap,
+            color: "#10B981",
+            bg: "rgba(16,185,129,.06)",
+            border: "rgba(16,185,129,.14)",
+            suffix: "",
+          },
+          {
+            label: "Lessons Done",
+            value: completedCount,
+            icon: CheckCircle2,
+            color: "#6366F1",
+            bg: "rgba(99,102,241,.06)",
+            border: "rgba(99,102,241,.14)",
+            suffix: "",
+          },
+          {
+            label: "Overall Progress",
+            value: overallProgress,
+            icon: TrendingUp,
+            color: "#F16726",
+            bg: "rgba(241,103,38,.06)",
+            border: "rgba(241,103,38,.14)",
+            suffix: "%",
+          },
+        ].map(({ label, value, icon: Icon, color, bg, border, suffix }) => (
+          <div
+            key={label}
+            className="bg-white rounded-2xl p-5 flex flex-col gap-3 transition-all duration-200 hover:shadow-card group"
+            style={{ border: `1px solid ${border}`, boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-mono uppercase tracking-widest font-bold"
+                style={{ color }}>
+                {label}
+              </p>
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                style={{ background: bg }}>
+                <Icon className="w-4 h-4" style={{ color }} />
+              </div>
             </div>
+            <p className="text-3xl font-display font-bold text-ink">
+              {value}{suffix}
+            </p>
+            {label === "Overall Progress" && totalLessons > 0 && (
+              <div className="w-full bg-[#F1F5F9] rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${value}%`, background: color }}
+                />
+              </div>
+            )}
           </div>
-
-          {/* Lessons Done */}
-          <div className="px-5 py-4 text-center">
-            <p className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold mb-1">Lessons Done</p>
-            <p className="text-3xl font-mono font-bold text-clinical-teal">{completedCount}</p>
-            <div className="mt-2 flex justify-center">
-              <VitalLine variant="divider" className="w-8 h-3 opacity-40" />
-            </div>
-          </div>
-
-          {/* Overall Progress */}
-          <div className="px-5 py-4 text-center">
-            <p className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold mb-1">Overall Progress</p>
-            <p className="text-3xl font-mono font-bold text-chart-red">{overallProgress}%</p>
-            <div className="mt-2 flex justify-center">
-              <div className="w-8 h-0.5 bg-chart-red/30 rounded-full" />
-            </div>
-          </div>
-        </div>
-
-        {/* Full-width progress bar */}
-        {totalLessons > 0 && (
-          <div className="px-5 pb-4 border-t border-chart-grid/60 pt-3">
-            <div className="flex items-center justify-between text-[11px] font-mono text-sage mb-1.5">
-              <span>Curriculum Completion</span>
-              <span className="font-bold text-ink">{completedCount} / {totalLessons} lessons</span>
-            </div>
-            <VitalLine variant="progress" progress={overallProgress} />
-          </div>
-        )}
+        ))}
       </div>
 
       {/* ── Enrolled Programs Grid ──────────────────────────────────────── */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">My Enrolled Programs</h2>
-          <span className="text-xs font-mono text-sage hidden sm:block">
-            {enrollments.filter((e) => e.status === "ACTIVE").length} active course{enrollments.filter((e) => e.status === "ACTIVE").length !== 1 ? "s" : ""}
-          </span>
+          <div>
+            <h2 className="text-xl font-display font-bold text-ink">My Enrolled Programs</h2>
+            <p className="text-sm text-ink-muted mt-0.5">
+              {activeCount} active course{activeCount !== 1 ? "s" : ""} · {completedCourses} completed
+            </p>
+          </div>
         </div>
 
         {enrollments.length === 0 ? (
-          /* Empty state */
-          <div className="bg-white border border-chart-grid rounded-2xl p-12 text-center space-y-4 shadow-sm">
-            <div className="w-16 h-16 bg-linen border border-chart-grid rounded-full flex items-center justify-center mx-auto">
-              <BookOpen className="w-7 h-7 text-sage/50" />
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-14 text-center space-y-4"
+            style={{ boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}>
+            <div className="w-16 h-16 bg-[#F5F7FA] border border-[#E2E8F0] rounded-2xl flex items-center justify-center mx-auto">
+              <BookOpen className="w-7 h-7 text-sage" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-ink">No courses yet</h3>
+              <h3 className="text-base font-display font-semibold text-ink">No courses yet</h3>
               <p className="text-sm text-ink-muted mt-1.5 max-w-xs mx-auto leading-relaxed">
                 Your administrator will assign your first program shortly. Message us on WhatsApp if this looks wrong.
               </p>
@@ -160,7 +228,7 @@ export default async function StudentDashboardPage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button size="sm" className="gap-2 bg-chart-red hover:bg-chart-red-hover text-white border-0 font-semibold mt-1">
+              <Button size="sm" className="gap-2 bg-[#F16726] hover:bg-[#D95316] text-white border-0 font-semibold mt-1 rounded-btn">
                 <MessageSquare className="w-4 h-4" />
                 Message Support
               </Button>
@@ -178,75 +246,97 @@ export default async function StudentDashboardPage() {
               const isComplete = pct === 100 && totalLessonsCount > 0;
               const isStarted = doneCount > 0;
 
+              const progressColor = isFrozen
+                ? "#EF4444"
+                : isComplete
+                ? "#10B981"
+                : "#0E57A4";
+
               const CardInner = (
-                <div
-                  className={`bg-white border rounded-2xl overflow-hidden flex flex-col h-full shadow-sm transition-all duration-200 ${isFrozen
-                      ? "border-chart-red/30"
-                      : "border-chart-grid hover:border-clinical-teal/40 hover:shadow-md"
-                    }`}
-                >
-                  {/* Top progress accent */}
-                  <div className="h-1 bg-linen relative overflow-hidden">
+                <div className={`bg-white rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-250 group ${
+                  isFrozen
+                    ? "border border-[#FECACA]"
+                    : "border border-[#E2E8F0] hover:border-[#BFDBFE] hover:shadow-card-hover"
+                }`}
+                  style={{ boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}>
+                  {/* Progress bar top accent */}
+                  <div className="h-1 bg-[#F1F5F9] relative overflow-hidden">
                     <div
-                      className={`absolute inset-y-0 left-0 transition-all duration-700 ${isFrozen ? "bg-chart-red/40" : isComplete ? "bg-clinical-teal" : "bg-clinical-teal"
-                        }`}
-                      style={{ width: `${Math.max(isFrozen ? 100 : 0, pct)}%` }}
+                      className="absolute inset-y-0 left-0 transition-all duration-700"
+                      style={{
+                        width: `${isFrozen ? 100 : pct}%`,
+                        background: isFrozen
+                          ? "linear-gradient(90deg, #EF4444, #F87171)"
+                          : isComplete
+                          ? "linear-gradient(90deg, #10B981, #34D399)"
+                          : "linear-gradient(90deg, #0E57A4, #2172C9)",
+                      }}
                     />
                   </div>
 
-                  {/* Cover image */}
+                  {/* Cover Image */}
                   {course.coverImage ? (
-                    <div className="relative h-36 bg-linen overflow-hidden">
+                    <div className="relative h-36 bg-[#F5F7FA] overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={course.coverImage}
                         alt={course.title}
-                        className={`w-full h-full object-cover transition-transform duration-500 ${!isFrozen ? "group-hover:scale-105" : "opacity-50"}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 ${!isFrozen ? "group-hover:scale-105" : "opacity-40"}`}
                       />
                       {isFrozen && (
-                        <div className="absolute inset-0 bg-linen/70 backdrop-blur-sm flex items-center justify-center">
-                          <div className="flex items-center gap-1.5 bg-chart-red text-white text-[10px] font-mono font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+                        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
+                          <div className="flex items-center gap-1.5 bg-[#EF4444] text-white text-[10px] font-mono font-bold px-3 py-1.5 rounded-pill uppercase tracking-wider">
                             <Lock className="w-3 h-3" /> Access Frozen
                           </div>
                         </div>
                       )}
+                      {isComplete && !isFrozen && (
+                        <div className="absolute top-2 right-2 flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-pill">
+                          <Trophy className="w-3 h-3" /> Complete
+                        </div>
+                      )}
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="h-28 flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg, rgba(14,87,164,.06) 0%, rgba(14,87,164,.02) 100%)" }}>
+                      <BookOpen className="w-10 h-10 text-[#0E57A4]/20" />
+                    </div>
+                  )}
 
                   <div className="p-5 space-y-4 flex-1 flex flex-col">
-                    {/* Badges row */}
+                    {/* Badges */}
                     <div className="flex items-center gap-2 flex-wrap">
                       {course.category && (
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2 py-0.5 rounded font-bold">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#0E57A4] bg-[#EBF3FA] border border-[#BFDBFE] px-2 py-0.5 rounded font-bold">
                           {course.category}
                         </span>
                       )}
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-sage bg-linen border border-chart-grid px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-sage bg-[#F5F7FA] border border-[#E2E8F0] px-2 py-0.5 rounded">
                         {course.enrollmentValidity || "Lifetime Access"}
                       </span>
-                      {isComplete && (
-                        <span className="flex items-center gap-1 text-[10px] font-mono text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2 py-0.5 rounded-full font-bold">
-                          <Trophy className="w-2.5 h-2.5" /> Complete
-                        </span>
-                      )}
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm font-semibold text-ink leading-snug flex-1">
+                    <h3 className="text-sm font-display font-semibold text-ink leading-snug flex-1">
                       {course.title}
                     </h3>
 
                     {/* Progress */}
                     <div className="space-y-2">
-                      <VitalLine variant="progress" progress={pct} />
-                      <div className="flex items-center justify-between text-[11px] font-mono text-sage">
-                        <span>{course.chapters.length} Chapters</span>
-                        <span className="font-bold text-ink">{doneCount} / {totalLessonsCount} Lessons</span>
+                      <div className="flex items-center justify-between text-[11px] font-mono">
+                        <span className="text-sage">{course.chapters.length} Chapters</span>
+                        <span className="font-bold text-ink">{doneCount}/{totalLessonsCount} Lessons</span>
+                      </div>
+                      <div className="w-full bg-[#F1F5F9] rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{ width: `${isFrozen ? 100 : pct}%`, background: progressColor }}
+                        />
                       </div>
                     </div>
 
-                    {/* Action */}
-                    <div className="pt-3 border-t border-chart-grid/60 mt-auto">
+                    {/* CTA */}
+                    <div className="pt-3 border-t border-[#F1F5F9] mt-auto">
                       {isFrozen ? (
                         <a
                           href={createFrozenCourseInquiryWALink(
@@ -258,19 +348,18 @@ export default async function StudentDashboardPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="flex w-full items-center justify-center gap-2 text-xs font-semibold font-mono border border-chart-red text-chart-red hover:bg-chart-red hover:text-white px-4 py-2 rounded-xl transition-all duration-200"
+                          className="flex w-full items-center justify-center gap-2 text-xs font-semibold font-mono border border-[#FECACA] text-[#EF4444] hover:bg-[#EF4444] hover:text-white px-4 py-2 rounded-xl transition-all duration-200"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          Access Frozen - Contact Administration
+                          Access Frozen — Contact Administration
                         </a>
                       ) : (
-                        <div className="flex items-center gap-2">
-                          <button className="flex-1 flex items-center justify-center gap-2 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white px-4 py-2 rounded-xl transition-colors duration-200">
-                            <PlayCircle className="w-3.5 h-3.5" />
-                            {!isStarted ? "Start Learning" : isComplete ? "Review Syllabus" : "Continue Learning"}
-                            <ArrowRight className="w-3 h-3 ml-auto" />
-                          </button>
-                        </div>
+                        <button className="flex w-full items-center justify-center gap-2 text-xs font-semibold text-white px-4 py-2.5 rounded-xl transition-all duration-200 group-hover:shadow-glow"
+                          style={{ background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)" }}>
+                          <PlayCircle className="w-3.5 h-3.5" />
+                          {!isStarted ? "Start Learning" : isComplete ? "Review Syllabus" : "Continue Learning"}
+                          <ArrowRight className="w-3 h-3 ml-auto" />
+                        </button>
                       )}
                     </div>
                   </div>
@@ -289,34 +378,42 @@ export default async function StudentDashboardPage() {
         )}
       </div>
 
-      {/* ── Resource Info Cards ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+      {/* ── Info Cards ───────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           {
             icon: GraduationCap,
-            color: "clinical-teal",
+            color: "#0E57A4",
+            bg: "rgba(14,87,164,.06)",
             title: "Official Certification",
             desc: "Upon 100% completion, contact administration to receive your verified IMHS Certificate.",
           },
           {
             icon: FileText,
-            color: "clinical-teal",
+            color: "#6366F1",
+            bg: "rgba(99,102,241,.06)",
             title: "PDF Reference Manuals",
             desc: "Each chapter includes downloadable PDF lab references and clinical case studies.",
           },
           {
             icon: MessageSquare,
-            color: "chart-red",
+            color: "#F16726",
+            bg: "rgba(241,103,38,.06)",
             title: "Academic Help Desk",
             desc: "Need portal support or course access help? Reach our administrative desk anytime.",
           },
-        ].map(({ icon: Icon, color, title, desc }) => (
-          <div key={title} className="bg-white border border-chart-grid rounded-2xl p-5 space-y-3 shadow-sm hover:shadow-md transition-shadow">
-            <div className={`w-9 h-9 bg-${color}/10 border border-${color}/20 rounded-xl flex items-center justify-center`}>
-              <Icon className={`w-5 h-5 text-${color}`} />
+        ].map(({ icon: Icon, color, bg, title, desc }) => (
+          <div
+            key={title}
+            className="bg-white border border-[#E2E8F0] rounded-2xl p-5 space-y-3 transition-all duration-200 hover:shadow-card group"
+            style={{ boxShadow: "0 2px 8px rgba(10,18,30,.04)" }}
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+              style={{ background: bg }}>
+              <Icon className="w-5 h-5" style={{ color }} />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-ink">{title}</h3>
+              <h3 className="text-sm font-display font-semibold text-ink">{title}</h3>
               <p className="text-xs text-ink-muted mt-1 leading-relaxed">{desc}</p>
             </div>
           </div>

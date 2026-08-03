@@ -150,8 +150,12 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
   return (
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
-      {/* ── 1. CLEAN & SIMPLE HERO SECTION ────────────────────────────────────── */}
-      <section className="relative min-h-[85vh] flex items-center justify-center bg-gradient-to-b from-clinical-teal-surface/40 via-surface to-surface px-4 sm:px-6 lg:px-8 pt-6 sm:pt-24 pb-10 sm:pb-16 border-b border-chart-grid">
+      {/* ── 1. HERO SECTION ─────────────────────────────────────────────── */}
+      <section className="relative min-h-[88vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-6 sm:pt-24 pb-10 sm:pb-16 border-b border-[#E2E8F0] overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 45%, #ffffff 100%)" }}>
+        {/* Mesh gradient blobs */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(ellipse 70% 60% at 15% 0%, rgba(14,87,164,.10) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 85% 100%, rgba(241,103,38,.07) 0%, transparent 50%)" }} />
         {/* Pharmacy-themed background animations */}
         <HeroPharmacyScene />
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -238,27 +242,30 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-4 pt-1 w-full"
             >
               <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto gap-2 bg-chart-red hover:bg-chart-red-hover text-white border-0 font-bold text-sm px-8 py-4 rounded-full shadow-lg shadow-chart-red/30 tracking-wide"
+                <motion.div whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}>
+                  <button
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-pill tracking-wide transition-all duration-200"
+                    style={{
+                      background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
+                      boxShadow: "0 4px 20px rgba(14,87,164,.35), 0 2px 8px rgba(14,87,164,.20)",
+                    }}
                   >
+                    <Sparkles className="w-4 h-4" />
                     <span>GET STARTED</span>
                     <ArrowIcon className="w-4 h-4" />
-                  </Button>
+                  </button>
                 </motion.div>
               </Link>
 
               <Link href="/courses" className="w-full sm:w-auto">
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto gap-2 border-2 border-chart-red text-chart-red hover:bg-chart-red/5 font-bold text-sm px-8 py-4 rounded-full bg-white tracking-wide"
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <button
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-pill bg-white transition-all duration-200 text-ink hover:border-[#0E57A4]/40"
+                    style={{ border: "2px solid #E2E8F0" }}
                   >
                     <span>Browse Programs</span>
-                    <ArrowIcon className="w-4 h-4" />
-                  </Button>
+                    <ArrowIcon className="w-4 h-4 text-[#0E57A4]" />
+                  </button>
                 </motion.div>
               </Link>
             </motion.div>
@@ -314,25 +321,24 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </div>
       </section>
 
-      {/* ── 2. TRUST STRIP ────────────────────────────────────────────────────── */}
-      <section className="bg-surface border-b border-chart-grid py-6">
-        {/* Blister pack rhythm divider at the top edge */}
+      {/* ── 2. TRUST STRIP ─────────────────────────────────────────────── */}
+      <section className="bg-white border-b border-[#E2E8F0] py-6">
         <BlisterDivider className="mb-4" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center font-mono text-[10px] uppercase tracking-widest text-sage mb-5">
+          <p className="text-center font-mono text-[10px] uppercase tracking-widest text-sage/70 font-bold mb-5">
             Recognized Standards &amp; Certifications
           </p>
-          <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { icon: Award, label: "PHARMACEUTICAL GUILD" },
-              { icon: GraduationCap, label: "CONTINUING MED CREDITS" },
-              { icon: ShieldCheck, label: "INSTITUTIONAL CERT" },
-              { icon: CheckCircle2, label: "TERTIARY CARE FACULTY" },
-            ].map(({ icon: Icon, label }) => (
+              { icon: Award, label: "PHARMACEUTICAL GUILD", color: "#0E57A4" },
+              { icon: GraduationCap, label: "CONTINUING MED CREDITS", color: "#6366F1" },
+              { icon: ShieldCheck, label: "INSTITUTIONAL CERT", color: "#10B981" },
+              { icon: CheckCircle2, label: "TERTIARY CARE FACULTY", color: "#F16726" },
+            ].map(({ icon: Icon, label, color }) => (
               <StaggerItem key={label}>
-                <div className="flex items-center justify-center gap-2 text-xs font-mono text-ink-muted py-2 px-4 rounded border border-chart-grid/60 hover:border-clinical-teal/40 hover:text-clinical-teal transition-all duration-300 bg-linen/40">
-                  <Icon className="w-4 h-4 text-clinical-teal flex-shrink-0" />
-                  <span>{label}</span>
+                <div className="flex items-center justify-center gap-2.5 text-xs font-mono font-semibold text-ink-muted py-2.5 px-4 rounded-xl border border-[#E2E8F0] hover:border-[#BFDBFE] hover:shadow-paper transition-all duration-200 bg-[#F8FAFC] group cursor-default">
+                  <Icon className="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110" style={{ color }} />
+                  <span className="tracking-wider text-[10px]">{label}</span>
                 </div>
               </StaggerItem>
             ))}
