@@ -28,7 +28,8 @@ import {
   Unlock,
   ChevronDown,
   ChevronUp,
-  Layers
+  Layers,
+  Smartphone
 } from "lucide-react";
 
 interface LessonDetail {
@@ -85,11 +86,53 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
   const [togglingEnrollmentId, setTogglingEnrollmentId] = useState<string | null>(null);
   const [expandedAccessEnrollmentId, setExpandedAccessEnrollmentId] = useState<string | null>(null);
 
-  // Device reset state
+  // Device reset & devices list state
   const [isResettingDevice, setIsResettingDevice] = useState(false);
   const [deviceResetMsg, setDeviceResetMsg] = useState<string | null>(null);
   const [deviceLocked, setDeviceLocked] = useState(!!student.deviceSignature);
   const [deviceLockedAt, setDeviceLockedAt] = useState<string | Date | null>(student.deviceLockedAt || null);
+  const [devices, setDevices] = useState<any[]>([]);
+  const [loadingDevices, setLoadingDevices] = useState(true);
+
+  const fetchDevices = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/admin/students/${student.id}/devices`);
+      if (res.ok) {
+        const data = await res.json();
+        setDevices(data.devices || []);
+      }
+    } catch {} finally {
+      setLoadingDevices(false);
+    }
+  }, [student.id]);
+
+  React.useEffect(() => {
+    fetchDevices();
+  }, [fetchDevices]);
+
+  const handleDeviceAction = async (deviceId: string, action: "APPROVE" | "MAKE_PRIMARY" | "BLOCK") => {
+    try {
+      const res = await fetch(`/api/admin/students/${student.id}/devices`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId, action }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDeviceResetMsg(data.message);
+        if (action === "MAKE_PRIMARY") {
+          setDeviceLocked(true);
+          setDeviceLockedAt(new Date());
+        }
+        fetchDevices();
+        router.refresh();
+      } else {
+        alert(data.error || "Failed to update device status.");
+      }
+    } catch {
+      alert("Error updating device.");
+    }
+  };
 
   // Password Reset state
   const [resetModalOpen, setResetModalOpen] = useState(false);
@@ -499,6 +542,102 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
             <span>{deviceResetMsg}</span>
           </div>
         )}
+
+        {/* Device List Table */}
+        <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+              <Smartphone className="w-3.5 h-3.5 text-[#0E57A4]" /> Registered & Attempted Devices ({devices.length})
+            </h4>
+            <span className="text-[10px] font-mono text-slate-400">Click &ldquo;Approve&rdquo; or &ldquo;Set as Primary&rdquo; to authorize new device</span>
+          </div>
+
+          {loadingDevices ? (
+            <div className="text-center py-4 text-xs font-mono text-slate-400">Loading devices…</div>
+          ) : devices.length === 0 ? (
+            <div className="text-center py-4 text-xs font-mono text-slate-400 bg-slate-50 rounded-xl border border-slate-200">
+              No device attempts logged yet. Devices are logged automatically when student attempts to log in.
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-slate-200">
+              <table className="w-full text-left text-xs font-sans">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-mono text-slate-500 uppercase">
+                    <th className="p-3">Device & Browser</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3">Last Attempt</th>
+                    <th className="p-3 text-right">Admin Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {devices.map((dev) => {
+                    const isPrimary = dev.status === "PRIMARY" || dev.deviceSignature === student.deviceSignature;
+                    const isAllowed = dev.status === "ALLOWED";
+                    const isBlocked = dev.status === "BLOCKED" && !isPrimary;
+
+                    return (
+                      <tr key={dev.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="p-3">
+                          <div className="font-semibold text-slate-800">{dev.deviceInfo || "Unknown Device"}</div>
+                          <div className="text-[10px] font-mono text-slate-400 truncate max-w-[220px]" title={dev.deviceSignature}>
+                            Sig: {dev.deviceSignature.slice(0, 16)}…
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          {isPrimary ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded-full">
+                              🔒 PRIMARY DEVICE
+                            </span>
+                          ) : isAllowed ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
+                              ✓ AUTHORIZED
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+                              ⚠ BLOCKED ATTEMPT
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3 font-mono text-slate-500 text-[11px]">
+                          <div>{new Date(dev.lastAttemptAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</div>
+                          <div className="text-[10px] text-slate-400">{new Date(dev.lastAttemptAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</div>
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {!isPrimary && (
+                              <button
+                                onClick={() => handleDeviceAction(dev.id, "MAKE_PRIMARY")}
+                                className="px-2.5 py-1 text-[10px] font-semibold font-mono rounded-lg bg-[#0E57A4] hover:bg-[#0A4685] text-white transition-colors"
+                              >
+                                Set as Primary
+                              </button>
+                            )}
+                            {!isAllowed && !isPrimary && (
+                              <button
+                                onClick={() => handleDeviceAction(dev.id, "APPROVE")}
+                                className="px-2.5 py-1 text-[10px] font-semibold font-mono rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors"
+                              >
+                                Approve
+                              </button>
+                            )}
+                            {!isBlocked && (
+                              <button
+                                onClick={() => handleDeviceAction(dev.id, "BLOCK")}
+                                className="px-2 py-1 text-[10px] font-semibold font-mono rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+                              >
+                                Block
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── 3. Enrolled Courses & Progress Section ── */}

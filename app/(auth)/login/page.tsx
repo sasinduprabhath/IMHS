@@ -22,8 +22,24 @@ const FEATURES = [
 // ─────────────────────────────────────────────────────────────
 // Device fingerprinting — runs entirely client-side
 // ─────────────────────────────────────────────────────────────
-async function collectDeviceSignature(): Promise<string> {
+async function collectDeviceSignature(): Promise<{ hash: string; info: string }> {
   try {
+    const ua = navigator.userAgent;
+    let os = "Desktop";
+    if (ua.includes("Windows")) os = "Windows PC";
+    else if (ua.includes("Mac OS")) os = "macOS";
+    else if (ua.includes("Android")) os = "Android Phone";
+    else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS Device";
+    else if (ua.includes("Linux")) os = "Linux";
+
+    let browser = "Browser";
+    if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+    else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+    else if (ua.includes("Edg")) browser = "Edge";
+    else if (ua.includes("Firefox")) browser = "Firefox";
+
+    const info = `${os} · ${browser} (${screen.width}x${screen.height})`;
+
     const parts: string[] = [
       navigator.userAgent,
       `${screen.width}x${screen.height}x${screen.colorDepth}`,
@@ -32,7 +48,6 @@ async function collectDeviceSignature(): Promise<string> {
       Intl.DateTimeFormat().resolvedOptions().timeZone || "",
     ];
 
-    // WebGL GPU renderer (most unique per-device signal)
     try {
       const canvas = document.createElement("canvas");
       const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl") as WebGLRenderingContext | null;
@@ -46,15 +61,17 @@ async function collectDeviceSignature(): Promise<string> {
     } catch {}
 
     const raw = parts.join("|");
-
-    // SHA-256 hash via Web Crypto API
     const encoded = new TextEncoder().encode(raw);
     const hashBuf = await crypto.subtle.digest("SHA-256", encoded);
     const hashArr = Array.from(new Uint8Array(hashBuf));
-    return hashArr.map((b) => b.toString(16).padStart(2, "0")).join("");
+    const hash = hashArr.map((b) => b.toString(16).padStart(2, "0")).join("");
+
+    return { hash, info };
   } catch {
-    // Fallback fingerprint if crypto is unavailable
-    return `fallback-${navigator.userAgent.slice(0, 32)}-${screen.width}`;
+    return {
+      hash: `fallback-${navigator.userAgent.slice(0, 32)}-${screen.width}`,
+      info: `Web Browser (${screen.width}x${screen.height})`,
+    };
   }
 }
 
@@ -71,18 +88,24 @@ function LoginForm() {
   const [showPassword, setShowPass] = useState(false);
   const [error, setError]           = useState("");
   const [errorType, setErrorType]   = useState<"device" | "general" | null>(null);
+  const [waLink, setWaLink]         = useState<string | null>(null);
   const [loading, setLoading]       = useState(false);
   const [deviceSig, setDeviceSig]   = useState("");
+  const [deviceInfo, setDeviceInfo] = useState("");
 
   // Collect device fingerprint silently on mount
   useEffect(() => {
-    collectDeviceSignature().then(setDeviceSig);
+    collectDeviceSignature().then(({ hash, info }) => {
+      setDeviceSig(hash);
+      setDeviceInfo(info);
+    });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setErrorType(null);
+    setWaLink(null);
     setLoading(true);
 
     try {
@@ -90,12 +113,11 @@ function LoginForm() {
       const res = await fetch("/api/auth/pre-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, deviceSignature: deviceSig }),
+        body: JSON.stringify({ email, password, deviceSignature: deviceSig, deviceInfo }),
       });
       const data = await res.json();
 
       if (data.status === "ADMIN_BYPASS") {
-        // Admin: use standard NextAuth credentials flow
         const result = await signIn("credentials", {
           redirect: false,
           email,
@@ -112,7 +134,6 @@ function LoginForm() {
       }
 
       if (data.status === "OTP_SENT") {
-        // Redirect to OTP verification page
         const params = new URLSearchParams({
           email:  data.maskedEmail  || "",
           uid:    data.pendingUserId || "",
@@ -125,10 +146,10 @@ function LoginForm() {
       if (data.status === "DEVICE_LOCKED") {
         setErrorType("device");
         setError(data.message || "Account is locked to your primary device.");
+        setWaLink(data.waLink || null);
         return;
       }
 
-      // Generic error
       setErrorType("general");
       setError(data.message || "Invalid email or password.");
 
@@ -180,16 +201,18 @@ function LoginForm() {
           ) : (
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           )}
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <span>{error}</span>
-            {errorType === "device" && (
-              <div>
+            {errorType === "device" && waLink && (
+              <div className="pt-1">
                 <Link
-                  href={createCourseInquiryWALink()}
+                  href={waLink}
                   target="_blank"
-                  className="underline font-semibold"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-xs transition-opacity hover:opacity-95"
+                  style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)" }}
                 >
-                  Contact IMHS Support on WhatsApp →
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Request Device Unlock on WhatsApp →
                 </Link>
               </div>
             )}

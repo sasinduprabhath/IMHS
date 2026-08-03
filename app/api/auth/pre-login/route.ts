@@ -1,6 +1,6 @@
 // app/api/auth/pre-login/route.ts
 // Step 1 of the two-factor login flow:
-//   Validates password + device binding → generates OTP → sends email
+//   Validates password + device binding → logs device attempts → generates OTP → sends email
 
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -10,16 +10,13 @@ import { sanitizeEmail, sanitizeString } from "@/lib/sanitization";
 import { generateOtp, hashOtp, otpExpiry, buildOtpEmail, maskEmail } from "@/lib/otp";
 import { sendMail } from "@/lib/mailer";
 
-const WA_SUPPORT_LINK = `https://wa.me/94776828490?text=${encodeURIComponent(
-  "Hello IMHS Support, I need help with my account login — my device has been blocked."
-)}`;
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const rawEmail = body.email as string;
     const rawPassword = body.password as string;
     const deviceSignature = (body.deviceSignature as string) || "";
+    const deviceInfo = (body.deviceInfo as string) || "Unknown Device";
 
     if (!rawEmail || !rawPassword) {
       return NextResponse.json({ status: "ERROR", message: "Missing credentials." }, { status: 400 });
@@ -71,25 +68,78 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "ERROR", message: "Invalid email or password." }, { status: 401 });
     }
 
-    // ── Admin bypass: skip 2FA entirely for admin accounts ─────────────
+    // ── Admin bypass: skip 2FA & device binding entirely for admin ──────
     if (user.role === "ADMIN") {
       return NextResponse.json({ status: "ADMIN_BYPASS" });
     }
 
-    // ── Device Binding Check ───────────────────────────────────────────
+    // ── Device Binding & Device List Check ─────────────────────────────
+    let isDeviceAuthorized = false;
+
     if (user.deviceSignature) {
-      // Device is registered — verify signature matches
-      if (deviceSignature !== user.deviceSignature) {
-        return NextResponse.json({
-          status: "DEVICE_LOCKED",
-          message:
-            "Access Denied: Your account is locked to your primary device. " +
-            "If you have a new device, please contact IMHS Support on WhatsApp to request a device reset.",
-          waLink: WA_SUPPORT_LINK,
-        }, { status: 403 });
+      if (deviceSignature === user.deviceSignature) {
+        isDeviceAuthorized = true;
+      } else {
+        // Check if device signature is in StudentDevice table with status ALLOWED or PRIMARY
+        const existingDevice = await prisma.studentDevice.findFirst({
+          where: { userId: user.id, deviceSignature },
+        });
+
+        if (existingDevice && (existingDevice.status === "ALLOWED" || existingDevice.status === "PRIMARY")) {
+          isDeviceAuthorized = true;
+          // Update last attempt
+          await prisma.studentDevice.update({
+            where: { id: existingDevice.id },
+            data: { lastAttemptAt: new Date(), ipAddress: clientIp },
+          });
+        } else {
+          // Record or update this blocked attempt in StudentDevice database
+          if (existingDevice) {
+            await prisma.studentDevice.update({
+              where: { id: existingDevice.id },
+              data: { lastAttemptAt: new Date(), ipAddress: clientIp, deviceInfo },
+            });
+          } else if (deviceSignature) {
+            await prisma.studentDevice.create({
+              data: {
+                userId: user.id,
+                deviceSignature,
+                deviceInfo,
+                status: "BLOCKED",
+                ipAddress: clientIp,
+                lastAttemptAt: new Date(),
+              },
+            });
+          }
+
+          // Build a detailed pre-filled WhatsApp message with student name, ID, email, and device info
+          const waMessage = 
+            `Hello IMHS Support,\n\n` +
+            `*Device Unlock Request*\n` +
+            `• Student Name: ${user.name}\n` +
+            `• Email: ${user.email}\n` +
+            `• Reg ID: ${user.studentId || "N/A"}\n` +
+            `• Device Details: ${deviceInfo}\n` +
+            `• Problem: My account is locked to my primary device. I am attempting to log in from a new device. Please approve my device in the admin panel so I can access my courses.`;
+
+          const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
+
+          return NextResponse.json({
+            status: "DEVICE_LOCKED",
+            message:
+              `Access Denied: Your account is locked to your primary device. ` +
+              `Please click below to send a pre-filled message to IMHS Support on WhatsApp requesting approval for this device (${deviceInfo}).`,
+            waLink,
+            studentInfo: {
+              name: user.name,
+              email: user.email,
+              regId: user.studentId,
+            },
+          }, { status: 403 });
+        }
       }
     } else {
-      // No device registered yet — register this device now
+      // First login: register primary device
       await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -97,6 +147,20 @@ export async function POST(req: NextRequest) {
           deviceLockedAt: new Date(),
         },
       });
+
+      if (deviceSignature) {
+        await prisma.studentDevice.create({
+          data: {
+            userId: user.id,
+            deviceSignature,
+            deviceInfo,
+            status: "PRIMARY",
+            ipAddress: clientIp,
+            lastAttemptAt: new Date(),
+          },
+        });
+      }
+      isDeviceAuthorized = true;
     }
 
     // ── Generate & send OTP ────────────────────────────────────────────
@@ -113,10 +177,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const defaultWaLink = `https://wa.me/94776828490?text=${encodeURIComponent(
+      `Hello IMHS Support, I need help with my account login (${user.email}).`
+    )}`;
+
     const emailContent = buildOtpEmail({
       name: user.name.split(" ")[0],
       otp,
-      waLink: WA_SUPPORT_LINK,
+      waLink: defaultWaLink,
     });
 
     try {
@@ -128,7 +196,6 @@ export async function POST(req: NextRequest) {
       });
     } catch (mailErr) {
       console.error("[pre-login] Failed to send OTP email:", mailErr);
-      // Clear the OTP so the user can try again
       await prisma.user.update({
         where: { id: user.id },
         data: { otpCode: null, otpExpiry: null },

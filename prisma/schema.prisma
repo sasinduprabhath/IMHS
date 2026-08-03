@@ -28,8 +28,23 @@ model User {
   otpExpiry        DateTime? // OTP expires 10 min after generation
   otpAttempts      Int       @default(0) // Failed OTP attempt counter
 
+  devices          StudentDevice[]
   enrollments      Enrollment[]
   progress         LessonProgress[]
+}
+
+model StudentDevice {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceSignature String   // SHA-256 fingerprint
+  deviceInfo      String?  // Browser/OS/device summary
+  status          String   @default("BLOCKED") // "PRIMARY" | "ALLOWED" | "BLOCKED"
+  lastAttemptAt   DateTime @default(now())
+  ipAddress       String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Course {
