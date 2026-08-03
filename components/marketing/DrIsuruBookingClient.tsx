@@ -72,7 +72,9 @@ export function DrIsuruBookingClient() {
   // Form State
   const [selectedSession, setSelectedSession] = useState(SESSIONS[0]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(TIME_SLOTS[0]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [fetchingAvailability, setFetchingAvailability] = useState(false);
 
   const [studentName, setStudentName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
@@ -82,6 +84,25 @@ export function DrIsuruBookingClient() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState<any>(null);
+
+  // Fetch booked slots whenever selectedDate changes
+  React.useEffect(() => {
+    if (selectedDate) {
+      setFetchingAvailability(true);
+      fetch(`/api/consultations/availability?date=${selectedDate}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const booked = data.bookedSlots || [];
+          setBookedSlots(booked);
+          // Auto clear slot if already booked
+          if (booked.includes(selectedTimeSlot)) {
+            setSelectedTimeSlot("");
+          }
+        })
+        .catch((err) => console.error("Availability error:", err))
+        .finally(() => setFetchingAvailability(false));
+    }
+  }, [selectedDate]);
 
   // Generate available dates (next 14 days, excluding Sundays)
   const getAvailableDates = () => {
@@ -333,24 +354,47 @@ export function DrIsuruBookingClient() {
               {/* Time Slot Selector */}
               {selectedDate && (
                 <div className="space-y-3 pt-4 border-t border-chart-grid">
-                  <label className="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-clinical-teal" /> Select Time Slot (Sri Lanka Time GMT+5:30):
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-clinical-teal" /> Select Time Slot (Sri Lanka Time GMT+5:30):
+                    </label>
+                    {fetchingAvailability && (
+                      <span className="text-[10px] font-mono text-clinical-teal animate-pulse">
+                        Checking slot availability...
+                      </span>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     {TIME_SLOTS.map((slot) => {
+                      const isBooked = bookedSlots.includes(slot);
                       const isSelected = selectedTimeSlot === slot;
                       return (
                         <button
                           key={slot}
                           type="button"
+                          disabled={isBooked}
                           onClick={() => setSelectedTimeSlot(slot)}
-                          className={`py-3 px-3 rounded-card border text-xs font-mono font-bold transition-all text-center ${
-                            isSelected
+                          className={`py-3 px-3 rounded-card border text-xs font-mono font-bold transition-all text-center relative flex flex-col items-center justify-center gap-1 ${
+                            isBooked
+                              ? "bg-chart-red/5 border-chart-red/30 text-chart-red/60 cursor-not-allowed opacity-75"
+                              : isSelected
                               ? "bg-clinical-teal text-white border-clinical-teal shadow-sm scale-105"
                               : "bg-surface text-ink border-chart-grid hover:border-clinical-teal/40 hover:bg-linen/50"
                           }`}
                         >
-                          {slot}
+                          <span>{slot}</span>
+                          <span
+                            className={`text-[9px] uppercase px-2 py-0.5 rounded-full font-semibold ${
+                              isBooked
+                                ? "bg-chart-red/10 text-chart-red border border-chart-red/30"
+                                : isSelected
+                                ? "bg-white/20 text-white"
+                                : "bg-clinical-teal/10 text-clinical-teal"
+                            }`}
+                          >
+                            {isBooked ? "🔒 Booked" : "Available"}
+                          </span>
                         </button>
                       );
                     })}

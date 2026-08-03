@@ -22,11 +22,37 @@ export async function POST(req: Request) {
       );
     }
 
+    const parsedDate = new Date(bookingDate);
+
+    // Double Booking Check: Check if slot is already taken for this date
+    const startOfDay = new Date(parsedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(parsedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingSlot = await (prisma as any).consultationBooking.findFirst({
+      where: {
+        bookingDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        timeSlot: timeSlot,
+        status: {
+          not: "CANCELLED",
+        },
+      },
+    });
+
+    if (existingSlot) {
+      return NextResponse.json(
+        { error: `The ${timeSlot} slot on ${parsedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} is already booked. Please choose another date or time slot.` },
+        { status: 400 }
+      );
+    }
+
     // Generate unique booking code e.g. IMHS-BOOK-8921
     const randomDigits = Math.floor(1000 + Math.random() * 9000);
     const bookingCode = `IMHS-BOOK-${randomDigits}`;
-
-    const parsedDate = new Date(bookingDate);
 
     const booking = await (prisma as any).consultationBooking.create({
       data: {
