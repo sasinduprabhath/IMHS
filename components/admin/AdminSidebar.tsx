@@ -22,6 +22,7 @@ import {
   ChevronRight,
   ExternalLink,
   Plus,
+  Calendar,
 } from "lucide-react";
 
 const NAV_LINKS = [
@@ -29,6 +30,7 @@ const NAV_LINKS = [
   { href: "/admin/students", label: "Students", icon: Users, exact: false },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, exact: false },
   { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare, exact: false },
+  { href: "/admin/bookings", label: "Consultations", icon: Calendar, exact: false },
 ];
 
 const SIDEBAR_STORAGE_KEY = "imhs_admin_sidebar_collapsed";

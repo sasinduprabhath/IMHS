@@ -4,6 +4,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { RevealOnScroll, AnimatedGrid, GlowOrb } from "@/components/ui/animations";
 import { Button } from "@/components/ui/button";
+import { DrIsuruBookingClient } from "@/components/marketing/DrIsuruBookingClient";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 import {
@@ -19,7 +20,8 @@ import {
   FileText,
   Star,
   Sparkles,
-  Users
+  Users,
+  Calendar as CalendarCapIcon,
 } from "lucide-react";
 
 export const metadata = {
@@ -112,23 +114,23 @@ export default async function DrIsuruWijesinghePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                <a href="#booking-widget">
+                  <Button className="gap-2 bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 font-semibold text-xs shadow-md">
+                    <CalendarCapIcon className="w-4 h-4" />
+                    Book 1-on-1 Mentorship &amp; Viva
+                  </Button>
+                </a>
+
                 <a
                   href={createCourseInquiryWALink("Modern Pharmacy Course (SLMC Prep)")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button className="gap-2 bg-chart-red hover:bg-chart-red-hover text-white border-0 font-semibold text-xs">
-                    <MessageCircle className="w-4 h-4 fill-current" />
-                    Inquire Admissions via WhatsApp
+                  <Button variant="outline" className="gap-2 text-xs font-semibold">
+                    <MessageCircle className="w-4 h-4 text-chart-red" />
+                    WhatsApp Admissions Desk
                   </Button>
                 </a>
-
-                <Link href="/courses">
-                  <Button variant="outline" className="gap-2 text-xs font-semibold">
-                    <BookOpen className="w-4 h-4 text-clinical-teal" />
-                    View Academic Programs
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
@@ -275,6 +277,11 @@ export default async function DrIsuruWijesinghePage() {
             </div>
           </div>
         </div>
+
+        {/* ── 1-ON-1 MENTORSHIP & CONSULTATION BOOKING WIDGET ── */}
+        <RevealOnScroll className="pt-6">
+          <DrIsuruBookingClient />
+        </RevealOnScroll>
 
         {/* ── ACADEMIC COURSES TAUGHT ── */}
         <div className="space-y-6 pt-6">
