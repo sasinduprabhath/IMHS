@@ -73,7 +73,7 @@ export function Header() {
               size="sm"
               className="gap-1.5 font-semibold text-xs bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-sm"
             >
-              <PhoneCall className="w-3.5 h-3.5 text-white" />
+              <PhoneCall className="w-3.5 h-3.5 text-white" strokeWidth={1.75} />
               Inquire / Enroll
             </Button>
           </Link>
@@ -83,7 +83,7 @@ export function Header() {
               size="sm"
               className="gap-1.5 font-semibold text-xs border-clinical-teal/40 text-clinical-teal hover:bg-clinical-teal hover:text-white transition-colors group bg-white shadow-xs"
             >
-              <LogIn className="w-3.5 h-3.5 text-clinical-teal group-hover:text-white transition-colors" />
+              <LogIn className="w-3.5 h-3.5 text-clinical-teal group-hover:text-white transition-colors" strokeWidth={1.75} />
               Portal Login
             </Button>
           </Link>
@@ -95,7 +95,7 @@ export function Header() {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           whileTap={{ scale: 0.9 }}
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={1.75} /> : <Menu className="w-6 h-6" strokeWidth={1.75} />}
         </motion.button>
       </div>
 

@@ -53,9 +53,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-ibm-plex-sans)", "sans-serif"],
-        sans: ["var(--font-ibm-plex-sans)", "sans-serif"],
-        mono: ["var(--font-ibm-plex-mono)", "monospace"],
+        display: ["var(--font-display)", "serif"],
+        sans: ["var(--font-body)", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
       borderRadius: {
         card: "2px",

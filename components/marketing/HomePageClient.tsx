@@ -373,7 +373,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   <StaggerItem key={course.id}>
                     <HoverCard className="h-full">
                       <Link href={`/courses/${course.slug}`} className="block h-full">
-                        <div className="bg-surface border border-chart-grid rounded-card overflow-hidden h-full flex flex-col hover:border-clinical-teal/60 hover:shadow-xl transition-all duration-300 group">
+                        <div className="elevation-1 hover:elevation-2 rounded-card overflow-hidden h-full flex flex-col transition-all duration-300 group">
                           {/* Course cover image or gradient */}
                           <div className="relative h-44 bg-gradient-to-br from-clinical-teal/10 to-chart-red/10 overflow-hidden">
                             {course.coverImage ? (

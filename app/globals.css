@@ -14,13 +14,61 @@
 body {
   background-color: rgb(var(--linen));
   color: rgb(var(--ink));
-  font-family: var(--font-ibm-plex-sans), sans-serif;
+  font-family: var(--font-body), sans-serif;
   min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-ibm-plex-sans), sans-serif;
+  font-family: var(--font-body), sans-serif;
   color: rgb(var(--ink));
+}
+
+.font-display {
+  font-family: var(--font-display), serif;
+}
+
+.font-sans {
+  font-family: var(--font-body), sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+/* ── 3-LEVEL ELEVATION SYSTEM (v5) ── */
+.elevation-0 {
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.elevation-1 {
+  border: 1px solid #D4DCE4;
+  background-color: #FFFFFF;
+  border-radius: 2px;
+}
+
+.elevation-2 {
+  border: 1px solid #D4DCE4;
+  background-color: #FFFFFF;
+  border-radius: 2px;
+  box-shadow: 2px 2px 0px rgba(241, 103, 38, 0.15);
+}
+
+/* ── BRANDED SKELETON ANIMATION ── */
+@keyframes vitalPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scaleX(0.98);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scaleX(1);
+  }
+}
+
+.animate-vital-pulse {
+  animation: vitalPulse 1.8s ease-in-out infinite;
 }
 
 /* Radial gradient utility */

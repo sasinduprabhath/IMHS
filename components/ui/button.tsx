@@ -3,22 +3,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-btn text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chart-red focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-sans tracking-wide",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-btn text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chart-red focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-chart-grid/40 disabled:text-ink-muted/40 disabled:shadow-none font-sans tracking-wide active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-clinical-teal text-white hover:bg-clinical-teal-hover shadow-paper transition-all duration-200",
+          "bg-clinical-teal text-white hover:bg-clinical-teal-hover shadow-paper hover:shadow-md active:bg-[#08386C]",
         outline:
-          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal hover:text-white transition-all duration-200",
+          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal/10 hover:border-clinical-teal-hover active:bg-clinical-teal/20",
         secondary:
-          "bg-sage-light text-ink hover:bg-sage transition-all duration-200",
+          "bg-linen border border-chart-grid text-ink hover:bg-linen-dark hover:border-sage active:bg-chart-grid",
         danger:
-          "bg-chart-red text-surface hover:bg-chart-red-hover shadow-paper",
+          "bg-chart-red text-white hover:bg-chart-red-hover shadow-paper active:bg-[#C8490E]",
         ghost:
-          "hover:bg-linen text-ink hover:text-clinical-teal",
+          "hover:bg-clinical-teal/10 text-ink hover:text-clinical-teal active:bg-clinical-teal/20",
         link:
-          "text-clinical-teal underline-offset-4 hover:underline p-0 h-auto",
+          "text-clinical-teal underline-offset-4 hover:underline p-0 h-auto active:scale-100",
       },
       size: {
         default: "h-10 px-5 py-2",
