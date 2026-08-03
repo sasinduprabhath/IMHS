@@ -163,18 +163,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
 
-            {/* Glossy pill floating top-left accent */}
-            <GlossyFloatingCapsule size={45} className="absolute top-2 -left-6 hidden xl:block opacity-80" />
-
-            {/* Rx Credential Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <RxCredentialBadge label="ACCREDITED PHARMACEUTICAL & CLINICAL FACULTY" />
-            </motion.div>
-
             {/* 1. Main Headline */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

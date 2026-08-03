@@ -50,7 +50,7 @@ export function Header() {
             alt="IMHS Logo"
             width={160}
             height={50}
-            className="h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
+            className="h-9 w-auto object-contain transition-opacity group-hover:opacity-90 mix-blend-multiply"
             priority
           />
         </Link>
