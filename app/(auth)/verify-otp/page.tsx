@@ -1,0 +1,406 @@
+"use client";
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import {
+  ShieldCheck, Mail, RefreshCw, AlertCircle, CheckCircle2,
+  MessageSquare, ArrowLeft, Clock,
+} from "lucide-react";
+
+const WA_LINK = `https://wa.me/94776828490?text=${encodeURIComponent(
+  "Hello IMHS Support, I need help with my account login — my device may have been blocked."
+)}`;
+
+function OtpForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const maskedEmail  = searchParams.get("email")  || "your email";
+  const pendingUserId = searchParams.get("uid")   || "";
+  const expiresAt    = searchParams.get("exp")    || "";
+
+  const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [attemptsLeft, setAttemptsLeft] = useState(5);
+
+  // Countdown timer
+  const [secondsLeft, setSecondsLeft] = useState(600);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [resending, setResending] = useState(false);
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Compute initial seconds from expiresAt
+  useEffect(() => {
+    if (expiresAt) {
+      const ms = new Date(expiresAt).getTime() - Date.now();
+      setSecondsLeft(Math.max(0, Math.floor(ms / 1000)));
+    }
+    inputRefs.current[0]?.focus();
+  }, [expiresAt]);
+
+  // Countdown tick
+  useEffect(() => {
+    if (secondsLeft <= 0) return;
+    const t = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [secondsLeft]);
+
+  // Resend cooldown tick
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
+
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
+  const handleDigitChange = (idx: number, val: string) => {
+    // Handle paste of full 6-digit code
+    if (val.length === 6 && /^\d{6}$/.test(val)) {
+      const arr = val.split("");
+      setDigits(arr);
+      inputRefs.current[5]?.focus();
+      return;
+    }
+    const clean = val.replace(/\D/g, "").slice(-1);
+    const next = [...digits];
+    next[idx] = clean;
+    setDigits(next);
+    if (clean && idx < 5) inputRefs.current[idx + 1]?.focus();
+  };
+
+  const handleKeyDown = (idx: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !digits[idx] && idx > 0) {
+      inputRefs.current[idx - 1]?.focus();
+    }
+    if (e.key === "Enter") handleSubmit();
+  };
+
+  const handleSubmit = useCallback(async () => {
+    const otp = digits.join("");
+    if (otp.length !== 6) {
+      setErrorMsg("Please enter all 6 digits.");
+      return;
+    }
+    if (!pendingUserId) {
+      setErrorMsg("Session expired. Please log in again.");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pendingUserId, otp }),
+      });
+      const data = await res.json();
+
+      if (data.status === "SUCCESS") {
+        setStatus("success");
+        // Use the verified token to create NextAuth session
+        const result = await signIn("credentials", {
+          redirect: false,
+          verifiedToken: data.verifiedToken,
+        });
+
+        if (result?.error) {
+          setStatus("error");
+          setErrorMsg("Session creation failed. Please log in again.");
+          return;
+        }
+
+        // Fetch session to check role
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+        if (session?.user?.role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
+        router.refresh();
+
+      } else if (data.status === "EXPIRED") {
+        setStatus("error");
+        setErrorMsg("Your code has expired. Please log in again.");
+      } else {
+        setStatus("error");
+        setErrorMsg(data.message || "Incorrect code. Please try again.");
+        if (data.attemptsRemaining !== undefined) {
+          setAttemptsLeft(data.attemptsRemaining);
+        }
+        setDigits(["", "", "", "", "", ""]);
+        setTimeout(() => inputRefs.current[0]?.focus(), 50);
+      }
+    } catch {
+      setStatus("error");
+      setErrorMsg("An unexpected error occurred. Please try again.");
+    }
+  }, [digits, pendingUserId, router]);
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || resending) return;
+    router.push("/login");
+  };
+
+  const isExpired = secondsLeft <= 0;
+  const otp = digits.join("");
+
+  return (
+    <div className="w-full space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-3">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)", boxShadow: "0 6px 20px rgba(14,87,164,.30)" }}
+        >
+          <Mail className="w-6 h-6 text-white" />
+        </motion.div>
+        <div>
+          <h2 className="text-2xl font-display font-bold text-ink">Check your email</h2>
+          <p className="text-sm text-ink-muted mt-1">
+            We sent a 6-digit code to <strong className="text-ink">{maskedEmail}</strong>
+          </p>
+        </div>
+      </div>
+
+      {/* Countdown timer */}
+      <div className="flex items-center justify-center gap-2">
+        <Clock className={`w-4 h-4 ${isExpired ? "text-red-400" : "text-[#0E57A4]"}`} />
+        <span className={`text-sm font-mono font-semibold ${isExpired ? "text-red-500" : secondsLeft < 60 ? "text-amber-500" : "text-[#0E57A4]"}`}>
+          {isExpired ? "Code expired" : `Expires in ${formatTime(secondsLeft)}`}
+        </span>
+      </div>
+
+      {/* Error / Success alert */}
+      <AnimatePresence mode="wait">
+        {status === "error" && errorMsg && (
+          <motion.div
+            key="err"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-start gap-2.5 p-3.5 rounded-xl text-xs font-medium border"
+            style={{ background: "rgba(239,68,68,.06)", borderColor: "rgba(239,68,68,.20)", color: "#EF4444" }}
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{errorMsg}</span>
+          </motion.div>
+        )}
+        {status === "success" && (
+          <motion.div
+            key="ok"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2.5 p-3.5 rounded-xl text-xs font-medium border"
+            style={{ background: "rgba(16,185,129,.06)", borderColor: "rgba(16,185,129,.20)", color: "#10B981" }}
+          >
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>Verified! Redirecting to your dashboard…</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 6-digit input boxes */}
+      <div className="flex justify-center gap-2 sm:gap-3">
+        {digits.map((d, i) => (
+          <React.Fragment key={i}>
+            {i === 3 && (
+              <div className="flex items-center">
+                <div className="w-3 h-0.5 rounded-full" style={{ background: "#CBD5E1" }} />
+              </div>
+            )}
+            <motion.input
+              ref={(el) => { inputRefs.current[i] = el; }}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={d}
+              onChange={(e) => handleDigitChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+              onFocus={(e) => e.target.select()}
+              disabled={status === "loading" || status === "success" || isExpired}
+              whileFocus={{ scale: 1.05 }}
+              className="w-11 h-14 sm:w-13 sm:h-16 text-center text-2xl font-display font-bold rounded-xl border-2 outline-none transition-all duration-150 disabled:opacity-50"
+              style={{
+                borderColor: d ? "#0E57A4" : "#E2E8F0",
+                background: d ? "#EBF3FA" : "#F8FAFC",
+                color: "#0A121E",
+                boxShadow: d ? "0 0 0 3px rgba(14,87,164,.12)" : "none",
+              }}
+            />
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Attempts remaining indicator */}
+      {attemptsLeft < 5 && attemptsLeft > 0 && (
+        <p className="text-center text-xs text-amber-500 font-mono font-semibold">
+          ⚠ {attemptsLeft} attempt{attemptsLeft === 1 ? "" : "s"} remaining
+        </p>
+      )}
+
+      {/* Submit button */}
+      <button
+        onClick={handleSubmit}
+        disabled={otp.length !== 6 || status === "loading" || status === "success" || isExpired}
+        className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
+          boxShadow: otp.length === 6 ? "0 4px 16px rgba(14,87,164,.35)" : "none",
+        }}
+      >
+        {status === "loading" ? (
+          <>
+            <motion.div
+              className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+            />
+            Verifying…
+          </>
+        ) : status === "success" ? (
+          <>
+            <CheckCircle2 className="w-4 h-4" />
+            Verified!
+          </>
+        ) : (
+          <>
+            <ShieldCheck className="w-4 h-4" />
+            Verify Code
+          </>
+        )}
+      </button>
+
+      {/* Resend / back links */}
+      <div className="pt-2 border-t border-[#F1F5F9] space-y-3 text-center">
+        <div className="flex items-center justify-center gap-1.5 text-xs text-ink-muted">
+          <span>Didn&apos;t receive it?</span>
+          {resendCooldown > 0 ? (
+            <span className="font-mono text-sage">Resend in {resendCooldown}s</span>
+          ) : (
+            <button
+              onClick={handleResend}
+              className="font-semibold text-[#0E57A4] hover:text-[#F16726] transition-colors inline-flex items-center gap-1"
+            >
+              <RefreshCw className="w-3 h-3" /> Go back &amp; resend
+            </button>
+          )}
+        </div>
+        <div className="flex items-center justify-center gap-2 text-xs text-ink-muted">
+          <MessageSquare className="w-3.5 h-3.5" />
+          <Link href={WA_LINK} target="_blank" className="font-semibold text-[#0E57A4] hover:text-[#F16726] transition-colors">
+            Contact IMHS Support on WhatsApp
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function VerifyOtpPage() {
+  return (
+    <div className="min-h-screen flex font-sans">
+      {/* ── Left brand panel (same as login) ── */}
+      <div
+        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-between p-10 xl:p-14 relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #071120 0%, #0A1628 50%, #0C1A30 100%)" }}
+      >
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(ellipse 70% 60% at 20% 0%, rgba(14,87,164,.20) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 80% 100%, rgba(241,103,38,.10) 0%, transparent 50%)" }} />
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#0E57A4] via-[#F16726] to-[#0E57A4]" />
+
+        <div className="relative z-10">
+          <Link href="/">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/footer-logo.png" alt="IMHS" className="h-10 w-auto object-contain brightness-0 invert opacity-90" />
+          </Link>
+        </div>
+
+        <div className="relative z-10 space-y-6">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+            style={{ background: "rgba(14,87,164,.15)", border: "1px solid rgba(14,87,164,.30)" }}>
+            <ShieldCheck className="w-8 h-8 text-[#60A5FA]" />
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-3xl font-display font-bold text-white leading-tight">
+              Two-Factor<br />
+              <span className="text-[#60A5FA]">Verification</span>
+            </h1>
+            <p className="text-white/45 text-sm leading-relaxed max-w-xs">
+              Your account is protected by email verification. Enter the code we sent to your inbox to complete login.
+            </p>
+          </div>
+          <ul className="space-y-2.5">
+            {[
+              "One-time code, expires in 10 minutes",
+              "Check spam folder if not received",
+              "Contact WhatsApp support if locked out",
+            ].map((t) => (
+              <li key={t} className="flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-[#60A5FA] shrink-0 mt-0.5" />
+                <span className="text-white/55 text-sm">{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="relative z-10 text-[10px] font-mono text-white/20 uppercase tracking-widest">
+          IMHS · Secure Portal · 2FA Protected
+        </div>
+      </div>
+
+      {/* ── Right: OTP form panel ── */}
+      <div
+        className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 40%, #ffffff 100%)" }}
+      >
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(ellipse 80% 60% at 80% 0%, rgba(14,87,164,.06) 0%, transparent 55%)" }} />
+
+        <div className="lg:hidden mb-8">
+          <Link href="/">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="IMHS" className="h-10 w-auto object-contain mx-auto" />
+          </Link>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="relative z-10 w-full max-w-md bg-white rounded-2xl p-8 sm:p-10"
+          style={{ boxShadow: "0 8px 40px rgba(10,18,30,.10), 0 2px 8px rgba(10,18,30,.06)", border: "1px solid #E2E8F0" }}
+        >
+          <Suspense fallback={<div className="text-center text-xs text-sage font-mono">Loading…</div>}>
+            <OtpForm />
+          </Suspense>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="relative z-10 mt-6"
+        >
+          <Link href="/login" className="text-xs text-ink-muted hover:text-ink transition-colors inline-flex items-center gap-1.5">
+            <ArrowLeft className="w-3 h-3" /> Back to login
+          </Link>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

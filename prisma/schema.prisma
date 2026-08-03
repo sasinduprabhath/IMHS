@@ -8,19 +8,28 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  studentId    String?  @unique // e.g. "IWPH4131"
-  name         String
-  email        String   @unique
-  phone        String
-  passwordHash String
-  role         String   @default("STUDENT") // "ADMIN" | "STUDENT"
-  status       String   @default("ACTIVE")  // "ACTIVE" | "FROZEN"
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String    @id @default(cuid())
+  studentId        String?   @unique // e.g. "IWPH4131"
+  name             String
+  email            String    @unique
+  phone            String
+  passwordHash     String
+  role             String    @default("STUDENT") // "ADMIN" | "STUDENT"
+  status           String    @default("ACTIVE")  // "ACTIVE" | "FROZEN"
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  enrollments  Enrollment[]
-  progress     LessonProgress[]
+  // ─ Device Binding ───────────────────────────────────────
+  deviceSignature  String?   // SHA-256 of hardware fingerprint
+  deviceLockedAt   DateTime? // When the device was first registered
+
+  // ─ Email 2FA ──────────────────────────────────────────
+  otpCode          String?   // Bcrypt-hashed 6-digit OTP
+  otpExpiry        DateTime? // OTP expires 10 min after generation
+  otpAttempts      Int       @default(0) // Failed OTP attempt counter
+
+  enrollments      Enrollment[]
+  progress         LessonProgress[]
 }
 
 model Course {

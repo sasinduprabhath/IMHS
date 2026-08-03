@@ -7,37 +7,50 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret });
   const { pathname } = req.nextUrl;
 
-  const isAuthPage = pathname === "/login";
-  const isAdminPage = pathname.startsWith("/admin");
-  const isStudentDashboard = pathname.startsWith("/dashboard");
+  const isAuthPage      = pathname === "/login";
+  const isVerifyOtp     = pathname === "/verify-otp";
+  const isAdminPage     = pathname.startsWith("/admin");
+  const isStudentDash   = pathname.startsWith("/dashboard");
 
+  // ── /login ──────────────────────────────────────────────────
   if (isAuthPage) {
     if (token) {
-      if (token.role === "ADMIN") {
-        return NextResponse.redirect(new URL("/admin", req.url));
-      }
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(
+        new URL(token.role === "ADMIN" ? "/admin" : "/dashboard", req.url)
+      );
     }
     return NextResponse.next();
   }
 
+  // ── /verify-otp — always accessible (unauthenticated students need it) ──
+  if (isVerifyOtp) {
+    if (token) {
+      // Already logged in — send to the right place
+      return NextResponse.redirect(
+        new URL(token.role === "ADMIN" ? "/admin" : "/dashboard", req.url)
+      );
+    }
+    return NextResponse.next();
+  }
+
+  // ── /admin ──────────────────────────────────────────────────
   if (isAdminPage) {
     if (!token) {
-      const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+      const url = new URL("/login", req.url);
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
     }
-
     if (token.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }
 
-  if (isStudentDashboard) {
+  // ── /dashboard ──────────────────────────────────────────────
+  if (isStudentDash) {
     if (!token) {
-      const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+      const url = new URL("/login", req.url);
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
     }
   }
 
@@ -45,5 +58,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/login"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/login", "/verify-otp"],
 };

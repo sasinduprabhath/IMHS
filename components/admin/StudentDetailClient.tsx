@@ -61,6 +61,8 @@ interface StudentDetailProps {
     phone: string;
     status?: string; // "ACTIVE" | "FROZEN"
     createdAt: string | Date;
+    deviceSignature?: string | null;
+    deviceLockedAt?: string | Date | null;
     enrollments: {
       id: string;
       status?: string; // "ACTIVE" | "FROZEN"
@@ -82,6 +84,12 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
   const [isTogglingAccountStatus, setIsTogglingAccountStatus] = useState(false);
   const [togglingEnrollmentId, setTogglingEnrollmentId] = useState<string | null>(null);
   const [expandedAccessEnrollmentId, setExpandedAccessEnrollmentId] = useState<string | null>(null);
+
+  // Device reset state
+  const [isResettingDevice, setIsResettingDevice] = useState(false);
+  const [deviceResetMsg, setDeviceResetMsg] = useState<string | null>(null);
+  const [deviceLocked, setDeviceLocked] = useState(!!student.deviceSignature);
+  const [deviceLockedAt, setDeviceLockedAt] = useState<string | Date | null>(student.deviceLockedAt || null);
 
   // Password Reset state
   const [resetModalOpen, setResetModalOpen] = useState(false);
@@ -261,6 +269,27 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
     }
   };
 
+  const handleResetDevice = async () => {
+    if (!confirm(`Reset device lock for ${student.name}? Their next login will register their new device.`)) return;
+    setIsResettingDevice(true);
+    setDeviceResetMsg(null);
+    try {
+      const res = await fetch(`/api/admin/students/${student.id}/reset-device`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDeviceLocked(false);
+        setDeviceLockedAt(null);
+        setDeviceResetMsg(data.message || "Device lock cleared successfully.");
+      } else {
+        setDeviceResetMsg(data.error || "Failed to reset device lock.");
+      }
+    } catch {
+      setDeviceResetMsg("Error resetting device lock.");
+    } finally {
+      setIsResettingDevice(false);
+    }
+  };
+
   const isAccountFrozen = student.status === "FROZEN";
 
   return (
@@ -402,6 +431,74 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
             </div>
           )}
         </div>
+      </div>
+
+      {/* ── 2b. Security & Device Lock Card ── */}
+      <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: deviceLocked ? "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)" : "#F1F5F9" }}
+            >
+              {deviceLocked
+                ? <Lock className="w-4.5 h-4.5 text-white" />
+                : <Unlock className="w-4.5 h-4.5 text-slate-400" />
+              }
+            </div>
+            <div>
+              <h3 className="text-sm font-display font-semibold text-ink flex items-center gap-2">
+                Device Lock & 2FA Security
+                {deviceLocked ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded-full font-bold">
+                    <Lock className="w-2.5 h-2.5" /> DEVICE LOCKED
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-mono bg-[#F1F5F9] text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full font-bold">
+                    <Unlock className="w-2.5 h-2.5" /> NO DEVICE REGISTERED
+                  </span>
+                )}
+              </h3>
+              <p className="text-[11px] text-sage font-mono mt-0.5">
+                {deviceLocked
+                  ? `Account locked to one primary device${deviceLockedAt ? ` since ${new Date(deviceLockedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}` : ""}.`
+                  : "No device registered yet. Device will be locked on student's next login."
+                }
+              </p>
+              <p className="text-[11px] text-slate-400 font-mono mt-1">
+                🔒 Email 2FA is enabled — student receives a one-time code on every login.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleResetDevice}
+              disabled={isResettingDevice || !deviceLocked}
+              className="gap-1.5 text-xs font-semibold h-9 border-[#0E57A4]/30 text-[#0E57A4] hover:bg-[#EBF3FA] disabled:opacity-40"
+            >
+              <RotateCcw className={`w-3.5 h-3.5 ${isResettingDevice ? "animate-spin" : ""}`} />
+              {isResettingDevice ? "Resetting…" : "Reset Device Lock"}
+            </Button>
+            {!deviceLocked && (
+              <p className="text-[10px] text-center text-slate-400 font-mono">No device to reset</p>
+            )}
+          </div>
+        </div>
+
+        {/* Success/Error message */}
+        {deviceResetMsg && (
+          <div className={`mt-3 flex items-start gap-2 p-3 rounded-xl text-xs border ${
+            deviceResetMsg.toLowerCase().includes("error") || deviceResetMsg.toLowerCase().includes("fail")
+              ? "bg-red-50 border-red-200 text-red-700"
+              : "bg-green-50 border-green-200 text-green-700"
+          }`}>
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>{deviceResetMsg}</span>
+          </div>
+        )}
       </div>
 
       {/* ── 3. Enrolled Courses & Progress Section ── */}
