@@ -114,10 +114,10 @@ export function Footer() {
         <div className="pt-8 border-t border-ink-muted/50 flex flex-col md:flex-row items-center justify-between text-xs text-sage font-mono">
           <p>© {new Date().getFullYear()} Institute of Medicine and Health Sciences (IMHS). All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="#" className="hover:text-surface transition-colors">
+            <Link href="/privacy-policy" className="hover:text-surface transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-surface transition-colors">
+            <Link href="/contact" className="hover:text-surface transition-colors">
               Terms of Enrollment
             </Link>
           </div>
