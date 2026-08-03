@@ -151,7 +151,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[88vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-4 sm:pt-10 pb-10 sm:pb-16 border-b border-[#E2E8F0] overflow-hidden"
+      <section className="relative min-h-[88vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 sm:pb-16 border-b border-[#E2E8F0] overflow-hidden"
         style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 45%, #ffffff 100%)" }}>
         {/* Mesh gradient blobs */}
         <div className="absolute inset-0 pointer-events-none"
@@ -159,12 +159,12 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         {/* Pharmacy-themed background animations */}
         <HeroPharmacyScene />
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
+
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
-            
+
             {/* Glossy pill floating top-left accent */}
-            <GlossyFloatingCapsule size={45} className="absolute -top-10 -left-6 hidden xl:block opacity-80" />
+            <GlossyFloatingCapsule size={45} className="absolute top-2 -left-6 hidden xl:block opacity-80" />
 
             {/* Rx Credential Badge */}
             <motion.div
@@ -186,7 +186,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 Sri Lanka Best{" "}
                 <span className="relative inline-block text-chart-red">
                   Healthcare
-                  {/* Dose Curve — pharmacokinetic absorption curve under keyword */}
+                  {/* Dose Curve - pharmacokinetic absorption curve under keyword */}
                   <span className="absolute -bottom-5 left-0 w-full">
                     <DoseCurve variant="hero" />
                   </span>
@@ -376,61 +376,61 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             {courses.length === 0
               ? [1, 2, 3].map((i) => <CourseCardSkeleton key={i} />)
               : courses.map((course) => (
-                  <StaggerItem key={course.id}>
-                    <HoverCard className="h-full">
-                      <Link href={`/courses/${course.slug}`} className="block h-full">
-                        <div className="bg-surface border border-chart-grid rounded-card overflow-hidden h-full flex flex-col hover:border-clinical-teal/60 hover:shadow-xl transition-all duration-300 group">
-                          {/* Course cover image or gradient */}
-                          <div className="relative h-44 bg-gradient-to-br from-clinical-teal/10 to-chart-red/10 overflow-hidden">
-                            {course.coverImage ? (
-                              <Image
-                                src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
-                                alt={course.title}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Microscope className="w-16 h-16 text-clinical-teal/20" />
-                              </div>
-                            )}
-                            {/* Overlay gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-surface/60 to-transparent" />
-                            {/* Price badge */}
-                            <div className="absolute bottom-3 left-3 bg-ink/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded">
-                              {formatCurrency(course.price)}
+                <StaggerItem key={course.id}>
+                  <HoverCard className="h-full">
+                    <Link href={`/courses/${course.slug}`} className="block h-full">
+                      <div className="bg-surface border border-chart-grid rounded-card overflow-hidden h-full flex flex-col hover:border-clinical-teal/60 hover:shadow-xl transition-all duration-300 group">
+                        {/* Course cover image or gradient */}
+                        <div className="relative h-44 bg-gradient-to-br from-clinical-teal/10 to-chart-red/10 overflow-hidden">
+                          {course.coverImage ? (
+                            <Image
+                              src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
+                              alt={course.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Microscope className="w-16 h-16 text-clinical-teal/20" />
                             </div>
-                          </div>
-
-                          <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                            <div className="space-y-2">
-                              <span className="font-mono text-[10px] uppercase tracking-wider text-chart-red font-semibold">
-                                {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
-                              </span>
-                              <h3 className="text-base font-semibold font-sans text-ink line-clamp-2 leading-snug group-hover:text-clinical-teal transition-colors">
-                                {course.title}
-                              </h3>
-                              <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
-                                {course.description}
-                              </p>
-                            </div>
-
-                            <div className="pt-4 border-t border-chart-grid/60 flex items-center justify-between">
-                              <div className="flex items-center gap-1">
-                                {[1, 2, 3, 4, 5].map((s) => (
-                                  <Star key={s} className="w-3 h-3 fill-chart-red text-chart-red" />
-                                ))}
-                              </div>
-                              <span className="text-xs font-semibold text-clinical-teal font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                Explore Program <ChevronRight className="w-3.5 h-3.5" />
-                              </span>
-                            </div>
+                          )}
+                          {/* Overlay gradient */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-surface/60 to-transparent" />
+                          {/* Price badge */}
+                          <div className="absolute bottom-3 left-3 bg-ink/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded">
+                            {formatCurrency(course.price)}
                           </div>
                         </div>
-                      </Link>
-                    </HoverCard>
-                  </StaggerItem>
-                ))}
+
+                        <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <span className="font-mono text-[10px] uppercase tracking-wider text-chart-red font-semibold">
+                              {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
+                            </span>
+                            <h3 className="text-base font-semibold font-sans text-ink line-clamp-2 leading-snug group-hover:text-clinical-teal transition-colors">
+                              {course.title}
+                            </h3>
+                            <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                              {course.description}
+                            </p>
+                          </div>
+
+                          <div className="pt-4 border-t border-chart-grid/60 flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star key={s} className="w-3 h-3 fill-chart-red text-chart-red" />
+                              ))}
+                            </div>
+                            <span className="text-xs font-semibold text-clinical-teal font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                              Explore Program <ChevronRight className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </HoverCard>
+                </StaggerItem>
+              ))}
           </StaggerChildren>
         </div>
       </section>
@@ -490,7 +490,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           {/* Dashed Outline Lecturer Card Container */}
           <RevealOnScroll delay={0.2} className="max-w-xl mx-auto">
             <div className="border-2 border-dashed border-sage/40 rounded-3xl p-6 sm:p-8 bg-surface shadow-paper text-center space-y-6 hover:border-clinical-teal transition-all duration-300 group">
-              
+
               {/* Full Length Photo Box */}
               <div className="relative h-[480px] sm:h-[520px] w-full rounded-2xl overflow-hidden border border-chart-grid shadow-md bg-ink">
                 <MedicalScannerBeam />
@@ -549,7 +549,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
 
                   <div className="relative mx-auto w-20 h-20 bg-clinical-teal-surface border border-clinical-teal/20 rounded-full flex items-center justify-center group-hover:border-clinical-teal group-hover:shadow-md transition-all duration-300">
                     <Icon className="w-8 h-8 text-clinical-teal" />
-                    {/* Step number in sage — pharmacy-green accent */}
+                    {/* Step number in sage - pharmacy-green accent */}
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-sage rounded-full flex items-center justify-center">
                       <span className="text-[10px] font-mono font-bold text-white">{step}</span>
                     </div>
@@ -604,7 +604,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                         ))}
                       </div>
                       <p className="text-sm text-ink-muted leading-relaxed italic flex-1">
-                        {/* ℞ glyph as opening quote — pharmacy identity detail */}
+                        {/* ℞ glyph as opening quote - pharmacy identity detail */}
                         <span className="font-mono text-chart-red text-lg font-bold not-italic mr-1">℞</span>
                         {t.quote}
                       </p>

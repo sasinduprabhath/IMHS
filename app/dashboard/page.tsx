@@ -249,15 +249,14 @@ export default async function StudentDashboardPage() {
               const progressColor = isFrozen
                 ? "#EF4444"
                 : isComplete
-                ? "#10B981"
-                : "#0E57A4";
+                  ? "#10B981"
+                  : "#0E57A4";
 
               const CardInner = (
-                <div className={`bg-white rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-250 group ${
-                  isFrozen
+                <div className={`bg-white rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-250 group ${isFrozen
                     ? "border border-[#FECACA]"
                     : "border border-[#E2E8F0] hover:border-[#BFDBFE] hover:shadow-card-hover"
-                }`}
+                  }`}
                   style={{ boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}>
                   {/* Progress bar top accent */}
                   <div className="h-1 bg-[#F1F5F9] relative overflow-hidden">
@@ -268,8 +267,8 @@ export default async function StudentDashboardPage() {
                         background: isFrozen
                           ? "linear-gradient(90deg, #EF4444, #F87171)"
                           : isComplete
-                          ? "linear-gradient(90deg, #10B981, #34D399)"
-                          : "linear-gradient(90deg, #0E57A4, #2172C9)",
+                            ? "linear-gradient(90deg, #10B981, #34D399)"
+                            : "linear-gradient(90deg, #0E57A4, #2172C9)",
                       }}
                     />
                   </div>
@@ -351,7 +350,7 @@ export default async function StudentDashboardPage() {
                           className="flex w-full items-center justify-center gap-2 text-xs font-semibold font-mono border border-[#FECACA] text-[#EF4444] hover:bg-[#EF4444] hover:text-white px-4 py-2 rounded-xl transition-all duration-200"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          Access Frozen — Contact Administration
+                          Access Frozen - Contact Administration
                         </a>
                       ) : (
                         <button className="flex w-full items-center justify-center gap-2 text-xs font-semibold text-white px-4 py-2.5 rounded-xl transition-all duration-200 group-hover:shadow-glow"

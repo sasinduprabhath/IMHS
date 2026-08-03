@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * BlisterDivider — a horizontal rule with evenly-spaced small circles
+ * BlisterDivider - a horizontal rule with evenly-spaced small circles
  * evoking the pockets of a pharmaceutical blister pack.
  * Used at: homepage trust-strip top edge, courses catalog grid top edge.
  */
@@ -28,7 +28,7 @@ export function BlisterDivider({ className, pockets = 12 }: { className?: string
           stroke="var(--chart-grid, #e8e0d5)"
           strokeWidth="1"
         />
-        {/* Blister pocket circles — notched into the rule */}
+        {/* Blister pocket circles - notched into the rule */}
         {positions.map((pct, i) => {
           const cx = (pct / 100) * 400;
           return (

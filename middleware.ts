@@ -7,10 +7,10 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret });
   const { pathname } = req.nextUrl;
 
-  const isAuthPage      = pathname === "/login";
-  const isVerifyOtp     = pathname === "/verify-otp";
-  const isAdminPage     = pathname.startsWith("/admin");
-  const isStudentDash   = pathname.startsWith("/dashboard");
+  const isAuthPage = pathname === "/login";
+  const isVerifyOtp = pathname === "/verify-otp";
+  const isAdminPage = pathname.startsWith("/admin");
+  const isStudentDash = pathname.startsWith("/dashboard");
 
   // ── /login ──────────────────────────────────────────────────
   if (isAuthPage) {
@@ -22,10 +22,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── /verify-otp — always accessible (unauthenticated students need it) ──
+  // ── /verify-otp - always accessible (unauthenticated students need it) ──
   if (isVerifyOtp) {
     if (token) {
-      // Already logged in — send to the right place
+      // Already logged in - send to the right place
       return NextResponse.redirect(
         new URL(token.role === "ADMIN" ? "/admin" : "/dashboard", req.url)
       );

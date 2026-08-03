@@ -5,11 +5,11 @@ import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /**
- * DoseCurve — pharmacokinetic absorption/elimination curve in --chart-red.
+ * DoseCurve - pharmacokinetic absorption/elimination curve in --chart-red.
  * Three variants:
- *   "hero"     — full-width animated draw-in, used under a hero headline word.
- *   "divider"  — short segment used as the connector between enrollment steps.
- *   "timeline" — continuous curve through numbered step nodes (About page).
+ *   "hero"     - full-width animated draw-in, used under a hero headline word.
+ *   "divider"  - short segment used as the connector between enrollment steps.
+ *   "timeline" - continuous curve through numbered step nodes (About page).
  */
 
 interface DoseCurveProps {

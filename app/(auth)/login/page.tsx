@@ -14,13 +14,13 @@ import {
 
 const FEATURES = [
   { icon: GraduationCap, text: "Access your full clinical curriculum" },
-  { icon: HeartPulse,    text: "HD video lectures & ECG masterclasses" },
-  { icon: Award,         text: "SLMC exam preparation modules" },
-  { icon: Stethoscope,   text: "Downloadable lab reference PDFs" },
+  { icon: HeartPulse, text: "HD video lectures & ECG masterclasses" },
+  { icon: Award, text: "SLMC exam preparation modules" },
+  { icon: Stethoscope, text: "Downloadable lab reference PDFs" },
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Device fingerprinting — runs entirely client-side
+// Device fingerprinting - runs entirely client-side
 // ─────────────────────────────────────────────────────────────
 async function collectDeviceSignature(): Promise<{ hash: string; info: string }> {
   try {
@@ -55,10 +55,10 @@ async function collectDeviceSignature(): Promise<{ hash: string; info: string }>
         const dbg = gl.getExtension("WEBGL_debug_renderer_info");
         if (dbg) {
           parts.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "");
-          parts.push(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL)   || "");
+          parts.push(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || "");
         }
       }
-    } catch {}
+    } catch { }
 
     const raw = parts.join("|");
     const encoded = new TextEncoder().encode(raw);
@@ -83,14 +83,14 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-  const [email, setEmail]           = useState("");
-  const [password, setPassword]     = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPass] = useState(false);
-  const [error, setError]           = useState("");
-  const [errorType, setErrorType]   = useState<"device" | "general" | null>(null);
-  const [waLink, setWaLink]         = useState<string | null>(null);
-  const [loading, setLoading]       = useState(false);
-  const [deviceSig, setDeviceSig]   = useState("");
+  const [error, setError] = useState("");
+  const [errorType, setErrorType] = useState<"device" | "general" | null>(null);
+  const [waLink, setWaLink] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [deviceSig, setDeviceSig] = useState("");
   const [deviceInfo, setDeviceInfo] = useState("");
 
   // Collect device fingerprint silently on mount
@@ -109,7 +109,7 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      // Step 1 — pre-login: validates password, device, generates OTP
+      // Step 1 - pre-login: validates password, device, generates OTP
       const res = await fetch("/api/auth/pre-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -135,9 +135,9 @@ function LoginForm() {
 
       if (data.status === "OTP_SENT") {
         const params = new URLSearchParams({
-          email:  data.maskedEmail  || "",
-          uid:    data.pendingUserId || "",
-          exp:    data.expiresAt    || "",
+          email: data.maskedEmail || "",
+          uid: data.pendingUserId || "",
+          exp: data.expiresAt || "",
         });
         router.push(`/verify-otp?${params.toString()}`);
         return;
@@ -193,7 +193,7 @@ function LoginForm() {
           style={{
             background: errorType === "device" ? "rgba(241,103,38,.06)" : "rgba(239,68,68,.06)",
             borderColor: errorType === "device" ? "rgba(241,103,38,.25)" : "rgba(239,68,68,.20)",
-            color:       errorType === "device" ? "#C2410C" : "#EF4444",
+            color: errorType === "device" ? "#C2410C" : "#EF4444",
           }}
         >
           {errorType === "device" ? (
@@ -296,7 +296,7 @@ function LoginForm() {
       <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#EBF3FA] border border-[#BFDBFE]">
         <ShieldCheck className="w-4 h-4 text-[#0E57A4] shrink-0" />
         <p className="text-[11px] text-[#1E40AF] font-sans leading-snug">
-          <strong>2-Factor Secured</strong> — a verification code will be emailed to you after password check.
+          <strong>2-Factor Secured</strong> - a verification code will be emailed to you after password check.
         </p>
       </div>
 
@@ -344,7 +344,7 @@ export default function LoginPage() {
               Platform
             </h1>
             <p className="text-white/45 text-xs sm:text-sm leading-relaxed max-w-sm">
-              Access your full clinical curriculum — SLMC exam prep, pathology masterclasses, ECG training, and certification programs.
+              Access your full clinical curriculum - SLMC exam prep, pathology masterclasses, ECG training, and certification programs.
             </p>
           </div>
           <ul className="space-y-2">
@@ -368,8 +368,8 @@ export default function LoginPage() {
         <div className="relative z-10 flex items-center gap-6 pt-4 border-t border-white/10">
           {[
             { value: "3,500+", label: "Graduates" },
-            { value: "2019",   label: "Established" },
-            { value: "4+",     label: "Programs" },
+            { value: "2019", label: "Established" },
+            { value: "4+", label: "Programs" },
           ].map(({ value, label }) => (
             <div key={label} className="text-center">
               <div className="text-base sm:text-lg font-display font-bold text-white">{value}</div>

@@ -236,7 +236,7 @@ export function StudentSidebar({ user }: { user: any }) {
     </div>
   );
 
-  // SSR placeholder — prevent hydration mismatch
+  // SSR placeholder - prevent hydration mismatch
   if (!mounted) {
     return (
       <>

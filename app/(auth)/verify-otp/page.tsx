@@ -12,25 +12,25 @@ import {
 } from "lucide-react";
 
 const WA_LINK = `https://wa.me/94776828490?text=${encodeURIComponent(
-  "Hello IMHS Support, I need help with my account login — my device may have been blocked."
+  "Hello IMHS Support, I need help with my account login - my device may have been blocked."
 )}`;
 
 function OtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const maskedEmail   = searchParams.get("email") || "your email";
-  const pendingUserId = searchParams.get("uid")   || "";
-  const expiresAt     = searchParams.get("exp")   || "";
+  const maskedEmail = searchParams.get("email") || "your email";
+  const pendingUserId = searchParams.get("uid") || "";
+  const expiresAt = searchParams.get("exp") || "";
 
   // Single string state for the 6-digit code (enables seamless mobile keyboard one-time-code auto-suggest & clipboard paste)
   const [otpValue, setOtpValue] = useState("");
-  const [status, setStatus]     = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [attemptsLeft, setAttemptsLeft] = useState(5);
 
   // Countdown timer
-  const [secondsLeft, setSecondsLeft]       = useState(600);
+  const [secondsLeft, setSecondsLeft] = useState(600);
   const [resendCooldown, setResendCooldown] = useState(60);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -250,9 +250,9 @@ function OtpForm() {
                   className="w-11 h-14 sm:w-13 sm:h-16 flex items-center justify-center text-2xl font-display font-bold rounded-xl border-2 transition-all duration-150"
                   style={{
                     borderColor: isFocused ? "#0E57A4" : d ? "#3B82F6" : "#E2E8F0",
-                    background:  isFocused ? "#EBF3FA" : d ? "#F8FAFC" : "#ffffff",
-                    color:       "#0A121E",
-                    boxShadow:   isFocused ? "0 0 0 3px rgba(14,87,164,.15)" : "none",
+                    background: isFocused ? "#EBF3FA" : d ? "#F8FAFC" : "#ffffff",
+                    color: "#0A121E",
+                    boxShadow: isFocused ? "0 0 0 3px rgba(14,87,164,.15)" : "none",
                   }}
                 >
                   {d}

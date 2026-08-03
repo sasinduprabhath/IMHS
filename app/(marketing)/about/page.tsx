@@ -59,7 +59,7 @@ export default function AboutPage() {
     <div className="overflow-x-hidden">
 
       {/* ── HERO ── */}
-      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-8 sm:pt-12 pb-16 px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={500} className="-top-24 -right-24 opacity-15" />
         {/* DNA Helix right side decoration */}
@@ -211,12 +211,11 @@ export default function AboutPage() {
                 <div className="absolute top-0 right-0 w-24 h-24 opacity-5 font-mono font-bold text-6xl text-ink flex items-start justify-end pr-2 pt-1 select-none">
                   {step}
                 </div>
-                {/* Step number in sage — pharmacy-green accent */}
-                <span className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2.5 py-0.5 rounded-full border ${
-                  color === "chart-red"
+                {/* Step number in sage - pharmacy-green accent */}
+                <span className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2.5 py-0.5 rounded-full border ${color === "chart-red"
                     ? "text-chart-red border-chart-red/30 bg-chart-red/5"
                     : "text-sage border-sage/30 bg-sage/5"
-                }`}>
+                  }`}>
                   {step} &middot; {label}
                 </span>
                 <h3 className="text-base font-semibold text-ink font-sans">{title}</h3>
@@ -228,7 +227,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="relative bg-clinical-teal-surface border-t border-clinical-teal/20 py-20 overflow-hidden">        
+      <section className="relative bg-clinical-teal-surface border-t border-clinical-teal/20 py-20 overflow-hidden">
         {/* Pill capsule orbs in CTA */}
         <PillCapsuleOrbs count={6} className="opacity-80" />
         <AnimatedGrid className="text-clinical-teal/10" />

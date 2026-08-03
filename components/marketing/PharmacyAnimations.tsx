@@ -52,7 +52,7 @@ export function FloatingMolecules({
             />
           ) : null
         )}
-        {/* Node dots — small, no fill, just stroke rings */}
+        {/* Node dots - small, no fill, just stroke rings */}
         {nodes.map((n, i) => (
           <motion.circle
             key={`node-${i}`}
@@ -203,7 +203,7 @@ export function AtomicOrbit({
           animate={{ r: [5, 7, 5] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
-        {/* Orbit 1 — horizontal ellipse */}
+        {/* Orbit 1 - horizontal ellipse */}
         <ellipse cx="100" cy="100" rx="70" ry="25" stroke={color} strokeWidth="0.8" strokeOpacity="0.25" />
         <motion.circle
           cx="170" cy="100" r="5"
@@ -213,7 +213,7 @@ export function AtomicOrbit({
           animate={{ rotate: 360 }}
           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         />
-        {/* Orbit 2 — tilted 60deg */}
+        {/* Orbit 2 - tilted 60deg */}
         <ellipse cx="100" cy="100" rx="70" ry="25" stroke="#F16726" strokeWidth="0.8" strokeOpacity="0.2" transform="rotate(60 100 100)" />
         <motion.circle
           cx="170" cy="100" r="4"
@@ -223,7 +223,7 @@ export function AtomicOrbit({
           animate={{ rotate: -360 }}
           transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
         />
-        {/* Orbit 3 — tilted 120deg */}
+        {/* Orbit 3 - tilted 120deg */}
         <ellipse cx="100" cy="100" rx="70" ry="25" stroke="#4A8B7A" strokeWidth="0.8" strokeOpacity="0.2" transform="rotate(120 100 100)" />
         <motion.circle
           cx="170" cy="100" r="4"
@@ -303,7 +303,7 @@ export function PillCapsuleOrbs({
 
 // ─────────────────────────────────────────────
 // 5. PULSE RING
-// Expanding ring animation — for CTAs and icons
+// Expanding ring animation - for CTAs and icons
 // ─────────────────────────────────────────────
 export function PulseRing({
   className,
@@ -387,7 +387,7 @@ export function ChemBondParticles({
               />
             ))
         )}
-        {/* Particle dots — small stroked circles only, no fill */}
+        {/* Particle dots - small stroked circles only, no fill */}
         {particles.map((p, i) => (
           <motion.circle
             key={`p-${i}`}
@@ -507,7 +507,7 @@ export function HeroPharmacyScene({ className }: { className?: string }) {
         color="#F16726"
         className="absolute -top-12 -right-12 opacity-15"
       />
-      {/* Scattered small crosses — only on large screens */}
+      {/* Scattered small crosses - only on large screens */}
       <MedicalCross size={26} color="#F16726" className="absolute top-1/4 right-1/4 opacity-25 hidden lg:block" />
       <MedicalCross size={18} color="#0E57A4" className="absolute bottom-1/3 left-1/3 opacity-15 hidden md:block" />
       {/* Small benzene ring center-left */}

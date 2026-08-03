@@ -33,10 +33,10 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 left-0 right-0 z-50 transition-all duration-300",
+        "sticky top-0 left-0 right-0 z-50 transition-all duration-300 -mb-[68px]",
         scrolled
           ? "bg-white/92 backdrop-blur-xl border-b border-[#E2E8F0] shadow-paper"
-          : "bg-white/80 backdrop-blur-md border-b border-transparent"
+          : "bg-transparent border-b border-transparent"
       )}
     >
       {/* Thin brand-gradient accent line at top */}

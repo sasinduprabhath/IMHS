@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * MolecularGridBackground — repeating hexagonal grid at 4–6% opacity.
+ * MolecularGridBackground - repeating hexagonal grid at 4–6% opacity.
  * Absolute-positioned, pointer-events-none background texture.
  * Use behind hero sections and image blocks.
  */
@@ -19,7 +19,7 @@ export function MolecularGridBackground({ className }: { className?: string }) {
       aria-hidden="true"
     >
       <defs>
-        {/* Single hexagon tile — flat-top orientation, 40px wide */}
+        {/* Single hexagon tile - flat-top orientation, 40px wide */}
         <pattern
           id={id}
           x="0"

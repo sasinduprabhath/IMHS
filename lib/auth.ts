@@ -1,4 +1,4 @@
-// lib/auth.ts — NextAuth configuration with Device Binding + 2FA support
+// lib/auth.ts - NextAuth configuration with Device Binding + 2FA support
 
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -25,8 +25,8 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email:         { label: "Email",          type: "email" },
-        password:      { label: "Password",       type: "password" },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
         verifiedToken: { label: "Verified Token", type: "text" },   // OTP bypass
       },
 
@@ -126,16 +126,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id    = user.id;
-        token.role  = (user as any).role;
+        token.id = user.id;
+        token.role = (user as any).role;
         token.phone = (user as any).phone;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id    = token.id as string;
-        (session.user as any).role  = token.role as string;
+        (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
         (session.user as any).phone = token.phone as string;
       }
       return session;

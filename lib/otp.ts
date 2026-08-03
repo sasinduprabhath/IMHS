@@ -1,4 +1,4 @@
-// lib/otp.ts — OTP generation, hashing, and email template utilities
+// lib/otp.ts - OTP generation, hashing, and email template utilities
 
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -127,7 +127,7 @@ export function buildOtpEmail(opts: {
 </body>
 </html>`;
 
-  const text = `Your IMHS verification code is: ${otp}\n\nHello ${name},\n\nUse the code ${otp} to log in to the IMHS Student Portal.\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIMHS — Institute of Medicine & Health Sciences`;
+  const text = `Your IMHS verification code is: ${otp}\n\nHello ${name},\n\nUse the code ${otp} to log in to the IMHS Student Portal.\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIMHS - Institute of Medicine & Health Sciences`;
 
   return { subject, html, text };
 }

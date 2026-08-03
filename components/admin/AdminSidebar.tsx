@@ -53,7 +53,7 @@ export function AdminSidebar({ user }: { user: any }) {
           const data = await res.json();
           setCounts(data);
         }
-      } catch (e) {}
+      } catch (e) { }
     };
     fetchCounts();
     const interval = setInterval(fetchCounts, 20000);
@@ -92,7 +92,7 @@ export function AdminSidebar({ user }: { user: any }) {
       {/* Brand accent gradient bar */}
       <div className="h-[3px] bg-gradient-to-r from-[#F16726] via-[#0E57A4] to-[#F16726] shrink-0" />
 
-      {/* Header — Logo + Admin Badge */}
+      {/* Header - Logo + Admin Badge */}
       <div
         className={cn(
           "flex items-center gap-3 py-4 border-b border-white/8 shrink-0",
@@ -179,8 +179,8 @@ export function AdminSidebar({ user }: { user: any }) {
                         active
                           ? "bg-white/20 text-white"
                           : href === "/admin/bookings"
-                          ? "bg-[#F16726]/20 text-[#FB923C] border border-[#F16726]/30"
-                          : "bg-[#F87171]/15 text-[#F87171] border border-[#F87171]/20"
+                            ? "bg-[#F16726]/20 text-[#FB923C] border border-[#F16726]/30"
+                            : "bg-[#F87171]/15 text-[#F87171] border border-[#F87171]/20"
                       )}
                     >
                       {badgeCount}

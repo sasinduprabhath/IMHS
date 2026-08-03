@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       }, { status: 401 });
     }
 
-    // ✓ OTP is valid — clear it from DB
+    // ✓ OTP is valid - clear it from DB
     await prisma.user.update({
       where: { id: user.id },
       data: { otpCode: null, otpExpiry: null, otpAttempts: 0 },

@@ -77,7 +77,7 @@ export default function StudentProfilePage() {
               IMHS CLINICAL CANDIDATE
             </span>
             <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink leading-tight">
-              {user?.name || "—"}
+              {user?.name || "-"}
             </h1>
             <div className="flex flex-wrap items-center gap-3">
               {user?.studentId ? (
@@ -169,7 +169,7 @@ export default function StudentProfilePage() {
                     </span>
                   ) : (
                     <p className={`text-sm text-ink ${mono ? "font-mono" : "font-medium"} truncate`}>
-                      {value || "—"}
+                      {value || "-"}
                     </p>
                   )}
                 </div>
@@ -217,7 +217,7 @@ export default function StudentProfilePage() {
           <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm space-y-3">
             <h3 className="text-xs font-mono uppercase tracking-wider text-sage font-bold">Need Help?</h3>
             <p className="text-xs text-ink-muted leading-relaxed">
-              For enrollment issues, Reg ID updates, or account queries — contact the IMHS admin desk.
+              For enrollment issues, Reg ID updates, or account queries - contact the IMHS admin desk.
             </p>
             <a
               href={`https://wa.me/94778025050?text=${encodeURIComponent(
@@ -253,11 +253,10 @@ export default function StudentProfilePage() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
-                className={`mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2 font-mono ${
-                  statusMsg.type === "success"
+                className={`mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2 font-mono ${statusMsg.type === "success"
                     ? "bg-clinical-teal/8 text-clinical-teal border border-clinical-teal/25"
                     : "bg-chart-red/8 text-chart-red border border-chart-red/25"
-                }`}
+                  }`}
               >
                 {statusMsg.type === "success"
                   ? <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />

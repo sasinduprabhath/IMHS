@@ -36,7 +36,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-white/45 text-xs leading-relaxed font-sans max-w-xs">
-              IMHS (Institute of Medicine &amp; Health Sciences) — established 2019, Maharagama, Sri Lanka.
+              IMHS (Institute of Medicine &amp; Health Sciences) - established 2019, Maharagama, Sri Lanka.
               Facilitating professional healthcare education with 3,500+ successful graduates.
             </p>
             {/* Divider dot line */}

@@ -1,4 +1,4 @@
-// lib/mailer.ts — Gmail SMTP email sender using nodemailer
+// lib/mailer.ts - Gmail SMTP email sender using nodemailer
 
 import nodemailer from "nodemailer";
 
