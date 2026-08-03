@@ -27,7 +27,7 @@ export function FloatingMolecules({
   const nodes = Array.from({ length: count }, (_, i) => ({
     cx: pseudoRandom(i * 3.1 + 1) * 80 + 10,
     cy: pseudoRandom(i * 2.7 + 2) * 80 + 10,
-    r: pseudoRandom(i * 1.9 + 3) * 5 + 4,
+    r: 0.4,
     delay: pseudoRandom(i * 4.3 + 4) * 3,
     duration: pseudoRandom(i * 5.1 + 5) * 4 + 5,
     color: i % 3 === 0 ? "#0E57A4" : i % 3 === 1 ? "#F16726" : "#4A8B7A",
@@ -35,7 +35,7 @@ export function FloatingMolecules({
 
   return (
     <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", className)}>
-      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
         {/* Bond lines between adjacent nodes */}
         {nodes.map((n, i) =>
           i < nodes.length - 1 ? (
@@ -45,28 +45,26 @@ export function FloatingMolecules({
               x2={`${nodes[i + 1].cx}%`} y2={`${nodes[i + 1].cy}%`}
               stroke={n.color}
               strokeWidth="0.15"
-              strokeOpacity="0.25"
+              strokeOpacity="0.2"
               strokeDasharray="0.5 1"
-              animate={{ strokeOpacity: [0.1, 0.35, 0.1] }}
+              animate={{ strokeOpacity: [0.05, 0.25, 0.05] }}
               transition={{ duration: n.duration, delay: n.delay, repeat: Infinity, ease: "easeInOut" }}
             />
           ) : null
         )}
-        {/* Node circles */}
+        {/* Node dots — small, no fill, just stroke rings */}
         {nodes.map((n, i) => (
           <motion.circle
             key={`node-${i}`}
             cx={`${n.cx}%`} cy={`${n.cy}%`}
-            r={n.r * 0.25}
-            fill={n.color}
-            fillOpacity="0.15"
+            r={n.r}
+            fill="none"
             stroke={n.color}
-            strokeWidth="0.1"
-            strokeOpacity="0.4"
+            strokeWidth="0.15"
+            strokeOpacity="0.35"
             animate={{
-              cy: [`${n.cy}%`, `${n.cy - 3}%`, `${n.cy}%`],
-              fillOpacity: [0.1, 0.25, 0.1],
-              r: [n.r * 0.25, n.r * 0.3, n.r * 0.25],
+              cy: [`${n.cy}%`, `${n.cy - 2}%`, `${n.cy}%`],
+              strokeOpacity: [0.15, 0.4, 0.15],
             }}
             transition={{ duration: n.duration, delay: n.delay, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -370,7 +368,7 @@ export function ChemBondParticles({
 
   return (
     <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", className)}>
-      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
         {/* Connection lines between close particles */}
         {particles.map((p, i) =>
           particles
@@ -382,25 +380,27 @@ export function ChemBondParticles({
                 x1={`${p.x}%`} y1={`${p.y}%`}
                 x2={`${q.x}%`} y2={`${q.y}%`}
                 stroke={p.color}
-                strokeWidth="0.12"
-                strokeOpacity="0.2"
-                animate={{ strokeOpacity: [0.05, 0.25, 0.05] }}
+                strokeWidth="0.1"
+                strokeOpacity="0.15"
+                animate={{ strokeOpacity: [0.05, 0.2, 0.05] }}
                 transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
               />
             ))
         )}
-        {/* Particle dots */}
+        {/* Particle dots — small stroked circles only, no fill */}
         {particles.map((p, i) => (
           <motion.circle
             key={`p-${i}`}
             cx={`${p.x}%`} cy={`${p.y}%`}
-            r="0.5"
-            fill={p.color}
-            fillOpacity="0.4"
+            r="0.35"
+            fill="none"
+            stroke={p.color}
+            strokeWidth="0.12"
+            strokeOpacity="0.3"
             animate={{
               cx: [`${p.x}%`, `${p.x + p.dx}%`, `${p.x}%`],
               cy: [`${p.y}%`, `${p.y + p.dy}%`, `${p.y}%`],
-              fillOpacity: [0.2, 0.6, 0.2],
+              strokeOpacity: [0.1, 0.35, 0.1],
             }}
             transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -499,19 +499,19 @@ export function HeroPharmacyScene({ className }: { className?: string }) {
       <BenzeneRing
         size={180}
         color="#0E57A4"
-        className="absolute -bottom-8 -left-8 opacity-30"
+        className="absolute -bottom-8 -left-8 opacity-25"
       />
       {/* Top-right: Atomic orbit */}
       <AtomicOrbit
         size={180}
         color="#F16726"
-        className="absolute -top-12 -right-12 opacity-20"
+        className="absolute -top-12 -right-12 opacity-15"
       />
-      {/* Scattered small crosses */}
-      <MedicalCross size={28} color="#F16726" className="absolute top-1/4 right-1/4 opacity-40" />
-      <MedicalCross size={20} color="#0E57A4" className="absolute bottom-1/3 left-1/3 opacity-25" />
-      {/* Floating molecules */}
-      <FloatingMolecules count={8} className="opacity-60" />
+      {/* Scattered small crosses — only on large screens */}
+      <MedicalCross size={26} color="#F16726" className="absolute top-1/4 right-1/4 opacity-25 hidden lg:block" />
+      <MedicalCross size={18} color="#0E57A4" className="absolute bottom-1/3 left-1/3 opacity-15 hidden md:block" />
+      {/* Small benzene ring center-left */}
+      <BenzeneRing size={90} color="#4A8B7A" className="absolute top-1/2 -left-6 opacity-15 hidden lg:block" />
     </div>
   );
 }

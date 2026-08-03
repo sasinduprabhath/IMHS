@@ -141,8 +141,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       <section className="relative min-h-[85vh] flex items-center justify-center bg-gradient-to-b from-clinical-teal-surface/40 via-surface to-surface px-4 sm:px-6 lg:px-8 pt-6 sm:pt-24 pb-10 sm:pb-16 border-b border-chart-grid">
         {/* Pharmacy-themed background animations */}
         <HeroPharmacyScene />
-        {/* Chem bond particle network */}
-        <ChemBondParticles count={14} className="opacity-35" />
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
@@ -286,9 +284,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       </section>
 
       {/* ── 2. TRUST STRIP ────────────────────────────────────────────────────── */}
-      <section className="relative bg-surface border-b border-chart-grid py-6 overflow-hidden">
-        {/* Subtle floating molecules */}
-        <FloatingMolecules count={5} className="opacity-30" />
+      <section className="bg-surface border-b border-chart-grid py-6">
         {/* Blister pack rhythm divider at the top edge */}
         <BlisterDivider className="mb-4" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
