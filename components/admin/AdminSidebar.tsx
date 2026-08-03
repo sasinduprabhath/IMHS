@@ -40,6 +40,28 @@ export function AdminSidebar({ user }: { user: any }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [counts, setCounts] = useState<{ unresolvedInquiriesCount: number; pendingBookingsCount: number }>({
+    unresolvedInquiriesCount: 0,
+    pendingBookingsCount: 0,
+  });
+
+  // Fetch live notification counts
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch("/api/admin/notifications/counts");
+        if (res.ok) {
+          const data = await res.json();
+          setCounts(data);
+        }
+      } catch (e) {
+        // ignore errors
+      }
+    };
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 20000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Read collapse preference from localStorage after mount
   useEffect(() => {
@@ -117,6 +139,18 @@ export function AdminSidebar({ user }: { user: any }) {
 
         {NAV_LINKS.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
+
+          // Calculate badge count
+          let badgeCount = 0;
+          let badgeColor = "bg-chart-red text-white";
+          if (href === "/admin/inquiries") {
+            badgeCount = counts.unresolvedInquiriesCount;
+            badgeColor = "bg-chart-red text-white";
+          } else if (href === "/admin/bookings") {
+            badgeCount = counts.pendingBookingsCount;
+            badgeColor = "bg-chart-orange text-white";
+          }
+
           return (
             <Link
               key={href}
@@ -133,17 +167,36 @@ export function AdminSidebar({ user }: { user: any }) {
                   : "text-ink-muted hover:text-ink hover:bg-linen/70"
               )}
             >
-              <Icon
-                className={cn(
-                  "shrink-0 transition-all",
-                  collapsed && !isMobile ? "w-5 h-5" : "w-4 h-4",
-                  active ? "text-white" : ""
+              <div className="relative">
+                <Icon
+                  className={cn(
+                    "shrink-0 transition-all",
+                    collapsed && !isMobile ? "w-5 h-5" : "w-4 h-4",
+                    active ? "text-white" : ""
+                  )}
+                />
+                {/* Collapsed view badge dot */}
+                {collapsed && !isMobile && badgeCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-chart-red ring-2 ring-white animate-pulse" />
                 )}
-              />
+              </div>
+
               {(!collapsed || isMobile) && (
-                <span className="text-sm font-sans font-medium leading-none">
-                  {label}
-                </span>
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <span className="text-sm font-sans font-medium leading-none truncate">
+                    {label}
+                  </span>
+                  {badgeCount > 0 && (
+                    <span
+                      className={cn(
+                        "ml-auto text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-xs shrink-0 animate-pulse",
+                        active ? "bg-white text-clinical-teal" : badgeColor
+                      )}
+                    >
+                      {badgeCount}
+                    </span>
+                  )}
+                </div>
               )}
 
               {/* Active indicator dot when collapsed */}
