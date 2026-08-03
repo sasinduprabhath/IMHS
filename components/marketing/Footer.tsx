@@ -57,6 +57,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/consultation" className="hover:text-surface transition-colors">
+                  1-on-1 Faculty Mentorship
+                </Link>
+              </li>
+              <li>
                 <Link href="/gallery" className="hover:text-surface transition-colors">
                   Campus &amp; Convocation Gallery
                 </Link>

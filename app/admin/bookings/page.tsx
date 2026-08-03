@@ -309,6 +309,20 @@ export default function AdminBookingsPage() {
                     </td>
 
                     <td className="py-4 px-4 text-right space-x-2">
+                      {/* WhatsApp Notify Button */}
+                      {b.studentPhone && (
+                        <a
+                          href={`https://wa.me/${b.studentPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                            `Hello ${b.studentName}, your 1-on-1 Consultation session with Dr. Isuru Wijesinghe has been ${b.status} for ${new Date(b.bookingDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} at ${b.timeSlot}.\n\nReference Code: ${b.bookingCode}${b.meetingLink ? `\nGoogle Meet Video Link: ${b.meetingLink}` : ""}\n\nThank you, IMHS Administration.`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-white bg-green-600 hover:bg-green-700 rounded inline-flex items-center gap-1 transition-colors"
+                          title="Send WhatsApp Confirmation Notice"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                        </a>
+                      )}
                       <button
                         onClick={() => handleOpenEdit(b)}
                         className="p-1.5 text-ink hover:text-clinical-teal bg-linen border border-chart-grid rounded hover:border-clinical-teal transition-colors"

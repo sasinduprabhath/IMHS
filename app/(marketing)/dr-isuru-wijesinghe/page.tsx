@@ -114,12 +114,12 @@ export default async function DrIsuruWijesinghePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-                <a href="#booking-widget">
+                <Link href="/consultation">
                   <Button className="gap-2 bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 font-semibold text-xs shadow-md">
                     <CalendarCapIcon className="w-4 h-4" />
                     Book 1-on-1 Mentorship &amp; Viva
                   </Button>
-                </a>
+                </Link>
 
                 <a
                   href={createCourseInquiryWALink("Modern Pharmacy Course (SLMC Prep)")}
@@ -277,11 +277,6 @@ export default async function DrIsuruWijesinghePage() {
             </div>
           </div>
         </div>
-
-        {/* ── 1-ON-1 MENTORSHIP & CONSULTATION BOOKING WIDGET ── */}
-        <RevealOnScroll className="pt-6">
-          <DrIsuruBookingClient />
-        </RevealOnScroll>
 
         {/* ── ACADEMIC COURSES TAUGHT ── */}
         <div className="space-y-6 pt-6">
