@@ -40,9 +40,10 @@ export function buildOtpEmail(opts: {
   waLink: string;
 }): { subject: string; html: string; text: string } {
   const { name, otp, waLink } = opts;
-  const digits = otp.split("");
 
-  const subject = `Your IMHS Login Code is ${otp}`;
+  // iOS Safari and Android Chrome search for standard pattern:
+  // "Your IMHS verification code is: 849201"
+  const subject = `Your IMHS verification code is: ${otp}`;
 
   const html = `
 <!DOCTYPE html>
@@ -75,17 +76,18 @@ export function buildOtpEmail(opts: {
           <tr>
             <td style="padding:32px 36px 28px;">
               <p style="margin:0 0 6px;font-size:15px;color:#4A5B70;">Hello, <strong style="color:#0A121E;">${name}</strong></p>
-              <p style="margin:0 0 24px;font-size:14px;color:#64748B;line-height:1.6;">
-                Use the 6-digit verification code below to complete your login to the IMHS Student Portal.
-                This code expires in <strong>10 minutes</strong>.
+              
+              <!-- Standard string recognized by mobile OS auto-fill -->
+              <p style="margin:0 0 20px;font-size:14px;color:#64748B;line-height:1.6;">
+                Your IMHS verification code is: <strong style="color:#0E57A4;font-size:16px;">${otp}</strong>
               </p>
 
               <!-- OTP Digits Box (Copyable) -->
-              <div style="background:#EBF3FA;border:2px dashed #BFDBFE;border-radius:16px;padding:20px;text-align:center;margin:0 0 20px;">
-                <div style="font-size:11px;font-weight:700;color:#0E57A4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
-                  📋 Your Verification Code (Tap to Copy)
+              <div style="background:#EBF3FA;border:2px dashed #BFDBFE;border-radius:16px;padding:24px;text-align:center;margin:0 0 20px;">
+                <div style="font-size:11px;font-weight:700;color:#0E57A4;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+                  Your 6-Digit Code (Double tap or press & hold to copy)
                 </div>
-                <div style="font-size:36px;font-weight:800;color:#0E57A4;font-family:'Courier New',Consolas,monospace;letter-spacing:8px;user-select:all;-webkit-user-select:all;-moz-user-select:all;">
+                <div style="font-size:40px;font-weight:900;color:#0E57A4;font-family:'Courier New',Consolas,monospace;letter-spacing:10px;display:inline-block;padding:8px 16px;background:#ffffff;border-radius:10px;border:1px solid #BFDBFE;">
                   ${otp}
                 </div>
               </div>
@@ -125,7 +127,7 @@ export function buildOtpEmail(opts: {
 </body>
 </html>`;
 
-  const text = `IMHS Login Verification Code\n\nHello ${name},\n\nYour login code is: ${otp.slice(0, 3)} ${otp.slice(3)}\n\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIf you did not attempt to log in, contact IMHS Support immediately.\n\nIMHS — Institute of Medicine & Health Sciences`;
+  const text = `Your IMHS verification code is: ${otp}\n\nHello ${name},\n\nUse the code ${otp} to log in to the IMHS Student Portal.\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIMHS — Institute of Medicine & Health Sciences`;
 
   return { subject, html, text };
 }

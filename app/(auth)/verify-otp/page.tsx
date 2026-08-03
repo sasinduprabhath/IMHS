@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import {
   ShieldCheck, Mail, RefreshCw, AlertCircle, CheckCircle2,
-  MessageSquare, ArrowLeft, Clock,
+  MessageSquare, ArrowLeft, Clock, Clipboard,
 } from "lucide-react";
 
 const WA_LINK = `https://wa.me/94776828490?text=${encodeURIComponent(
@@ -19,29 +19,29 @@ function OtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const maskedEmail  = searchParams.get("email")  || "your email";
+  const maskedEmail   = searchParams.get("email") || "your email";
   const pendingUserId = searchParams.get("uid")   || "";
-  const expiresAt    = searchParams.get("exp")    || "";
+  const expiresAt     = searchParams.get("exp")   || "";
 
-  const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  // Single string state for the 6-digit code (enables seamless mobile keyboard one-time-code auto-suggest & clipboard paste)
+  const [otpValue, setOtpValue] = useState("");
+  const [status, setStatus]     = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [attemptsLeft, setAttemptsLeft] = useState(5);
 
   // Countdown timer
-  const [secondsLeft, setSecondsLeft] = useState(600);
+  const [secondsLeft, setSecondsLeft]       = useState(600);
   const [resendCooldown, setResendCooldown] = useState(60);
-  const [resending, setResending] = useState(false);
 
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Compute initial seconds from expiresAt
+  // Focus input automatically on mount
   useEffect(() => {
     if (expiresAt) {
       const ms = new Date(expiresAt).getTime() - Date.now();
       setSecondsLeft(Math.max(0, Math.floor(ms / 1000)));
     }
-    inputRefs.current[0]?.focus();
+    inputRef.current?.focus();
   }, [expiresAt]);
 
   // Countdown tick
@@ -61,31 +61,27 @@ function OtpForm() {
   const formatTime = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  const handleDigitChange = (idx: number, val: string) => {
-    const cleanedDigits = val.replace(/\D/g, "");
-    if (cleanedDigits.length >= 6) {
-      const arr = cleanedDigits.slice(0, 6).split("");
-      setDigits(arr);
-      inputRefs.current[5]?.focus();
-      return;
-    }
-    const clean = val.replace(/\D/g, "").slice(-1);
-    const next = [...digits];
-    next[idx] = clean;
-    setDigits(next);
-    if (clean && idx < 5) inputRefs.current[idx + 1]?.focus();
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const clean = e.target.value.replace(/\D/g, "").slice(0, 6);
+    setOtpValue(clean);
   };
 
-  const handleKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !digits[idx] && idx > 0) {
-      inputRefs.current[idx - 1]?.focus();
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const clean = text.replace(/\D/g, "").slice(0, 6);
+      if (clean) {
+        setOtpValue(clean);
+        inputRef.current?.focus();
+      }
+    } catch {
+      // If clipboard permissions denied, just focus the input
+      inputRef.current?.focus();
     }
-    if (e.key === "Enter") handleSubmit();
   };
 
   const handleSubmit = useCallback(async () => {
-    const otp = digits.join("");
-    if (otp.length !== 6) {
+    if (otpValue.length !== 6) {
       setErrorMsg("Please enter all 6 digits.");
       return;
     }
@@ -101,13 +97,12 @@ function OtpForm() {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pendingUserId, otp }),
+        body: JSON.stringify({ pendingUserId, otp: otpValue }),
       });
       const data = await res.json();
 
       if (data.status === "SUCCESS") {
         setStatus("success");
-        // Use the verified token to create NextAuth session
         const result = await signIn("credentials", {
           redirect: false,
           verifiedToken: data.verifiedToken,
@@ -119,7 +114,6 @@ function OtpForm() {
           return;
         }
 
-        // Fetch session to check role
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
         if (session?.user?.role === "ADMIN") {
@@ -138,22 +132,29 @@ function OtpForm() {
         if (data.attemptsRemaining !== undefined) {
           setAttemptsLeft(data.attemptsRemaining);
         }
-        setDigits(["", "", "", "", "", ""]);
-        setTimeout(() => inputRefs.current[0]?.focus(), 50);
+        setOtpValue("");
+        setTimeout(() => inputRef.current?.focus(), 50);
       }
     } catch {
       setStatus("error");
       setErrorMsg("An unexpected error occurred. Please try again.");
     }
-  }, [digits, pendingUserId, router]);
+  }, [otpValue, pendingUserId, router]);
+
+  // Auto-submit when all 6 digits are typed
+  useEffect(() => {
+    if (otpValue.length === 6 && status === "idle") {
+      handleSubmit();
+    }
+  }, [otpValue, status, handleSubmit]);
 
   const handleResend = async () => {
-    if (resendCooldown > 0 || resending) return;
+    if (resendCooldown > 0) return;
     router.push("/login");
   };
 
   const isExpired = secondsLeft <= 0;
-  const otp = digits.join("");
+  const digits = Array.from({ length: 6 }, (_, i) => otpValue[i] || "");
 
   return (
     <div className="w-full space-y-6">
@@ -213,38 +214,65 @@ function OtpForm() {
         )}
       </AnimatePresence>
 
-      {/* 6-digit input boxes */}
-      <div className="flex justify-center gap-2 sm:gap-3">
-        {digits.map((d, i) => (
-          <React.Fragment key={i}>
-            {i === 3 && (
-              <div className="flex items-center">
-                <div className="w-3 h-0.5 rounded-full" style={{ background: "#CBD5E1" }} />
-              </div>
-            )}
-            <motion.input
-              ref={(el) => { inputRefs.current[i] = el; }}
-              type="text"
-              inputMode="numeric"
-              autoComplete={i === 0 ? "one-time-code" : "off"}
-              pattern="[0-9]*"
-              maxLength={6}
-              value={d}
-              onChange={(e) => handleDigitChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              onFocus={(e) => e.target.select()}
-              disabled={status === "loading" || status === "success" || isExpired}
-              whileFocus={{ scale: 1.05 }}
-              className="w-11 h-14 sm:w-13 sm:h-16 text-center text-2xl font-display font-bold rounded-xl border-2 outline-none transition-all duration-150 disabled:opacity-50"
-              style={{
-                borderColor: d ? "#0E57A4" : "#E2E8F0",
-                background: d ? "#EBF3FA" : "#F8FAFC",
-                color: "#0A121E",
-                boxShadow: d ? "0 0 0 3px rgba(14,87,164,.12)" : "none",
-              }}
-            />
-          </React.Fragment>
-        ))}
+      {/* ── Single Input Field with 6 Visual Box Overlay ── */}
+      <div
+        className="relative cursor-pointer group"
+        onClick={() => inputRef.current?.focus()}
+      >
+        {/* Invisible real HTML input: triggers mobile keyboard one-time-code auto-suggest & full string paste */}
+        <input
+          ref={inputRef}
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9]*"
+          maxLength={6}
+          value={otpValue}
+          onChange={handleInputChange}
+          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          disabled={status === "loading" || status === "success" || isExpired}
+          className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer disabled:cursor-not-allowed"
+          aria-label="Enter 6-digit verification code"
+        />
+
+        {/* Visual 6 boxes */}
+        <div className="flex justify-center gap-2 sm:gap-3 pointer-events-none">
+          {digits.map((d, i) => {
+            const isFocused = otpValue.length === i || (otpValue.length === 6 && i === 5);
+            return (
+              <React.Fragment key={i}>
+                {i === 3 && (
+                  <div className="flex items-center">
+                    <div className="w-3 h-0.5 rounded-full bg-[#CBD5E1]" />
+                  </div>
+                )}
+                <div
+                  className="w-11 h-14 sm:w-13 sm:h-16 flex items-center justify-center text-2xl font-display font-bold rounded-xl border-2 transition-all duration-150"
+                  style={{
+                    borderColor: isFocused ? "#0E57A4" : d ? "#3B82F6" : "#E2E8F0",
+                    background:  isFocused ? "#EBF3FA" : d ? "#F8FAFC" : "#ffffff",
+                    color:       "#0A121E",
+                    boxShadow:   isFocused ? "0 0 0 3px rgba(14,87,164,.15)" : "none",
+                  }}
+                >
+                  {d}
+                </div>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Paste from Clipboard Helper */}
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={handlePasteFromClipboard}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0E57A4] bg-[#EBF3FA] hover:bg-[#DBEAFE] border border-[#BFDBFE] transition-colors"
+        >
+          <Clipboard className="w-3.5 h-3.5" />
+          Paste code from clipboard
+        </button>
       </div>
 
       {/* Attempts remaining indicator */}
@@ -257,11 +285,11 @@ function OtpForm() {
       {/* Submit button */}
       <button
         onClick={handleSubmit}
-        disabled={otp.length !== 6 || status === "loading" || status === "success" || isExpired}
+        disabled={otpValue.length !== 6 || status === "loading" || status === "success" || isExpired}
         className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
-          boxShadow: otp.length === 6 ? "0 4px 16px rgba(14,87,164,.35)" : "none",
+          boxShadow: otpValue.length === 6 ? "0 4px 16px rgba(14,87,164,.35)" : "none",
         }}
       >
         {status === "loading" ? (
