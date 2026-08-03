@@ -342,10 +342,10 @@ function OtpForm() {
 
 export default function VerifyOtpPage() {
   return (
-    <div className="flex-1 flex font-sans overflow-hidden">
+    <div className="w-full flex-1 min-h-[calc(100vh-68px)] flex items-stretch font-sans overflow-hidden">
       {/* ── Left brand panel (same as login) ── */}
       <div
-        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-8 p-10 xl:p-12 relative overflow-hidden h-full"
+        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-8 p-10 xl:p-12 relative overflow-hidden self-stretch"
         style={{ background: "linear-gradient(160deg, #071120 0%, #0A1628 50%, #0C1A30 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
@@ -387,7 +387,7 @@ export default function VerifyOtpPage() {
 
       {/* ── Right: OTP form panel ── */}
       <div
-        className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-4 sm:py-6 relative overflow-y-auto h-full"
+        className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-4 sm:py-6 relative overflow-hidden self-stretch"
         style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 40%, #ffffff 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"

@@ -76,7 +76,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
       {isMarketingRoute && <Header />}
 
       {/* 2. Content Transition Area */}
-      <div className="flex-1 w-full relative flex flex-col">
+      <div className="flex-1 w-full relative flex flex-col items-stretch">
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div
@@ -85,7 +85,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="w-full flex-1 flex flex-col"
+              className="w-full flex-1 flex flex-col items-stretch"
             >
               {renderSkeletonForPath(pathname)}
             </motion.div>
@@ -95,7 +95,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
-              className="w-full flex-1 flex flex-col"
+              className="w-full flex-1 flex flex-col items-stretch"
             >
               {children}
             </motion.div>
