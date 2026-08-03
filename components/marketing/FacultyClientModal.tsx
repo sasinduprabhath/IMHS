@@ -29,7 +29,7 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {faculty.map((member) => {
           const profileHref = getProfileLink(member);
-          const photoSrc = member.name.toLowerCase().includes("isuru") ? "/isuru.png" : (member.photoUrl || "/isuru.png");
+          const photoSrc = member.photoUrl || "/lecturer.jpeg";
 
           return (
             <div
@@ -106,7 +106,7 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-clinical-teal shrink-0">
                   <Image
-                    src={selectedMember.name.toLowerCase().includes("isuru") ? "/isuru.png" : (selectedMember.photoUrl || "/isuru.png")}
+                    src={selectedMember.photoUrl || "/lecturer.jpeg"}
                     alt={selectedMember.name}
                     fill
                     className="object-cover"
