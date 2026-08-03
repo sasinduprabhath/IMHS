@@ -515,3 +515,123 @@ export function HeroPharmacyScene({ className }: { className?: string }) {
     </div>
   );
 }
+
+// ─────────────────────────────────────────────
+// 10. MEDICAL SCANNER BEAM
+// Laser line sweeping across image or card containers
+// ─────────────────────────────────────────────
+export function MedicalScannerBeam({ className }: { className?: string }) {
+  return (
+    <div className={cn("absolute inset-0 pointer-events-none overflow-hidden z-20", className)}>
+      <motion.div
+        className="w-full h-[2px] bg-gradient-to-r from-transparent via-clinical-teal to-transparent shadow-[0_0_12px_#0E57A4]"
+        animate={{ y: ["0%", "500%", "0%"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 11. GLOSSY FLOATING CAPSULE
+// Vector 3D glossy pill capsule with metallic sheen
+// ─────────────────────────────────────────────
+export function GlossyFloatingCapsule({
+  className,
+  size = 50,
+  colorA = "#0E57A4",
+  colorB = "#F16726",
+}: {
+  className?: string;
+  size?: number;
+  colorA?: string;
+  colorB?: string;
+}) {
+  return (
+    <motion.div
+      className={cn("pointer-events-none drop-shadow-md", className)}
+      style={{ width: size, height: size * 0.45 }}
+      animate={{
+        y: [0, -8, 0],
+        rotate: [0, 8, 0],
+      }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <svg width="100%" height="100%" viewBox="0 0 100 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="capsuleGradA" x1="0" y1="0" x2="50" y2="45" gradientUnits="userSpaceOnUse">
+            <stop stopColor={colorA} />
+            <stop offset="1" stopColor="#0B3C73" />
+          </linearGradient>
+          <linearGradient id="capsuleGradB" x1="50" y1="0" x2="100" y2="45" gradientUnits="userSpaceOnUse">
+            <stop stopColor={colorB} />
+            <stop offset="1" stopColor="#B8420B" />
+          </linearGradient>
+        </defs>
+        {/* Left half */}
+        <path d="M22.5 0H50V45H22.5C10.0736 45 0 34.9264 0 22.5C0 10.0736 10.0736 0 22.5 0Z" fill="url(#capsuleGradA)" />
+        {/* Right half */}
+        <path d="M50 0H77.5C89.9264 0 100 10.0736 100 22.5C100 34.9264 89.9264 45 77.5 45H50V0Z" fill="url(#capsuleGradB)" />
+        {/* Center join line */}
+        <line x1="50" y1="0" x2="50" y2="45" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.4" />
+        {/* Top reflection highlight */}
+        <path d="M15 8H85" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.35" />
+      </svg>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 12. RX CREDENTIAL SEAL BADGE
+// Animated Rx symbol badge for healthcare validation
+// ─────────────────────────────────────────────
+export function RxCredentialBadge({
+  className,
+  label = "SLMC PREP",
+}: {
+  className?: string;
+  label?: string;
+}) {
+  return (
+    <div className={cn("inline-flex items-center gap-2 bg-surface border border-clinical-teal/30 rounded-full px-3.5 py-1 shadow-sm relative overflow-hidden group", className)}>
+      <motion.div
+        className="w-5 h-5 rounded-full bg-clinical-teal text-white flex items-center justify-center font-serif text-xs font-bold shadow-xs"
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        Rx
+      </motion.div>
+      <span className="text-[11px] font-mono font-semibold text-ink uppercase tracking-wider">{label}</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 13. ECG SCAN WAVE
+// Animated continuous ECG line with travelling blip
+// ─────────────────────────────────────────────
+export function ECGScanWave({ className }: { className?: string }) {
+  return (
+    <div className={cn("w-full h-8 relative overflow-hidden pointer-events-none", className)}>
+      <svg className="w-full h-full" viewBox="0 0 400 32" fill="none" preserveAspectRatio="none">
+        <path
+          d="M0 16 H140 L146 6 L152 26 L158 2 L164 30 L170 16 H400"
+          stroke="#0E57A4"
+          strokeWidth="1.5"
+          strokeOpacity="0.25"
+        />
+        <motion.circle
+          r="3"
+          fill="#F16726"
+          animate={{
+            cx: [0, 400],
+            cy: [16, 16],
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        />
+      </svg>
+    </div>
+  );
+}
+

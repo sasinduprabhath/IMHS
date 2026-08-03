@@ -10,7 +10,20 @@ import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { DoseCurve } from "@/components/marketing/DoseCurve";
 import { BlisterDivider } from "@/components/marketing/BlisterDivider";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
-import { HeroPharmacyScene, ChemBondParticles, BenzeneRing, PillCapsuleOrbs, AtomicOrbit, DNAHelix, FloatingMolecules, MedicalCross } from "@/components/marketing/PharmacyAnimations";
+import {
+  HeroPharmacyScene,
+  ChemBondParticles,
+  BenzeneRing,
+  PillCapsuleOrbs,
+  AtomicOrbit,
+  DNAHelix,
+  FloatingMolecules,
+  MedicalCross,
+  RxCredentialBadge,
+  GlossyFloatingCapsule,
+  MedicalScannerBeam,
+  ECGScanWave
+} from "@/components/marketing/PharmacyAnimations";
 import {
   RevealOnScroll,
   StaggerChildren,
@@ -144,8 +157,20 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start">
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
             
+            {/* Glossy pill floating top-left accent */}
+            <GlossyFloatingCapsule size={45} className="absolute -top-10 -left-6 hidden xl:block opacity-80" />
+
+            {/* Rx Credential Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <RxCredentialBadge label="ACCREDITED PHARMACEUTICAL & CLINICAL FACULTY" />
+            </motion.div>
+
             {/* 1. Main Headline */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -194,6 +219,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               className="block lg:hidden w-full my-2"
             >
               <div className="relative h-[280px] sm:h-[360px] w-full rounded-2xl overflow-hidden shadow-xl border-2 border-white bg-linen mx-auto">
+                <MedicalScannerBeam />
                 <Image
                   src="/hero.jpg"
                   alt="Sri Lanka Best Healthcare Education"
@@ -269,7 +295,12 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             transition={{ duration: 0.7, delay: 0.2 }}
             className="hidden lg:block lg:col-span-5 relative"
           >
+            {/* Second Glossy Floating Capsule near image */}
+            <GlossyFloatingCapsule size={55} className="absolute -bottom-6 -right-6 z-30 hidden xl:block opacity-90" />
+
             <div className="relative h-[400px] sm:h-[480px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-linen">
+              {/* Laser scanner line sweeping top-to-bottom across hero image */}
+              <MedicalScannerBeam />
               <Image
                 src="/hero.jpg"
                 alt="Sri Lanka Best Healthcare Education"
@@ -456,6 +487,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               
               {/* Full Length Photo Box */}
               <div className="relative h-[480px] sm:h-[520px] w-full rounded-2xl overflow-hidden border border-chart-grid shadow-md bg-ink">
+                <MedicalScannerBeam />
                 <Image
                   src="/lecturer.jpeg"
                   alt="Dr. Isuru Wijesinghe - Senior Lecturer, IMHS"
