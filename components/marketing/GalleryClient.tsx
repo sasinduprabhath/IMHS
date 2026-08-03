@@ -86,10 +86,10 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                 transition={{ duration: 0.3 }}
                 className="group bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper hover:border-clinical-teal hover:shadow-paper-stack transition-all duration-300 flex flex-col justify-between"
               >
-                {/* Auto Playing Video Container preserving natural Aspect Ratio */}
+                {/* Auto Playing Reel Video Container seamlessly filling card without black strips */}
                 <div
                   onClick={() => setActiveItem(item)}
-                  className="relative w-full bg-black flex items-center justify-center cursor-pointer overflow-hidden group"
+                  className="relative w-full h-[460px] sm:h-[480px] bg-ink cursor-pointer overflow-hidden group"
                 >
                   <MedicalScannerBeam />
                   <video
@@ -98,7 +98,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                     loop
                     muted
                     playsInline
-                    className="w-full h-auto max-h-[500px] object-contain group-hover:scale-102 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
                   {/* Play Overlay */}
@@ -158,12 +158,22 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="relative w-full bg-black flex items-center justify-center max-h-[70vh]">
+              <div className="relative w-full h-[70vh] bg-ink flex items-center justify-center overflow-hidden">
+                {/* Ambient Blurred Backdrop Video */}
+                <video
+                  src={activeItem.src}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110 pointer-events-none"
+                />
+                {/* Foreground Video */}
                 <video
                   src={activeItem.src}
                   controls
                   autoPlay
-                  className="w-full max-h-[70vh] object-contain bg-black"
+                  className="relative z-10 max-w-full max-h-[70vh] h-full object-contain shadow-2xl"
                 />
               </div>
 
