@@ -342,10 +342,10 @@ function OtpForm() {
 
 export default function VerifyOtpPage() {
   return (
-    <div className="min-h-[calc(100vh-68px)] flex font-sans">
+    <div className="min-h-[calc(100vh-68px)] lg:h-[calc(100vh-68px)] flex font-sans overflow-hidden">
       {/* ── Left brand panel (same as login) ── */}
       <div
-        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-8 p-10 xl:p-14 relative overflow-hidden"
+        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-8 p-10 xl:p-12 relative overflow-hidden h-full"
         style={{ background: "linear-gradient(160deg, #071120 0%, #0A1628 50%, #0C1A30 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
@@ -387,7 +387,7 @@ export default function VerifyOtpPage() {
 
       {/* ── Right: OTP form panel ── */}
       <div
-        className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden"
+        className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-4 sm:py-6 relative overflow-y-auto h-full"
         style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 40%, #ffffff 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
@@ -397,7 +397,7 @@ export default function VerifyOtpPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
-          className="relative z-10 w-full max-w-md bg-white rounded-2xl p-8 sm:p-10"
+          className="relative z-10 w-full max-w-md bg-white rounded-2xl p-5 sm:p-6"
           style={{ boxShadow: "0 8px 40px rgba(10,18,30,.10), 0 2px 8px rgba(10,18,30,.06)", border: "1px solid #E2E8F0" }}
         >
           <Suspense fallback={<div className="text-center text-xs text-sage font-mono">Loading…</div>}>
@@ -409,7 +409,7 @@ export default function VerifyOtpPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="relative z-10 mt-6"
+          className="relative z-10 mt-2"
         >
           <Link href="/login" className="text-xs text-ink-muted hover:text-ink transition-colors inline-flex items-center gap-1.5">
             <ArrowLeft className="w-3 h-3" /> Back to login
