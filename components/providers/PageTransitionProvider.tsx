@@ -23,7 +23,11 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
 
-  const isMarketingRoute = !pathname.startsWith("/dashboard") && !pathname.startsWith("/admin");
+  const isMarketingRoute = 
+    !pathname.startsWith("/dashboard") && 
+    !pathname.startsWith("/admin") && 
+    pathname !== "/login" && 
+    pathname !== "/verify-otp";
 
   useEffect(() => {
     // Show accurate skeleton loading animation for exactly 0.5s on initial mount and route change
