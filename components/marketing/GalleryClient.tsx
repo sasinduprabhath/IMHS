@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { AnimatedGrid, GlowOrb, RevealOnScroll } from "@/components/ui/animations";
+import { VitalLine } from "@/components/ui/vital-line";
 import {
   DNAHelix,
   AtomicOrbit,
@@ -14,38 +15,24 @@ import {
   PillCapsuleOrbs,
   RxCredentialBadge,
   MedicalScannerBeam,
-  ECGScanWave,
 } from "@/components/marketing/PharmacyAnimations";
 import {
   Image as ImageIcon,
   X,
   Maximize2,
   Calendar,
-  Award,
-  ArrowRight,
-  Filter,
-  Check,
 } from "lucide-react";
 
 export interface GalleryItem {
   id: string;
   title: string;
-  category: string;
   src: string;
   description: string;
   date: string;
 }
 
-const CATEGORIES = ["All", "Convocation", "Seminars", "Laboratory", "Practicals", "Campus"];
-
 export function GalleryClient({ items }: { items: GalleryItem[] }) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
-
-  const filteredItems =
-    selectedCategory === "All"
-      ? items
-      : items.filter((item) => item.category === selectedCategory);
 
   return (
     <div className="overflow-x-hidden bg-surface">
@@ -71,33 +58,15 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
             Explore photo highlights from annual convocations, laboratory practicals, clinical seminars, and student graduation milestones in Sri Lanka.
           </p>
 
-          <ECGScanWave className="max-w-md mx-auto pt-2" />
+          <div className="max-w-md mx-auto pt-2">
+            <VitalLine variant="hero" animated={true} />
+          </div>
         </div>
       </section>
 
-      {/* ── GALLERY FILTER & GRID SECTION ── */}
+      {/* ── GALLERY GRID SECTION ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10 relative">
         <PillCapsuleOrbs count={6} className="opacity-40" />
-
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-mono font-semibold transition-all duration-200 border ${
-                  isSelected
-                    ? "bg-clinical-teal text-white border-clinical-teal shadow-md scale-105"
-                    : "bg-surface text-ink-muted border-chart-grid hover:border-clinical-teal/40 hover:text-ink"
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
 
         {/* Image Grid */}
         <motion.div
@@ -105,7 +74,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           <AnimatePresence>
-            {filteredItems.map((item) => (
+            {items.map((item) => (
               <motion.div
                 key={item.id}
                 layout
@@ -133,9 +102,6 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
 
                 <div className="p-5 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-clinical-teal border border-clinical-teal/20 bg-clinical-teal/5 px-2.5 py-0.5 rounded-full">
-                      {item.category}
-                    </span>
                     <span className="text-[10px] font-mono text-sage flex items-center gap-1">
                       <Calendar className="w-3 h-3" /> {item.date}
                     </span>
@@ -184,9 +150,6 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
 
               <div className="p-6 space-y-3 bg-surface">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-clinical-teal border border-clinical-teal/20 bg-clinical-teal/5 px-3 py-1 rounded-full">
-                    {activeItem.category}
-                  </span>
                   <span className="text-xs font-mono text-sage flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" /> IMHS Archive · {activeItem.date}
                   </span>

@@ -1,12 +1,12 @@
 import React from "react";
 import Link from "next/link";
 import { AnimatedGrid, GlowOrb } from "@/components/ui/animations";
+import { VitalLine } from "@/components/ui/vital-line";
 import {
   DNAHelix,
   AtomicOrbit,
   BenzeneRing,
   RxCredentialBadge,
-  ECGScanWave,
 } from "@/components/marketing/PharmacyAnimations";
 import {
   ShieldCheck,
@@ -55,7 +55,9 @@ export default function PrivacyPolicyPage() {
             </span>
           </div>
 
-          <ECGScanWave className="max-w-md mx-auto pt-2" />
+          <div className="max-w-md mx-auto pt-2">
+            <VitalLine variant="hero" animated={true} />
+          </div>
         </div>
       </section>
 
