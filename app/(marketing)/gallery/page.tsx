@@ -9,7 +9,35 @@ export const metadata = {
 
 const GALLERY_ITEMS = [
   {
+    id: "v1",
+    type: "video" as const,
+    title: "IMHS Practical & Clinical Training Session",
+    src: "/gallery/gallery-video-1.mp4",
+    poster: "/gallery/pharmacy-practical.jpg",
+    description: "Live practical video demonstration of pharmaceutical dispensing and clinical lab techniques.",
+    date: "2024",
+  },
+  {
+    id: "v2",
+    type: "video" as const,
+    title: "Student Convocation & Award Ceremony Highlights",
+    src: "/gallery/gallery-video-2.mp4",
+    poster: "/gallery/convocation-2024.webp",
+    description: "Video highlights from the IMHS General Convocation & Distinction Awards distribution.",
+    date: "2024",
+  },
+  {
+    id: "v3",
+    type: "video" as const,
+    title: "Campus Lecture & Interactive Workshop",
+    src: "/gallery/gallery-video-3.mp4",
+    poster: "/gallery/clinical-lecture.jpg",
+    description: "Senior consultant lecture on pharmacology seq preparation and clinical pathology.",
+    date: "2024",
+  },
+  {
     id: "g1",
+    type: "image" as const,
     title: "IMHS Annual General Convocation 2024",
     src: "/gallery/convocation-2024.webp",
     description: "Celebrating over 3,500 healthcare & pharmacy graduates at the annual IMHS Convocation.",
@@ -17,6 +45,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g2",
+    type: "image" as const,
     title: "Graduating Batch Awards & Certification",
     src: "/gallery/graduation-ceremony.webp",
     description: "Awarding certificates to distinction students across pharmaceutical & clinical programs.",
@@ -24,6 +53,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g3",
+    type: "image" as const,
     title: "Clinical Lecture & Medical Seminar",
     src: "/gallery/clinical-lecture.jpg",
     description: "Consultant-led seminar on advanced clinical therapeutics and hospital ward procedures.",
@@ -31,6 +61,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g4",
+    type: "image" as const,
     title: "Pharmaceutical Manufacturing Laboratory",
     src: "/gallery/pharmaceutical-lab.jpg",
     description: "Hands-on cleanroom formulation, tablet coating, and industrial QA practicals.",
@@ -38,6 +69,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g5",
+    type: "image" as const,
     title: "SLMC Pharmacy Exam Practical Preparation",
     src: "/gallery/pharmacy-practical.jpg",
     description: "Interactive dispensing, prescription analysis, and pathology slide interpretation.",
@@ -45,6 +77,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g6",
+    type: "image" as const,
     title: "Medical Board & Senior Faculty Consultation",
     src: "/gallery/faculty-consultation.jpg",
     description: "Academic directors and consultant doctors shaping peer-reviewed healthcare curricula.",
@@ -52,6 +85,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g7",
+    type: "image" as const,
     title: "Clinical Pharmacy Dispensing Training",
     src: "/gallery/pharmacy-dispensing.jpg",
     description: "Modern pharmacy dispensing protocols, drug safety, and patient counseling simulations.",
@@ -59,6 +93,7 @@ const GALLERY_ITEMS = [
   },
   {
     id: "g8",
+    type: "image" as const,
     title: "IMHS Institutional Campus Maharagama",
     src: "/gallery/imhs-campus.jpg",
     description: "State-of-the-art lecturing halls and pharmaceutical science learning environment.",
