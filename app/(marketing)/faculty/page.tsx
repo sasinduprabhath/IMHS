@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import { RevealOnScroll, StaggerChildren, StaggerItem, HoverCard, AnimatedGrid, GlowOrb } from "@/components/ui/animations";
 import { FacultyClientModal } from "@/components/marketing/FacultyClientModal";
+import { AtomicOrbit, BenzeneRing, MedicalCross, FloatingMolecules, PillCapsuleOrbs } from "@/components/marketing/PharmacyAnimations";
 import { Stethoscope, Users, Star, GraduationCap, ShieldCheck } from "lucide-react";
 
 export const metadata = {
@@ -27,6 +28,15 @@ export default async function FacultyPage() {
       <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={500} className="-top-20 -right-20 opacity-15" />
+        {/* Atomic orbit top-right */}
+        <AtomicOrbit size={200} color="#0E57A4" className="absolute -top-16 -right-16 opacity-25" />
+        {/* Benzene left-bottom accent */}
+        <BenzeneRing size={130} color="#4A8B7A" className="absolute -bottom-6 left-4 opacity-20 hidden md:block" />
+        {/* Floating molecules */}
+        <FloatingMolecules count={7} className="opacity-40" />
+        {/* Medical crosses scattered */}
+        <MedicalCross size={22} color="#F16726" className="absolute top-20 right-1/4 opacity-30" />
+        <MedicalCross size={16} color="#4A8B7A" className="absolute bottom-16 left-1/4 opacity-20" />
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
             ACADEMIC FACULTY
@@ -58,7 +68,9 @@ export default async function FacultyPage() {
       </section>
 
       {/* ── FACULTY GRID ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
+        {/* Subtle pill orbs in faculty grid background */}
+        <PillCapsuleOrbs count={4} className="opacity-50" />
         <RevealOnScroll className="text-center space-y-2">
           <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">SENIOR LECTURERS & DIRECTORS</span>
           <h2 className="text-3xl font-display font-semibold text-ink">Meet the Faculty</h2>

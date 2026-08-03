@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedGrid, GlowOrb, RevealOnScroll, StaggerChildren, StaggerItem } from "@/components/ui/animations";
 import { DoseCurve } from "@/components/marketing/DoseCurve";
 import { MolecularGridBackground } from "@/components/marketing/MolecularGridBackground";
+import { DNAHelix, AtomicOrbit, BenzeneRing, MedicalCross, PillCapsuleOrbs, FloatingMolecules } from "@/components/marketing/PharmacyAnimations";
 import {
   ShieldCheck, Award, GraduationCap, Users, ArrowRight,
   CheckCircle2, Target, Microscope, HeartPulse, Star
@@ -61,6 +62,15 @@ export default function AboutPage() {
       <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={500} className="-top-24 -right-24 opacity-15" />
+        {/* DNA Helix right side decoration */}
+        <DNAHelix width={70} height={350} className="absolute right-8 top-8 opacity-40 hidden lg:block" />
+        {/* Benzene ring left accent */}
+        <BenzeneRing size={120} color="#4A8B7A" className="absolute -left-6 bottom-4 opacity-20" />
+        {/* Floating molecules in background */}
+        <FloatingMolecules count={6} className="opacity-50" />
+        {/* Medical crosses */}
+        <MedicalCross size={24} color="#F16726" className="absolute top-16 left-16 opacity-30" />
+        <MedicalCross size={18} color="#0E57A4" className="absolute bottom-12 right-1/3 opacity-20" />
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
             OUR STORY & MISSION
@@ -155,7 +165,10 @@ export default function AboutPage() {
       </section>
 
       {/* ── CORE VALUES ── */}
-      <section className="bg-linen/50 py-20">
+      <section className="relative bg-linen/50 py-20 overflow-hidden">
+        {/* Atomic orbit accent corner */}
+        <AtomicOrbit size={140} color="#4A8B7A" className="absolute -right-6 top-8 opacity-20" />
+        <BenzeneRing size={100} color="#F16726" className="absolute -left-4 bottom-4 opacity-15" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <RevealOnScroll className="text-center space-y-2">
             <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">INSTITUTIONAL PILLARS</span>
@@ -215,7 +228,9 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="relative bg-clinical-teal-surface border-t border-clinical-teal/20 py-20 overflow-hidden">
+      <section className="relative bg-clinical-teal-surface border-t border-clinical-teal/20 py-20 overflow-hidden">        
+        {/* Pill capsule orbs in CTA */}
+        <PillCapsuleOrbs count={6} className="opacity-80" />
         <AnimatedGrid className="text-clinical-teal/10" />
         <div className="relative z-10 max-w-3xl mx-auto text-center px-4 space-y-6">
           <RevealOnScroll>

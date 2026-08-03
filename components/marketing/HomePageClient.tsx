@@ -10,6 +10,7 @@ import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { DoseCurve } from "@/components/marketing/DoseCurve";
 import { BlisterDivider } from "@/components/marketing/BlisterDivider";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
+import { HeroPharmacyScene, ChemBondParticles, BenzeneRing, PillCapsuleOrbs, AtomicOrbit, DNAHelix, FloatingMolecules, MedicalCross } from "@/components/marketing/PharmacyAnimations";
 import {
   RevealOnScroll,
   StaggerChildren,
@@ -136,8 +137,12 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
   return (
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
-      {/* ── 1. CLEAN & SIMPLE HERO SECTION ─────────────────────────────── */}
+      {/* ── 1. CLEAN & SIMPLE HERO SECTION ────────────────────────────────────── */}
       <section className="relative min-h-[85vh] flex items-center justify-center bg-gradient-to-b from-clinical-teal-surface/40 via-surface to-surface px-4 sm:px-6 lg:px-8 pt-6 sm:pt-24 pb-10 sm:pb-16 border-b border-chart-grid">
+        {/* Pharmacy-themed background animations */}
+        <HeroPharmacyScene />
+        {/* Chem bond particle network */}
+        <ChemBondParticles count={14} className="opacity-35" />
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
@@ -280,8 +285,10 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </div>
       </section>
 
-      {/* ── 2. TRUST STRIP ─────────────────────────────────────────── */}
-      <section className="bg-surface border-b border-chart-grid py-6">
+      {/* ── 2. TRUST STRIP ────────────────────────────────────────────────────── */}
+      <section className="relative bg-surface border-b border-chart-grid py-6 overflow-hidden">
+        {/* Subtle floating molecules */}
+        <FloatingMolecules count={5} className="opacity-30" />
         {/* Blister pack rhythm divider at the top edge */}
         <BlisterDivider className="mb-4" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -307,7 +314,11 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       </section>
 
       {/* ── 3. COURSES CATALOG ─────────────────────────────────────── */}
-      <section className="bg-linen/50 py-20 border-y border-chart-grid">
+      <section className="relative bg-linen/50 py-20 border-y border-chart-grid overflow-hidden">
+        {/* DNA helix right edge */}
+        <DNAHelix width={55} height={300} className="absolute right-2 top-8 opacity-25 hidden xl:block" />
+        {/* Chem bond particles background */}
+        <ChemBondParticles count={8} className="opacity-25" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <RevealOnScroll className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2">
@@ -391,8 +402,11 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </div>
       </section>
 
-      {/* ── 5. FEATURES GRID (WHY CHOOSE IMHS) ─────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* ── 5. FEATURES GRID (WHY CHOOSE IMHS) ─────────────────── */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        {/* AtomicOrbit corner accent */}
+        <AtomicOrbit size={160} color="#4A8B7A" className="absolute -right-8 top-12 opacity-15" />
+        <BenzeneRing size={100} color="#0E57A4" className="absolute -left-6 bottom-8 opacity-10" />
         <RevealOnScroll className="text-center mb-12 space-y-2">
           <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">
             WHY CHOOSE IMHS
@@ -421,8 +435,12 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </StaggerChildren>
       </section>
 
-      {/* ── 5B. MEET OUR LECTURER SECTION (IMMEDIATELY AFTER WHY CHOOSE IMHS) ────── */}
-      <section className="bg-linen/40 border-y border-chart-grid py-20">
+      {/* ── 5B. MEET OUR LECTURER SECTION (IMMEDIATELY AFTER WHY CHOOSE IMHS) ──── */}
+      <section className="relative bg-linen/40 border-y border-chart-grid py-20 overflow-hidden">
+        {/* Pharmacy animations in lecturer section */}
+        <PillCapsuleOrbs count={5} className="opacity-50" />
+        <MedicalCross size={24} color="#F16726" className="absolute top-16 right-16 opacity-20" />
+        <MedicalCross size={18} color="#0E57A4" className="absolute bottom-20 left-12 opacity-15" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <RevealOnScroll className="text-center space-y-3">
             <span className="font-mono text-xs text-chart-red uppercase tracking-widest font-bold bg-chart-red-light px-3 py-1 rounded-full border border-chart-red/20">

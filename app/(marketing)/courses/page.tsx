@@ -7,6 +7,7 @@ import { RevealOnScroll, StaggerChildren, StaggerItem, HoverCard, AnimatedGrid, 
 import { Button } from "@/components/ui/button";
 import { CourseSearchClient } from "@/components/marketing/CourseSearchClient";
 import { BlisterDivider } from "@/components/marketing/BlisterDivider";
+import { DNAHelix, BenzeneRing, MedicalCross, PillCapsuleOrbs, FloatingMolecules, AtomicOrbit, ChemBondParticles } from "@/components/marketing/PharmacyAnimations";
 import {
   BookOpen, Clock, Users, Star, ArrowRight, Search,
   GraduationCap, ShieldCheck, PhoneCall
@@ -51,6 +52,17 @@ export default async function CoursesCatalogPage() {
       <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={450} className="-top-24 -left-24 opacity-15" />
+        {/* DNA Helix left accent */}
+        <DNAHelix width={65} height={320} className="absolute left-8 top-16 opacity-35 hidden lg:block" />
+        {/* Atomic orbit top right */}
+        <AtomicOrbit size={190} color="#F16726" className="absolute -top-12 -right-12 opacity-20" />
+        {/* Floating molecules */}
+        <FloatingMolecules count={7} className="opacity-45" />
+        {/* Chem bond particles */}
+        <ChemBondParticles count={10} className="opacity-30" />
+        {/* Medical crosses */}
+        <MedicalCross size={26} color="#0E57A4" className="absolute top-24 right-1/4 opacity-25" />
+        <MedicalCross size={18} color="#4A8B7A" className="absolute bottom-10 left-1/3 opacity-20" />
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
             ACADEMIC CURRICULUM
@@ -82,7 +94,9 @@ export default async function CoursesCatalogPage() {
       </section>
 
       {/* ── SEARCH & COURSES ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
+        {/* Pill orbs subtle decoration */}
+        <PillCapsuleOrbs count={5} className="opacity-40" />
         {/* Blister-cell rhythm at top of grid */}
         <BlisterDivider className="mb-2" />
         <CourseSearchClient courses={courses} />
@@ -91,6 +105,9 @@ export default async function CoursesCatalogPage() {
       {/* ── ENROLL CTA (LIGHT MODE) ── */}
       <section className="relative bg-clinical-teal-surface border-t border-clinical-teal/20 py-16 overflow-hidden">
         <AnimatedGrid className="text-clinical-teal/10" />
+        {/* Benzene rings in CTA background */}
+        <BenzeneRing size={120} color="#0E57A4" className="absolute -bottom-4 left-8 opacity-20" />
+        <BenzeneRing size={90} color="#F16726" className="absolute top-4 right-16 opacity-15" />
         <div className="relative z-10 max-w-3xl mx-auto text-center px-4 space-y-6">
           <RevealOnScroll>
             <h2 className="text-3xl font-display font-semibold text-ink">

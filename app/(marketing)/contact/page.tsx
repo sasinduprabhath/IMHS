@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { AnimatedGrid, GlowOrb, RevealOnScroll } from "@/components/ui/animations";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
+import { DNAHelix, BenzeneRing, MedicalCross, FloatingMolecules, AtomicOrbit, PulseRing } from "@/components/marketing/PharmacyAnimations";
 import {
   PhoneCall, Mail, MapPin, Send, CheckCircle2,
   MessageSquare, Clock, Globe, AlertCircle
@@ -90,6 +91,15 @@ export default function ContactPage() {
       <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#F16726" size={400} className="-top-20 -right-20 opacity-15" />
+        {/* DNA Helix right side */}
+        <DNAHelix width={60} height={280} className="absolute right-12 top-12 opacity-35 hidden lg:block" />
+        {/* Benzene ring accent */}
+        <BenzeneRing size={110} color="#4A8B7A" className="absolute -left-4 -bottom-4 opacity-20 hidden md:block" />
+        {/* Floating molecules */}
+        <FloatingMolecules count={6} className="opacity-40" />
+        {/* Medical crosses */}
+        <MedicalCross size={20} color="#F16726" className="absolute top-20 left-1/4 opacity-30" />
+        <MedicalCross size={15} color="#0E57A4" className="absolute bottom-16 right-1/3 opacity-20" />
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-5">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
             ADMISSIONS & INQUIRIES
@@ -107,7 +117,9 @@ export default function ContactPage() {
       </section>
 
       {/* ── FORM + CONTACT INFO ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Subtle atomic orbit in background */}
+        <AtomicOrbit size={160} color="#0E57A4" className="absolute -right-8 top-12 opacity-10" />
         <div className="grid lg:grid-cols-12 gap-10 items-start">
 
           {/* Form */}
