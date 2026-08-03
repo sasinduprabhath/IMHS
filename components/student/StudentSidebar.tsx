@@ -272,7 +272,8 @@ export function StudentSidebar({ user }: { user: any }) {
         </button>
 
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="IMHS" width={90} height={28} className="h-6 w-auto object-contain brightness-0 invert opacity-90" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/footer-logo.png" alt="IMHS" className="h-6 w-auto object-contain brightness-0 invert opacity-90" />
         </Link>
 
         <span className="ml-auto font-mono text-[9px] uppercase bg-[#0E57A4]/25 text-[#60A5FA] border border-[#0E57A4]/30 px-2 py-0.5 rounded font-bold tracking-wider">

@@ -340,24 +340,23 @@ export default async function AdminOverviewPage() {
                         </td>
 
                         {/* Courses */}
-                        <td className="px-5 py-4 max-w-[200px]">
+                        <td className="px-5 py-3 max-w-[220px]">
                           {st.enrollments.length === 0 ? (
-                            <span className="text-[11px] font-mono text-sage/60 italic">No enrollments</span>
+                            <span className="text-[10px] font-mono text-sage/60 bg-[#F5F7FA] px-2 py-0.5 rounded border border-[#E2E8F0] inline-block">No enrollments</span>
                           ) : (
-                            <div className="space-y-1">
-                              {st.enrollments.slice(0, 2).map((e: any) => (
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span
+                                title={st.enrollments[0].course.title}
+                                className="text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded font-semibold max-w-[180px] truncate block"
+                              >
+                                {st.enrollments[0].course.title}
+                              </span>
+                              {st.enrollments.length > 1 && (
                                 <span
-                                  key={e.course.id}
-                                  className="block text-[11px] font-mono text-clinical-teal bg-clinical-teal/8 border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold leading-snug"
+                                  title={st.enrollments.slice(1).map((e: any) => e.course.title).join(" | ")}
+                                  className="text-[10px] font-mono bg-[#F1F5F9] text-slate-500 border border-slate-200 px-2 py-0.5 rounded font-semibold cursor-help"
                                 >
-                                  {e.course.title.length > 36
-                                    ? e.course.title.slice(0, 36) + "…"
-                                    : e.course.title}
-                                </span>
-                              ))}
-                              {st.enrollments.length > 2 && (
-                                <span className="text-[10px] font-mono text-sage">
-                                  +{st.enrollments.length - 2} more
+                                  +{st.enrollments.length - 1} more
                                 </span>
                               )}
                             </div>

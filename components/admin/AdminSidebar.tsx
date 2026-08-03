@@ -108,12 +108,11 @@ export function AdminSidebar({ user }: { user: any }) {
         ) : (
           <>
             <Link href="/admin" className="flex items-center gap-2.5 min-w-0 group flex-1">
-              <Image
-                src="/logo.png"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/footer-logo.png"
                 alt="IMHS Admin"
-                width={110}
-                height={36}
-                className="h-7 w-auto object-contain brightness-0 invert opacity-90 transition-opacity group-hover:opacity-100"
+                className="h-7 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity"
               />
             </Link>
             <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-[#F16726] text-white px-2 py-0.5 rounded-pill font-bold tracking-wider shadow-xs shrink-0">
@@ -303,8 +302,8 @@ export function AdminSidebar({ user }: { user: any }) {
 
       {/* Mobile Top Bar */}
       <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0A1628] border-b border-white/8 h-14 flex items-center px-4 gap-3"
-        style={{ boxShadow: "0 2px 12px rgba(0,0,0,.4)" }}
+        className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center px-4 gap-3"
+        style={{ background: "#0A1628", borderBottom: "1px solid rgba(255,255,255,.08)", boxShadow: "0 2px 12px rgba(0,0,0,.4)" }}
       >
         <div className="h-full w-[3px] absolute left-0 top-0 bg-gradient-to-b from-[#F16726] to-[#0E57A4]" />
 
@@ -317,7 +316,8 @@ export function AdminSidebar({ user }: { user: any }) {
         </button>
 
         <Link href="/admin" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="IMHS" width={90} height={28} className="h-6 w-auto object-contain brightness-0 invert opacity-90" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/footer-logo.png" alt="IMHS" className="h-6 w-auto object-contain brightness-0 invert opacity-90" />
         </Link>
 
         <span className="ml-auto inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-[#F16726] text-white px-2 py-0.5 rounded font-bold tracking-wider">

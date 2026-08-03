@@ -68,7 +68,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display-family);
-  color: rgb(var(--ink));
+  /* NOTE: Do NOT set color here — let Tailwind text-* utilities control it per context */
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;

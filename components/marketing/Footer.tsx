@@ -27,11 +27,11 @@ export function Footer() {
           {/* Column 1: Brand */}
           <div className="space-y-5 lg:col-span-1">
             <Link href="/" className="inline-block">
-              <Image
-                src="/footer logo.png"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/footer-logo.png"
                 alt="IMHS Institute Footer Logo"
-                width={200}
-                height={64}
+                height={48}
                 className="h-12 w-auto object-contain brightness-0 invert opacity-90"
               />
             </Link>

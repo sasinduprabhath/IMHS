@@ -162,30 +162,67 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
+  const searchContainerClass = "bg-white border border-[#E2E8F0] rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4";
+  const inputClass = "w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs text-ink placeholder:text-sage/60 focus:outline-none focus:border-[#0E57A4] focus:bg-white transition-all font-sans";
+
+  // Helper: show max 1 course badge + "+N more"
+  const renderEnrollmentBadges = (enrollments: StudentItem["enrollments"]) => {
+    if (enrollments.length === 0) {
+      return (
+        <span className="text-[10px] font-mono text-sage bg-[#F5F7FA] px-2 py-0.5 rounded border border-[#E2E8F0] inline-block">
+          No active courses
+        </span>
+      );
+    }
+    const first = enrollments[0];
+    const rest = enrollments.slice(1);
+    const restTitles = rest.map(e => e.course.title).join(" | ");
+    return (
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span
+          title={first.course.title}
+          className="text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded font-semibold max-w-[200px] truncate"
+        >
+          {first.course.title}
+        </span>
+        {rest.length > 0 && (
+          <span
+            title={restTitles}
+            className="text-[10px] font-mono bg-[#F1F5F9] text-slate-500 border border-slate-200 px-2 py-0.5 rounded font-semibold cursor-help hover:bg-slate-200 transition-colors"
+          >
+            +{rest.length} more
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Search & Action Toolbar */}
-      <div className="bg-surface border border-chart-grid rounded-card p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-paper">
-        <div className="relative max-w-md w-full">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-sage" />
+    <div className="space-y-5">
+      {/* ── Search + Action Bar ── */}
+      <div className={searchContainerClass} style={{ boxShadow: "0 2px 8px rgba(10,18,30,.04)" }}>
+        <div className="relative flex-1 max-w-lg">
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-sage" />
           <input
             type="text"
             placeholder="Search by name, Reg ID (e.g. IWPH4131), email, or phone..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all font-sans"
+            className={inputClass}
           />
         </div>
-
-        <div className="flex items-center justify-between sm:justify-end gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs font-mono text-sage">
             Total <strong className="text-ink">{filteredStudents.length}</strong> students
           </span>
           <Link href="/admin/students/new">
-            <Button className="gap-2 text-xs font-semibold bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-sm">
-              <UserPlus className="w-4 h-4" /> Onboard Student
-            </Button>
+            <button
+              className="inline-flex items-center gap-2 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)", boxShadow: "0 4px 12px rgba(241,103,38,.25)" }}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Onboard Student
+            </button>
           </Link>
         </div>
       </div>
@@ -338,24 +375,8 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                       <div className="text-[11px] text-clinical-teal font-mono">{st.phone}</div>
                     </td>
 
-                    <td className="p-4">
-                      {st.enrollments.length === 0 ? (
-                        <span className="text-[10px] font-mono text-sage bg-linen px-2 py-0.5 rounded border border-chart-grid">
-                          No active courses
-                        </span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {st.enrollments.map((e) => (
-                            <span
-                              key={e.course.id}
-                              title={e.course.title}
-                              className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold whitespace-normal leading-normal"
-                            >
-                              {e.course.title}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                    <td className="p-3 max-w-[280px]">
+                      {renderEnrollmentBadges(st.enrollments)}
                     </td>
 
                     <td className="p-4 font-mono text-ink">
