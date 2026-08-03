@@ -38,6 +38,14 @@ const config: Config = {
           hover: "#D95316",
           light: "#FFF4EE",
         },
+        "chart-orange": {
+          DEFAULT: "#F59E0B",
+          hover: "#D97706",
+          light: "#FFFBEB",
+        },
+        "chart-blue": {
+          DEFAULT: "#3B82F6",
+        },
         sage: {
           DEFAULT: "#70889E",
           light: "#C5D2DE",
@@ -53,9 +61,12 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-display)", "serif"],
+        // Display: Fraunces — marketing H1/H2 only, never below 28px
+        display: ["var(--font-fraunces)", "sans-serif"],
+        // Body/UI: Lexend — all body copy, lesson content, forms, tables, nav
         sans: ["var(--font-body)", "sans-serif"],
-        mono: ["var(--font-mono)", "monospace"],
+        // Utility/Data: IBM Plex Mono — stats, IDs, codes, timestamps
+        mono: ["var(--font-ibm-plex-mono)", "monospace"],
       },
       borderRadius: {
         card: "2px",
@@ -63,11 +74,21 @@ const config: Config = {
         input: "8px",
       },
       boxShadow: {
+        // Level 1 (card): standard hairline + subtle elevation
         paper: "0 1px 2px rgba(14, 87, 164, 0.05)",
         "paper-stack": "2px 2px 0px #D4DCE4",
+        // Level 2 (raised): chart-red at 15% opacity, bottom-right — "lifted off chart pad"
+        "paper-raised": "2px 2px 0px rgba(241, 103, 38, 0.15)",
       },
       animation: {
         "pulse-subtle": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "vital-pulse": "vital-pulse 2s ease-in-out infinite",
+      },
+      keyframes: {
+        "vital-pulse": {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "0.8" },
+        },
       },
     },
   },

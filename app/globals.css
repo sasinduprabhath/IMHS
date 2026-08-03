@@ -9,6 +9,9 @@
   --sage: 112 136 158;
   --chart-grid: 212 220 228;
   --surface: 255 255 255;
+
+  /* Icon system: 1.75 stroke width (more refined than 2.0 default) */
+  --icon-stroke: 1.75;
 }
 
 body {
@@ -18,57 +21,49 @@ body {
   min-height: 100vh;
 }
 
+/* Display: Fraunces — marketing headlines only */
+.font-display,
+h1.display, h2.display {
+  font-family: var(--font-fraunces), serif;
+}
+
+/* Headings default to Lexend (body font) */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-body), sans-serif;
   color: rgb(var(--ink));
 }
 
-.font-display {
-  font-family: var(--font-display), serif;
+/* Mono: IBM Plex Mono — stats, IDs, codes, timestamps */
+.font-mono,
+code, pre, kbd {
+  font-family: var(--font-ibm-plex-mono), monospace;
 }
 
-.font-sans {
-  font-family: var(--font-body), sans-serif;
+/* ── Icon Size Scale ───────────────────────────────────────────── */
+/* 16px — inline with text */
+.icon-sm svg, svg.icon-sm  { width: 16px; height: 16px; }
+/* 20px — nav items, buttons */
+.icon-md svg, svg.icon-md  { width: 20px; height: 20px; }
+/* 24px — feature / empty-state icons */
+.icon-lg svg, svg.icon-lg  { width: 24px; height: 24px; }
+
+/* Lucide icon stroke standardization: 1.75 (lighter, more editorial) */
+svg.lucide {
+  stroke-width: var(--icon-stroke, 1.75);
 }
 
-.font-mono {
-  font-family: var(--font-mono), monospace;
+/* ── Hover / Pressed / Disabled state utilities ───────────────── */
+.btn-pressed {
+  transition: transform 100ms ease, background-color 150ms ease;
+}
+.btn-pressed:active {
+  transform: scale(0.98);
 }
 
-/* ── 3-LEVEL ELEVATION SYSTEM (v5) ── */
-.elevation-0 {
-  border: none;
-  background-color: transparent;
-  box-shadow: none;
-}
-
-.elevation-1 {
-  border: 1px solid #D4DCE4;
-  background-color: #FFFFFF;
-  border-radius: 2px;
-}
-
-.elevation-2 {
-  border: 1px solid #D4DCE4;
-  background-color: #FFFFFF;
-  border-radius: 2px;
+/* ── Level 2 Elevation ────────────────────────────────────────── */
+/* Reserve for modals, active wizard step, hovered course cards */
+.elevation-raised {
   box-shadow: 2px 2px 0px rgba(241, 103, 38, 0.15);
-}
-
-/* ── BRANDED SKELETON ANIMATION ── */
-@keyframes vitalPulse {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scaleX(0.98);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scaleX(1);
-  }
-}
-
-.animate-vital-pulse {
-  animation: vitalPulse 1.8s ease-in-out infinite;
 }
 
 /* Radial gradient utility */
@@ -90,6 +85,23 @@ main {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ── Branded Skeleton: Vital Pulse ────────────────────────────── */
+@keyframes vital-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-vital {
+  background: linear-gradient(
+    90deg,
+    rgba(14, 87, 164, 0.06) 25%,
+    rgba(14, 87, 164, 0.14) 50%,
+    rgba(14, 87, 164, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: vital-shimmer 2s ease-in-out infinite;
 }
 
 /* Custom scrollbar */

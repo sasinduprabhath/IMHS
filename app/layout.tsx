@@ -1,9 +1,30 @@
 import type { Metadata } from "next";
-import { fraunces, lexend, plexMono } from "@/app/fonts";
+import { Fraunces, Lexend, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { PageTransitionProvider } from "@/components/providers/PageTransitionProvider";
+
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
+const lexend = Lexend({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "IMHS - Institute of Medicine and Health Sciences",
@@ -26,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${lexend.variable} ${plexMono.variable}`}
+      className={`${fraunces.variable} ${lexend.variable} ${ibmPlexMono.variable}`}
     >
       <body className="font-sans bg-linen text-ink min-h-screen flex flex-col antialiased">
         <AuthProvider>

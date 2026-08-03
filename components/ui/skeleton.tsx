@@ -1,30 +1,40 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface SkeletonProps {
   className?: string;
 }
 
+/**
+ * Skeleton — branded IMHS pulse shimmer.
+ * Uses teal at 6–14% opacity instead of generic gray,
+ * with a left-to-right vital shimmer sweep (defined in globals.css).
+ */
 export function Skeleton({ className }: SkeletonProps) {
   return (
-    <motion.div
+    <div
       className={cn(
-        "relative overflow-hidden bg-chart-grid/50 rounded",
+        "relative overflow-hidden rounded skeleton-vital",
         className
       )}
-      initial={{ opacity: 0.5 }}
-      animate={{ opacity: [0.5, 1, 0.5] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-        animate={{ x: ["-100%", "100%"] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      />
-    </motion.div>
+    />
+  );
+}
+
+/**
+ * VitalLineSkeleton — heartbeat-trace shaped skeleton.
+ * Use for wide, progress-bar shaped loading areas.
+ */
+export function VitalLineSkeleton({ className }: SkeletonProps) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-full skeleton-vital h-1.5",
+        className
+      )}
+    />
   );
 }
 
@@ -71,6 +81,9 @@ export function PageSkeleton() {
         </div>
       </div>
 
+      {/* Vital Line trace — used as section divider skeleton */}
+      <VitalLineSkeleton className="w-full max-w-2xl mx-auto" />
+
       {/* Trust strip skeleton */}
       <div className="border-y border-chart-grid py-8 grid grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
@@ -87,6 +100,26 @@ export function PageSkeleton() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * BookingCardSkeleton — used in admin/bookings and /consultation status lookup.
+ */
+export function BookingCardSkeleton() {
+  return (
+    <div className="bg-surface border border-chart-grid rounded-card p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-5 w-20 rounded-full" />
+      </div>
+      <Skeleton className="h-3 w-48" />
+      <div className="flex items-center gap-3 pt-1">
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+      <VitalLineSkeleton className="w-full mt-1" />
     </div>
   );
 }

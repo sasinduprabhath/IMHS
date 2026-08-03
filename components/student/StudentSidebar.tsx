@@ -145,7 +145,6 @@ export function StudentSidebar({ user }: { user: any }) {
                   collapsed && !isMobile ? "w-5 h-5" : "w-4 h-4",
                   active ? "text-white" : ""
                 )}
-                strokeWidth={1.75}
               />
               {(!collapsed || isMobile) && (
                 <span className="text-sm font-sans font-medium leading-none">{label}</span>

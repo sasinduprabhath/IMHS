@@ -27,8 +27,8 @@ export function Header() {
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-chart-grid shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        {/* Logo + Wordmark */}
+        <Link href="/" className="flex items-center gap-2.5 group">
           <Image
             src="/logo.png"
             alt="IMHS Logo"
@@ -37,6 +37,33 @@ export function Header() {
             className="h-10 w-auto object-contain"
             priority
           />
+          {/* Vital Line blip + Fraunces wordmark — md+ screens */}
+          <span className="hidden md:flex items-center gap-1.5 pl-1 border-l border-chart-grid ml-1">
+            <svg
+              width="22"
+              height="16"
+              viewBox="0 0 28 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="shrink-0 opacity-80"
+              aria-hidden="true"
+            >
+              <polyline
+                points="0,10 5,10 8,2 11,18 14,4 17,14 20,10 28,10"
+                stroke="#0E57A4"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+            <span
+              className="text-sm font-medium text-ink/70 group-hover:text-clinical-teal transition-colors duration-200 leading-none"
+              style={{ fontFamily: "var(--font-fraunces), serif" }}
+            >
+              IMHS
+            </span>
+          </span>
         </Link>
 
         {/* Desktop Nav */}
@@ -73,7 +100,7 @@ export function Header() {
               size="sm"
               className="gap-1.5 font-semibold text-xs bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-sm"
             >
-              <PhoneCall className="w-3.5 h-3.5 text-white" strokeWidth={1.75} />
+              <PhoneCall className="w-3.5 h-3.5 text-white" />
               Inquire / Enroll
             </Button>
           </Link>
@@ -83,7 +110,7 @@ export function Header() {
               size="sm"
               className="gap-1.5 font-semibold text-xs border-clinical-teal/40 text-clinical-teal hover:bg-clinical-teal hover:text-white transition-colors group bg-white shadow-xs"
             >
-              <LogIn className="w-3.5 h-3.5 text-clinical-teal group-hover:text-white transition-colors" strokeWidth={1.75} />
+              <LogIn className="w-3.5 h-3.5 text-clinical-teal group-hover:text-white transition-colors" />
               Portal Login
             </Button>
           </Link>
@@ -95,7 +122,7 @@ export function Header() {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           whileTap={{ scale: 0.9 }}
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={1.75} /> : <Menu className="w-6 h-6" strokeWidth={1.75} />}
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </motion.button>
       </div>
 

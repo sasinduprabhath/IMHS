@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
@@ -102,19 +101,42 @@ export function AdminSidebar({ user }: { user: any }) {
         )}
       >
         <Link href="/admin" className="flex items-center gap-2.5 min-w-0 group">
-          <Image
-            src="/logo.png"
-            alt="IMHS Admin"
-            width={110}
-            height={36}
-            className={cn(
-              "h-7 w-auto object-contain transition-all",
-              collapsed && !isMobile ? "hidden" : "block"
-            )}
-          />
-          {(collapsed && !isMobile) && (
+          {/* Expanded: Fraunces wordmark + Vital Line blip */}
+          {!(collapsed && !isMobile) && (
+            <div className="flex items-center gap-2 min-w-0">
+              {/* Vital Line blip: inline SVG accent */}
+              <svg
+                width="28"
+                height="20"
+                viewBox="0 0 28 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="shrink-0 opacity-90"
+                aria-hidden="true"
+              >
+                <polyline
+                  points="0,10 5,10 8,2 11,18 14,4 17,14 20,10 28,10"
+                  stroke="#0E57A4"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+              {/* IMHS in Fraunces */}
+              <span
+                className="font-display text-base font-medium text-ink leading-none tracking-tight group-hover:text-clinical-teal transition-colors duration-200"
+                style={{ fontFamily: "var(--font-fraunces), serif" }}
+              >
+                IMHS
+              </span>
+            </div>
+          )}
+
+          {/* Collapsed: teal shield icon */}
+          {collapsed && !isMobile && (
             <div className="w-8 h-8 rounded-lg bg-clinical-teal flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4 text-white" strokeWidth={1.75} />
+              <ShieldCheck className="w-4 h-4 text-white" />
             </div>
           )}
         </Link>
@@ -338,7 +360,30 @@ export function AdminSidebar({ user }: { user: any }) {
         </button>
 
         <Link href="/admin" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="IMHS" width={90} height={28} className="h-6 w-auto object-contain" />
+          <svg
+            width="22"
+            height="16"
+            viewBox="0 0 28 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="shrink-0 opacity-90"
+            aria-hidden="true"
+          >
+            <polyline
+              points="0,10 5,10 8,2 11,18 14,4 17,14 20,10 28,10"
+              stroke="#0E57A4"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+          <span
+            className="text-sm font-medium text-ink leading-none"
+            style={{ fontFamily: "var(--font-fraunces), serif" }}
+          >
+            IMHS
+          </span>
         </Link>
 
         <span className="ml-auto inline-flex items-center gap-1 font-mono text-[9px] uppercase bg-chart-red text-white px-2 py-0.5 rounded font-bold tracking-wider">
