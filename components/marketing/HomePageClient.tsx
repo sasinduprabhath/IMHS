@@ -163,6 +163,9 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           {/* Left Column: Headlines, Heartbeat, Mobile Image, Call-to-Actions */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
 
+            {/* Glossy 3D pill floating accent */}
+            <GlossyFloatingCapsule size={42} className="absolute -top-6 -left-8 hidden xl:block opacity-90" />
+
             {/* 1. Main Headline */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
