@@ -172,8 +172,10 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
             Filters {totalActiveFilters > 0 && `(${totalActiveFilters})`}
           </Button>
 
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-mono text-sage hidden sm:inline">Sort by:</label>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-mono text-sage whitespace-nowrap shrink-0 hidden sm:inline-block">
+              Sort by:
+            </span>
             <CustomSelect
               options={[
                 { value: "newest", label: "Release Date (newest first)" },
@@ -186,7 +188,7 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
               value={sortBy}
               onChange={setSortBy}
               placeholder="Sort Catalogue"
-              className="w-56"
+              className="w-56 shrink-0"
             />
           </div>
         </div>
