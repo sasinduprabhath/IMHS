@@ -151,7 +151,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ─────────────────────────────────────────────── */}
-      <section className="relative min-h-[88vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-6 sm:pt-24 pb-10 sm:pb-16 border-b border-[#E2E8F0] overflow-hidden"
+      <section className="relative min-h-[88vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-4 sm:pt-10 pb-10 sm:pb-16 border-b border-[#E2E8F0] overflow-hidden"
         style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 45%, #ffffff 100%)" }}>
         {/* Mesh gradient blobs */}
         <div className="absolute inset-0 pointer-events-none"

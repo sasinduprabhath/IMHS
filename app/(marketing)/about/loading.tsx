@@ -6,7 +6,7 @@ export default function AboutLoading() {
     <div className="min-h-screen bg-surface flex flex-col pt-28">
 
       {/* HERO SKELETON */}
-      <section className="relative bg-linen/40 border-b border-chart-grid pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-linen/40 border-b border-chart-grid pt-8 sm:pt-12 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-5">
           <Skeleton className="h-6 w-44 mx-auto rounded-full" />
           <Skeleton className="h-12 sm:h-16 w-3/4 mx-auto" />

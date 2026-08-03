@@ -322,22 +322,15 @@ function LoginForm() {
 // ─────────────────────────────────────────────────────────────
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex font-sans">
+    <div className="min-h-[calc(100vh-68px)] flex font-sans">
       {/* Left brand panel */}
       <div
-        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-between p-10 xl:p-14 relative overflow-hidden"
+        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center gap-10 p-10 xl:p-14 relative overflow-hidden"
         style={{ background: "linear-gradient(160deg, #071120 0%, #0A1628 50%, #0C1A30 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(ellipse 70% 60% at 20% 0%, rgba(14,87,164,.20) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 80% 100%, rgba(241,103,38,.10) 0%, transparent 50%)" }} />
         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#0E57A4] via-[#F16726] to-[#0E57A4]" />
-
-        <div className="relative z-10">
-          <Link href="/">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/footer-logo.png" alt="IMHS Logo" className="h-10 w-auto object-contain brightness-0 invert opacity-90" />
-          </Link>
-        </div>
 
         <div className="relative z-10 space-y-8">
           <div className="space-y-3">
@@ -372,7 +365,7 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        <div className="relative z-10 flex items-center gap-6">
+        <div className="relative z-10 flex items-center gap-6 pt-4 border-t border-white/10">
           {[
             { value: "3,500+", label: "Graduates" },
             { value: "2019",   label: "Established" },
@@ -393,13 +386,6 @@ export default function LoginPage() {
       >
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(ellipse 80% 60% at 80% 0%, rgba(14,87,164,.06) 0%, transparent 55%)" }} />
-
-        <div className="lg:hidden mb-8 text-center">
-          <Link href="/">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="IMHS" className="h-10 w-auto object-contain mx-auto" />
-          </Link>
-        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

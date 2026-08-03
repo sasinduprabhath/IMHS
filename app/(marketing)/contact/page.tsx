@@ -88,7 +88,7 @@ export default function ContactPage() {
     <div className="overflow-x-hidden bg-surface">
 
       {/* ── HERO (LIGHT MODE) ── */}
-      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-8 sm:pt-12 pb-16 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#F16726" size={400} className="-top-20 -right-20 opacity-15" />
         {/* DNA Helix right side */}
