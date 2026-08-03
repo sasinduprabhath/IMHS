@@ -116,10 +116,10 @@ export default async function AdminOverviewPage() {
           <div className="text-3xl font-mono font-bold text-ink mb-3">
             {isDbConnected ? totalStudents.toLocaleString() : "-"}
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
-            <p className="text-xs text-ink-muted">Registered learner accounts</p>
-            <Link href="/admin/students">
-              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+            <p className="text-xs text-ink-muted truncate min-w-0">Registered learners</p>
+            <Link href="/admin/students" className="shrink-0">
+              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer whitespace-nowrap">
                 Active Roster
               </span>
             </Link>
@@ -142,10 +142,10 @@ export default async function AdminOverviewPage() {
               </span>
             ) : "-"}
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
-            <p className="text-xs text-ink-muted">Published / total programs</p>
-            <Link href="/admin/courses">
-              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+            <p className="text-xs text-ink-muted truncate min-w-0">Published programs</p>
+            <Link href="/admin/courses" className="shrink-0">
+              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer whitespace-nowrap">
                 Live Catalog
               </span>
             </Link>
@@ -163,10 +163,10 @@ export default async function AdminOverviewPage() {
           <div className="text-3xl font-mono font-bold text-ink mb-3">
             {isDbConnected ? recentStudents.length : "-"}
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
-            <p className="text-xs text-ink-muted">Newly enrolled candidates</p>
-            <Link href="/admin/students">
-              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+            <p className="text-xs text-ink-muted truncate min-w-0">Newly enrolled</p>
+            <Link href="/admin/students" className="shrink-0">
+              <span className="text-[10px] font-mono font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-0.5 rounded-full hover:bg-clinical-teal/20 transition-colors cursor-pointer whitespace-nowrap">
                 Recent Enrollees
               </span>
             </Link>
@@ -192,10 +192,10 @@ export default async function AdminOverviewPage() {
             }`}>
             {isDbConnected ? contactInquiriesCount.toLocaleString() : "-"}
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-chart-grid/60">
-            <p className="text-xs text-ink-muted">Pending student inquiries</p>
-            <Link href="/admin/inquiries">
-              <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full cursor-pointer transition-colors ${contactInquiriesCount > 0
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-chart-grid/60">
+            <p className="text-xs text-ink-muted truncate min-w-0">Pending inquiries</p>
+            <Link href="/admin/inquiries" className="shrink-0">
+              <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full cursor-pointer transition-colors whitespace-nowrap ${contactInquiriesCount > 0
                   ? "text-white bg-chart-red hover:bg-chart-red-hover"
                   : "text-sage bg-linen border border-chart-grid"
                 }`}>
