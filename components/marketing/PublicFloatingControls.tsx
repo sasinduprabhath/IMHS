@@ -35,16 +35,16 @@ export function PublicFloatingControls() {
         {showScrollUp && (
           <motion.button
             key="scroll-up"
-            initial={{ opacity: 0, scale: 0.7, y: 10 }}
+            initial={{ opacity: 0, scale: 0.5, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.7, y: 10 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            exit={{ opacity: 0, scale: 0.5, y: 20 }}
+            transition={{ type: "spring", stiffness: 380, damping: 22 }}
             onClick={scrollToTop}
             aria-label="Scroll to top"
-            className="pointer-events-auto w-12 h-12 rounded-full bg-white/95 backdrop-blur-md border border-[#0E57A4]/20 text-[#0E57A4] shadow-md flex items-center justify-center hover:bg-[#0E57A4] hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 group"
+            className="pointer-events-auto w-12 h-12 rounded-full bg-white/95 backdrop-blur-md border border-[#0E57A4]/25 text-[#0E57A4] shadow-md flex items-center justify-center hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] hover:shadow-xl transition-all duration-300 ease-out hover:scale-110 active:scale-90 group"
             title="Scroll to top"
           >
-            <ArrowUp className="w-5 h-5 transition-transform group-hover:-translate-y-0.5" />
+            <ArrowUp className="w-5 h-5 transition-transform duration-300 ease-out group-hover:-translate-y-1 group-hover:scale-110" />
           </motion.button>
         )}
       </AnimatePresence>
