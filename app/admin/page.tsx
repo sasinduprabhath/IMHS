@@ -270,41 +270,42 @@ export default async function AdminOverviewPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-sm">
+                        <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-sm shrink-0">
                           {st.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-semibold text-sm text-ink">{st.name}</p>
-                          <span className="text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 px-1.5 py-0.5 rounded">
-                            Reg ID: {st.studentId || `IMPH${st.id.slice(0, 4).toUpperCase()}`}
+                          <span className="inline-flex items-center gap-1.5 mt-1 text-[10px] font-mono text-[#0E57A4] font-bold bg-[#EBF3FA] border border-[#BFDBFE] px-2 py-0.5 rounded-md whitespace-nowrap">
+                            <IdCard className="w-3 h-3 text-[#0E57A4] shrink-0" />
+                            <span>Reg ID: {st.studentId || `IWPH${st.id.slice(0, 4).toUpperCase()}`}</span>
                           </span>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-sage" />
+                      <ChevronRight className="w-4 h-4 text-sage shrink-0" />
                     </div>
                     <p className="text-xs text-ink-muted">{st.email}</p>
                   </Link>
                 ))}
               </div>
 
-              {/* Desktop table view */}
-              <div className="hidden md:block overflow-x-auto">
+              {/* Desktop table view (no horizontal scrollbar) */}
+              <div className="hidden md:block overflow-x-auto max-w-full">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-chart-grid bg-linen/40">
-                      <th className="px-5 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Student Name &amp; Reg ID
                       </th>
-                      <th className="px-5 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Contact Information
                       </th>
-                      <th className="px-5 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Enrolled Program(s)
                       </th>
-                      <th className="px-5 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Onboarded Date
                       </th>
-                      <th className="px-5 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold text-right">
+                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold text-right">
                         Action
                       </th>
                     </tr>
@@ -316,45 +317,45 @@ export default async function AdminOverviewPage() {
                         className="hover:bg-linen/30 transition-colors group"
                       >
                         {/* Student name + reg ID */}
-                        <td className="px-5 py-4">
+                        <td className="px-4 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/20 flex items-center justify-center font-bold text-clinical-teal text-sm shrink-0">
                               {st.name?.charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                              <p className="font-semibold text-sm text-ink leading-snug group-hover:text-clinical-teal transition-colors">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm text-ink leading-snug group-hover:text-clinical-teal transition-colors truncate max-w-[170px]" title={st.name}>
                                 {st.name}
                               </p>
-                              <span className="inline-flex items-center gap-1 mt-0.5 text-[10px] font-mono text-clinical-teal font-bold bg-clinical-teal/10 border border-clinical-teal/20 px-1.5 py-0.5 rounded">
-                                <IdCard className="w-2.5 h-2.5" />
-                                Reg ID: {st.studentId || `IMPH${st.id.slice(0, 4).toUpperCase()}`}
+                              <span className="inline-flex items-center gap-1.5 mt-1 text-[10px] font-mono text-[#0E57A4] font-bold bg-[#EBF3FA] border border-[#BFDBFE] px-2 py-0.5 rounded-md whitespace-nowrap shadow-xs">
+                                <IdCard className="w-3 h-3 text-[#0E57A4] shrink-0" />
+                                <span>Reg ID: {st.studentId || `IWPH${st.id.slice(0, 4).toUpperCase()}`}</span>
                               </span>
                             </div>
                           </div>
                         </td>
 
                         {/* Contact */}
-                        <td className="px-5 py-4">
-                          <p className="text-xs text-ink font-medium leading-snug">{st.email}</p>
+                        <td className="px-4 py-3.5">
+                          <p className="text-xs text-ink font-medium leading-snug truncate max-w-[180px]" title={st.email}>{st.email}</p>
                           <p className="text-[11px] text-clinical-teal font-mono mt-0.5">{st.phone || "-"}</p>
                         </td>
 
                         {/* Courses */}
-                        <td className="px-5 py-3 max-w-[220px]">
+                        <td className="px-4 py-3.5 max-w-[180px]">
                           {st.enrollments.length === 0 ? (
                             <span className="text-[10px] font-mono text-sage/60 bg-[#F5F7FA] px-2 py-0.5 rounded border border-[#E2E8F0] inline-block">No enrollments</span>
                           ) : (
                             <div className="flex flex-wrap items-center gap-1.5">
                               <span
                                 title={st.enrollments[0].course.title}
-                                className="text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded font-semibold max-w-[180px] truncate block"
+                                className="text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded font-semibold max-w-[150px] truncate block"
                               >
                                 {st.enrollments[0].course.title}
                               </span>
                               {st.enrollments.length > 1 && (
                                 <span
                                   title={st.enrollments.slice(1).map((e: any) => e.course.title).join(" | ")}
-                                  className="text-[10px] font-mono bg-[#F1F5F9] text-slate-500 border border-slate-200 px-2 py-0.5 rounded font-semibold cursor-help"
+                                  className="text-[10px] font-mono bg-[#F1F5F9] text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded font-semibold cursor-help"
                                 >
                                   +{st.enrollments.length - 1} more
                                 </span>
@@ -364,7 +365,7 @@ export default async function AdminOverviewPage() {
                         </td>
 
                         {/* Date */}
-                        <td className="px-5 py-4">
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <p className="text-xs font-mono text-ink">
                             {new Date(st.createdAt).toLocaleDateString("en-GB", {
                               day: "2-digit",
@@ -375,9 +376,9 @@ export default async function AdminOverviewPage() {
                         </td>
 
                         {/* Action */}
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-4 py-3.5 text-right whitespace-nowrap">
                           <Link href={`/admin/students/${st.id}`}>
-                            <button className="text-[11px] font-semibold font-mono text-ink border border-chart-grid hover:border-clinical-teal hover:text-clinical-teal px-3 py-1.5 rounded-lg transition-all duration-150 bg-white">
+                            <button className="text-[11px] font-semibold font-mono text-ink border border-chart-grid hover:border-clinical-teal hover:text-clinical-teal px-3 py-1.5 rounded-lg transition-all duration-150 bg-white shadow-xs">
                               Profile
                             </button>
                           </Link>
