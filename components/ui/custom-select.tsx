@@ -74,7 +74,7 @@ export function CustomSelect({
             animate={{ opacity: 1, y: 4, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-0 right-0 top-full z-50 mt-1 bg-surface border border-chart-grid rounded-card shadow-2xl overflow-hidden w-full max-w-full"
+            className="absolute right-0 top-full z-50 mt-1 bg-surface border border-chart-grid rounded-card shadow-2xl overflow-hidden min-w-full w-max max-w-[calc(100vw-2rem)]"
           >
             {/* Search filter if > 5 options */}
             {options.length > 5 && (

@@ -138,10 +138,10 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
   return (
     <div className="space-y-8">
       {/* Top Search Bar & Sort Dropdown */}
-      <div className="bg-surface border border-chart-grid rounded-card p-4 sm:p-5 shadow-paper flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="bg-surface border border-chart-grid rounded-card p-4 sm:p-5 shadow-paper flex flex-col md:flex-row gap-4 items-center justify-between overflow-hidden max-w-full">
         
         {/* Search Input */}
-        <div className="relative w-full md:max-w-md">
+        <div className="relative w-full flex-1 min-w-0 md:max-w-md">
           <Search className="w-4 h-4 absolute left-3.5 top-3 text-sage shrink-0" />
           <input
             type="text"
@@ -161,18 +161,18 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
         </div>
 
         {/* Mobile Filter Toggle & Sort Dropdown */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full md:w-auto justify-between md:justify-end min-w-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="md:hidden gap-1.5 text-xs font-mono"
+            className="md:hidden gap-1.5 text-xs font-mono shrink-0"
           >
             <Filter className="w-3.5 h-3.5 text-clinical-teal" />
             Filters {totalActiveFilters > 0 && `(${totalActiveFilters})`}
           </Button>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 min-w-0 shrink-0">
             <span className="text-xs font-mono text-sage whitespace-nowrap shrink-0 hidden sm:inline-block">
               Sort by:
             </span>
@@ -188,7 +188,7 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
               value={sortBy}
               onChange={setSortBy}
               placeholder="Sort Catalogue"
-              className="w-56 shrink-0"
+              className="w-48 sm:w-56 max-w-full shrink-0"
             />
           </div>
         </div>
