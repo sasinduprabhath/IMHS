@@ -45,20 +45,14 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-          {/* Wrap in bg div matching hero/header color so mix-blend-multiply removes white logo bg */}
-          <div
-            className="rounded overflow-hidden transition-all duration-300"
-            style={{ background: scrolled ? "#fff" : "#EBF3FA" }}
-          >
-            <Image
-              src="/logo.png"
-              alt="IMHS Logo"
-              width={160}
-              height={50}
-              className="h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90 mix-blend-multiply"
-              priority
-            />
-          </div>
+          <Image
+            src="/logo.png"
+            alt="IMHS Logo"
+            width={160}
+            height={50}
+            className="h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
