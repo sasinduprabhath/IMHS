@@ -89,26 +89,23 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   return (
     <div className="min-h-screen bg-linen/20">
 
-      {/* ── TOP NAV BAR (back link) ─────────────────────────────────────── */}
-      <div className="border-b border-chart-grid bg-white/80 backdrop-blur-sm sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center">
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-sage hover:text-clinical-teal transition-colors group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Back to Course Catalog
-          </Link>
-        </div>
-      </div>
-
       {/* ── MAIN LAYOUT ─────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
+
+        {/* Inline back link — plain text, no bar */}
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-sage hover:text-clinical-teal transition-colors group mb-6"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          Back to Course Catalog
+        </Link>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* ══ LEFT: POSTER IMAGE (sticky, tall) ═══════════════════════════ */}
           <div className="lg:col-span-4 xl:col-span-4">
-            <div className="sticky top-32">
+            <div className="sticky top-24">
               {/* Poster card */}
               <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid/50 bg-ink">
                 {coverSrc ? (
