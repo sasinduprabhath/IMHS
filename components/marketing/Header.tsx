@@ -46,12 +46,13 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
           <Image
-            src="/logo.png"
+            src="/logo-transparent.png"
             alt="IMHS Logo"
             width={160}
             height={50}
             className="h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90"
             priority
+            unoptimized
           />
         </Link>
 
