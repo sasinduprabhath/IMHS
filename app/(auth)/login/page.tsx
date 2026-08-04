@@ -25,12 +25,13 @@ const FEATURES = [
 async function collectDeviceSignature(): Promise<{ hash: string; info: string }> {
   try {
     const ua = navigator.userAgent;
+    let osCategory = "desktop";
     let os = "Desktop";
-    if (ua.includes("Windows")) os = "Windows PC";
-    else if (ua.includes("Mac OS")) os = "macOS";
-    else if (ua.includes("Android")) os = "Android Phone";
-    else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS Device";
-    else if (ua.includes("Linux")) os = "Linux";
+    if (ua.includes("Windows")) { osCategory = "windows"; os = "Windows PC"; }
+    else if (ua.includes("Mac OS")) { osCategory = "mac"; os = "macOS"; }
+    else if (ua.includes("Android")) { osCategory = "android"; os = "Android Phone"; }
+    else if (ua.includes("iPhone") || ua.includes("iPad")) { osCategory = "ios"; os = "iOS Device"; }
+    else if (ua.includes("Linux")) { osCategory = "linux"; os = "Linux"; }
 
     let browser = "Browser";
     if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
@@ -40,23 +41,46 @@ async function collectDeviceSignature(): Promise<{ hash: string; info: string }>
 
     const info = `${os} · ${browser} (${screen.width}x${screen.height})`;
 
+    // Hardware-first, OS-Update Proof fingerprint components
+    // Excludes volatile version strings (e.g. Chrome/122 or Android/14)
     const parts: string[] = [
-      navigator.userAgent,
+      osCategory,
       `${screen.width}x${screen.height}x${screen.colorDepth}`,
       String(navigator.hardwareConcurrency || 0),
-      navigator.language || "",
+      String((navigator as unknown as { deviceMemory?: number }).deviceMemory || 0),
       Intl.DateTimeFormat().resolvedOptions().timeZone || "",
     ];
 
+    // WebGL Hardware GPU Fingerprint (Unmasked GPU Renderer + Vendor)
     try {
       const canvas = document.createElement("canvas");
       const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl") as WebGLRenderingContext | null;
       if (gl) {
         const dbg = gl.getExtension("WEBGL_debug_renderer_info");
         if (dbg) {
-          parts.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "");
-          parts.push(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || "");
+          parts.push(String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || ""));
+          parts.push(String(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || ""));
         }
+      }
+    } catch { }
+
+    // Canvas rendering signature (hardware GPU rasterization output)
+    try {
+      const canvas2 = document.createElement("canvas");
+      canvas2.width = 200;
+      canvas2.height = 40;
+      const ctx = canvas2.getContext("2d");
+      if (ctx) {
+        ctx.textBaseline = "top";
+        ctx.font = "14px 'Arial'";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(125, 1, 62, 20);
+        ctx.fillStyle = "#069";
+        ctx.fillText("IMHS-DEVICE-LOCK-V1", 2, 15);
+        ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+        ctx.fillText("IMHS-DEVICE-LOCK-V1", 4, 17);
+        parts.push(canvas2.toDataURL().slice(-50));
       }
     } catch { }
 
@@ -69,7 +93,7 @@ async function collectDeviceSignature(): Promise<{ hash: string; info: string }>
     return { hash, info };
   } catch {
     return {
-      hash: `fallback-${navigator.userAgent.slice(0, 32)}-${screen.width}`,
+      hash: `fallback-${screen.width}x${screen.height}-${navigator.hardwareConcurrency || 0}`,
       info: `Web Browser (${screen.width}x${screen.height})`,
     };
   }
