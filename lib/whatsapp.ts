@@ -130,6 +130,28 @@ Please help me reactivate my course enrollment. Thank you!`;
 }
 
 /**
+ * Generate deep link for AI chatbot escalation to IMHS admin on WhatsApp
+ */
+export function createSupportEscalationWALink(
+  issue: string,
+  studentName?: string,
+  studentEmail?: string
+): string {
+  const cleanPhone = formatPhoneForWhatsApp(DEFAULT_PHONE);
+  const nameStr = studentName ? `\nStudent Name: ${studentName}` : "";
+  const emailStr = studentEmail ? `\nEmail: ${studentEmail}` : "";
+
+  const text = `Hello IMHS Help Desk,
+
+I need assistance with the following issue:
+*${issue}*${nameStr}${emailStr}
+
+I was referred here by the IMHS AI Support Assistant. Please help me resolve this. Thank you!`;
+
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+}
+
+/**
  * Generate Meta WhatsApp Cloud API JSON payload for a reaction message
  * Target endpoint: POST https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages
  */

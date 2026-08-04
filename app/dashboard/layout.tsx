@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { StudentSidebar } from "@/components/student/StudentSidebar";
+import { AISupportChat } from "@/components/student/AISupportChat";
 
 export default async function StudentLayout({
   children,
@@ -27,6 +28,9 @@ export default async function StudentLayout({
           {children}
         </div>
       </main>
+
+      {/* AI Support Chatbot — floats over entire dashboard */}
+      <AISupportChat />
     </div>
   );
 }
