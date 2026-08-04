@@ -385,39 +385,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   priority
                 />
               </div>
-
-              {/* Glassmorphic Overlay Badge 1: Top-Left SLMC Pass Rate */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="absolute -top-4 -left-4 z-20 bg-white/90 backdrop-blur-xl border border-white/60 shadow-lg px-4 py-2.5 rounded-2xl flex items-center gap-3"
-              >
-                <div className="relative flex items-center justify-center">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="absolute w-4 h-4 rounded-full bg-emerald-400 animate-ping opacity-75" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-sage font-bold">Official Standard</div>
-                  <div className="text-xs font-bold text-ink font-sans flex items-center gap-1">
-                    🏆 SLMC 98% Pass Rate
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Glassmorphic Overlay Badge 2: Bottom-Right Live Batch Tag */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="absolute -bottom-4 -right-4 z-20 bg-white/90 backdrop-blur-xl border border-white/60 shadow-lg px-4 py-2.5 rounded-2xl flex items-center gap-2.5"
-              >
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#F16726] font-bold">Upcoming Intake</div>
-                  <div className="text-xs font-bold text-ink font-sans">Next Batch: Sunday 9:00 AM</div>
-                </div>
-              </motion.div>
             </motion.div>
           </motion.div>
 
