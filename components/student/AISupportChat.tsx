@@ -28,7 +28,7 @@ const QUICK_PROMPTS = [
 ];
 
 function buildWALink(issue: string): string {
-  const text = `Hello IMHS Help Desk,\n\nI need assistance with: ${issue}\n\nI was referred here by the IMHS AI Support Assistant. Please help me resolve this. Thank you!`;
+  const text = `Hello IMHS Help Desk,\n\nI need assistance with: ${issue}\n\nI was referred here by the IMHS Support Assistant. Please help me resolve this. Thank you!`;
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
@@ -47,7 +47,6 @@ function sanitizeBotResponse(rawText: string): { clean: string; issue: string | 
 
   for (const line of lines) {
     const trimmed = line.trim();
-    // Skip meta-reasoning leak lines
     if (
       /^(user says|intent|scope|causes|solution|action|no reasoning|no preamble|plain text|bullet points|numbered steps|concise|end with)/i.test(
         trimmed
@@ -59,7 +58,6 @@ function sanitizeBotResponse(rawText: string): { clean: string; issue: string | 
       continue;
     }
 
-    // Strip markdown formatting symbols
     let cleaned = line
       .replace(/^\s*[\*\#]+\s*/, "")
       .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -71,7 +69,6 @@ function sanitizeBotResponse(rawText: string): { clean: string; issue: string | 
 
   let result = cleanLines.join("\n").trim();
 
-  // Deduplicate identical consecutive paragraphs
   const paragraphs = result.split(/\n\s*\n/);
   const uniqueParagraphs: string[] = [];
   for (const p of paragraphs) {
@@ -210,21 +207,19 @@ export function AISupportChat() {
   const [unread, setUnread] = useState(0);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const typingTimers = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
-  // Scroll to bottom when messages update
+  // Gentle scroll to bottom when user sends a message or new content arrives
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     if (isOpen) {
@@ -302,6 +297,7 @@ export function AISupportChat() {
 
       setMessages((prev) => [...prev, userMsg, botMsg]);
       setIsLoading(true);
+      setTimeout(scrollToBottom, 50);
       abortRef.current = new AbortController();
 
       try {
@@ -330,7 +326,6 @@ export function AISupportChat() {
           );
         }
 
-        // Clean & sanitize the final response
         const { clean, issue } = sanitizeBotResponse(rawText);
         const escalateLink = issue ? buildWALink(issue) : undefined;
 
@@ -354,7 +349,7 @@ export function AISupportChat() {
         abortRef.current = null;
       }
     },
-    [messages, isLoading, isOpen, startTypewriter]
+    [messages, isLoading, isOpen, startTypewriter, scrollToBottom]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -419,14 +414,14 @@ export function AISupportChat() {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Container: Responsive height using fixed flex column & min-h-0 */}
+            {/* Panel Container */}
             <motion.div
               key="panel"
               initial={{ opacity: 0, y: 20, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 360, damping: 30 }}
-              className="fixed z-50 flex flex-col bottom-0 right-0 left-0 md:bottom-6 md:right-6 md:left-auto w-full md:w-[390px] h-[85vh] md:h-[580px] max-h-[90vh] md:max-h-[580px] rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl bg-[#F6F9FD] border border-[#0E57A4]/15"
+              className="fixed z-50 flex flex-col bottom-0 right-0 left-0 md:bottom-6 md:right-6 md:left-auto w-full md:w-[390px] h-[85vh] md:h-[580px] rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl bg-[#F6F9FD] border border-[#0E57A4]/15"
             >
               {/* Header */}
               <div
@@ -440,7 +435,7 @@ export function AISupportChat() {
                   <div className="text-white font-bold text-sm tracking-tight">IMHS Support Assistant</div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,.8)]" />
-                    <span className="text-white/60 text-[11px]">Gemma AI &middot; Available 24/7</span>
+                    <span className="text-white/70 text-[11px] font-medium">IMHS Help Desk &middot; Available 24/7</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -462,12 +457,13 @@ export function AISupportChat() {
                 </div>
               </div>
 
-              {/* ── Messages Scroll Area ── */}
+              {/* ── Messages Scroll Area (100% Scrollable) ── */}
               <div
                 ref={scrollContainerRef}
-                className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-2"
+                className="flex-1 h-full min-h-0 overflow-y-auto px-4 py-4 space-y-2 select-text"
                 style={{
                   WebkitOverflowScrolling: "touch",
+                  touchAction: "pan-y",
                 }}
               >
                 {isEmpty && (
@@ -484,12 +480,12 @@ export function AISupportChat() {
                         <Sparkles className="w-7 h-7 text-yellow-300" />
                       </div>
                       <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-[#F6F9FD] flex items-center justify-center">
-                        <span className="text-[8px] text-white font-bold">AI</span>
+                        <span className="text-[8px] text-white font-bold">24/7</span>
                       </span>
                     </div>
 
                     <div className="text-center">
-                      <h3 className="font-bold text-[#1A1F2E] text-base">Hello! I am your IMHS AI Assistant</h3>
+                      <h3 className="font-bold text-[#1A1F2E] text-base">Hello! I am your IMHS Assistant</h3>
                       <p className="text-[13px] text-[#64748B] mt-1.5 leading-relaxed max-w-[280px]">
                         I can help with device locks, 2FA emails, video issues, and login problems.
                       </p>
@@ -538,16 +534,15 @@ export function AISupportChat() {
                     <p className="text-xs text-red-700">{error}</p>
                   </motion.div>
                 )}
-
-                <div ref={messagesEndRef} className="h-1 shrink-0" />
               </div>
 
-              {/* ── Input bar ── */}
+              {/* ── Input bar (No Focus Ring / No Double Border) ── */}
               <div
                 className="shrink-0 px-3 pb-3 pt-2 border-t border-[#E8EEF6]"
                 style={{ background: "rgba(246,249,253,0.95)" }}
               >
-                <div className="flex items-end gap-2 bg-white border border-[#DDE6F0] rounded-2xl px-3.5 py-2 shadow-sm focus-within:border-[#0E57A4]/50 focus-within:shadow-[0_0_0_3px_rgba(14,87,164,.07)] transition-all">
+                {/* Input box wrapper — clean border with no focus-within outline */}
+                <div className="flex items-end gap-2 bg-white border border-[#DDE6F0] rounded-2xl px-3.5 py-2 shadow-sm transition-colors">
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -560,7 +555,8 @@ export function AISupportChat() {
                     placeholder="Ask about the portal..."
                     rows={1}
                     disabled={isLoading || anyTyping}
-                    className="flex-1 bg-transparent text-sm text-[#1A1F2E] placeholder-[#94A3B8] resize-none outline-none leading-relaxed py-0.5 disabled:opacity-50 min-h-[22px] max-h-[96px]"
+                    className="flex-1 bg-transparent text-sm text-[#1A1F2E] placeholder-[#94A3B8] resize-none outline-none focus:outline-none focus:ring-0 focus:border-none focus-visible:outline-none focus-visible:ring-0 shadow-none focus:shadow-none leading-relaxed py-0.5 disabled:opacity-50 min-h-[22px] max-h-[96px]"
+                    style={{ outline: "none", boxShadow: "none", border: "none" }}
                   />
                   <button
                     onClick={() => sendMessage(input)}
@@ -585,9 +581,6 @@ export function AISupportChat() {
                     )}
                   </button>
                 </div>
-                <p className="text-[10px] text-[#B0BCCC] text-center mt-1.5">
-                  AI may not be 100% accurate &middot; For critical issues use WhatsApp
-                </p>
               </div>
             </motion.div>
           </>
