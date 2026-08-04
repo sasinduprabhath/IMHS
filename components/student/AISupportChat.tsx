@@ -11,11 +11,11 @@ type Role = "user" | "assistant";
 interface Message {
   id: string;
   role: Role;
-  rawContent: string;       // full streamed text (may still be streaming)
-  displayContent: string;   // what's currently shown (animated word-by-word)
+  rawContent: string;
+  displayContent: string;
   escalateLink?: string;
   isStreaming?: boolean;
-  isTyping?: boolean;       // word-by-word animation in progress
+  isTyping?: boolean;
 }
 
 // ── Config ─────────────────────────────────────────────────────────────────────
@@ -27,32 +27,67 @@ const QUICK_PROMPTS = [
   { icon: "🔑", label: "Login Problem", text: "I am unable to login to my portal account" },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
 function buildWALink(issue: string): string {
   const text = `Hello IMHS Help Desk,\n\nI need assistance with: ${issue}\n\nI was referred here by the IMHS AI Support Assistant. Please help me resolve this. Thank you!`;
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
-function extractEscalation(text: string): { clean: string; issue: string | null } {
-  const match = text.match(/\[ESCALATE:\s*(.+?)\]/i);
-  if (match) return { clean: text.replace(/\[ESCALATE:\s*.+?\]/gi, "").trim(), issue: match[1].trim() };
-  return { clean: text, issue: null };
+/** Robust sanitizer: removes meta reasoning, prompt leaks, markdown symbols, and duplicate paragraphs */
+function sanitizeBotResponse(rawText: string): { clean: string; issue: string | null } {
+  let issue: string | null = null;
+  const escMatch = rawText.match(/\[ESCALATE:\s*(.+?)\]/i);
+  if (escMatch) {
+    issue = escMatch[1].trim();
+  }
+
+  let text = rawText.replace(/\[ESCALATE:\s*.+?\]/gi, "");
+
+  const lines = text.split("\n");
+  const cleanLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Skip meta-reasoning leak lines
+    if (
+      /^(user says|intent|scope|causes|solution|action|no reasoning|no preamble|plain text|bullet points|numbered steps|concise|end with)/i.test(
+        trimmed
+      ) ||
+      /^[\*\-•]\s*(user says|intent|scope|causes|solution|action|no reasoning|no preamble)/i.test(
+        trimmed
+      )
+    ) {
+      continue;
+    }
+
+    // Strip markdown formatting symbols
+    let cleaned = line
+      .replace(/^\s*[\*\#]+\s*/, "")
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/\*(.+?)\*/g, "$1")
+      .replace(/`(.+?)`/g, "$1");
+
+    cleanLines.push(cleaned);
+  }
+
+  let result = cleanLines.join("\n").trim();
+
+  // Deduplicate identical consecutive paragraphs
+  const paragraphs = result.split(/\n\s*\n/);
+  const uniqueParagraphs: string[] = [];
+  for (const p of paragraphs) {
+    const pTrim = p.trim();
+    if (pTrim && uniqueParagraphs[uniqueParagraphs.length - 1] !== pTrim) {
+      uniqueParagraphs.push(pTrim);
+    }
+  }
+
+  return {
+    clean: uniqueParagraphs.join("\n\n"),
+    issue,
+  };
 }
 
-/** Strip markdown symbols and clean up formatting for plain text display */
-function cleanMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "$1")          // **bold** → bold
-    .replace(/\*(.+?)\*/g, "$1")               // *italic* → italic
-    .replace(/^#{1,6}\s+/gm, "")              // ## heading → heading
-    .replace(/^[\*\-]\s+/gm, "• ")            // * item or - item → • item
-    .replace(/`(.+?)`/g, "$1")                // `code` → code
-    .replace(/\[ESCALATE:.+?\]/gi, "")        // remove escalate tags (handled separately)
-    .replace(/\n{3,}/g, "\n\n")               // max 2 consecutive newlines
-    .trim();
-}
-
-// ── Formatted message text renderer ───────────────────────────────────────────
+// ── Text renderer ──────────────────────────────────────────────────────────────
 function FormattedText({ text }: { text: string }) {
   if (!text) return null;
 
@@ -62,14 +97,15 @@ function FormattedText({ text }: { text: string }) {
     <span className="space-y-1 block">
       {lines.map((line, i) => {
         if (!line.trim()) return <span key={i} className="block h-1.5" />;
-        const isBullet = line.startsWith("• ");
+        const isBullet = line.startsWith("- ") || line.startsWith("• ");
         const isNumbered = /^\d+\.\s/.test(line);
 
         if (isBullet) {
+          const content = line.replace(/^[\-•]\s*/, "");
           return (
             <span key={i} className="flex gap-2 items-start block">
-              <span className="text-[#0E57A4] mt-0.5 shrink-0 font-bold text-xs">•</span>
-              <span>{line.slice(2)}</span>
+              <span className="text-[#0E57A4] font-bold shrink-0 mt-0.5">•</span>
+              <span>{content}</span>
             </span>
           );
         }
@@ -78,7 +114,7 @@ function FormattedText({ text }: { text: string }) {
           const content = line.replace(/^\d+\.\s/, "");
           return (
             <span key={i} className="flex gap-2 items-start block">
-              <span className="text-[#0E57A4] font-bold text-xs shrink-0 mt-0.5 min-w-[14px]">{num}.</span>
+              <span className="text-[#0E57A4] font-bold shrink-0 mt-0.5 min-w-[14px]">{num}.</span>
               <span>{content}</span>
             </span>
           );
@@ -96,35 +132,38 @@ function MessageBubble({ msg }: { msg: Message }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className={cn("flex gap-2.5 mb-4", isUser && "flex-row-reverse")}
+      className={cn("flex gap-2.5 mb-3.5", isUser && "flex-row-reverse")}
     >
-      {/* AI avatar */}
       {!isUser && (
-        <div className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5 shadow-sm"
-          style={{ background: "linear-gradient(135deg, #0E57A4 0%, #1a6fc4 100%)" }}>
+        <div
+          className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5 shadow-sm"
+          style={{ background: "linear-gradient(135deg, #0E57A4 0%, #1a6fc4 100%)" }}
+        >
           <Bot className="w-3.5 h-3.5 text-white" />
         </div>
       )}
 
-      <div className={cn("flex flex-col gap-2 max-w-[82%]", isUser && "items-end")}>
-        {/* Bubble */}
-        <div className={cn(
-          "rounded-2xl px-4 py-3 text-sm leading-[1.65]",
-          isUser
-            ? "text-white rounded-tr-sm font-medium"
-            : "bg-white border border-[#E8EEF6] text-[#1A1F2E] rounded-tl-sm shadow-sm"
-        )}
+      <div className={cn("flex flex-col gap-2 max-w-[84%]", isUser && "items-end")}>
+        <div
+          className={cn(
+            "rounded-2xl px-4 py-3 text-sm leading-[1.65]",
+            isUser
+              ? "text-white rounded-tr-sm font-medium"
+              : "bg-white border border-[#E8EEF6] text-[#1A1F2E] rounded-tl-sm shadow-sm"
+          )}
           style={isUser ? { background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)" } : {}}
         >
-          {/* Typing dots while waiting for first token */}
           {!isUser && msg.isStreaming && msg.displayContent === "" ? (
             <span className="inline-flex items-center gap-1.5 py-0.5">
               {[0, 1, 2].map((i) => (
-                <span key={i} className="w-1.5 h-1.5 rounded-full bg-[#0E57A4]/50 animate-bounce"
-                  style={{ animationDelay: `${i * 0.18}s`, animationDuration: "1s" }} />
+                <span
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-[#0E57A4]/50 animate-bounce"
+                  style={{ animationDelay: `${i * 0.18}s`, animationDuration: "1s" }}
+                />
               ))}
             </span>
           ) : isUser ? (
@@ -133,13 +172,11 @@ function MessageBubble({ msg }: { msg: Message }) {
             <FormattedText text={msg.displayContent} />
           )}
 
-          {/* Cursor blink */}
           {showCursor && msg.displayContent !== "" && (
             <span className="inline-block w-[2px] h-[14px] bg-[#0E57A4] ml-0.5 animate-pulse align-text-bottom rounded-full" />
           )}
         </div>
 
-        {/* WhatsApp CTA */}
         {msg.escalateLink && !msg.isStreaming && !msg.isTyping && (
           <motion.a
             href={msg.escalateLink}
@@ -147,7 +184,7 @@ function MessageBubble({ msg }: { msg: Message }) {
             rel="noopener noreferrer"
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
             className="inline-flex items-center gap-2 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
             style={{ background: "linear-gradient(135deg, #25D366 0%, #20b858 100%)" }}
           >
@@ -172,146 +209,153 @@ export function AISupportChat() {
   const [error, setError] = useState<string | null>(null);
   const [unread, setUnread] = useState(0);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const typingTimers = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
-  // Scroll to bottom whenever messages change
+  // Scroll to bottom when messages update
+  const scrollToBottom = useCallback(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, []);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 150);
       setUnread(0);
+      setTimeout(scrollToBottom, 100);
     }
-  }, [isOpen]);
+  }, [isOpen, scrollToBottom]);
 
-  // Clean up all timers on unmount
   useEffect(() => {
     return () => {
       typingTimers.current.forEach((t) => clearInterval(t));
     };
   }, []);
 
-  /** Start word-by-word typewriter animation for a finished message */
-  const startTypewriter = useCallback((msgId: string, fullText: string) => {
-    const words = fullText.split(" ").filter(Boolean);
-    let wordIndex = 0;
+  /** Typewriter animation word by word */
+  const startTypewriter = useCallback(
+    (msgId: string, fullText: string) => {
+      const words = fullText.split(" ").filter(Boolean);
+      let wordIndex = 0;
 
-    // Mark as typing
-    setMessages((prev) =>
-      prev.map((m) => m.id === msgId ? { ...m, isTyping: true, displayContent: "" } : m)
-    );
-
-    const timer = setInterval(() => {
-      wordIndex++;
-      const displayed = words.slice(0, wordIndex).join(" ");
       setMessages((prev) =>
-        prev.map((m) => m.id === msgId ? { ...m, displayContent: displayed } : m)
+        prev.map((m) => (m.id === msgId ? { ...m, isTyping: true, displayContent: "" } : m))
       );
 
-      if (wordIndex >= words.length) {
-        clearInterval(timer);
-        typingTimers.current.delete(msgId);
+      const timer = setInterval(() => {
+        wordIndex++;
+        const displayed = words.slice(0, wordIndex).join(" ");
         setMessages((prev) =>
-          prev.map((m) => m.id === msgId ? { ...m, isTyping: false } : m)
+          prev.map((m) => (m.id === msgId ? { ...m, displayContent: displayed } : m))
         );
-        // Scroll to bottom after typing completes
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 35); // ~35ms per word → natural reading pace
+        scrollToBottom();
 
-    typingTimers.current.set(msgId, timer);
-  }, []);
+        if (wordIndex >= words.length) {
+          clearInterval(timer);
+          typingTimers.current.delete(msgId);
+          setMessages((prev) =>
+            prev.map((m) => (m.id === msgId ? { ...m, isTyping: false } : m))
+          );
+          scrollToBottom();
+        }
+      }, 30);
 
-  const sendMessage = useCallback(async (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || isLoading) return;
-    setError(null);
-    setInput("");
+      typingTimers.current.set(msgId, timer);
+    },
+    [scrollToBottom]
+  );
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      rawContent: trimmed,
-      displayContent: trimmed,
-    };
-    const botId = (Date.now() + 1).toString();
-    const botMsg: Message = {
-      id: botId,
-      role: "assistant",
-      rawContent: "",
-      displayContent: "",
-      isStreaming: true,
-    };
+  const sendMessage = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isLoading) return;
+      setError(null);
+      setInput("");
 
-    const history = [...messages, userMsg].map((m) => ({
-      role: m.role === "user" ? ("user" as const) : ("model" as const),
-      content: m.rawContent,
-    }));
+      const userMsg: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        rawContent: trimmed,
+        displayContent: trimmed,
+      };
+      const botId = (Date.now() + 1).toString();
+      const botMsg: Message = {
+        id: botId,
+        role: "assistant",
+        rawContent: "",
+        displayContent: "",
+        isStreaming: true,
+      };
 
-    setMessages((prev) => [...prev, userMsg, botMsg]);
-    setIsLoading(true);
-    abortRef.current = new AbortController();
+      const history = [...messages, userMsg].map((m) => ({
+        role: m.role === "user" ? ("user" as const) : ("model" as const),
+        content: m.rawContent,
+      }));
 
-    try {
-      const res = await fetch("/api/student/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history }),
-        signal: abortRef.current.signal,
-      });
+      setMessages((prev) => [...prev, userMsg, botMsg]);
+      setIsLoading(true);
+      abortRef.current = new AbortController();
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: "Unknown error" }));
-        throw new Error(errData.error || `HTTP ${res.status}`);
-      }
+      try {
+        const res = await fetch("/api/student/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: history }),
+          signal: abortRef.current.signal,
+        });
 
-      const reader = res.body!.getReader();
-      const decoder = new TextDecoder();
-      let rawText = "";
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
 
-      // Collect the full streamed response (show typing dots during this phase)
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        rawText += decoder.decode(value, { stream: true });
-        // Update rawContent but keep displayContent empty while streaming
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let rawText = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          rawText += decoder.decode(value, { stream: true });
+          setMessages((prev) =>
+            prev.map((m) => (m.id === botId ? { ...m, rawContent: rawText } : m))
+          );
+        }
+
+        // Clean & sanitize the final response
+        const { clean, issue } = sanitizeBotResponse(rawText);
+        const escalateLink = issue ? buildWALink(issue) : undefined;
+
         setMessages((prev) =>
-          prev.map((m) => m.id === botId ? { ...m, rawContent: rawText } : m)
+          prev.map((m) =>
+            m.id === botId
+              ? { ...m, rawContent: clean, displayContent: "", isStreaming: false, escalateLink }
+              : m
+          )
         );
+
+        startTypewriter(botId, clean);
+
+        if (!isOpen) setUnread((n) => n + 1);
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+        setError(err.message || "Something went wrong. Please try again.");
+        setMessages((prev) => prev.filter((m) => m.id !== botId));
+      } finally {
+        setIsLoading(false);
+        abortRef.current = null;
       }
-
-      // Clean the response text
-      const { clean, issue } = extractEscalation(rawText);
-      const formatted = cleanMarkdown(clean);
-      const escalateLink = issue ? buildWALink(issue) : undefined;
-
-      // Mark streaming as done, clear display, start typewriter
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === botId
-            ? { ...m, rawContent: formatted, displayContent: "", isStreaming: false, escalateLink }
-            : m
-        )
-      );
-
-      // Start word-by-word animation
-      startTypewriter(botId, formatted);
-
-      if (!isOpen) setUnread((n) => n + 1);
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
-      setError(err.message || "Something went wrong. Please try again.");
-      setMessages((prev) => prev.filter((m) => m.id !== botId));
-    } finally {
-      setIsLoading(false);
-      abortRef.current = null;
-    }
-  }, [messages, isLoading, isOpen, startTypewriter]);
+    },
+    [messages, isLoading, isOpen, startTypewriter]
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -334,7 +378,7 @@ export function AISupportChat() {
 
   return (
     <>
-      {/* ── Floating Trigger ── */}
+      {/* ── Floating Trigger Button ── */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -345,16 +389,12 @@ export function AISupportChat() {
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
             onClick={() => setIsOpen(true)}
             aria-label="Open AI Support Chat"
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-full text-white font-semibold text-sm select-none"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-full text-white font-semibold text-sm select-none shadow-2xl hover:scale-105 transition-all duration-300"
             style={{
               background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)",
-              boxShadow: "0 8px 32px rgba(14,87,164,.45), 0 2px 8px rgba(0,0,0,.15)",
             }}
           >
-            {/* Pulse ring */}
-            <span className="absolute inset-0 rounded-full animate-ping opacity-20"
-              style={{ background: "rgba(14,87,164,.6)" }} />
-            <Sparkles className="w-4 h-4 text-yellow-300 shrink-0 drop-shadow-sm" />
+            <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
             <span>AI Support</span>
             {unread > 0 && (
               <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 leading-none ml-0.5">
@@ -369,32 +409,30 @@ export function AISupportChat() {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Mobile overlay */}
+            {/* Mobile backdrop */}
             <motion.div
               key="overlay"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
               onClick={() => setIsOpen(false)}
             />
 
+            {/* Container: Responsive height using fixed flex column & min-h-0 */}
             <motion.div
               key="panel"
               initial={{ opacity: 0, y: 20, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 360, damping: 30 }}
-              className="fixed z-50 flex flex-col bottom-0 right-0 left-0 md:bottom-6 md:right-6 md:left-auto md:w-[390px] md:h-[600px] rounded-t-3xl md:rounded-2xl overflow-hidden"
-              style={{
-                height: "90svh",
-                background: "#F6F9FD",
-                boxShadow: "0 32px 80px rgba(14,87,164,.20), 0 8px 24px rgba(0,0,0,.10)",
-                border: "1px solid rgba(14,87,164,.12)",
-              }}
+              className="fixed z-50 flex flex-col bottom-0 right-0 left-0 md:bottom-6 md:right-6 md:left-auto w-full md:w-[390px] h-[85vh] md:h-[580px] max-h-[90vh] md:max-h-[580px] rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl bg-[#F6F9FD] border border-[#0E57A4]/15"
             >
-              {/* ── Header ── */}
-              <div className="shrink-0 flex items-center gap-3 px-4 py-4"
-                style={{ background: "linear-gradient(135deg, #0a4a96 0%, #0E57A4 50%, #1565c0 100%)" }}>
-                {/* Logo / icon */}
+              {/* Header */}
+              <div
+                className="shrink-0 flex items-center gap-3 px-4 py-3.5"
+                style={{ background: "linear-gradient(135deg, #0a4a96 0%, #0E57A4 50%, #1565c0 100%)" }}
+              >
                 <div className="w-9 h-9 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
                   <Sparkles className="w-4.5 h-4.5 text-yellow-300" />
                 </div>
@@ -407,31 +445,42 @@ export function AISupportChat() {
                 </div>
                 <div className="flex items-center gap-1">
                   {messages.length > 0 && !anyTyping && (
-                    <button onClick={clearChat}
-                      className="px-2.5 py-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors text-xs font-medium">
+                    <button
+                      onClick={clearChat}
+                      className="px-2.5 py-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors text-xs font-medium"
+                    >
                       Clear
                     </button>
                   )}
-                  <button onClick={() => setIsOpen(false)} aria-label="Close"
-                    className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition-colors">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    aria-label="Close"
+                    className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition-colors"
+                  >
                     <ChevronDown className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {/* ── Messages area (SCROLLABLE) ── */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 scroll-smooth"
-                style={{ overscrollBehavior: "contain" }}>
-                {/* Welcome state */}
+              {/* ── Messages Scroll Area ── */}
+              <div
+                ref={scrollContainerRef}
+                className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-2"
+                style={{
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
                 {isEmpty && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center gap-5 pt-4 pb-2"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center gap-5 pt-3 pb-2"
                   >
-                    {/* Decorative icon */}
                     <div className="relative">
-                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-                        style={{ background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)" }}>
+                      <div
+                        className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center shadow-lg"
+                        style={{ background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)" }}
+                      >
                         <Sparkles className="w-7 h-7 text-yellow-300" />
                       </div>
                       <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-[#F6F9FD] flex items-center justify-center">
@@ -446,11 +495,13 @@ export function AISupportChat() {
                       </p>
                     </div>
 
-                    {/* Quick prompt chips */}
                     <div className="w-full grid grid-cols-2 gap-2">
                       {QUICK_PROMPTS.map((p) => (
-                        <button key={p.label} onClick={() => sendMessage(p.text)}
-                          className="group flex flex-col gap-1.5 p-3.5 bg-white border border-[#E8EEF6] rounded-2xl text-left hover:border-[#0E57A4]/40 hover:shadow-[0_4px_16px_rgba(14,87,164,.10)] transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
+                        <button
+                          key={p.label}
+                          onClick={() => sendMessage(p.text)}
+                          className="group flex flex-col gap-1.5 p-3.5 bg-white border border-[#E8EEF6] rounded-2xl text-left hover:border-[#0E57A4]/40 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+                        >
                           <span className="text-xl leading-none">{p.icon}</span>
                           <span className="text-[12px] font-semibold text-[#1A1F2E] group-hover:text-[#0E57A4] transition-colors leading-tight">
                             {p.label}
@@ -461,33 +512,42 @@ export function AISupportChat() {
 
                     <p className="text-[11px] text-[#94A3B8] text-center">
                       Need urgent help?{" "}
-                      <a href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer"
-                        className="text-[#25D366] font-semibold hover:underline">
+                      <a
+                        href={`https://wa.me/${WA_NUMBER}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#25D366] font-semibold hover:underline"
+                      >
                         Contact admin on WhatsApp
                       </a>
                     </p>
                   </motion.div>
                 )}
 
-                {/* Messages */}
-                {messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)}
+                {messages.map((msg) => (
+                  <MessageBubble key={msg.id} msg={msg} />
+                ))}
 
-                {/* Error */}
                 {error && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-3 mb-3">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-3"
+                  >
                     <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                     <p className="text-xs text-red-700">{error}</p>
                   </motion.div>
                 )}
 
-                <div ref={messagesEndRef} className="h-1" />
+                <div ref={messagesEndRef} className="h-1 shrink-0" />
               </div>
 
               {/* ── Input bar ── */}
-              <div className="shrink-0 px-3 pb-4 pt-2 border-t border-[#E8EEF6]"
-                style={{ background: "rgba(246,249,253,0.95)", backdropFilter: "blur(12px)" }}>
-                <div className="flex items-end gap-2 bg-white border border-[#DDE6F0] rounded-2xl px-3.5 py-2.5 shadow-sm transition-all duration-200 focus-within:border-[#0E57A4]/50 focus-within:shadow-[0_0_0_3px_rgba(14,87,164,.07)]">
+              <div
+                className="shrink-0 px-3 pb-3 pt-2 border-t border-[#E8EEF6]"
+                style={{ background: "rgba(246,249,253,0.95)" }}
+              >
+                <div className="flex items-end gap-2 bg-white border border-[#DDE6F0] rounded-2xl px-3.5 py-2 shadow-sm focus-within:border-[#0E57A4]/50 focus-within:shadow-[0_0_0_3px_rgba(14,87,164,.07)] transition-all">
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -511,15 +571,21 @@ export function AISupportChat() {
                         ? "text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95"
                         : "bg-[#F1F5F9] text-[#CBD5E1] cursor-not-allowed"
                     )}
-                    style={input.trim() && !isLoading && !anyTyping
-                      ? { background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)" }
-                      : {}}
+                    style={
+                      input.trim() && !isLoading && !anyTyping
+                        ? { background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)" }
+                        : {}
+                    }
                     aria-label="Send"
                   >
-                    {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                    {isLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Send className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 </div>
-                <p className="text-[10px] text-[#B0BCCC] text-center mt-2">
+                <p className="text-[10px] text-[#B0BCCC] text-center mt-1.5">
                   AI may not be 100% accurate &middot; For critical issues use WhatsApp
                 </p>
               </div>
