@@ -128,7 +128,13 @@ export async function POST(req: NextRequest) {
     ],
   };
 
-  const models = ["gemma-3-27b-it", "gemini-2.0-flash-lite", "gemini-1.5-flash-8b"];
+  // Fallback order: Gemma 4 31B → Gemma 4 26B → Gemini 3.5 Flash Lite → Gemini 3.1 Flash Lite
+  const models = [
+    "gemma-4-31b-it",        // Gemma 4 31B (primary)
+    "gemma-4-26b-a4b-it",    // Gemma 4 26B (fallback 1)
+    "gemini-3.5-flash-lite", // Gemini 3.5 Flash Lite (fallback 2)
+    "gemini-3.1-flash-lite", // Gemini 3.1 Flash Lite (fallback 3)
+  ];
   let upstreamResponse: Response | null = null;
   let usedModel = "";
 
