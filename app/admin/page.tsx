@@ -293,20 +293,17 @@ export default async function AdminOverviewPage() {
                 <table className="w-full text-left table-fixed">
                   <thead>
                     <tr className="border-b border-chart-grid bg-linen/40">
-                      <th className="w-[32%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[35%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Student Name &amp; Reg ID
                       </th>
-                      <th className="w-[26%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[30%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Contact Information
                       </th>
                       <th className="w-[22%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Enrolled Program(s)
                       </th>
-                      <th className="w-[12%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[13%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Onboarded Date
-                      </th>
-                      <th className="w-[8%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold text-right">
-                        Action
                       </th>
                     </tr>
                   </thead>
@@ -323,9 +320,13 @@ export default async function AdminOverviewPage() {
                               {st.name?.charAt(0).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <p className="font-semibold text-sm text-ink leading-snug group-hover:text-clinical-teal transition-colors truncate max-w-[170px]" title={st.name}>
+                              <Link
+                                href={`/admin/students/${st.id}`}
+                                className="font-semibold text-sm text-ink leading-snug hover:text-clinical-teal transition-colors truncate max-w-[190px] block"
+                                title={st.name}
+                              >
                                 {st.name}
-                              </p>
+                              </Link>
                               <span className="inline-flex items-center gap-1.5 mt-1 text-[10px] font-mono text-[#0E57A4] font-bold bg-[#EBF3FA] border border-[#BFDBFE] px-2 py-0.5 rounded-md whitespace-nowrap shadow-xs">
                                 <IdCard className="w-3 h-3 text-[#0E57A4] shrink-0" />
                                 <span>Reg ID: {st.studentId || `IWPH${st.id.slice(0, 4).toUpperCase()}`}</span>
@@ -336,7 +337,7 @@ export default async function AdminOverviewPage() {
 
                         {/* Contact */}
                         <td className="px-4 py-3.5">
-                          <p className="text-xs text-ink font-medium leading-snug truncate max-w-[180px]" title={st.email}>{st.email}</p>
+                          <p className="text-xs text-ink font-medium leading-snug truncate max-w-[200px]" title={st.email}>{st.email}</p>
                           <p className="text-[11px] text-clinical-teal font-mono mt-0.5">{st.phone || "-"}</p>
                         </td>
 
@@ -373,15 +374,6 @@ export default async function AdminOverviewPage() {
                               year: "numeric",
                             })}
                           </p>
-                        </td>
-
-                        {/* Action */}
-                        <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                          <Link href={`/admin/students/${st.id}`}>
-                            <button className="text-[11px] font-semibold font-mono text-ink border border-chart-grid hover:border-clinical-teal hover:text-clinical-teal px-3 py-1.5 rounded-lg transition-all duration-150 bg-white shadow-xs">
-                              Profile
-                            </button>
-                          </Link>
                         </td>
                       </tr>
                     ))}
