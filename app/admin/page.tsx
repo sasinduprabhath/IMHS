@@ -288,24 +288,24 @@ export default async function AdminOverviewPage() {
                 ))}
               </div>
 
-              {/* Desktop table view (no horizontal scrollbar) */}
-              <div className="hidden md:block overflow-x-auto max-w-full">
-                <table className="w-full text-left">
+              {/* Desktop table view (strictly no horizontal scrollbar) */}
+              <div className="hidden md:block overflow-hidden w-full">
+                <table className="w-full text-left table-fixed">
                   <thead>
                     <tr className="border-b border-chart-grid bg-linen/40">
-                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[32%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Student Name &amp; Reg ID
                       </th>
-                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[26%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Contact Information
                       </th>
-                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[22%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Enrolled Program(s)
                       </th>
-                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
+                      <th className="w-[12%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold">
                         Onboarded Date
                       </th>
-                      <th className="px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold text-right">
+                      <th className="w-[8%] px-4 py-3 text-[10px] font-mono uppercase tracking-wider text-sage font-bold text-right">
                         Action
                       </th>
                     </tr>
