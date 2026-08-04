@@ -1,6 +1,6 @@
 import React from "react";
 import { Footer } from "@/components/marketing/Footer";
-import { FloatingWhatsApp } from "@/components/marketing/FloatingWhatsApp";
+import { PublicFloatingControls } from "@/components/marketing/PublicFloatingControls";
 
 export default function MarketingLayout({
   children,
@@ -11,7 +11,7 @@ export default function MarketingLayout({
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">{children}</main>
       <Footer />
-      <FloatingWhatsApp />
+      <PublicFloatingControls />
     </div>
   );
 }
