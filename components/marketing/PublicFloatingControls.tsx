@@ -29,7 +29,7 @@ export function PublicFloatingControls() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3 pointer-events-none">
       {/* ── Scroll To Top Button ── */}
       <AnimatePresence>
         {showScrollUp && (
@@ -41,7 +41,7 @@ export function PublicFloatingControls() {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             onClick={scrollToTop}
             aria-label="Scroll to top"
-            className="pointer-events-auto w-11 h-11 rounded-full bg-white/90 backdrop-blur-md border border-[#0E57A4]/20 text-[#0E57A4] shadow-lg flex items-center justify-center hover:bg-[#0E57A4] hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 group"
+            className="pointer-events-auto w-12 h-12 rounded-full bg-white/95 backdrop-blur-md border border-[#0E57A4]/20 text-[#0E57A4] shadow-md flex items-center justify-center hover:bg-[#0E57A4] hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 group"
             title="Scroll to top"
           >
             <ArrowUp className="w-5 h-5 transition-transform group-hover:-translate-y-0.5" />

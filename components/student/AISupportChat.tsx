@@ -404,7 +404,7 @@ export function AISupportChat({ triggerClassName }: { triggerClassName?: string 
 
   return (
     <>
-      {/* ── Floating Trigger Button (Icon Only Circle) ── */}
+      {/* ── Floating Trigger Button (Clean Icon-Only Circle) ── */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -416,22 +416,14 @@ export function AISupportChat({ triggerClassName }: { triggerClassName?: string 
             onClick={() => setIsOpen(true)}
             aria-label="Open AI Support Chat"
             className={cn(
-              "w-13 h-13 rounded-full text-white font-semibold select-none shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center relative group",
+              "w-12 h-12 rounded-full text-white font-semibold select-none shadow-md hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center relative group bg-[#0E57A4] hover:bg-[#0c4a8e]",
               triggerClassName || "fixed bottom-6 right-6 z-50"
             )}
-            style={{
-              background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)",
-            }}
             title="IMHS Support Assistant"
           >
-            {/* Subtle glow ring */}
-            <span
-              className="absolute inset-0 rounded-full animate-ping opacity-25"
-              style={{ background: "rgba(14,87,164,.6)" }}
-            />
-            <Sparkles className="w-5.5 h-5.5 text-yellow-300 shrink-0 drop-shadow-sm transition-transform group-hover:rotate-12" />
+            <Sparkles className="w-5 h-5 text-yellow-300 shrink-0 drop-shadow-xs transition-transform group-hover:rotate-12" />
             {unread > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 leading-none shadow-sm border-2 border-white">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 leading-none shadow-xs border-2 border-white">
                 {unread}
               </span>
             )}
