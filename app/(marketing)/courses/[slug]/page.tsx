@@ -90,7 +90,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
     <div className="min-h-screen bg-linen/20">
 
       {/* ── MAIN LAYOUT ─────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12">
 
         {/* Inline back link — plain text, no bar */}
         <Link
@@ -107,27 +107,27 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
           <div className="lg:col-span-4 xl:col-span-4">
             <div className="sticky top-24">
               {/* Poster card */}
-              <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid/50 bg-ink">
+              <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid/50 bg-[#0A121E]">
                 {coverSrc ? (
-                  <div className="relative w-full aspect-[3/5]">
+                  <div className="relative w-full aspect-[1/1.4] bg-slate-950/80">
                     <Image
                       src={coverSrc}
                       alt={course.title}
                       fill
-                      className="object-cover object-top"
+                      className="object-contain p-1"
                       priority
                       unoptimized={coverSrc.startsWith("http")}
                     />
                     {/* Subtle bottom gradient for badge legibility */}
-                    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ink/80 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent pointer-events-none" />
                     {/* Course code badge on poster */}
-                    <div className="absolute bottom-4 left-4">
-                      <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold text-white bg-ink/60 backdrop-blur-sm border border-white/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    <div className="absolute bottom-3 left-3">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold text-white bg-ink/75 backdrop-blur-sm border border-white/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
                         {courseCode}
                       </span>
                     </div>
                     {/* Stars top right */}
-                    <div className="absolute top-3 right-3 flex items-center gap-0.5 bg-ink/50 backdrop-blur-sm rounded-full px-2 py-1">
+                    <div className="absolute top-3 right-3 flex items-center gap-0.5 bg-ink/60 backdrop-blur-sm rounded-full px-2 py-1">
                       {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 fill-chart-red text-chart-red" />)}
                     </div>
                   </div>
