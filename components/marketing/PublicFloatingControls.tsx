@@ -51,7 +51,7 @@ export function PublicFloatingControls() {
 
       {/* ── AI Assistant Chatbot Widget (Accessible without login) ── */}
       <div className="pointer-events-auto">
-        <AISupportChat />
+        <AISupportChat triggerClassName="relative bottom-auto right-auto z-auto" />
       </div>
     </div>
   );

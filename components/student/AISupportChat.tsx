@@ -198,7 +198,7 @@ function MessageBubble({ msg }: { msg: Message }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
-export function AISupportChat() {
+export function AISupportChat({ triggerClassName }: { triggerClassName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -404,7 +404,7 @@ export function AISupportChat() {
 
   return (
     <>
-      {/* ── Floating Trigger Button ── */}
+      {/* ── Floating Trigger Button (Icon Only Circle) ── */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -415,15 +415,23 @@ export function AISupportChat() {
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
             onClick={() => setIsOpen(true)}
             aria-label="Open AI Support Chat"
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-full text-white font-semibold text-sm select-none shadow-2xl hover:scale-105 transition-all duration-300"
+            className={cn(
+              "w-13 h-13 rounded-full text-white font-semibold select-none shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center relative group",
+              triggerClassName || "fixed bottom-6 right-6 z-50"
+            )}
             style={{
               background: "linear-gradient(135deg, #0E57A4 0%, #1565c0 100%)",
             }}
+            title="IMHS Support Assistant"
           >
-            <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
-            <span>AI Support</span>
+            {/* Subtle glow ring */}
+            <span
+              className="absolute inset-0 rounded-full animate-ping opacity-25"
+              style={{ background: "rgba(14,87,164,.6)" }}
+            />
+            <Sparkles className="w-5.5 h-5.5 text-yellow-300 shrink-0 drop-shadow-sm transition-transform group-hover:rotate-12" />
             {unread > 0 && (
-              <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 leading-none ml-0.5">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 leading-none shadow-sm border-2 border-white">
                 {unread}
               </span>
             )}
