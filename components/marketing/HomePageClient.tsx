@@ -1,85 +1,34 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import { VitalLine } from "@/components/ui/vital-line";
-import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { DoseCurve } from "@/components/marketing/DoseCurve";
-import { BlisterDivider } from "@/components/marketing/BlisterDivider";
+import { ECGScanWave, RxCredentialBadge } from "@/components/marketing/PharmacyAnimations";
+import { RevealOnScroll, StaggerChildren, StaggerItem } from "@/components/ui/animations";
+import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 import {
-  MedicalScannerBeam,
-} from "@/components/marketing/PharmacyAnimations";
-import {
-  RevealOnScroll,
-  StaggerChildren,
-  StaggerItem,
-  HoverCard,
-} from "@/components/ui/animations";
-import {
-  CourseCardSkeleton,
-} from "@/components/ui/skeleton";
-import {
-  PhoneCall,
-  BookOpen,
-  CheckCircle2,
-  Award,
-  ShieldCheck,
-  GraduationCap,
-  ArrowRight,
-  UserCheck,
-  FileCheck,
-  KeyRound,
-  Microscope,
-  Users,
-  Star,
-  ChevronRight,
-  Play,
-  HeartPulse,
-  Stethoscope,
-  Sparkles,
-  Mail,
-  Phone,
-  MessageSquare,
-  Send,
-  Images,
-  ExternalLink,
-  ChevronLeft,
-  FileText,
-  Lock,
-  Download,
-  Activity,
-  Check,
+  PhoneCall, BookOpen, CheckCircle2, Award, ShieldCheck, GraduationCap,
+  ArrowRight, UserCheck, FileCheck, KeyRound, Microscope, Users, Star,
+  ChevronRight, Play, HeartPulse, Stethoscope, Sparkles, Mail, Phone,
+  MessageSquare, Send, Images, ExternalLink, ChevronLeft, Zap, Lock,
+  Download, Monitor, Wifi, TrendingUp, Clock, BadgeCheck,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Course {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  price: number;
-  coverImage: string | null;
+  id: string; title: string; slug: string;
+  description: string; price: number; coverImage: string | null;
 }
-
 interface FacultyMember {
-  id: string;
-  name: string;
-  title: string;
-  bio: string;
-  photoUrl: string | null;
+  id: string; name: string; title: string; bio: string; photoUrl: string | null;
 }
-
 interface Testimonial {
-  id: string;
-  studentName: string;
-  courseTaken: string | null;
-  quote: string;
+  id: string; studentName: string; courseTaken: string | null; quote: string;
 }
-
 interface HomePageClientProps {
   courses: Course[];
   faculty: FacultyMember[];
@@ -89,110 +38,70 @@ interface HomePageClientProps {
 // ─── Static Data ──────────────────────────────────────────────────────────────
 const STAT_ITEMS = [
   { value: "3,500+", label: "Alumni Graduates", icon: GraduationCap },
-  { value: "2019", label: "Est. Maharagama, LK", icon: Award },
-  { value: "6", label: "Senior Consultants", icon: Stethoscope },
-  { value: "4+", label: "Active Programs", icon: BookOpen },
+  { value: "2019",   label: "Est. Maharagama, LK", icon: Award },
+  { value: "98%",    label: "SLMC Pass Rate", icon: BadgeCheck },
+  { value: "4+",     label: "Active Programs", icon: BookOpen },
 ];
 
 const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: PhoneCall,
-    title: "Contact Admin on WhatsApp",
-    body: "Message the coordinator on WhatsApp with your name and course of interest.",
-  },
-  {
-    step: "02",
-    icon: FileCheck,
-    title: "Submit Payment Proof",
-    body: "Send your payment receipt to the coordinator. Enrollment is confirmed within 24 hours.",
-  },
-  {
-    step: "03",
-    icon: KeyRound,
-    title: "Receive Portal Credentials",
-    body: "Your student login credentials are delivered to your WhatsApp for immediate portal access.",
-  },
-  {
-    step: "04",
-    icon: UserCheck,
-    title: "Start Learning Instantly",
-    body: "Log in to your student dashboard and begin watching clinical video modules right away.",
-  },
+  { step: "01", icon: PhoneCall,  title: "Contact Admin on WhatsApp",    body: "Message the coordinator with your name and course of interest." },
+  { step: "02", icon: FileCheck,  title: "Submit Payment Proof",          body: "Send your payment receipt. Enrollment confirmed within 24 hours." },
+  { step: "03", icon: KeyRound,   title: "Receive Portal Login",          body: "Student credentials delivered to your WhatsApp for instant access." },
+  { step: "04", icon: UserCheck,  title: "Start Learning Instantly",      body: "Log in to your dashboard and begin clinical video modules right away." },
 ];
 
 const CONVOCATION_CARDS = [
-  {
-    id: "conv-1",
-    type: "photo" as const,
-    title: "Convocation Ceremony 2024",
-    subtitle: "IMHS General Convocation 2024",
-    src: "/gallery",
-    placeholder: "bg-gradient-to-br from-[#0E57A4]/20 to-[#2172C9]/30",
-  },
-  {
-    id: "conv-2",
-    type: "photo" as const,
-    title: "Academic Gowns & Honours",
-    subtitle: "IMHS General Convocation 2024",
-    src: "/gallery",
-    placeholder: "bg-gradient-to-br from-[#F16726]/15 to-[#0E57A4]/20",
-  },
-  {
-    id: "conv-3",
-    type: "photo" as const,
-    title: "Faculty & Graduates",
-    subtitle: "IMHS General Convocation 2024",
-    src: "/gallery",
-    placeholder: "bg-gradient-to-br from-[#4A8B7A]/20 to-[#0E57A4]/15",
-  },
-  {
-    id: "conv-4",
-    type: "video" as const,
-    title: "Ceremony Highlights Reel",
-    subtitle: "IMHS General Convocation 2024",
-    src: "/gallery",
-    placeholder: "bg-gradient-to-br from-[#0A2540]/60 to-[#0E57A4]/40",
-  },
-  {
-    id: "conv-5",
-    type: "video" as const,
-    title: "Keynote Address",
-    subtitle: "IMHS General Convocation 2024",
-    src: "/gallery",
-    placeholder: "bg-gradient-to-br from-[#0E57A4]/40 to-[#F16726]/25",
-  },
+  { id: "conv-1", type: "photo" as const, title: "Convocation 2024", placeholder: "bg-gradient-to-br from-[#0E57A4]/20 to-[#2172C9]/30" },
+  { id: "conv-2", type: "photo" as const, title: "Academic Honours", placeholder: "bg-gradient-to-br from-[#F16726]/15 to-[#0E57A4]/20" },
+  { id: "conv-3", type: "photo" as const, title: "Faculty & Graduates", placeholder: "bg-gradient-to-br from-[#4A8B7A]/20 to-[#0E57A4]/15" },
+  { id: "conv-4", type: "video" as const, title: "Ceremony Highlights", placeholder: "bg-gradient-to-br from-[#0A2540]/60 to-[#0E57A4]/40" },
 ];
 
-// ─── Hero animation variants ───────────────────────────────────────────────
-const heroVariant = {
-  hidden: { opacity: 0, y: 22 },
-  show: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: "easeOut" as const },
-  }),
-};
-
-// ─── Contact form state type ───────────────────────────────────────────────
-interface ContactForm {
-  name: string;
-  phone: string;
-  email: string;
-  message: string;
+// ─── Inline SVGs ──────────────────────────────────────────────────────────────
+function LaserScanBeam({ className }: { className?: string }) {
+  return (
+    <motion.div
+      aria-hidden="true"
+      className={`absolute inset-x-0 h-[2px] z-10 pointer-events-none ${className ?? ""}`}
+      style={{
+        background: "linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.7) 40%, rgba(14,87,164,0.9) 60%, transparent 100%)",
+        boxShadow: "0 0 12px 3px rgba(56,189,248,0.45)",
+      }}
+      animate={{ top: ["0%", "100%", "0%"] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+    />
+  );
 }
+
+function PulseDot({ color = "#22c55e" }: { color?: string }) {
+  return (
+    <span className="relative flex h-2.5 w-2.5">
+      <motion.span
+        className="absolute inline-flex h-full w-full rounded-full opacity-60"
+        style={{ backgroundColor: color }}
+        animate={{ scale: [1, 2.2, 1], opacity: [0.6, 0, 0.6] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <span className="relative inline-flex h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+    </span>
+  );
+}
+
+// ─── Contact form type ────────────────────────────────────────────────────────
+interface ContactForm { name: string; phone: string; email: string; message: string; }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export function HomePageClient({ courses, faculty, testimonials }: HomePageClientProps) {
   const galleryRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Parallax scroll for hero
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 500], [0, 80]);
+  const heroOpacity = useTransform(scrollY, [0, 350], [1, 0]);
 
   // Contact form
-  const [contactForm, setContactForm] = useState<ContactForm>({
-    name: "",
-    phone: "",
-    email: "",
-    message: "",
-  });
+  const [contactForm, setContactForm] = useState<ContactForm>({ name: "", phone: "", email: "", message: "" });
   const [contactStatus, setContactStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -203,808 +112,732 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: contactForm.name,
-          phone: contactForm.phone,
-          email: contactForm.email || undefined,
-          message: contactForm.message,
-        }),
+        body: JSON.stringify(contactForm),
       });
-      if (res.ok) {
-        setContactStatus("sent");
-        setContactForm({ name: "", phone: "", email: "", message: "" });
-      } else {
-        setContactStatus("error");
-      }
+      setContactStatus(res.ok ? "sent" : "error");
     } catch {
       setContactStatus("error");
     }
   };
 
-  const scrollGallery = (dir: "left" | "right") => {
-    if (!galleryRef.current) return;
-    galleryRef.current.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
+  const heroVariant = {
+    hidden: { opacity: 0, y: 24 },
+    show: (delay: number) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay, ease: "easeOut" as const } }),
   };
 
+  const primaryFaculty = faculty[0] ?? null;
+
   return (
-    <div className="space-y-0 overflow-x-hidden bg-surface font-sans">
+    <div className="flex flex-col min-h-screen overflow-x-hidden bg-white">
 
-      {/* ── 1. UPGRADED HERO SECTION (HeroPharmacyScene) ───────────────────── */}
+      {/* ══════════════════════════════════════════════════════════════
+          §1 · HERO SECTION
+      ══════════════════════════════════════════════════════════════ */}
       <section
-        className="relative min-h-[90vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16 border-b border-[#E2E8F0] overflow-hidden"
-        style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 45%, #ffffff 100%)" }}
+        ref={heroRef}
+        className="relative min-h-[calc(100vh-68px)] flex items-center overflow-hidden bg-white"
+        aria-label="Hero"
       >
-        {/* Multi-layer ambient radial mesh glows */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse 70% 60% at 15% 0%, rgba(14,87,164,0.12) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 85% 100%, rgba(241,103,38,0.08) 0%, transparent 50%)",
-          }}
-        />
+        {/* Background mesh glow */}
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(14,87,164,0.10) 0%, transparent 70%)" }} />
+          <div className="absolute -bottom-20 right-0 w-[500px] h-[500px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(241,103,38,0.07) 0%, transparent 70%)" }} />
+          {/* Hairline dot grid */}
+          <div className="absolute inset-0 opacity-[0.04]"
+            style={{ backgroundImage: "radial-gradient(circle, #0E57A4 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        </div>
 
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center relative z-10">
-
-          {/* Left Column Typography & Micro-SVG Integration */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
-
-            {/* Eyebrow Pill */}
-            <motion.div
-              custom={0}
-              variants={heroVariant}
-              initial="hidden"
-              animate="show"
-            >
-              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] border border-[#BFDBFE] px-4 py-1.5 rounded-full shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#0E57A4] animate-pulse" />
-                SLMC-ALIGNED PHARMACY EDUCATION
-              </span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* ── Left: Text ── */}
+          <div className="space-y-7">
+            {/* Eyebrow badge */}
+            <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show">
+              <div className="inline-flex items-center gap-2.5 bg-[#EBF3FA] border border-[#0E57A4]/20 rounded-full px-4 py-1.5">
+                <PulseDot color="#22c55e" />
+                <span className="text-[11px] font-mono font-bold text-[#0E57A4] uppercase tracking-widest">
+                  Now Enrolling · Batch 2025
+                </span>
+              </div>
             </motion.div>
 
-            {/* Headline with Pharmacokinetic Dose Curve Underline */}
-            <motion.div
-              custom={0.1}
-              variants={heroVariant}
-              initial="hidden"
-              animate="show"
-              className="w-full"
-            >
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-extrabold text-ink leading-[1.08] tracking-tight text-center lg:text-left">
-                Sri Lanka&apos;s Best{" "}
-                <motion.span
-                  custom={0.2}
-                  variants={heroVariant}
-                  initial="hidden"
-                  animate="show"
-                  className="relative inline-block text-[#F16726]"
-                >
+            {/* Headline */}
+            <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="space-y-1">
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-extrabold text-[#0B192C] leading-[1.1] tracking-tight">
+                Sri Lanka&apos;s Best
+              </h1>
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-extrabold leading-[1.1] tracking-tight">
+                <span className="relative inline-block text-[#0E57A4]">
                   Healthcare
-                  {/* Dose Curve - Pharmacokinetic absorption curve SVG */}
-                  <span className="absolute -bottom-5 left-0 w-full pointer-events-none">
-                    <DoseCurve variant="hero" />
+                  {/* Dose-curve underline */}
+                  <span className="absolute -bottom-2 left-0 right-0 pointer-events-none">
+                    <DoseCurve variant="hero" className="h-[14px]" />
                   </span>
-                </motion.span>{" "}
-                Education
+                </span>
+                <span className="text-[#0B192C]"> Education</span>
               </h1>
             </motion.div>
 
-            {/* Subtitle */}
-            <motion.p
-              custom={0.4}
-              variants={heroVariant}
-              initial="hidden"
-              animate="show"
-              className="text-base sm:text-lg text-ink-muted max-w-xl font-sans leading-relaxed text-center lg:text-left mx-auto lg:mx-0 pt-2"
-            >
-              Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
-            </motion.p>
-
-            {/* Live Vital ECG Line SVG */}
-            <motion.div
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-md py-1 mx-auto lg:mx-0"
-            >
-              <VitalLine variant="hero" animated={true} />
+            {/* Subtitle with ECG accent */}
+            <motion.div custom={0.2} variants={heroVariant} initial="hidden" animate="show" className="space-y-2">
+              <p className="text-base sm:text-lg text-slate-500 leading-relaxed max-w-lg font-sans">
+                SLMC-aligned pharmacy programs, world-class clinical faculty, and a direct WhatsApp enrollment path trusted by{" "}
+                <span className="font-semibold text-[#0B192C]">3,500+ graduates</span> since 2019.
+              </p>
+              {/* ECG pulse under subtitle */}
+              <VitalLine variant="hero" className="text-[#F16726] opacity-60 h-5" />
             </motion.div>
 
-            {/* Hero Image - Mobile View Only */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="block lg:hidden w-full my-3"
-            >
-              <div className="relative h-[280px] sm:h-[360px] w-full rounded-2xl overflow-hidden shadow-xl border-2 border-white bg-linen mx-auto">
-                <MedicalScannerBeam />
-                <Image
-                  src="/hero.jpg"
-                  alt="Sri Lanka Best Healthcare Education"
-                  fill
-                  className="object-cover object-top"
-                  priority
-                />
-              </div>
+            {/* CTAs */}
+            <motion.div custom={0.3} variants={heroVariant} initial="hidden" animate="show"
+              className="flex flex-col sm:flex-row gap-3 flex-wrap">
+              <a
+                href={createCourseInquiryWALink()}
+                target="_blank" rel="noopener noreferrer"
+                className="group relative inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-mono font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl overflow-hidden"
+                style={{ background: "linear-gradient(135deg, #0E57A4 0%, #1a6fc4 100%)" }}
+              >
+                {/* Ambient orange glow ring on hover */}
+                <span aria-hidden="true" className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ boxShadow: "0 0 0 4px rgba(241,103,38,0.25)" }} />
+                <PhoneCall className="w-4 h-4" />
+                Enroll on WhatsApp
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </a>
+              <Link
+                href="/courses"
+                className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-mono font-bold border-2 border-[#0E57A4] text-[#0E57A4] hover:bg-[#0E57A4] hover:text-white transition-all"
+              >
+                Browse Programs
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </motion.div>
 
-            {/* CTA Action Pair */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-4 pt-2 w-full">
-              <motion.div
-                custom={0.55}
-                variants={heroVariant}
-                initial="hidden"
-                animate="show"
-                className="w-full sm:w-auto"
-              >
-                <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
-                  <motion.button
-                    whileHover={{ scale: 1.03, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-full tracking-wide transition-all duration-200 group"
-                    style={{
-                      background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
-                      boxShadow: "0 0 24px rgba(241,103,38,0.30), 0 4px 20px rgba(14,87,164,0.35)",
-                    }}
-                  >
-                    <Sparkles className="w-4 h-4 text-[#F16726] animate-pulse" />
-                    <span>Enroll on WhatsApp</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                custom={0.65}
-                variants={heroVariant}
-                initial="hidden"
-                animate="show"
-                className="w-full sm:w-auto"
-              >
-                <Link href="/courses">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white transition-all duration-200 text-ink hover:border-[#0E57A4]/50 group"
-                    style={{ border: "2px solid #E2E8F0" }}
-                  >
-                    <span>Browse Programs</span>
-                    <ArrowRight className="w-4 h-4 text-[#0E57A4] group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </Link>
-              </motion.div>
-            </div>
-
-            {/* Social Proof Badge */}
-            <motion.div
-              custom={0.75}
-              variants={heroVariant}
-              initial="hidden"
-              animate="show"
-              className="flex items-center gap-3 pt-3"
-            >
+            {/* Social proof avatars */}
+            <motion.div custom={0.4} variants={heroVariant} initial="hidden" animate="show"
+              className="flex items-center gap-3 pt-1">
               <div className="flex -space-x-2">
-                {[
-                  { initials: "DR", bg: "bg-[#0E57A4]" },
-                  { initials: "RN", bg: "bg-[#F16726]" },
-                  { initials: "ST", bg: "bg-[#4A8B7A]" },
-                ].map(({ initials, bg }) => (
-                  <div
-                    key={initials}
-                    className={`w-8 h-8 rounded-full border-2 border-white ${bg} text-white flex items-center justify-center text-[10px] font-bold shadow-xs`}
-                  >
-                    {initials}
+                {["#0E57A4","#F16726","#4A8B7A","#7C3AED","#0B192C"].map((c, i) => (
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold"
+                    style={{ backgroundColor: c }}>
+                    {["KP","AS","NF","RM","TW"][i]}
                   </div>
                 ))}
               </div>
-              <div className="text-sm font-sans font-bold text-ink">
-                Over <span className="text-[#F16726] font-mono">3,500+</span> Active Students
+              <div>
+                <div className="flex items-center gap-1">
+                  {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 fill-[#F16726] text-[#F16726]" />)}
+                </div>
+                <p className="text-xs font-mono text-slate-500 mt-0.5">Over <strong className="text-[#0B192C]">3,500+</strong> active students</p>
               </div>
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive 3D Parallax Image Stack (Desktop) */}
-          <motion.div
-            initial={{ opacity: 0, x: 25 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="hidden lg:block lg:col-span-5 relative perspective-1000"
-          >
+          {/* ── Right: 3D Parallax Image Stack ── */}
+          <motion.div custom={0.2} variants={heroVariant} initial="hidden" animate="show" className="relative">
+            {/* 3D tilt card wrapper */}
             <motion.div
               whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="relative h-[430px] xl:h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-linen transform-gpu"
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              style={{ perspective: 1000, transformStyle: "preserve-3d" }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200/60"
             >
-              {/* Vertical sweeping laser scanner beam */}
-              <MedicalScannerBeam />
+              {/* Hero image – 3:4 portrait card */}
+              <div className="relative w-full aspect-[4/5] bg-gradient-to-br from-[#EBF3FA] to-[#dbeafe]">
+                {primaryFaculty?.photoUrl ? (
+                  <Image
+                    src={formatGoogleDriveImageUrl(primaryFaculty.photoUrl) || primaryFaculty.photoUrl}
+                    alt={primaryFaculty.name}
+                    fill
+                    className="object-cover object-top"
+                    priority
+                    unoptimized={primaryFaculty.photoUrl.startsWith("http")}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center space-y-3 p-8">
+                      <div className="w-20 h-20 bg-[#0E57A4]/10 rounded-full flex items-center justify-center mx-auto">
+                        <Stethoscope className="w-10 h-10 text-[#0E57A4]/60" />
+                      </div>
+                      <p className="text-sm font-mono text-slate-400">IMHS Faculty</p>
+                    </div>
+                  </div>
+                )}
 
-              <Image
-                src="/hero.jpg"
-                alt="Sri Lanka Best Healthcare Education"
-                fill
-                className="object-cover object-top"
-                priority
-              />
+                {/* Laser scanner beam over image */}
+                <LaserScanBeam />
 
-              {/* Top-Left Overlay Badge */}
-              <div className="absolute top-4 left-4 z-20">
-                <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-md border border-white/60 shadow-lg px-3.5 py-1.5 rounded-full">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10B981]" />
-                  </span>
-                  <span className="text-xs font-mono font-bold text-ink">🏆 SLMC 98% Pass Rate</span>
-                </div>
-              </div>
+                {/* ── Glassmorphic Overlay Badges ── */}
+                {/* Top-left: SLMC pass rate */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.0, duration: 0.5 }}
+                  className="absolute -top-3 -left-4 z-20"
+                >
+                  <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-white/60 shadow-lg rounded-2xl px-3.5 py-2.5">
+                    <span className="text-base">🏆</span>
+                    <div>
+                      <p className="text-[10px] font-mono font-bold text-[#0E57A4] uppercase tracking-wide">SLMC Pass Rate</p>
+                      <p className="text-lg font-display font-extrabold text-[#0B192C] leading-none">98%</p>
+                    </div>
+                    <PulseDot color="#22c55e" />
+                  </div>
+                </motion.div>
 
-              {/* Bottom-Right Overlay Badge */}
-              <div className="absolute bottom-4 right-4 z-20">
-                <div className="inline-flex items-center gap-2 bg-[#0B192C]/90 backdrop-blur-md border border-white/10 text-white shadow-xl px-3.5 py-1.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-[#F16726] animate-pulse" />
-                  <span className="text-xs font-mono font-semibold">🔴 Next Batch: Sunday 9:00 AM</span>
-                </div>
+                {/* Bottom-right: Next batch tag */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.2, duration: 0.5 }}
+                  className="absolute -bottom-3 -right-4 z-20"
+                >
+                  <div className="flex items-center gap-2 bg-[#0B192C]/90 backdrop-blur-md border border-white/10 shadow-lg rounded-2xl px-3.5 py-2.5">
+                    <PulseDot color="#F16726" />
+                    <div>
+                      <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wide">Next Batch</p>
+                      <p className="text-xs font-mono font-bold text-white">Sunday · 9:00 AM</p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Bottom gradient */}
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B192C]/60 to-transparent pointer-events-none" />
+                {/* Name badge at bottom */}
+                {primaryFaculty && (
+                  <div className="absolute bottom-4 left-4 z-10">
+                    <RxCredentialBadge label="SLMC PREP" />
+                  </div>
+                )}
               </div>
             </motion.div>
+
+            {/* Decorative background blob behind image card */}
+            <div aria-hidden="true"
+              className="absolute -z-10 -bottom-6 -right-6 w-3/4 h-3/4 rounded-3xl opacity-30"
+              style={{ background: "linear-gradient(135deg, #0E57A4 0%, #4A8B7A 100%)", filter: "blur(32px)" }}
+            />
           </motion.div>
-
         </div>
       </section>
 
-      {/* ── 2. TRUST STRIP ───────────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-[#E2E8F0] py-6">
-        <BlisterDivider className="mb-4" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center font-mono text-[10px] uppercase tracking-widest text-sage/70 font-bold mb-5">
-            Recognized Standards &amp; Certifications
-          </p>
-          <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { icon: Award, label: "PHARMACEUTICAL GUILD", color: "#0E57A4" },
-              { icon: GraduationCap, label: "CONTINUING MED CREDITS", color: "#6366F1" },
-              { icon: ShieldCheck, label: "INSTITUTIONAL CERT", color: "#10B981" },
-              { icon: CheckCircle2, label: "TERTIARY CARE FACULTY", color: "#F16726" },
-            ].map(({ icon: Icon, label, color }) => (
-              <StaggerItem key={label}>
-                <div className="flex items-center justify-center gap-2.5 text-xs font-mono font-semibold text-ink-muted py-2.5 px-4 rounded-xl border border-[#E2E8F0] hover:border-[#BFDBFE] hover:shadow-paper transition-all duration-200 bg-[#F8FAFC] group cursor-default">
-                  <Icon className="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110" style={{ color }} />
-                  <span className="tracking-wider text-[10px]">{label}</span>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-        </div>
-      </section>
-
-      {/* ── 3. COURSES CATALOG ───────────────────────────────────────────────── */}
-      <section
-        id="programs"
-        className="relative bg-linen/40 py-20 border-y border-chart-grid overflow-hidden"
-      >
-        <div className="absolute inset-0 dot-grid-bg pointer-events-none" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <RevealOnScroll className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-                ACTIVE COURSE CATALOG
-              </span>
-              <h2 className="text-3xl md:text-4xl font-display font-extrabold text-ink">
-                Featured Medical Programs
-              </h2>
-            </div>
-            <Link href="/courses">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" className="gap-2 group bg-white font-semibold text-xs border-chart-grid">
-                  View All Programs
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-[#0E57A4]" />
-                </Button>
-              </motion.div>
-            </Link>
-          </RevealOnScroll>
-
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {courses.length === 0
-              ? [1, 2, 3].map((i) => <CourseCardSkeleton key={i} />)
-              : courses.map((course) => (
-                <StaggerItem key={course.id}>
-                  <HoverCard className="h-full">
-                    <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/50 hover:shadow-xl transition-all duration-300 group">
-                      {/* Cover image */}
-                      <div className="relative h-44 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
-                        {course.coverImage ? (
-                          <Image
-                            src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
-                            alt={course.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Microscope className="w-16 h-16 text-[#0E57A4]/20" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-surface/60 to-transparent" />
-                        <div className="absolute bottom-3 left-3 bg-ink/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded-lg">
-                          {formatCurrency(course.price)}
-                        </div>
-                      </div>
-
-                      <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                        <div className="space-y-2">
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-[#F16726] font-semibold">
-                            {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
-                          </span>
-                          <h3 className="text-base font-bold font-sans text-ink line-clamp-2 leading-snug group-hover:text-[#0E57A4] transition-colors">
-                            {course.title}
-                          </h3>
-                          <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
-                            {course.description}
-                          </p>
-                        </div>
-
-                        <div className="pt-4 border-t border-chart-grid/60 flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />
-                            ))}
-                          </div>
-                          <Link
-                            href={createCourseInquiryWALink(course.title)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-xs font-semibold text-[#0E57A4] font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform hover:underline"
-                          >
-                            Enroll Now <ChevronRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </HoverCard>
-                </StaggerItem>
-              ))}
-          </StaggerChildren>
-        </div>
-      </section>
-
-      {/* ── 4. STATS STRIP ───────────────────────────────────────────────────── */}
-      <section className="bg-[#0A2540] py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STAT_ITEMS.map(({ value, label, icon: Icon }) => (
-              <StaggerItem key={label}>
-                <div className="text-center space-y-2 group">
-                  <div className="w-10 h-10 mx-auto rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                    <Icon className="w-5 h-5 text-white/80" />
-                  </div>
-                  <div className="text-3xl font-display font-extrabold text-white tracking-tight">{value}</div>
-                  <div className="text-xs font-mono text-white/50 uppercase tracking-widest">{label}</div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-        </div>
-      </section>
-
-      {/* ── 5. ASYMMETRIC BENTO GRID FEATURES SECTION (Why Choose IMHS) ───────── */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="absolute inset-0 dot-grid-bg pointer-events-none rounded-3xl" />
-
-        <RevealOnScroll className="text-center mb-12 space-y-2 relative">
-          <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-            WHY CHOOSE IMHS
-          </span>
-          <h2 className="text-3xl md:text-4xl font-display font-extrabold text-ink">
-            Built for Serious Healthcare Education
-          </h2>
-        </RevealOnScroll>
-
-        {/* Asymmetric 2x2 Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
-
-          {/* CARD 1 (Large - 7 Cols, Clinical Precision) */}
-          <div className="md:col-span-7">
-            <HoverCard className="h-full">
-              <div className="bg-surface border border-chart-grid rounded-2xl p-7 sm:p-8 h-full flex flex-col justify-between hover:border-[#0E57A4]/50 hover:shadow-xl transition-all duration-300 group">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 bg-[#0E57A4]/10 rounded-xl border border-[#0E57A4]/20 flex items-center justify-center group-hover:bg-[#0E57A4]/20 transition-colors">
-                      <HeartPulse className="w-6 h-6 text-[#0E57A4]" />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3 py-1 rounded-full">
-                      SLMC ALIGNED
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-ink font-sans">Clinical Precision Curriculum</h3>
-                    <p className="text-sm text-ink-muted leading-relaxed">
-                      Every module is authored and reviewed by practicing consultants from teaching hospitals across Sri Lanka. Content is optimized for SLMC exam prioritization and real ward application.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Live Animated ECG SVG Trace Element */}
-                <div className="pt-6 mt-4 border-t border-chart-grid/60">
-                  <div className="flex items-center justify-between text-xs font-mono text-sage mb-1">
-                    <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-[#F16726]" /> Live ECG Wave Monitor</span>
-                    <span className="text-[10px] font-bold text-[#10B981]">100% Verified Trace</span>
-                  </div>
-                  <VitalLine variant="card" animated={true} />
-                </div>
+      {/* ══════════════════════════════════════════════════════════════
+          §2 · STATS STRIP
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="border-y border-slate-100 bg-[#0A2540]" aria-label="Key Statistics">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+          {STAT_ITEMS.map(({ value, label, icon: Icon }) => (
+            <RevealOnScroll key={label}>
+              <div className="flex flex-col items-center text-center gap-2">
+                <Icon className="w-5 h-5 text-[#38BDF8]" />
+                <p className="text-2xl sm:text-3xl font-display font-extrabold text-white">{value}</p>
+                <p className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">{label}</p>
               </div>
-            </HoverCard>
-          </div>
-
-          {/* CARD 2 (5 Cols - 24/7 WhatsApp Support) */}
-          <div className="md:col-span-5">
-            <HoverCard className="h-full">
-              <div className="bg-surface border border-chart-grid rounded-2xl p-7 sm:p-8 h-full flex flex-col justify-between hover:border-[#0E57A4]/50 hover:shadow-xl transition-all duration-300 group">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 bg-[#25D366]/10 rounded-xl border border-[#25D366]/20 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
-                      <MessageSquare className="w-6 h-6 text-[#25D366]" />
-                    </div>
-                    {/* Real-time Response Indicator */}
-                    <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20 px-2.5 py-1 rounded-full">
-                      <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
-                      Online - Fast Desk
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-ink font-sans">WhatsApp-First Support</h3>
-                    <p className="text-sm text-ink-muted leading-relaxed">
-                      24/7 coordinator access, instant enrollment confirmation, payment receipt verification, and direct faculty Q&amp;A via WhatsApp desk.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-6 mt-4 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono text-ink-muted">
-                  <span>Coordinator Desk: <strong className="text-ink">+94 77 802 5050</strong></span>
-                  <CheckCircle2 className="w-4 h-4 text-[#25D366]" />
-                </div>
-              </div>
-            </HoverCard>
-          </div>
-
-          {/* CARD 3 (5 Cols - Vimeo HD Modules) */}
-          <div className="md:col-span-5">
-            <HoverCard className="h-full">
-              <div className="bg-surface border border-chart-grid rounded-2xl p-7 sm:p-8 h-full flex flex-col justify-between hover:border-[#0E57A4]/50 hover:shadow-xl transition-all duration-300 group">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 bg-[#0E57A4]/10 rounded-xl border border-[#0E57A4]/20 flex items-center justify-center group-hover:bg-[#0E57A4]/20 transition-colors">
-                      <Play className="w-6 h-6 text-[#0E57A4] fill-[#0E57A4]" />
-                    </div>
-                    {/* Domain-Lock Security Badge */}
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
-                      <Lock className="w-3 h-3 text-[#0E57A4]" /> Domain-Locked HD
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-ink font-sans">On-Demand Video Modules</h3>
-                    <p className="text-sm text-ink-muted leading-relaxed">
-                      Vimeo-hosted HD lectures you can pause, rewind, and re-watch at clinical depth without limits. Secured with single-device binding.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-6 mt-4 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono text-sage">
-                  <span>HD 1080p Stream</span>
-                  <span className="text-[#0E57A4] font-semibold">Unlimited Access</span>
-                </div>
-              </div>
-            </HoverCard>
-          </div>
-
-          {/* CARD 4 (7 Cols - Downloadable Resources) */}
-          <div className="md:col-span-7">
-            <HoverCard className="h-full">
-              <div className="bg-surface border border-chart-grid rounded-2xl p-7 sm:p-8 h-full flex flex-col justify-between hover:border-[#0E57A4]/50 hover:shadow-xl transition-all duration-300 group">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 bg-[#F16726]/10 rounded-xl border border-[#F16726]/20 flex items-center justify-center group-hover:bg-[#F16726]/20 transition-colors">
-                      <Download className="w-6 h-6 text-[#F16726]" />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#F16726] bg-[#F16726]/10 border border-[#F16726]/20 px-3 py-1 rounded-full">
-                      CASE BANK &amp; TRACES
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-ink font-sans">Downloadable Case Resources</h3>
-                    <p className="text-sm text-ink-muted leading-relaxed">
-                      ECG trace libraries, pathology slide banks, SEQ sample model answers, and downloadable PDF checklists for ward reference.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Resource Chips Preview */}
-                <div className="pt-6 mt-4 border-t border-chart-grid/60 flex flex-wrap gap-2 text-xs font-mono">
-                  <span className="bg-linen border border-chart-grid px-2.5 py-1 rounded-lg text-ink font-semibold flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-[#0E57A4]" /> ECG Traces PDF
-                  </span>
-                  <span className="bg-linen border border-chart-grid px-2.5 py-1 rounded-lg text-ink font-semibold flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-[#F16726]" /> SEQ Answer Keys
-                  </span>
-                  <span className="bg-linen border border-chart-grid px-2.5 py-1 rounded-lg text-ink font-semibold flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-[#4A8B7A]" /> Pathology Slides
-                  </span>
-                </div>
-              </div>
-            </HoverCard>
-          </div>
-
+            </RevealOnScroll>
+          ))}
         </div>
       </section>
 
-      {/* ── 6. DARK MODE INVERTED FACULTY SPOTLIGHT (Deep Clinical Slate #0B192C) ─ */}
-      <section
-        id="faculty"
-        className="relative bg-[#0B192C] text-white py-20 overflow-hidden border-y border-slate-800"
-      >
-        {/* Subtle mesh background glows for dark mode */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(56,189,248,0.12) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 100%, rgba(241,103,38,0.08) 0%, transparent 50%)",
-          }}
-        />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
-          <RevealOnScroll className="text-center space-y-3">
-            <span className="font-mono text-xs text-[#38BDF8] uppercase tracking-widest font-bold bg-[#38BDF8]/10 px-3.5 py-1 rounded-full border border-[#38BDF8]/30">
-              SENIOR FACULTY SPOTLIGHT
+      {/* ══════════════════════════════════════════════════════════════
+          §3 · BENTO FEATURES GRID — "Why Choose IMHS"
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#F8FAFC]" aria-label="Why Choose IMHS">
+        <div className="max-w-7xl mx-auto space-y-12">
+          {/* Section header */}
+          <RevealOnScroll className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#0E57A4] bg-[#EBF3FA] border border-[#0E57A4]/15 px-3.5 py-1 rounded-full uppercase tracking-widest">
+              <ShieldCheck className="w-3.5 h-3.5" /> Why IMHS
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white tracking-tight">
-              Meet Our Lecturer
+            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-[#0B192C] leading-tight">
+              Built for Clinical Excellence
             </h2>
-            <p className="text-base text-slate-300 max-w-lg mx-auto font-sans leading-relaxed">
-              Learn directly from senior lecturers and directors guiding Sri Lanka&apos;s medical and pharmacy graduates.
+            <p className="text-sm sm:text-base text-slate-500 font-sans leading-relaxed">
+              Four pillars that set IMHS apart from every other pharmacy program in Sri Lanka.
             </p>
           </RevealOnScroll>
 
-          {/* Inverted Card Container */}
-          <RevealOnScroll delay={0.2} className="max-w-xl mx-auto">
-            <div className="border-2 border-dashed border-[#38BDF8]/30 rounded-3xl p-6 sm:p-8 bg-[#0A1628]/90 backdrop-blur-xl shadow-2xl text-center space-y-6 hover:border-[#38BDF8]/60 transition-all duration-300 group">
+          {/* Asymmetric 2×2 Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-auto">
 
-              {/* Full Length Photo Box with Laser Scanner Beam */}
-              <div className="relative h-[480px] sm:h-[520px] w-full rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl bg-slate-950">
-                {/* Laser scanner beam */}
-                <MedicalScannerBeam />
-
-                <Image
-                  src="/lecturer.jpeg"
-                  alt="Dr. Isuru Wijesinghe - Senior Lecturer & Director, IMHS"
-                  fill
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] via-transparent to-transparent opacity-70" />
-
-                {/* Glowing neon overlay badge */}
-                <div className="absolute bottom-4 left-4 right-4 text-center z-10">
-                  <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#38BDF8] bg-[#0A1628]/90 backdrop-blur-md border border-[#38BDF8]/40 px-4 py-1.5 rounded-full inline-block shadow-lg">
-                    ⚡ EXECUTIVE DIRECTOR &amp; SENIOR LECTURER
-                  </span>
+            {/* CARD 1 — Large: Clinical Precision (spans 2 rows on desktop) */}
+            <RevealOnScroll className="md:row-span-2 lg:col-span-1">
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="h-full rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 flex flex-col gap-5 hover:border-[#0E57A4]/40 hover:shadow-lg transition-all overflow-hidden relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-[#EBF3FA]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="w-11 h-11 rounded-xl bg-[#EBF3FA] flex items-center justify-center shrink-0">
+                  <HeartPulse className="w-6 h-6 text-[#0E57A4]" />
                 </div>
-              </div>
-
-              {/* Lecturer Info */}
-              <div className="space-y-2 pt-1">
-                <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">
-                  Dr. Isuru Wijesinghe
-                </h3>
-                <p className="font-mono text-sm sm:text-base text-[#38BDF8] font-semibold">
-                  (Ph.D., MSc, B.Pharm)
-                </p>
-                <div className="pt-2 flex flex-wrap justify-center gap-2">
-                  <span className="font-mono text-xs text-slate-300 bg-slate-800/80 border border-slate-700 px-3.5 py-1 rounded-full">
-                    15+ Years Clinical Teaching
-                  </span>
-                  <span className="font-mono text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3.5 py-1 rounded-full">
-                    1,000+ Alumni Mentored
-                  </span>
+                <div>
+                  <h3 className="text-xl font-display font-bold text-[#0B192C] mb-2">Clinical Precision Curriculum</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed font-sans">
+                    Every module authored and reviewed by practicing consultants from teaching hospitals. 100% SLMC examination-syllabus aligned.
+                  </p>
                 </div>
-              </div>
-
-            </div>
-          </RevealOnScroll>
-        </div>
-      </section>
-
-      {/* ── 7. 4-STEP INTERACTIVE ENROLLMENT WORKFLOW ─────────────────────────── */}
-      <section
-        id="enroll"
-        className="bg-surface border-y border-chart-grid py-20"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
-          <RevealOnScroll className="text-center space-y-2">
-            <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-              ENROLLMENT PROCESS
-            </span>
-            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-ink">
-              How to Get Started in 4 Steps
-            </h2>
-          </RevealOnScroll>
-
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {HOW_IT_WORKS.map(({ step, icon: Icon, title, body }, index) => (
-              <StaggerItem key={step}>
-                <div className="relative text-center space-y-4 group">
-                  {/* Step connector line */}
-                  {index < HOW_IT_WORKS.length - 1 && (
-                    <div className="hidden md:block absolute top-10 left-[calc(50%+32px)] right-0 overflow-hidden">
-                      <DoseCurve variant="divider" />
-                    </div>
-                  )}
-
-                  <div className="relative mx-auto w-20 h-20 bg-[#EBF3FA] border border-[#0E57A4]/20 rounded-full flex items-center justify-center group-hover:border-[#0E57A4] group-hover:shadow-md transition-all duration-300">
-                    <Icon className="w-8 h-8 text-[#0E57A4]" />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#4A8B7A] rounded-full flex items-center justify-center shadow-xs">
-                      <span className="text-[10px] font-mono font-bold text-white">{step}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <h3 className="text-sm font-bold text-ink font-sans">{title}</h3>
-                    <p className="text-xs text-ink-muted leading-relaxed px-2">{body}</p>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-
-          <RevealOnScroll className="text-center pt-4">
-            <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="inline-block">
-                <Button
-                  size="lg"
-                  className="gap-2.5 bg-[#F16726] hover:bg-[#d95517] border-0 text-white shadow-lg font-bold px-10 rounded-full"
-                >
-                  <PhoneCall className="w-5 h-5" />
-                  Start Enrollment Now
-                </Button>
-              </motion.div>
-            </Link>
-          </RevealOnScroll>
-        </div>
-      </section>
-
-      {/* ── 8. CONVOCATION & OUTCOMES GALLERY ─────────────────────────────────── */}
-      <section className="bg-linen/50 py-20 border-b border-chart-grid overflow-hidden">
-        <BlisterDivider className="mb-8" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <RevealOnScroll className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-                MILESTONES &amp; ACHIEVEMENTS
-              </span>
-              <h2 className="text-3xl md:text-4xl font-display font-extrabold text-ink">
-                IMHS General Convocation 2024
-              </h2>
-              <p className="text-sm text-ink-muted max-w-lg">
-                Celebrating our graduates&apos; achievements in clinical excellence and healthcare education.
-              </p>
-            </div>
-            <Link href="/gallery">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" className="gap-2 group bg-white whitespace-nowrap font-semibold text-xs border-chart-grid">
-                  <Images className="w-4 h-4 text-[#0E57A4]" />
-                  View Full Gallery
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-[#0E57A4]" />
-                </Button>
-              </motion.div>
-            </Link>
-          </RevealOnScroll>
-
-          {/* Scroll-snap gallery */}
-          <div className="relative">
-            <button
-              onClick={() => scrollGallery("left")}
-              aria-label="Scroll gallery left"
-              className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-chart-grid shadow-md items-center justify-center hover:border-[#0E57A4]/40 hover:shadow-lg transition-all"
-            >
-              <ChevronLeft className="w-4 h-4 text-ink-muted" />
-            </button>
-            <button
-              onClick={() => scrollGallery("right")}
-              aria-label="Scroll gallery right"
-              className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-chart-grid shadow-md items-center justify-center hover:border-[#0E57A4]/40 hover:shadow-lg transition-all"
-            >
-              <ChevronRight className="w-4 h-4 text-ink-muted" />
-            </button>
-
-            <div
-              ref={galleryRef}
-              className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {CONVOCATION_CARDS.map((card) => (
-                <div
-                  key={card.id}
-                  className="snap-start shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden border border-chart-grid bg-surface group relative shadow-card"
-                >
-                  <div className={`relative h-52 ${card.placeholder} overflow-hidden`}>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                      {card.type === "video" ? (
-                        <>
-                          <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-                            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-                          </div>
-                          <span className="text-[10px] font-mono text-white/70 uppercase tracking-widest">Click to Play</span>
-                        </>
-                      ) : (
-                        <Images className="w-10 h-10 text-white/40" />
-                      )}
-                    </div>
-                    <Link
-                      href="/gallery"
-                      className="absolute inset-0 z-10"
-                      aria-label={`View ${card.title} in gallery`}
-                    >
-                      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-ink/70 to-transparent">
-                        <ExternalLink className="w-3.5 h-3.5 text-white/60 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-[#F16726] font-bold">{card.subtitle}</span>
-                    <h3 className="text-sm font-bold text-ink font-sans leading-snug">{card.title}</h3>
-                    <div className="flex items-center gap-1 pt-1">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-semibold ${card.type === "video" ? "bg-[#F16726]/10 text-[#F16726] border border-[#F16726]/20" : "bg-[#0E57A4]/10 text-[#0E57A4] border border-[#0E57A4]/20"}`}>
-                        {card.type === "video" ? "VIDEO" : "PHOTO"}
+                {/* Live ECG trace */}
+                <div className="mt-auto space-y-2">
+                  <ECGScanWave className="opacity-70" />
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {["SLMC Aligned", "Hospital Faculty", "ECG & Pathology"].map(t => (
+                      <span key={t} className="text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#0E57A4]/15 px-2.5 py-0.5 rounded-full">
+                        {t}
                       </span>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
+              </motion.div>
+            </RevealOnScroll>
+
+            {/* CARD 2 — 24/7 WhatsApp Support */}
+            <RevealOnScroll>
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col gap-4 hover:border-[#0E57A4]/40 hover:shadow-lg transition-all relative group overflow-hidden"
+              >
+                <div className="absolute top-4 right-4">
+                  <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-full px-2.5 py-1">
+                    <PulseDot color="#22c55e" />
+                    <span className="text-[10px] font-mono text-green-700 font-semibold">Live Desk</span>
+                  </div>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                  <MessageSquare className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-display font-bold text-[#0B192C] mb-1.5">24/7 WhatsApp Support</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed font-sans">
+                    Dedicated coordinator + direct faculty Q&A, all on WhatsApp. Average response under 15 minutes.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 mt-auto">
+                  <Wifi className="w-4 h-4 text-green-500" />
+                  <span className="text-xs font-mono text-slate-400">Always online · Sri Lanka & Overseas</span>
+                </div>
+              </motion.div>
+            </RevealOnScroll>
+
+            {/* CARD 3 — Vimeo HD Modules */}
+            <RevealOnScroll>
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col gap-4 hover:border-[#0E57A4]/40 hover:shadow-lg transition-all relative group overflow-hidden"
+              >
+                <div className="absolute top-4 right-4">
+                  <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1">
+                    <Lock className="w-3 h-3 text-slate-500" />
+                    <span className="text-[10px] font-mono text-slate-500 font-semibold">Domain-Locked</span>
+                  </div>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-[#FFF7ED] flex items-center justify-center shrink-0">
+                  <Play className="w-6 h-6 text-[#F16726]" />
+                </div>
+                {/* Thumbnail preview */}
+                <div className="w-full aspect-video bg-gradient-to-br from-[#0B192C] to-[#0E57A4]/60 rounded-xl flex items-center justify-center relative overflow-hidden">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+                  </div>
+                  <span className="absolute bottom-2 left-2 text-[9px] font-mono text-white/70">Vimeo HD · Secured</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-display font-bold text-[#0B192C] mb-1">On-Demand HD Modules</h3>
+                  <p className="text-sm text-slate-500 font-sans leading-relaxed">Vimeo-hosted clinical lectures — pause, rewind, re-watch without limits.</p>
+                </div>
+              </motion.div>
+            </RevealOnScroll>
+
+            {/* CARD 4 — Downloadable Resources (spans 2 cols on lg) */}
+            <RevealOnScroll className="lg:col-span-2">
+              <motion.div
+                whileHover={{ scale: 1.005 }}
+                className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col sm:flex-row items-start gap-6 hover:border-[#0E57A4]/40 hover:shadow-lg transition-all relative group overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[#EBF3FA]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+                  <Download className="w-6 h-6 text-purple-600" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <h3 className="text-lg font-display font-bold text-[#0B192C] mb-1">Downloadable Case Resources</h3>
+                    <p className="text-sm text-slate-500 font-sans leading-relaxed">
+                      ECG trace libraries, pathology slide banks, and PDF checklists for ward reference — all included in your enrollment.
+                    </p>
+                  </div>
+                  {/* File preview pills */}
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: "ECG Trace Library.pdf", color: "bg-red-50 text-red-700 border-red-200" },
+                      { label: "Pathology Slides.pdf",  color: "bg-blue-50 text-blue-700 border-blue-200" },
+                      { label: "SLMC Checklist.pdf",    color: "bg-green-50 text-green-700 border-green-200" },
+                      { label: "Case Studies Bank.pdf", color: "bg-purple-50 text-purple-700 border-purple-200" },
+                    ].map(({ label, color }) => (
+                      <span key={label} className={`inline-flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full border ${color}`}>
+                        <FileCheck className="w-3 h-3" /> {label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </RevealOnScroll>
           </div>
         </div>
       </section>
 
-      {/* ── 9. STUDENT VOICES & TESTIMONIALS (Prescription ℞ Quote Marks) ───────── */}
-      {testimonials.length > 0 && (
-        <section className="bg-surface py-20 border-b border-chart-grid">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-            <RevealOnScroll className="text-center space-y-2">
-              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-                STUDENT VOICES
+      {/* ══════════════════════════════════════════════════════════════
+          §4 · COURSES SECTION
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white" aria-label="Programs">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <RevealOnScroll className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-3">
+              <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#F16726] bg-orange-50 border border-orange-200 px-3.5 py-1 rounded-full uppercase tracking-widest">
+                <BookOpen className="w-3.5 h-3.5" /> Active Programs
               </span>
-              <h2 className="text-3xl md:text-4xl font-display font-extrabold text-ink">
-                Trusted by Thousands of Healthcare Professionals
+              <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-[#0B192C] leading-tight">
+                Enroll in a Course Today
+              </h2>
+            </div>
+            <Link href="/courses" className="group inline-flex items-center gap-1.5 text-sm font-mono font-semibold text-[#0E57A4] hover:text-[#0B192C] transition-colors shrink-0">
+              See All Programs <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </RevealOnScroll>
+
+          {courses.length === 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1,2,3].map(i => (
+                <div key={i} className="rounded-2xl border border-slate-100 bg-slate-50 h-72 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => {
+                const coverSrc = course.coverImage
+                  ? formatGoogleDriveImageUrl(course.coverImage) || course.coverImage
+                  : null;
+                const waLink = createCourseInquiryWALink(course.title);
+                return (
+                  <StaggerItem key={course.id}>
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      className="group rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col"
+                    >
+                      {/* Poster */}
+                      <div className="relative w-full aspect-[16/10] bg-gradient-to-br from-[#EBF3FA] to-[#dbeafe] overflow-hidden">
+                        {coverSrc ? (
+                          <Image src={coverSrc} alt={course.title} fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            unoptimized={coverSrc.startsWith("http")} />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <BookOpen className="w-12 h-12 text-[#0E57A4]/30" />
+                          </div>
+                        )}
+                        {/* Price tag */}
+                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                          <p className="text-sm font-mono font-bold text-[#0E57A4]">{formatCurrency(course.price)}</p>
+                        </div>
+                      </div>
+                      {/* Body */}
+                      <div className="p-5 flex flex-col gap-3 flex-1">
+                        <h3 className="text-base font-display font-bold text-[#0B192C] leading-snug line-clamp-2">
+                          {course.title}
+                        </h3>
+                        <p className="text-xs text-slate-500 font-sans line-clamp-2 leading-relaxed">{course.description}</p>
+                        <div className="mt-auto flex gap-2 pt-2">
+                          <a href={waLink} target="_blank" rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-1.5 bg-[#0E57A4] hover:bg-[#0B192C] text-white text-xs font-mono font-bold py-2.5 px-4 rounded-full transition-colors">
+                            <PhoneCall className="w-3.5 h-3.5" /> Enroll Now
+                          </a>
+                          <Link href={`/courses/${course.slug}`}
+                            className="flex items-center justify-center gap-1 border border-slate-200 hover:border-[#0E57A4] text-slate-500 hover:text-[#0E57A4] text-xs font-mono py-2.5 px-4 rounded-full transition-colors">
+                            Details
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerChildren>
+          )}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          §5 · DARK FACULTY SPOTLIGHT
+      ══════════════════════════════════════════════════════════════ */}
+      <section
+        className="relative py-24 sm:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        style={{ background: "#0B192C" }}
+        aria-label="Senior Faculty"
+      >
+        {/* Glow accents */}
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-80 h-80 rounded-full opacity-20"
+            style={{ background: "radial-gradient(circle, #0E57A4 0%, transparent 70%)" }} />
+          <div className="absolute bottom-0 right-1/4 w-60 h-60 rounded-full opacity-15"
+            style={{ background: "radial-gradient(circle, #4ADE80 0%, transparent 70%)" }} />
+        </div>
+
+        <div className="relative z-10 max-w-6xl mx-auto">
+          {/* Section label */}
+          <RevealOnScroll className="text-center mb-14 space-y-3">
+            <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/20 px-3.5 py-1 rounded-full uppercase tracking-widest">
+              <Stethoscope className="w-3.5 h-3.5" /> Senior Faculty
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-white leading-tight">
+              Learn from Sri Lanka&apos;s Top{" "}
+              <span className="text-[#38BDF8]">Clinical Minds</span>
+            </h2>
+          </RevealOnScroll>
+
+          {/* Faculty spotlight card */}
+          {primaryFaculty && (
+            <RevealOnScroll>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+                {/* Photo with laser scan */}
+                <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
+                  <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl aspect-[3/4]">
+                    {primaryFaculty.photoUrl ? (
+                      <Image
+                        src={formatGoogleDriveImageUrl(primaryFaculty.photoUrl) || primaryFaculty.photoUrl}
+                        alt={primaryFaculty.name}
+                        fill
+                        className="object-cover object-top"
+                        unoptimized={primaryFaculty.photoUrl.startsWith("http")}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0E57A4]/30 to-[#4A8B7A]/20">
+                        <GraduationCap className="w-20 h-20 text-[#38BDF8]/40" />
+                      </div>
+                    )}
+                    {/* Laser scan beam in teal on dark */}
+                    <LaserScanBeam className="opacity-60" />
+                    {/* Bottom gradient */}
+                    <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0B192C]/90 to-transparent pointer-events-none" />
+                    <div className="absolute bottom-4 left-4 right-4 z-10">
+                      <p className="text-base font-display font-bold text-white leading-tight">{primaryFaculty.name}</p>
+                      <p className="text-xs font-mono text-[#38BDF8] mt-0.5">{primaryFaculty.title}</p>
+                    </div>
+                  </div>
+                  {/* Neon glow blob behind photo */}
+                  <div aria-hidden="true"
+                    className="absolute -z-10 -bottom-6 left-0 right-0 h-1/2 opacity-25 blur-3xl"
+                    style={{ background: "linear-gradient(180deg, #38BDF8 0%, #0E57A4 100%)" }}
+                  />
+                </div>
+
+                {/* Bio + credentials */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white leading-snug">
+                      {primaryFaculty.name}
+                    </h3>
+                    <p className="text-sm font-mono text-[#38BDF8]">{primaryFaculty.title}</p>
+                  </div>
+
+                  {/* Neon credential pills */}
+                  <div className="flex flex-wrap gap-2">
+                    {["Ph.D. Pharmaceutical Sciences", "B.Pharm Hons", "Senior Lecturer — IMHS", "15+ Years Clinical Teaching"].map(c => (
+                      <span key={c}
+                        className="text-[10px] font-mono font-bold px-3 py-1.5 rounded-full border"
+                        style={{ color: "#4ADE80", borderColor: "rgba(74,222,128,0.25)", backgroundColor: "rgba(74,222,128,0.07)" }}>
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Bio text */}
+                  <p className="text-sm text-slate-400 font-sans leading-relaxed line-clamp-4">{primaryFaculty.bio}</p>
+
+                  {/* Vital line accent in teal */}
+                  <VitalLine variant="divider" className="text-[#38BDF8] opacity-40" />
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link href="/dr-isuru-wijesinghe"
+                      className="group inline-flex items-center justify-center gap-2 bg-[#38BDF8] hover:bg-[#0ea5e9] text-[#0B192C] text-xs font-mono font-bold px-6 py-3 rounded-full transition-colors">
+                      Full Profile <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <Link href="/consultation"
+                      className="group inline-flex items-center justify-center gap-2 border border-white/20 hover:border-[#38BDF8]/50 text-white hover:text-[#38BDF8] text-xs font-mono font-bold px-6 py-3 rounded-full transition-colors">
+                      Book 1-on-1 Session
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </RevealOnScroll>
+          )}
+
+          {/* Other faculty row */}
+          {faculty.length > 1 && (
+            <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {faculty.slice(1).map((f) => {
+                const fSrc = f.photoUrl ? formatGoogleDriveImageUrl(f.photoUrl) || f.photoUrl : null;
+                return (
+                  <RevealOnScroll key={f.id}>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4 flex gap-4 hover:bg-white/8 transition-colors">
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden border border-white/15 shrink-0 bg-[#0E57A4]/20">
+                        {fSrc ? (
+                          <Image src={fSrc} alt={f.name} fill className="object-cover object-top"
+                            unoptimized={fSrc.startsWith("http")} />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <GraduationCap className="w-7 h-7 text-[#38BDF8]/40" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-display font-bold text-white leading-snug">{f.name}</p>
+                        <p className="text-[11px] font-mono text-[#38BDF8] mt-0.5">{f.title}</p>
+                        <p className="text-xs text-slate-400 mt-1 line-clamp-2 font-sans">{f.bio}</p>
+                      </div>
+                    </div>
+                  </RevealOnScroll>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          §6 · HOW IT WORKS — 4-Step Enrollment Workflow
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#F8FAFC]" aria-label="How To Enroll">
+        <div className="max-w-5xl mx-auto space-y-12">
+          <RevealOnScroll className="text-center space-y-3">
+            <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#0E57A4] bg-[#EBF3FA] border border-[#0E57A4]/15 px-3.5 py-1 rounded-full uppercase tracking-widest">
+              <Zap className="w-3.5 h-3.5" /> Enrollment in 4 Steps
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-[#0B192C]">
+              From WhatsApp to Portal in 24 Hours
+            </h2>
+          </RevealOnScroll>
+
+          <div className="relative">
+            {/* Dose-curve connector (desktop only, hidden on mobile) */}
+            <div className="hidden lg:block absolute top-16 left-0 right-0 pointer-events-none">
+              <DoseCurve variant="timeline" steps={4} className="w-full opacity-30" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+              {HOW_IT_WORKS.map(({ step, icon: Icon, title, body }) => (
+                <RevealOnScroll key={step}>
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 hover:border-[#0E57A4]/40 hover:shadow-md transition-all text-center">
+                    <div className="mx-auto w-14 h-14 rounded-full bg-[#EBF3FA] border-2 border-[#0E57A4]/20 flex items-center justify-center">
+                      <Icon className="w-6 h-6 text-[#0E57A4]" />
+                    </div>
+                    <p className="text-xs font-mono font-bold text-[#F16726]">Step {step}</p>
+                    <h3 className="text-sm font-display font-bold text-[#0B192C] leading-snug">{title}</h3>
+                    <p className="text-xs text-slate-500 font-sans leading-relaxed">{body}</p>
+                  </div>
+                </RevealOnScroll>
+              ))}
+            </div>
+          </div>
+
+          {/* Enroll CTA */}
+          <RevealOnScroll className="text-center">
+            <a href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2.5 bg-[#0E57A4] hover:bg-[#0B192C] text-white text-sm font-mono font-bold px-8 py-4 rounded-full shadow-lg shadow-[#0E57A4]/30 hover:shadow-xl transition-all hover:-translate-y-0.5">
+              <PhoneCall className="w-4 h-4" />
+              Start Your Enrollment on WhatsApp
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </RevealOnScroll>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          §7 · CONVOCATION GALLERY SCROLL
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-white" aria-label="Convocation Gallery">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <RevealOnScroll className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-3">
+              <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#4A8B7A] bg-teal-50 border border-teal-200 px-3.5 py-1 rounded-full uppercase tracking-widest">
+                <Award className="w-3.5 h-3.5" /> Convocation 2024
+              </span>
+              <h2 className="text-3xl font-display font-extrabold text-[#0B192C]">Our Graduating Class</h2>
+            </div>
+            <Link href="/gallery" className="group inline-flex items-center gap-1.5 text-sm font-mono font-semibold text-[#0E57A4] hover:text-[#0B192C] transition-colors shrink-0">
+              <Images className="w-4 h-4" /> Full Gallery <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </RevealOnScroll>
+
+          {/* Horizontal scroll cards */}
+          <div ref={galleryRef} className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none">
+            {CONVOCATION_CARDS.map((card, i) => (
+              <Link href="/gallery" key={card.id}
+                className={`snap-start shrink-0 relative rounded-2xl overflow-hidden border border-slate-200 group
+                  ${i === 0 ? "w-72 sm:w-96" : "w-60 sm:w-72"}`}>
+                <div className={`w-full aspect-[3/4] ${card.placeholder} relative`}>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    {card.type === "video"
+                      ? <Play className="w-10 h-10 text-white/60 fill-white/40" />
+                      : <Images className="w-10 h-10 text-white/40" />}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0B192C]/80 to-transparent p-4">
+                    <p className="text-xs font-display font-bold text-white">{card.title}</p>
+                    <p className="text-[10px] font-mono text-white/50 mt-0.5">IMHS General Convocation 2024</p>
+                  </div>
+                  {card.type === "video" && (
+                    <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-1">
+                      <p className="text-[9px] font-mono text-white font-bold">VIDEO</p>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          §8 · TESTIMONIALS
+      ══════════════════════════════════════════════════════════════ */}
+      {testimonials.length > 0 && (
+        <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#F8FAFC]" aria-label="Student Testimonials">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <RevealOnScroll className="text-center space-y-3">
+              <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#0E57A4] bg-[#EBF3FA] border border-[#0E57A4]/15 px-3.5 py-1 rounded-full uppercase tracking-widest">
+                <Star className="w-3.5 h-3.5 fill-current" /> Student Voices
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-[#0B192C]">
+                Graduates Who Made It
               </h2>
             </RevealOnScroll>
 
-            <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {testimonials.map((t) => (
                 <StaggerItem key={t.id}>
-                  <HoverCard className="h-full">
-                    <div className="bg-surface border border-chart-grid rounded-2xl p-6 h-full flex flex-col justify-between hover:border-[#0E57A4]/30 transition-all duration-300 shadow-paper">
-                      <div className="space-y-4">
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className="w-4 h-4 fill-[#F16726] text-[#F16726]" />
-                          ))}
-                        </div>
-                        <p className="text-sm text-ink-muted leading-relaxed italic">
-                          {/* Authentic ℞ (Recipe/Prescription) medical glyph in crimson */}
-                          <span className="font-mono text-[#F16726] text-xl font-extrabold not-italic mr-1.5">℞</span>
-                          {t.quote}
-                        </p>
+                  <motion.div
+                    whileHover={{ y: -3 }}
+                    className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 hover:shadow-lg transition-all relative overflow-hidden"
+                  >
+                    {/* Rx quote glyph */}
+                    <span aria-hidden="true"
+                      className="absolute -top-3 -left-1 text-[72px] font-serif font-bold text-[#F16726]/10 leading-none select-none pointer-events-none">
+                      ℞
+                    </span>
+                    {/* Stars */}
+                    <div className="flex items-center gap-0.5">
+                      {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />)}
+                    </div>
+                    <blockquote className="text-sm text-slate-600 font-sans leading-relaxed italic flex-1">
+                      &ldquo;{t.quote}&rdquo;
+                    </blockquote>
+                    <div className="border-t border-slate-100 pt-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#EBF3FA] flex items-center justify-center shrink-0">
+                        <span className="text-xs font-mono font-bold text-[#0E57A4]">{t.studentName[0]}</span>
                       </div>
-
-                      <div className="pt-4 mt-4 border-t border-chart-grid/60">
-                        <p className="text-sm font-bold text-ink font-sans">{t.studentName}</p>
-                        <p className="text-xs font-mono text-[#0E57A4] font-semibold">{t.courseTaken}</p>
+                      <div>
+                        <p className="text-xs font-display font-bold text-[#0B192C]">{t.studentName}</p>
+                        {t.courseTaken && <p className="text-[10px] font-mono text-slate-400">{t.courseTaken}</p>}
                       </div>
                     </div>
-                  </HoverCard>
+                  </motion.div>
                 </StaggerItem>
               ))}
             </StaggerChildren>
@@ -1012,244 +845,92 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </section>
       )}
 
-      {/* ── 10. CONTACT BAND & FORM ────────────────────────────────────────── */}
-      <section className="bg-linen/60 border-y border-chart-grid py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-
-            {/* Left Column: Contact Details */}
-            <RevealOnScroll className="space-y-8">
-              <div className="space-y-3">
-                <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-                  GET IN TOUCH
+      {/* ══════════════════════════════════════════════════════════════
+          §9 · CONTACT BAND
+      ══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#0A2540]" aria-label="Contact IMHS">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: chips */}
+            <RevealOnScroll className="space-y-6">
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/20 px-3.5 py-1 rounded-full uppercase tracking-widest">
+                  <Mail className="w-3.5 h-3.5" /> Get In Touch
                 </span>
-                <h2 className="text-3xl md:text-4xl font-display font-extrabold text-ink">
-                  Have Questions? We&apos;re Here to Help
+                <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-white leading-tight">
+                  Start Your IMHS Journey Today
                 </h2>
-                <p className="text-base text-ink-muted leading-relaxed max-w-md">
-                  Reach out via WhatsApp, phone, or the contact form. Our administrative desk responds within a few hours.
+                <p className="text-sm text-slate-400 font-sans leading-relaxed">
+                  Our admissions team typically responds within 15 minutes on WhatsApp.
                 </p>
               </div>
-
-              <div className="space-y-4">
-                {/* Phone chip */}
-                <a
-                  href="tel:+94778025050"
-                  className="flex items-center gap-4 p-4 bg-surface border border-chart-grid rounded-xl hover:border-[#0E57A4]/40 hover:shadow-paper transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#0E57A4]/10 flex items-center justify-center group-hover:bg-[#0E57A4]/20 transition-colors">
-                    <Phone className="w-5 h-5 text-[#0E57A4]" />
+              <div className="space-y-3">
+                {[
+                  { icon: Phone, label: "WhatsApp Direct", value: "+94 77 802 5050" },
+                  { icon: Mail,  label: "Email",            value: "info@imhs.edu.lk" },
+                  { icon: Stethoscope, label: "Campus", value: "Maharagama, Western Province, LK" },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
+                    <Icon className="w-4 h-4 text-[#38BDF8] shrink-0" />
+                    <div>
+                      <p className="text-[10px] font-mono text-slate-500 uppercase">{label}</p>
+                      <p className="text-sm font-mono font-semibold text-white">{value}</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-mono text-sage uppercase tracking-wider">Phone / WhatsApp</div>
-                    <div className="text-sm font-bold text-ink">+94 77 802 5050</div>
-                  </div>
-                </a>
-
-                {/* Email chip */}
-                <a
-                  href="mailto:info@imhs.lk"
-                  className="flex items-center gap-4 p-4 bg-surface border border-chart-grid rounded-xl hover:border-[#6366F1]/40 hover:shadow-paper transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#6366F1]/10 flex items-center justify-center group-hover:bg-[#6366F1]/20 transition-colors">
-                    <Mail className="w-5 h-5 text-[#6366F1]" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-mono text-sage uppercase tracking-wider">Email Desk</div>
-                    <div className="text-sm font-bold text-ink">info@imhs.lk</div>
-                  </div>
-                </a>
-
-                {/* WhatsApp chip */}
-                <Link
-                  href={createCourseInquiryWALink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 bg-surface border border-chart-grid rounded-xl hover:border-[#25D366]/40 hover:shadow-paper transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
-                    <MessageSquare className="w-5 h-5 text-[#25D366]" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-mono text-sage uppercase tracking-wider">WhatsApp Admissions Desk</div>
-                    <div className="text-sm font-bold text-ink">Message us instantly</div>
-                  </div>
-                </Link>
+                ))}
               </div>
             </RevealOnScroll>
 
-            {/* Right Column: Compact Contact Form */}
-            <RevealOnScroll delay={0.2}>
-              <div className="bg-surface border border-chart-grid rounded-2xl p-6 sm:p-8 shadow-paper space-y-6">
-                <h3 className="text-lg font-display font-bold text-ink">Send us a Message</h3>
-
+            {/* Right: form */}
+            <RevealOnScroll>
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                {[
+                  { id: "name",  type: "text",  placeholder: "Your Full Name *",     key: "name" as const },
+                  { id: "phone", type: "tel",   placeholder: "WhatsApp Number *",     key: "phone" as const },
+                  { id: "email", type: "email", placeholder: "Email (optional)",      key: "email" as const },
+                ].map(({ id, type, placeholder, key }) => (
+                  <input
+                    key={id}
+                    id={id}
+                    type={type}
+                    placeholder={placeholder}
+                    value={contactForm[key]}
+                    onChange={e => setContactForm(p => ({ ...p, [key]: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/15 text-white placeholder:text-slate-500 text-sm font-sans px-4 py-3 rounded-xl focus:outline-none focus:border-[#38BDF8]/50"
+                  />
+                ))}
+                <textarea
+                  id="message"
+                  rows={4}
+                  placeholder="Your Message or Course Interest *"
+                  value={contactForm.message}
+                  onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
+                  className="w-full bg-white/5 border border-white/15 text-white placeholder:text-slate-500 text-sm font-sans px-4 py-3 rounded-xl focus:outline-none focus:border-[#38BDF8]/50 resize-none"
+                />
                 <AnimatePresence mode="wait">
                   {contactStatus === "sent" ? (
-                    <motion.div
-                      key="sent"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="flex flex-col items-center gap-3 py-8 text-center"
-                    >
-                      <div className="w-14 h-14 rounded-full bg-[#10B981]/10 flex items-center justify-center border border-[#10B981]/30">
-                        <CheckCircle2 className="w-7 h-7 text-[#10B981]" />
-                      </div>
-                      <p className="font-bold text-ink text-base">Message sent successfully!</p>
-                      <p className="text-xs text-ink-muted">Our admissions desk will contact you shortly.</p>
-                      <button
-                        onClick={() => setContactStatus("idle")}
-                        className="text-xs text-[#0E57A4] font-semibold underline underline-offset-2 mt-2"
-                      >
-                        Send another inquiry
-                      </button>
+                    <motion.div key="sent"
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-2 text-green-400 text-sm font-mono font-semibold">
+                      <CheckCircle2 className="w-4 h-4" /> Message sent! We&apos;ll WhatsApp you shortly.
                     </motion.div>
                   ) : (
-                    <motion.form
-                      key="form"
-                      onSubmit={handleContactSubmit}
-                      className="space-y-5"
-                      initial={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <div className="space-y-1">
-                        <label htmlFor="contact-name" className="text-xs font-mono font-bold text-sage uppercase tracking-wider">
-                          Full Name *
-                        </label>
-                        <input
-                          id="contact-name"
-                          type="text"
-                          required
-                          value={contactForm.name}
-                          onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
-                          placeholder="Dr. Amal Perera"
-                          className="contact-input text-xs sm:text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label htmlFor="contact-phone" className="text-xs font-mono font-bold text-sage uppercase tracking-wider">
-                          Phone / WhatsApp *
-                        </label>
-                        <input
-                          id="contact-phone"
-                          type="tel"
-                          required
-                          value={contactForm.phone}
-                          onChange={(e) => setContactForm((p) => ({ ...p, phone: e.target.value }))}
-                          placeholder="+94 77 123 4567"
-                          className="contact-input text-xs sm:text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label htmlFor="contact-email" className="text-xs font-mono font-bold text-sage uppercase tracking-wider">
-                          Email <span className="normal-case font-sans font-normal text-sage/60">(optional)</span>
-                        </label>
-                        <input
-                          id="contact-email"
-                          type="email"
-                          value={contactForm.email}
-                          onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
-                          placeholder="amal@example.com"
-                          className="contact-input text-xs sm:text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label htmlFor="contact-message" className="text-xs font-mono font-bold text-sage uppercase tracking-wider">
-                          Message *
-                        </label>
-                        <textarea
-                          id="contact-message"
-                          required
-                          rows={3}
-                          value={contactForm.message}
-                          onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
-                          placeholder="I'm interested in the Clinical Pharmacy / SLMC course..."
-                          className="contact-input text-xs sm:text-sm resize-none"
-                        />
-                      </div>
-
-                      {contactStatus === "error" && (
-                        <p className="text-xs text-[#F16726] font-mono">
-                          Something went wrong. Please try again or contact us on WhatsApp.
-                        </p>
+                    <motion.button key="btn"
+                      type="submit"
+                      disabled={contactStatus === "sending"}
+                      whileHover={{ scale: 1.01 }}
+                      className="w-full flex items-center justify-center gap-2 bg-[#0E57A4] hover:bg-[#1a6fc4] disabled:opacity-50 text-white text-sm font-mono font-bold py-3.5 px-6 rounded-full transition-colors">
+                      {contactStatus === "sending" ? "Sending..." : (
+                        <><Send className="w-4 h-4" /> Send Message</>
                       )}
-
-                      <motion.button
-                        type="submit"
-                        disabled={contactStatus === "sending"}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                        style={{
-                          background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
-                          boxShadow: "0 4px 16px rgba(14,87,164,0.25)",
-                        }}
-                      >
-                        {contactStatus === "sending" ? (
-                          <>
-                            <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                            Sending…
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4" />
-                            Send Message
-                          </>
-                        )}
-                      </motion.button>
-                    </motion.form>
+                    </motion.button>
                   )}
                 </AnimatePresence>
-              </div>
+              </form>
             </RevealOnScroll>
           </div>
         </div>
       </section>
-
-      {/* ── 11. FINAL CTA SECTION ───────────────────────────────────────────── */}
-      <section className="relative py-20 bg-[#EBF3FA] border-t border-[#0E57A4]/20 overflow-hidden">
-        <div className="relative z-10 max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8 space-y-8">
-          <RevealOnScroll>
-            <h2 className="text-3xl md:text-5xl font-display font-extrabold text-ink leading-tight">
-              Ready to Advance Your Medical Career?
-            </h2>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.2}>
-            <p className="text-base text-ink-muted leading-relaxed">
-              Contact our administrative admissions desk to secure your spot in the next intake.
-            </p>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.4} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="inline-block">
-                <Button
-                  size="lg"
-                  className="gap-2.5 bg-[#F16726] hover:bg-[#d95517] border-0 text-white shadow-lg font-bold px-10 text-base rounded-full"
-                >
-                  <PhoneCall className="w-5 h-5" />
-                  Inquire &amp; Enroll Now
-                </Button>
-              </motion.div>
-            </Link>
-            <Link href="/courses">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="inline-block">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="gap-2 border-[#0E57A4] text-[#0E57A4] hover:bg-[#0E57A4]/10 font-bold px-8 text-base bg-white rounded-full"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  Browse All Courses
-                </Button>
-              </motion.div>
-            </Link>
-          </RevealOnScroll>
-        </div>
-      </section>
-
     </div>
   );
 }
