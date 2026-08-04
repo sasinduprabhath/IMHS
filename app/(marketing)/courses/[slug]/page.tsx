@@ -107,17 +107,17 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* ══ LEFT: POSTER IMAGE (sticky, tall) ═══════════════════════════ */}
-          <div className="lg:col-span-4 xl:col-span-3">
+          <div className="lg:col-span-4 xl:col-span-4">
             <div className="sticky top-32">
               {/* Poster card */}
               <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid/50 bg-ink">
                 {coverSrc ? (
-                  <div className="relative w-full aspect-[3/4]">
+                  <div className="relative w-full aspect-[3/5]">
                     <Image
                       src={coverSrc}
                       alt={course.title}
                       fill
-                      className="object-cover object-center"
+                      className="object-cover object-top"
                       priority
                       unoptimized={coverSrc.startsWith("http")}
                     />
@@ -136,7 +136,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   </div>
                 ) : (
                   /* No-image fallback poster */
-                  <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-ink via-clinical-teal/30 to-chart-red/20 flex flex-col items-center justify-center gap-4 p-6">
+                  <div className="relative w-full aspect-[3/5] bg-gradient-to-br from-ink via-clinical-teal/30 to-chart-red/20 flex flex-col items-center justify-center gap-4 p-6">
                     <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
                       <BookOpen className="w-8 h-8 text-white/60" />
                     </div>
@@ -167,7 +167,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
           </div>
 
           {/* ══ MIDDLE: Course info + Syllabus + Instructors ════════════════ */}
-          <div className="lg:col-span-5 xl:col-span-6 space-y-6">
+          <div className="lg:col-span-5 xl:col-span-5 space-y-6">
 
             {/* Course identity */}
             <div className="space-y-3">
