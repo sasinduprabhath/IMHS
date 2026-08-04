@@ -61,6 +61,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
           },
           announcements: { orderBy: { createdAt: "desc" } },
           instructors: { include: { facultyMember: true } },
+          _count: { select: { enrollments: true } },
         },
       }),
       prisma.facultyMember.findMany({ take: 4, orderBy: { order: "asc" } }),
@@ -74,6 +75,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   if (!course || !course.published) notFound();
 
   const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
+  const enrolledCount = course._count?.enrollments ?? course.totalEnrolled ?? 0;
   const allLessons = course.chapters.flatMap((ch: any) => ch.lessons);
   const questionsCount = allLessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
   const lessonsCount = allLessons.length - questionsCount;
@@ -106,34 +108,21 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
           {/* ══ LEFT: POSTER IMAGE (sticky, tall) ═══════════════════════════ */}
           <div className="lg:col-span-4 xl:col-span-4">
             <div className="sticky top-24">
-              {/* Poster card */}
-              <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid/50 bg-[#0A121E]">
+              {/* Poster card fitting natural image dimensions without overlays */}
+              <div className="rounded-2xl overflow-hidden shadow-2xl border border-chart-grid bg-white">
                 {coverSrc ? (
-                  <div className="relative w-full aspect-[1/1.4] bg-slate-950/80">
-                    <Image
-                      src={coverSrc}
-                      alt={course.title}
-                      fill
-                      className="object-contain p-1"
-                      priority
-                      unoptimized={coverSrc.startsWith("http")}
-                    />
-                    {/* Subtle bottom gradient for badge legibility */}
-                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent pointer-events-none" />
-                    {/* Course code badge on poster */}
-                    <div className="absolute bottom-3 left-3">
-                      <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold text-white bg-ink/75 backdrop-blur-sm border border-white/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                        {courseCode}
-                      </span>
-                    </div>
-                    {/* Stars top right */}
-                    <div className="absolute top-3 right-3 flex items-center gap-0.5 bg-ink/60 backdrop-blur-sm rounded-full px-2 py-1">
-                      {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 fill-chart-red text-chart-red" />)}
-                    </div>
-                  </div>
+                  <Image
+                    src={coverSrc}
+                    alt={course.title}
+                    width={600}
+                    height={800}
+                    className="w-full h-auto object-contain rounded-2xl"
+                    priority
+                    unoptimized={coverSrc.startsWith("http")}
+                  />
                 ) : (
                   /* No-image fallback poster */
-                  <div className="relative w-full aspect-[3/5] bg-gradient-to-br from-ink via-clinical-teal/30 to-chart-red/20 flex flex-col items-center justify-center gap-4 p-6">
+                  <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-ink via-clinical-teal/30 to-chart-red/20 flex flex-col items-center justify-center gap-4 p-6">
                     <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
                       <BookOpen className="w-8 h-8 text-white/60" />
                     </div>
@@ -152,7 +141,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
               <div className="mt-3 flex items-center justify-center gap-4 text-xs font-mono text-sage">
                 <span className="flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-clinical-teal" />
-                  {course.totalEnrolled || 450}+ Enrolled
+                  {enrolledCount} Enrolled
                 </span>
                 <span className="text-chart-grid">·</span>
                 <span className="flex items-center gap-1.5">
@@ -373,7 +362,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   <div className="border-t border-chart-grid/50 pt-4 space-y-2.5">
                     {[
                       { icon: Clock, label: "Validity", value: course.enrollmentValidity || "Lifetime" },
-                      { icon: Users, label: "Enrolled", value: `${course.totalEnrolled || 450}+ Students` },
+                      { icon: Users, label: "Enrolled", value: `${enrolledCount} Students` },
                       { icon: Layers, label: "Content", value: `${course.chapters.length} Ch · ${lessonsCount} Lessons` },
                     ].map(({ icon: Icon, label, value }) => (
                       <div key={label} className="flex items-center justify-between">
