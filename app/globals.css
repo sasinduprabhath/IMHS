@@ -52,9 +52,15 @@
 
   /* Transitions */
   --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-clinical: cubic-bezier(.16, 1, .3, 1);
   --transition-fast: 150ms var(--ease-smooth);
   --transition-base: 250ms var(--ease-smooth);
   --transition-slow: 400ms var(--ease-smooth);
+
+  /* Extended palette */
+  --color-deep-navy: #0A2540;
+  --color-hairline: rgba(14, 87, 164, 0.07);
+  --shadow-card: 0 2px 12px rgba(10, 18, 30, 0.08), 0 1px 3px rgba(10, 18, 30, 0.05);
 }
 
 /* ── Base Styles ─────────────────────────────────────────────────────────── */
@@ -391,4 +397,39 @@ main {
 .table-row-hover:hover {
   background: rgba(14, 87, 164, .03);
   transition: background var(--transition-fast);
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Absorption Line + Hairline dot grid ─────────────────────────────────── */
+.dot-grid-bg {
+  background-image: radial-gradient(circle, var(--color-hairline) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Contact form input draw-in focus */
+.contact-input {
+  border: none;
+  border-bottom: 1.5px solid rgb(var(--chart-grid));
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 0.5rem 0;
+  transition: border-color 0.3s var(--ease-clinical);
+  font-family: var(--font-sans-family);
+  color: rgb(var(--ink));
+}
+
+.contact-input:focus {
+  border-bottom-color: #0E57A4;
 }

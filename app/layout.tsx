@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { PageTransitionProvider } from "@/components/providers/PageTransitionProvider";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  weight: ["400", "500", "600", "700", "800"],
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
@@ -19,7 +19,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
   subsets: ["latin"],
   variable: "--font-mono",
@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable}`}
     >
       <body className="font-sans bg-surface text-ink min-h-screen flex flex-col antialiased">
         <AuthProvider>
