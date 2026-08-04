@@ -21,6 +21,7 @@ import {
   Phone,
   RefreshCcw,
   IdCard,
+  Search,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -146,6 +147,9 @@ function Step2({
   courses: CourseOption[];
   loadingCourses: boolean;
 }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterMode, setFilterMode] = useState<"all" | "selected">("all");
+
   const toggleCourse = (id: string) =>
     setForm((f) => ({
       ...f,
@@ -154,8 +158,34 @@ function Step2({
         : [...f.selectedCourseIds, id],
     }));
 
+  const selectAll = () => {
+    setForm((f) => ({
+      ...f,
+      selectedCourseIds: courses.map((c) => c.id),
+    }));
+  };
+
+  const clearAll = () => {
+    setForm((f) => ({ ...f, selectedCourseIds: [] }));
+  };
+
   const handleRegen = () =>
     setForm((f) => ({ ...f, tempPassword: generateTempPassword() }));
+
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch =
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.slug.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterMode === "all" ? true : form.selectedCourseIds.includes(course.id);
+    return matchesSearch && matchesFilter;
+  });
+
+  const selectedCoursesList = courses.filter((c) =>
+    form.selectedCourseIds.includes(c.id)
+  );
+
+  const totalPrice = selectedCoursesList.reduce((sum, c) => sum + c.price, 0);
 
   return (
     <div className="space-y-6">
@@ -190,53 +220,180 @@ function Step2({
         </p>
       </div>
 
-      {/* Course Enrollment */}
-      <div className="space-y-2 pt-1">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-clinical-teal" />
-          <label className="text-xs font-mono text-ink font-semibold">
-            Course Enrollments
-          </label>
-          {form.selectedCourseIds.length > 0 && (
-            <span className="ml-auto text-[10px] font-mono text-clinical-teal font-bold">
-              {form.selectedCourseIds.length} selected
+      {/* Course Enrollment Header & Quick Actions */}
+      <div className="space-y-3 pt-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-clinical-teal" />
+            <label className="text-xs font-mono text-ink font-bold uppercase tracking-wider">
+              Course Enrollments
+            </label>
+            <span className="bg-clinical-teal/10 text-clinical-teal text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+              {form.selectedCourseIds.length} / {courses.length}
             </span>
+          </div>
+
+          {courses.length > 0 && (
+            <div className="flex items-center gap-2 text-[11px] font-mono">
+              <button
+                type="button"
+                onClick={selectAll}
+                className="text-clinical-teal hover:underline font-semibold"
+              >
+                Select All
+              </button>
+              <span className="text-sage">•</span>
+              <button
+                type="button"
+                onClick={clearAll}
+                className="text-sage hover:text-ink hover:underline"
+              >
+                Clear
+              </button>
+            </div>
           )}
         </div>
 
+        {/* Selected Courses Summary Box */}
+        {selectedCoursesList.length > 0 && (
+          <div className="p-3 bg-clinical-teal-surface/70 border border-clinical-teal/25 rounded-xl space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-ink font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal" />
+                Active Enrollment Summary
+              </span>
+              <span className="text-clinical-teal font-bold">
+                LKR {totalPrice.toLocaleString()} Total
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedCoursesList.map((c) => (
+                <span
+                  key={c.id}
+                  className="inline-flex items-center gap-1.5 bg-white border border-clinical-teal/30 text-ink text-xs font-medium px-2.5 py-1 rounded-lg shadow-xs"
+                >
+                  <span className="truncate max-w-[200px]">{c.title}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleCourse(c.id);
+                    }}
+                    className="text-sage hover:text-red-500 font-bold ml-1 text-xs"
+                    title="Remove course"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Search Bar & Filter Toggle */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+            <input
+              type="text"
+              placeholder="Search by course title or code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 bg-linen/40 border border-chart-grid rounded-lg text-xs text-ink focus:outline-none focus:border-clinical-teal"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sage hover:text-ink text-xs font-bold"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className="flex border border-chart-grid rounded-lg p-0.5 bg-linen/40 text-[11px] font-mono shrink-0">
+            <button
+              type="button"
+              onClick={() => setFilterMode("all")}
+              className={cn(
+                "px-2.5 py-1 rounded-md transition-all",
+                filterMode === "all"
+                  ? "bg-white text-ink font-bold shadow-xs"
+                  : "text-sage hover:text-ink"
+              )}
+            >
+              All ({courses.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterMode("selected")}
+              className={cn(
+                "px-2.5 py-1 rounded-md transition-all",
+                filterMode === "selected"
+                  ? "bg-white text-ink font-bold shadow-xs"
+                  : "text-sage hover:text-ink"
+              )}
+            >
+              Selected ({form.selectedCourseIds.length})
+            </button>
+          </div>
+        </div>
+
+        {/* Course Cards List */}
         {loadingCourses ? (
-          <div className="text-xs font-mono text-sage py-4 text-center">Loading courses…</div>
-        ) : courses.length === 0 ? (
-          <div className="text-xs font-mono text-sage py-4 text-center">No published courses found.</div>
+          <div className="text-xs font-mono text-sage py-8 text-center bg-linen/30 rounded-xl border border-chart-grid border-dashed">
+            Loading course catalog...
+          </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className="text-xs font-mono text-sage py-8 text-center bg-linen/30 rounded-xl border border-chart-grid border-dashed">
+            {searchTerm
+              ? `No courses matching "${searchTerm}"`
+              : filterMode === "selected"
+              ? "No courses selected yet."
+              : "No courses available."}
+          </div>
         ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-            {courses.map((course) => {
+          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+            {filteredCourses.map((course) => {
               const checked = form.selectedCourseIds.includes(course.id);
               return (
                 <div
                   key={course.id}
                   onClick={() => toggleCourse(course.id)}
                   className={cn(
-                    "p-3 rounded-lg border text-xs cursor-pointer flex items-center justify-between transition-all",
+                    "p-3.5 rounded-xl border text-xs cursor-pointer flex items-center justify-between transition-all group",
                     checked
-                      ? "bg-clinical-teal-surface border-clinical-teal/50 shadow-xs"
-                      : "bg-surface border-chart-grid hover:bg-linen/60"
+                      ? "bg-clinical-teal-surface border-clinical-teal shadow-xs ring-1 ring-clinical-teal/30"
+                      : "bg-surface border-chart-grid hover:bg-linen/60 hover:border-chart-grid/80"
                   )}
                 >
-                  <div className="min-w-0">
-                    <p className={cn("font-medium text-ink text-sm leading-snug", checked && "font-semibold")}>
+                  <div className="min-w-0 pr-3">
+                    <p className={cn("font-medium text-ink text-sm leading-snug", checked && "font-semibold text-clinical-teal")}>
                       {course.title}
                     </p>
-                    <p className="font-mono text-[10px] text-sage mt-0.5">
-                      LKR {course.price.toLocaleString()} · {course.slug}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-mono text-[10px] text-sage font-medium">
+                        LKR {course.price.toLocaleString()}
+                      </span>
+                      <span className="text-sage">•</span>
+                      <span className="font-mono text-[10px] bg-linen border border-chart-grid px-1.5 py-0.2 rounded text-sage uppercase">
+                        {course.slug}
+                      </span>
+                    </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => { }}
-                    className="w-4 h-4 accent-clinical-teal shrink-0 ml-3"
-                  />
+
+                  {/* Styled Checkbox Pill */}
+                  <div
+                    className={cn(
+                      "w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-all",
+                      checked
+                        ? "bg-clinical-teal text-white shadow-xs"
+                        : "border border-chart-grid bg-white group-hover:border-clinical-teal/50"
+                    )}
+                  >
+                    {checked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </div>
                 </div>
               );
             })}
