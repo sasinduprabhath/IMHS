@@ -19,7 +19,6 @@ import {
   MessageSquare,
   Sparkles,
   ShieldCheck,
-  Download,
 } from "lucide-react";
 
 const SESSIONS = [
@@ -100,7 +99,6 @@ export function DrIsuruBookingClient() {
         .then((data) => {
           const booked = data.bookedSlots || [];
           setBookedSlots(booked);
-          // Auto clear slot if already booked
           if (booked.includes(selectedTimeSlot)) {
             setSelectedTimeSlot("");
           }
@@ -118,7 +116,6 @@ export function DrIsuruBookingClient() {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
       if (d.getDay() !== 0) {
-        // Skip Sundays
         dates.push({
           isoString: d.toISOString().split("T")[0],
           dayName: d.toLocaleDateString("en-US", { weekday: "short" }),
@@ -194,26 +191,26 @@ export function DrIsuruBookingClient() {
   };
 
   return (
-    <div id="booking-widget" className="max-w-4xl mx-auto bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
+    <div id="booking-widget" className="max-w-4xl mx-auto bg-surface border border-chart-grid rounded-2xl shadow-paper overflow-hidden">
       {/* Header Bar */}
-      <div className="bg-linen/60 border-b border-chart-grid p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-clinical-teal bg-clinical-teal/10 px-2.5 py-1 rounded-full">
+      <div className="bg-linen/60 border-b border-chart-grid p-4 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-clinical-teal bg-clinical-teal/10 px-2.5 py-1 rounded-full inline-block">
             1-ON-1 APPOINTMENT SYSTEM
           </span>
-          <h2 className="text-xl sm:text-2xl font-display font-bold text-ink mt-2">
+          <h2 className="text-lg sm:text-2xl font-display font-bold text-ink leading-snug">
             Book Mentorship with Dr. Isuru Wijesinghe
           </h2>
         </div>
 
         {/* Progress Indicator */}
-        <div className="flex items-center gap-2 text-xs font-mono">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono shrink-0">
           {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
-              className={`w-7 h-7 rounded-full flex items-center justify-center font-bold transition-all ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all ${
                 step === s
-                  ? "bg-clinical-teal text-white scale-110 shadow-sm"
+                  ? "bg-clinical-teal text-white scale-105 shadow-sm"
                   : step > s
                   ? "bg-clinical-teal/20 text-clinical-teal"
                   : "bg-surface text-ink-muted border border-chart-grid"
@@ -225,9 +222,9 @@ export function DrIsuruBookingClient() {
         </div>
       </div>
 
-      <div className="p-6 sm:p-10 space-y-6">
+      <div className="p-4 sm:p-8 md:p-10 space-y-6">
         {errorMsg && (
-          <div className="bg-chart-red/10 border border-chart-red/30 text-chart-red p-4 rounded-card text-xs flex items-center gap-2 font-medium">
+          <div className="bg-chart-red/10 border border-chart-red/30 text-chart-red p-3.5 sm:p-4 rounded-xl text-xs flex items-center gap-2 font-medium">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -244,7 +241,7 @@ export function DrIsuruBookingClient() {
               className="space-y-6"
             >
               <div>
-                <h3 className="text-base font-display font-bold text-ink">
+                <h3 className="text-sm sm:text-base font-display font-bold text-ink">
                   Step 1: Choose Your Mentorship &amp; Consultation Session
                 </h3>
                 <p className="text-xs text-ink-muted mt-1">
@@ -252,7 +249,7 @@ export function DrIsuruBookingClient() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                 {SESSIONS.map((session) => {
                   const isSelected = selectedSession.id === session.id;
                   const Icon = session.icon;
@@ -260,28 +257,28 @@ export function DrIsuruBookingClient() {
                     <div
                       key={session.id}
                       onClick={() => setSelectedSession(session)}
-                      className={`p-6 rounded-card border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4 ${
+                      className={`p-4 sm:p-6 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4 ${
                         isSelected
                           ? "border-clinical-teal bg-clinical-teal/5 shadow-paper-stack ring-2 ring-clinical-teal/20"
                           : "border-chart-grid bg-surface hover:border-clinical-teal/40 hover:bg-linen/30"
                       }`}
                     >
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className={`p-3 rounded-card border ${session.color}`}>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className={`p-2.5 sm:p-3 rounded-xl border shrink-0 ${session.color}`}>
                             <Icon className="w-5 h-5" />
                           </div>
-                          <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold">
-                            <span className="text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2.5 py-1 rounded-full">
+                          <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] font-bold justify-end">
+                            <span className="text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap">
                               {session.priceFormatted}
                             </span>
-                            <span className="text-sage bg-linen border border-chart-grid px-2.5 py-1 rounded-full">
+                            <span className="text-sage bg-linen border border-chart-grid px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap">
                               {session.duration}
                             </span>
                           </div>
                         </div>
 
-                        <h4 className="text-base font-bold font-sans text-ink leading-snug">
+                        <h4 className="text-sm sm:text-base font-bold font-sans text-ink leading-snug">
                           {session.title}
                         </h4>
 
@@ -291,11 +288,11 @@ export function DrIsuruBookingClient() {
                       </div>
 
                       <div className="pt-2 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono">
-                        <span className="text-clinical-teal font-semibold">
+                        <span className="text-clinical-teal font-semibold text-[11px] sm:text-xs">
                           {session.tag}
                         </span>
                         {isSelected && (
-                          <CheckCircle2 className="w-4 h-4 text-clinical-teal" />
+                          <CheckCircle2 className="w-4 h-4 text-clinical-teal shrink-0" />
                         )}
                       </div>
                     </div>
@@ -303,8 +300,8 @@ export function DrIsuruBookingClient() {
                 })}
               </div>
 
-              <div className="pt-4 flex justify-end">
-                <Button onClick={handleNextStep} className="gap-2 font-mono text-xs">
+              <div className="pt-4 border-t border-chart-grid flex justify-end">
+                <Button onClick={handleNextStep} className="w-full sm:w-auto gap-2 font-mono text-xs py-3">
                   Continue to Date &amp; Time <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -321,7 +318,7 @@ export function DrIsuruBookingClient() {
               className="space-y-6"
             >
               <div>
-                <h3 className="text-base font-display font-bold text-ink">
+                <h3 className="text-sm sm:text-base font-display font-bold text-ink">
                   Step 2: Select Consultation Date &amp; Time Slot
                 </h3>
                 <p className="text-xs text-ink-muted mt-1">
@@ -334,7 +331,7 @@ export function DrIsuruBookingClient() {
                 <label className="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
                   <CalendarIcon className="w-4 h-4 text-clinical-teal" /> Select Preferred Date:
                 </label>
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+                <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x snap-mandatory">
                   {availableDates.map((d) => {
                     const isSelected = selectedDate === d.isoString;
                     return (
@@ -342,19 +339,19 @@ export function DrIsuruBookingClient() {
                         key={d.isoString}
                         type="button"
                         onClick={() => setSelectedDate(d.isoString)}
-                        className={`shrink-0 w-20 py-3 px-2 rounded-card border text-center transition-all ${
+                        className={`snap-start shrink-0 w-16 sm:w-20 py-2.5 sm:py-3 px-1.5 sm:px-2 rounded-xl border text-center transition-all ${
                           isSelected
                             ? "bg-clinical-teal text-white border-clinical-teal shadow-md scale-105"
                             : "bg-surface text-ink border-chart-grid hover:border-clinical-teal/40 hover:bg-linen/50"
                         }`}
                       >
-                        <span className="block text-[10px] font-mono uppercase opacity-80">
+                        <span className="block text-[9px] sm:text-[10px] font-mono uppercase opacity-80">
                           {d.dayName}
                         </span>
-                        <span className="block text-xl font-bold font-display my-0.5">
+                        <span className="block text-lg sm:text-xl font-bold font-display my-0.5">
                           {d.dayNumber}
                         </span>
-                        <span className="block text-[10px] font-mono opacity-80">
+                        <span className="block text-[9px] sm:text-[10px] font-mono opacity-80">
                           {d.monthName}
                         </span>
                       </button>
@@ -366,7 +363,7 @@ export function DrIsuruBookingClient() {
               {/* Time Slot Selector */}
               {selectedDate && (
                 <div className="space-y-3 pt-4 border-t border-chart-grid">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <label className="text-xs font-mono font-bold uppercase text-ink flex items-center gap-1.5">
                       <Clock className="w-4 h-4 text-clinical-teal" /> Select Time Slot (Sri Lanka Time GMT+5:30):
                     </label>
@@ -377,7 +374,7 @@ export function DrIsuruBookingClient() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
                     {TIME_SLOTS.map((slot) => {
                       const isBooked = bookedSlots.includes(slot);
                       const isSelected = selectedTimeSlot === slot;
@@ -387,7 +384,7 @@ export function DrIsuruBookingClient() {
                           type="button"
                           disabled={isBooked}
                           onClick={() => setSelectedTimeSlot(slot)}
-                          className={`py-3 px-3 rounded-card border text-xs font-mono font-bold transition-all text-center relative flex flex-col items-center justify-center gap-1 ${
+                          className={`py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl border text-xs font-mono font-bold transition-all text-center relative flex flex-col items-center justify-center gap-1 ${
                             isBooked
                               ? "bg-chart-red/5 border-chart-red/30 text-chart-red/60 cursor-not-allowed opacity-75"
                               : isSelected
@@ -414,14 +411,14 @@ export function DrIsuruBookingClient() {
                 </div>
               )}
 
-              <div className="pt-6 border-t border-chart-grid flex items-center justify-between">
-                <Button variant="outline" onClick={handlePrevStep} className="gap-2 font-mono text-xs">
+              <div className="pt-4 sm:pt-6 border-t border-chart-grid flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <Button variant="outline" onClick={handlePrevStep} className="w-full sm:w-auto gap-2 font-mono text-xs">
                   <ArrowLeft className="w-4 h-4" /> Back
                 </Button>
                 <Button
                   onClick={handleNextStep}
                   disabled={!selectedDate || !selectedTimeSlot}
-                  className="gap-2 font-mono text-xs"
+                  className="w-full sm:w-auto gap-2 font-mono text-xs"
                 >
                   Enter Student Details <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -439,7 +436,7 @@ export function DrIsuruBookingClient() {
               className="space-y-6"
             >
               <div>
-                <h3 className="text-base font-display font-bold text-ink">
+                <h3 className="text-sm sm:text-base font-display font-bold text-ink">
                   Step 3: Enter Your Contact Details &amp; Session Goal
                 </h3>
                 <p className="text-xs text-ink-muted mt-1">
@@ -459,7 +456,7 @@ export function DrIsuruBookingClient() {
                       placeholder="e.g. Kasun Perera"
                       value={studentName}
                       onChange={(e) => setStudentName(e.target.value)}
-                      className="w-full bg-white border border-chart-grid rounded-card px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
+                      className="w-full bg-white border border-chart-grid rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
                     />
                   </div>
 
@@ -473,7 +470,7 @@ export function DrIsuruBookingClient() {
                       placeholder="kasun@gmail.com"
                       value={studentEmail}
                       onChange={(e) => setStudentEmail(e.target.value)}
-                      className="w-full bg-white border border-chart-grid rounded-card px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
+                      className="w-full bg-white border border-chart-grid rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
                     />
                   </div>
                 </div>
@@ -488,7 +485,7 @@ export function DrIsuruBookingClient() {
                     placeholder="+94 77 123 4567"
                     value={studentPhone}
                     onChange={(e) => setStudentPhone(e.target.value)}
-                    className="w-full bg-white border border-chart-grid rounded-card px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
+                    className="w-full bg-white border border-chart-grid rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
                   />
                 </div>
 
@@ -501,29 +498,29 @@ export function DrIsuruBookingClient() {
                     placeholder="Briefly describe what you'd like to focus on during this 1-on-1 session..."
                     value={topicNotes}
                     onChange={(e) => setTopicNotes(e.target.value)}
-                    className="w-full bg-white border border-chart-grid rounded-card px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
+                    className="w-full bg-white border border-chart-grid rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
                   />
                 </div>
 
                 {/* Session Summary Card */}
-                <div className="bg-linen/60 border border-chart-grid p-4 rounded-card space-y-1.5 text-xs font-mono">
-                  <div className="font-bold text-ink flex items-center justify-between">
-                    <span>Selected Session: {selectedSession.title}</span>
-                    <span className="text-clinical-teal">{selectedSession.duration}</span>
+                <div className="bg-linen/60 border border-chart-grid p-3.5 sm:p-4 rounded-xl space-y-2 text-xs font-mono">
+                  <div className="font-bold text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <span className="break-words">Selected Session: {selectedSession.title}</span>
+                    <span className="text-clinical-teal shrink-0">{selectedSession.duration}</span>
                   </div>
-                  <div className="text-ink-muted flex items-center justify-between pt-1">
-                    <span>Scheduled: {selectedDate} at {selectedTimeSlot} (GMT+5:30)</span>
-                    <span className="font-bold text-clinical-teal bg-clinical-teal/10 px-2 py-0.5 rounded">
+                  <div className="text-ink-muted flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pt-1.5 border-t border-chart-grid/40">
+                    <span className="break-words">Scheduled: {selectedDate} at {selectedTimeSlot} (GMT+5:30)</span>
+                    <span className="font-bold text-clinical-teal bg-clinical-teal/10 px-2 py-0.5 rounded self-start sm:self-auto shrink-0">
                       Fee: {selectedSession.priceFormatted}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-chart-grid flex items-center justify-between">
-                  <Button type="button" variant="outline" onClick={handlePrevStep} className="gap-2 font-mono text-xs">
+                <div className="pt-4 border-t border-chart-grid flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                  <Button type="button" variant="outline" onClick={handlePrevStep} className="w-full sm:w-auto gap-2 font-mono text-xs">
                     <ArrowLeft className="w-4 h-4" /> Back
                   </Button>
-                  <Button type="submit" disabled={loading} className="gap-2 font-mono text-xs">
+                  <Button type="submit" disabled={loading} className="w-full sm:w-auto gap-2 font-mono text-xs">
                     {loading ? "Submitting Booking..." : "Confirm & Submit Booking"} <CheckCircle2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -537,34 +534,34 @@ export function DrIsuruBookingClient() {
               key="step4"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center space-y-6 py-6"
+              className="text-center space-y-6 py-4 sm:py-6"
             >
-              <div className="w-16 h-16 bg-clinical-teal/10 text-clinical-teal rounded-full flex items-center justify-center mx-auto border border-clinical-teal/30">
-                <CheckCircle2 className="w-8 h-8" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-clinical-teal/10 text-clinical-teal rounded-full flex items-center justify-center mx-auto border border-clinical-teal/30">
+                <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
               </div>
 
               <div className="space-y-2">
-                <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-clinical-teal bg-clinical-teal/10 px-3 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono font-bold text-clinical-teal bg-clinical-teal/10 px-3 py-1 rounded-full">
                   <ShieldCheck className="w-3.5 h-3.5" /> BOOKING REQUEST RECEIVED
                 </span>
-                <h3 className="text-2xl font-display font-bold text-ink">
+                <h3 className="text-xl sm:text-2xl font-display font-bold text-ink">
                   Your Appointment Request is Submitted!
                 </h3>
-                <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed px-2">
                   Thank you, <strong className="text-ink">{confirmedBooking.studentName}</strong>. Your 1-on-1 mentorship session with Dr. Isuru Wijesinghe has been logged.
                 </p>
               </div>
 
-              <div className="bg-linen/50 border border-chart-grid p-6 rounded-card max-w-md mx-auto text-left space-y-3 text-xs font-mono text-ink">
+              <div className="bg-linen/50 border border-chart-grid p-4 sm:p-6 rounded-xl max-w-md mx-auto text-left space-y-3 text-xs font-mono text-ink">
                 <div className="flex items-center justify-between border-b border-chart-grid pb-2.5">
                   <span className="text-ink-muted uppercase">Reference Code:</span>
                   <span className="font-bold text-clinical-teal text-sm">{confirmedBooking.bookingCode}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span className="text-ink-muted">Session:</span>
-                  <span className="font-semibold">{selectedSession.title}</span>
+                  <span className="font-semibold break-words">{selectedSession.title}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span className="text-ink-muted">Date &amp; Time:</span>
                   <span className="font-semibold">{selectedDate} @ {confirmedBooking.timeSlot}</span>
                 </div>
@@ -582,7 +579,7 @@ export function DrIsuruBookingClient() {
                 </div>
               </div>
 
-              <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed">
+              <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed px-2">
                 IMHS Administration will confirm your session time and email/WhatsApp you the Google Meet video link shortly.
               </p>
 
@@ -593,7 +590,7 @@ export function DrIsuruBookingClient() {
                     setConfirmedBooking(null);
                   }}
                   variant="outline"
-                  className="rounded-full text-xs font-mono gap-2"
+                  className="rounded-full text-xs font-mono gap-2 w-full sm:w-auto"
                 >
                   <Sparkles className="w-4 h-4 text-clinical-teal" /> Book Another Session
                 </Button>
