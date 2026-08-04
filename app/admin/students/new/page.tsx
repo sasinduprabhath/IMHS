@@ -354,7 +354,16 @@ function Step2({
               : "No courses available."}
           </div>
         ) : (
-          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+          <div
+            className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1.5 scroll-smooth select-text"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              touchAction: "pan-y",
+              overscrollBehavior: "contain",
+            }}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
             {filteredCourses.map((course) => {
               const checked = form.selectedCourseIds.includes(course.id);
               return (
