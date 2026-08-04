@@ -211,6 +211,18 @@ export function AISupportChat() {
   const abortRef = useRef<AbortController | null>(null);
   const typingTimers = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
+  // Prevent background body scroll when chat panel is open on mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Gentle scroll to bottom when user sends a message or new content arrives
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
@@ -234,6 +246,25 @@ export function AISupportChat() {
       typingTimers.current.forEach((t) => clearInterval(t));
     };
   }, []);
+
+  /** Prevent scroll propagation to background page when scrolling inside chat messages */
+  const handleScrollAreaWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const el = e.currentTarget;
+    const isUp = e.deltaY < 0;
+    const isDown = e.deltaY > 0;
+
+    if (isUp && el.scrollTop <= 0) {
+      e.preventDefault();
+    } else if (isDown && el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+      e.preventDefault();
+    }
+  };
+
+  /** Prevent touch scroll propagation on mobile */
+  const handleScrollAreaTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
 
   /** Typewriter animation word by word */
   const startTypewriter = useCallback(
@@ -414,14 +445,16 @@ export function AISupportChat() {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Panel Container */}
+            {/* Panel Container — Stop Wheel & Touch Propagation to Background */}
             <motion.div
               key="panel"
               initial={{ opacity: 0, y: 20, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 360, damping: 30 }}
-              className="fixed z-50 flex flex-col bottom-0 right-0 left-0 md:bottom-6 md:right-6 md:left-auto w-full md:w-[390px] h-[85vh] md:h-[580px] rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl bg-[#F6F9FD] border border-[#0E57A4]/15"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              className="fixed z-50 flex flex-col bottom-0 right-0 left-0 md:bottom-6 md:right-6 md:left-auto w-full md:w-[390px] h-[85vh] md:h-[580px] max-h-[90vh] md:max-h-[580px] rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl bg-[#F6F9FD] border border-[#0E57A4]/15"
             >
               {/* Header */}
               <div
@@ -457,13 +490,16 @@ export function AISupportChat() {
                 </div>
               </div>
 
-              {/* ── Messages Scroll Area (100% Scrollable) ── */}
+              {/* ── Messages Scroll Area (Isolated Scroll, No Background Chaining) ── */}
               <div
                 ref={scrollContainerRef}
-                className="flex-1 h-full min-h-0 overflow-y-auto px-4 py-4 space-y-2 select-text"
+                onWheel={handleScrollAreaWheel}
+                onTouchMove={handleScrollAreaTouchMove}
+                className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-2 select-text"
                 style={{
                   WebkitOverflowScrolling: "touch",
                   touchAction: "pan-y",
+                  overscrollBehavior: "contain",
                 }}
               >
                 {isEmpty && (
@@ -541,7 +577,7 @@ export function AISupportChat() {
                 className="shrink-0 px-3 pb-3 pt-2 border-t border-[#E8EEF6]"
                 style={{ background: "rgba(246,249,253,0.95)" }}
               >
-                {/* Input box wrapper — clean border with no focus-within outline */}
+                {/* Input box wrapper */}
                 <div className="flex items-end gap-2 bg-white border border-[#DDE6F0] rounded-2xl px-3.5 py-2 shadow-sm transition-colors">
                   <textarea
                     ref={inputRef}
