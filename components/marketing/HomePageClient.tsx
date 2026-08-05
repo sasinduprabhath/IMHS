@@ -220,7 +220,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
-      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-start px-4 sm:px-6 lg:px-12 pt-24 sm:pt-28 pb-16 sm:pb-24 border-b border-slate-800 overflow-hidden bg-slate-950">
+      <section className="relative min-h-screen flex items-center justify-start px-4 sm:px-6 lg:px-12 pt-20 pb-20 overflow-hidden bg-slate-950">
         {/* Full Background Video (Desktop & Tablet) */}
         <video
           autoPlay
@@ -254,14 +254,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         <div className="max-w-7xl mx-auto w-full relative z-10">
           {/* Left-Aligned Hero Text Block */}
           <div className="w-full lg:max-w-2xl space-y-6 text-left flex flex-col items-start">
-            {/* Eyebrow badge */}
-            <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show">
-              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 px-4 py-1.5 rounded-full shadow-xs backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                SLMC-ALIGNED HEALTHCARE EDUCATION
-              </span>
-            </motion.div>
-
             {/* Headline */}
             <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="w-full">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white leading-[1.08] tracking-tight text-left drop-shadow-lg">
