@@ -359,27 +359,33 @@ export function CoursePlayerClient({
                 <CheckSquare className="w-4 h-4" />
                 {isCurrentCompleted ? "✓ Completed (click to undo)" : "Mark as Completed"}
               </Button>
-                        {/* Lesson Description / Clinical Notes */}
+            {/* Lesson Description / Clinical Notes */}
             {currentLesson.content && (() => {
               const cleanedNotes = currentLesson.content
                 .replace(/\\"/g, '"')
                 .replace(/\\'/g, "'")
                 .replace(/\\/g, "")
                 .replace(/<!--[\s\S]*?-->/g, "")
+                .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+                .replace(/<p[^>]*>\s*Your browser does not support PDFs[\s\S]*?<\/p>/gi, "")
+                .replace(/<a[^>]*>\s*Download the PDF[\s\S]*?<\/a>/gi, "")
+                .replace(/<p>\s*<\/p>/gi, "")
                 .trim();
 
-              if (!cleanedNotes) return null;
+              // Strip HTML tags to check if any real text remains
+              const textOnly = cleanedNotes.replace(/<[^>]*>/g, "").trim();
+              if (!textOnly) return null;
 
-              const hasHtmlTags = cleanedNotes.startsWith("<") || cleanedNotes.includes("<iframe") || cleanedNotes.includes("<p") || cleanedNotes.includes("<a");
+              const hasRemainingHtml = cleanedNotes.startsWith("<") || cleanedNotes.includes("<p") || cleanedNotes.includes("<div") || cleanedNotes.includes("<a");
 
               return (
                 <div className="space-y-2 pt-2 border-t border-chart-grid">
                   <h4 className="font-mono text-xs text-sage uppercase tracking-wider font-semibold">
                     Clinical Notes &amp; Guidance
                   </h4>
-                  {hasHtmlTags ? (
+                  {hasRemainingHtml ? (
                     <div
-                      className="prose prose-sm text-ink max-w-none font-sans leading-relaxed space-y-3 [&_iframe]:w-full [&_iframe]:min-h-[550px] [&_iframe]:rounded-2xl [&_iframe]:border-0 [&_iframe]:shadow-sm"
+                      className="prose prose-sm text-ink max-w-none font-sans leading-relaxed space-y-3"
                       dangerouslySetInnerHTML={{ __html: cleanedNotes }}
                     />
                   ) : (
