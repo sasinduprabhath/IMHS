@@ -252,8 +252,8 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         />
 
         <div className="max-w-7xl mx-auto w-full relative z-10">
-          {/* Left-Aligned Dark Glass Hero Card (Left 50% Focus) */}
-          <div className="w-full lg:max-w-2xl bg-slate-950/50 backdrop-blur-md p-6 sm:p-10 rounded-3xl border border-white/15 shadow-2xl space-y-6 text-left flex flex-col items-start">
+          {/* Left-Aligned Hero Text Block */}
+          <div className="w-full lg:max-w-2xl space-y-6 text-left flex flex-col items-start">
             {/* Eyebrow badge */}
             <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show">
               <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 px-4 py-1.5 rounded-full shadow-xs backdrop-blur-md">
@@ -285,7 +285,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               variants={heroVariant}
               initial="hidden"
               animate="show"
-              className="text-base sm:text-lg text-white/90 font-sans leading-relaxed text-left drop-shadow-sm"
+              className="text-base sm:text-lg text-white/90 font-sans leading-relaxed text-left drop-shadow-sm max-w-xl"
             >
               Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
             </motion.p>

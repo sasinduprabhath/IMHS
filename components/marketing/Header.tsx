@@ -53,10 +53,7 @@ export function Header() {
             alt="IMHS Logo"
             width={160}
             height={50}
-            className={cn(
-              "h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90",
-              !scrolled && isHomePage && "brightness-0 invert drop-shadow-sm"
-            )}
+            className="h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90"
             priority
             unoptimized
           />
