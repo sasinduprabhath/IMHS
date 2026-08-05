@@ -220,35 +220,44 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
-      <section
-        className="relative min-h-[90vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12 sm:pb-20 border-b border-[#E2E8F0] overflow-hidden"
-        style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 45%, #ffffff 100%)" }}
-      >
-        {/* Multi-layer ambient glow */}
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-24 border-b border-slate-800 overflow-hidden bg-slate-950">
+        {/* Full Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+        >
+          <source
+            src="https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        {/* Multi-layer Dark Gradient Overlay for High Readability */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none z-0"
           style={{
-            backgroundImage:
-              "radial-gradient(ellipse 70% 60% at 15% 0%, rgba(14,87,164,0.12) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 85% 100%, rgba(241,103,38,0.08) 0%, transparent 50%)",
+            background:
+              "linear-gradient(180deg, rgba(9, 21, 39, 0.78) 0%, rgba(9, 21, 39, 0.88) 60%, rgba(9, 21, 39, 0.95) 100%)",
           }}
         />
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-
           {/* Left Column: Headlines & CTAs */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
-
             {/* Eyebrow badge */}
             <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show">
-              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] border border-[#BFDBFE] px-4 py-1.5 rounded-full shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#0E57A4] animate-pulse" />
+              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/20 border border-emerald-400/35 px-4 py-1.5 rounded-full shadow-xs backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 SLMC-ALIGNED HEALTHCARE EDUCATION
               </span>
             </motion.div>
 
             {/* Headline */}
             <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="w-full">
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-extrabold text-ink leading-[1.08] tracking-tight text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-extrabold text-white leading-[1.08] tracking-tight text-center lg:text-left drop-shadow-md">
                 Sri Lanka&apos;s Best{" "}
                 <motion.span
                   custom={0.2}
@@ -269,12 +278,12 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               variants={heroVariant}
               initial="hidden"
               animate="show"
-              className="text-base sm:text-lg text-ink-muted max-w-xl font-sans leading-relaxed text-center lg:text-left mx-auto lg:mx-0 pt-1"
+              className="text-base sm:text-lg text-white/85 max-w-xl font-sans leading-relaxed text-center lg:text-left mx-auto lg:mx-0 pt-1 drop-shadow-xs"
             >
               Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
             </motion.p>
 
-            {/* Vital ECG Line (Pulsing) */}
+            {/* Vital ECG Line */}
             <motion.div
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
@@ -282,25 +291,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               className="w-full max-w-md py-1 mx-auto lg:mx-0"
             >
               <VitalLine variant="hero" animated={true} />
-            </motion.div>
-
-            {/* Mobile Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="block lg:hidden w-full my-3"
-            >
-              <div className="relative h-[320px] sm:h-[380px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-linen mx-auto">
-                <MedicalScannerBeam />
-                <Image
-                  src="/hero.jpg"
-                  alt="Sri Lanka Best Healthcare Education"
-                  fill
-                  className="object-cover object-top"
-                  priority
-                />
-              </div>
             </motion.div>
 
             {/* CTA Buttons */}
@@ -313,7 +303,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                     className="relative w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-full tracking-wide transition-all duration-200 group"
                     style={{
                       background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
-                      boxShadow: "0 8px 24px rgba(14,87,164,0.35), 0 2px 8px rgba(241,103,38,0.20)",
+                      boxShadow: "0 8px 24px rgba(14,87,164,0.45)",
                     }}
                   >
                     <Sparkles className="w-4 h-4 text-amber-300" />
@@ -328,10 +318,10 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white text-ink transition-all duration-200 border-2 border-[#E2E8F0] hover:border-[#0E57A4]/40 hover:bg-slate-50 group"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white/10 backdrop-blur-md text-white transition-all duration-200 border border-white/30 hover:bg-white/20 group"
                   >
                     <span>Browse Programs</span>
-                    <ChevronRight className="w-4 h-4 text-[#0E57A4] group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
                   </motion.button>
                 </Link>
               </motion.div>
@@ -347,19 +337,19 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 ].map(({ initials, bg }) => (
                   <div
                     key={initials}
-                    className={`w-8 h-8 rounded-full border-2 border-white ${bg} text-white flex items-center justify-center text-[10px] font-bold shadow-xs`}
+                    className={`w-8 h-8 rounded-full border-2 border-white/80 ${bg} text-white flex items-center justify-center text-[10px] font-bold shadow-xs`}
                   >
                     {initials}
                   </div>
                 ))}
               </div>
-              <div className="text-sm font-sans font-bold text-ink">
+              <div className="text-sm font-sans font-bold text-white">
                 Over <span className="text-[#F16726] font-mono font-extrabold">3,500+</span> Active Students
               </div>
             </motion.div>
           </div>
 
-          {/* Right Column: 3D Parallax Tilt Image Stack */}
+          {/* Right Column: Glass Video Focus Card */}
           <motion.div
             initial={{ opacity: 0, x: 25 }}
             animate={{ opacity: 1, x: 0 }}
@@ -367,23 +357,33 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             className="hidden lg:block lg:col-span-5 relative"
           >
             <motion.div
-              whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
+              whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="relative h-[440px] sm:h-[500px] w-full rounded-3xl p-2 bg-gradient-to-b from-white via-white/80 to-[#E2E8F0] shadow-2xl border border-white/80"
+              className="relative h-[440px] sm:h-[480px] w-full rounded-3xl p-2 bg-gradient-to-b from-white/20 via-white/10 to-transparent shadow-2xl border border-white/25 backdrop-blur-sm"
             >
-              <div className="relative h-full w-full rounded-2xl overflow-hidden bg-linen border border-chart-grid">
-                <MedicalScannerBeam />
-                <Image
-                  src="/hero.jpg"
-                  alt="Sri Lanka Best Healthcare Education"
-                  fill
-                  className="object-cover object-top"
-                  priority
-                />
+              <div className="relative h-full w-full rounded-2xl overflow-hidden bg-slate-900 border border-white/20">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                >
+                  <source
+                    src="https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4"
+                    type="video/mp4"
+                  />
+                </video>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex flex-col justify-end p-6 text-white space-y-1">
+                  <span className="font-mono text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 rounded-full w-fit">
+                    CAMPUS HIGHLIGHTS
+                  </span>
+                  <p className="text-base font-bold font-display">IMHS Convocation &amp; Clinical Labs</p>
+                  <p className="text-xs text-white/70">Modern Pharmacy &amp; Healthcare Training Center</p>
+                </div>
               </div>
             </motion.div>
           </motion.div>
-
         </div>
       </section>
 
