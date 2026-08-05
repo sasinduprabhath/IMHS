@@ -12,7 +12,11 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^3.9.1",
+    "@mui/material": "^9.3.0",
+    "@mui/x-date-pickers": "^9.10.1",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-avatar": "^1.1.0",
@@ -26,6 +30,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.21",
     "driver.js": "^1.8.0",
     "framer-motion": "^12.43.0",
     "googleapis": "^174.0.0",

@@ -27,6 +27,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MuiDateTimePicker } from "@/components/ui/mui-date-time-picker";
 
 interface Course {
   id: string;
@@ -349,11 +350,17 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
                 className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs outline-none focus:border-[#0E57A4] transition-colors"
               >
                 <option value="ALL">All Courses</option>
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
+                {courses.map((c) => {
+                  const cleanTitle = c.title
+                    .replace(/\\"/g, '"')
+                    .replace(/\\'/g, "'")
+                    .replace(/\\/g, "");
+                  return (
+                    <option key={c.id} value={c.id}>
+                      {cleanTitle}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
@@ -583,7 +590,7 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
       {/* ── MODAL: CREATE ASSIGNMENT ──────────────────────────────────────── */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -596,7 +603,7 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative z-10 w-full max-w-xl bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto"
+              className="relative z-10 w-full max-w-xl bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto my-auto"
             >
               <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
                 <div>
@@ -624,11 +631,17 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
                     className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs outline-none focus:border-[#0E57A4]"
                     required
                   >
-                    {courses.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.title}
-                      </option>
-                    ))}
+                    {courses.map((c) => {
+                      const cleanTitle = c.title
+                        .replace(/\\"/g, '"')
+                        .replace(/\\'/g, "'")
+                        .replace(/\\/g, "");
+                      return (
+                        <option key={c.id} value={c.id}>
+                          {cleanTitle}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
@@ -656,14 +669,12 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Due Date & Time *</label>
-                    <input
-                      type="datetime-local"
+                    <MuiDateTimePicker
+                      label="Due Date & Time *"
                       value={newDueDate}
-                      onChange={(e) => setNewDueDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs outline-none focus:border-[#0E57A4]"
+                      onChange={(isoString) => setNewDueDate(isoString)}
                       required
                     />
                   </div>
