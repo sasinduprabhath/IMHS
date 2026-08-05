@@ -368,9 +368,71 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
               )}
 
               <form onSubmit={handleFormSubmit} className="space-y-4">
+                {/* Direct File Uploader Dropzone */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Upload Completed File (PDF, DOCX, ZIP) *
+                  </label>
+                  <div className="relative border-2 border-dashed border-[#CBD5E1] hover:border-[#0E57A4] transition-colors rounded-2xl p-6 bg-[#F8FAFC] text-center space-y-2">
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.zip,.doc"
+                      onChange={async (e) => {
+                        const selectedFile = e.target.files?.[0];
+                        if (!selectedFile) return;
+                        setSubmitError("");
+                        setIsSubmitting(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append("file", selectedFile);
+                          formData.append("folder", "submissions");
+
+                          const res = await fetch("/api/upload", {
+                            method: "POST",
+                            body: formData,
+                          });
+
+                          const data = await res.json();
+                          if (res.ok && data.url) {
+                            setFileUrl(data.url);
+                            setFileName(data.fileName);
+                          } else {
+                            setSubmitError(data.error || "Failed to upload file.");
+                          }
+                        } catch {
+                          setSubmitError("File upload failed. Please try again.");
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                    />
+
+                    <div className="w-12 h-12 bg-[#0E57A4]/10 text-[#0E57A4] rounded-2xl flex items-center justify-center mx-auto">
+                      <Upload className="w-6 h-6" />
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold text-slate-800">
+                        {fileName ? fileName : "Click or drag & drop file to upload"}
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Allowed formats: <strong className="text-slate-600">{activeSubmitAssignment.allowedFileTypes}</strong> (Max 50MB)
+                      </p>
+                    </div>
+
+                    {fileUrl && (
+                      <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 mt-2">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        File Ready for Submission
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    File Name / Assignment Title *
+                    Assignment Title / File Identifier *
                   </label>
                   <input
                     type="text"
@@ -382,31 +444,11 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Cloud Storage File Link (Google Drive / Cloud storage) *
-                  </label>
-                  <div className="relative">
-                    <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                    <input
-                      type="url"
-                      placeholder="https://drive.google.com/file/d/..."
-                      value={fileUrl}
-                      onChange={(e) => setFileUrl(e.target.value)}
-                      className="w-full pl-9 pr-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs outline-none focus:border-[#0E57A4]"
-                      required
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Allowed formats: <strong className="text-slate-600">{activeSubmitAssignment.allowedFileTypes}</strong>. Ensure link permissions allow lecturer review access.
-                  </p>
-                </div>
-
                 <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
                   <Button type="button" variant="outline" onClick={() => setActiveSubmitAssignment(null)}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} className="bg-[#0E57A4] text-white font-semibold">
+                  <Button type="submit" disabled={isSubmitting || !fileUrl} className="bg-[#0E57A4] text-white font-semibold">
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Submission"}
                   </Button>
                 </div>

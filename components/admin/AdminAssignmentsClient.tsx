@@ -683,14 +683,52 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Brief Attachment URL (PDF / Drive link)</label>
-                  <input
-                    type="url"
-                    placeholder="https://drive.google.com/file/d/..."
-                    value={newAttachmentUrl}
-                    onChange={(e) => setNewAttachmentUrl(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs outline-none focus:border-[#0E57A4]"
-                  />
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Coursework Brief File Attachment (PDF, DOCX, ZIP)</label>
+                  <div className="relative border-2 border-dashed border-[#CBD5E1] hover:border-[#0E57A4] transition-colors rounded-xl p-4 bg-[#F8FAFC] text-center space-y-2">
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.zip,.doc"
+                      onChange={async (e) => {
+                        const selectedFile = e.target.files?.[0];
+                        if (!selectedFile) return;
+                        setCreateError("");
+                        setIsSubmittingNew(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append("file", selectedFile);
+                          formData.append("folder", "briefs");
+
+                          const res = await fetch("/api/upload", {
+                            method: "POST",
+                            body: formData,
+                          });
+
+                          const data = await res.json();
+                          if (res.ok && data.url) {
+                            setNewAttachmentUrl(data.url);
+                          } else {
+                            setCreateError(data.error || "Failed to upload brief file.");
+                          }
+                        } catch {
+                          setCreateError("Brief file upload failed. Please try again.");
+                        } finally {
+                          setIsSubmittingNew(false);
+                        }
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                    />
+
+                    <div className="flex items-center justify-center gap-2 text-xs font-semibold text-[#0E57A4]">
+                      <FileText className="w-4 h-4" />
+                      {newAttachmentUrl ? "Brief File Attached & Ready" : "Click or drag & drop to upload Brief Attachment"}
+                    </div>
+
+                    {newAttachmentUrl && (
+                      <p className="text-[11px] font-mono text-emerald-700 bg-emerald-50 py-0.5 px-2 rounded-full inline-block">
+                        {newAttachmentUrl}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
