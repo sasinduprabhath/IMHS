@@ -221,41 +221,58 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
       <section
-        className="relative min-h-[90vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12 sm:pb-20 border-b border-[#E2E8F0] overflow-hidden"
-        style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 45%, #ffffff 100%)" }}
+        className="relative min-h-[92vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-16 sm:pb-24 border-b border-[#E2E8F0] overflow-hidden"
+        style={{
+          background: "linear-gradient(165deg, #F0F6FC 0%, #F8FAFC 40%, #FFFFFF 100%)",
+        }}
       >
-        {/* Multi-layer ambient glow */}
+        {/* Multi-layer ambient mesh glow & floating particles */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "radial-gradient(ellipse 70% 60% at 15% 0%, rgba(14,87,164,0.12) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 85% 100%, rgba(241,103,38,0.08) 0%, transparent 50%)",
+              "radial-gradient(circle at 10% 20%, rgba(14,87,164,0.14) 0%, transparent 45%), radial-gradient(circle at 85% 60%, rgba(241,103,38,0.12) 0%, transparent 45%), radial-gradient(circle at 50% 100%, rgba(6,182,212,0.08) 0%, transparent 50%)",
           }}
         />
 
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+        {/* Ambient subtle background grid */}
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(#0E57A4 1.5px, transparent 1.5px), radial-gradient(#F16726 1.5px, #ffffff 1.5px)",
+            backgroundSize: "36px 36px",
+            backgroundPosition: "0 0, 18px 18px",
+          }}
+        />
 
-          {/* Left Column: Headlines & CTAs */}
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center relative z-10">
+
+          {/* Left Column: Headlines, CTAs & Social Proof */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start relative">
 
             {/* Eyebrow badge */}
             <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show">
-              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] border border-[#BFDBFE] px-4 py-1.5 rounded-full shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#0E57A4] animate-pulse" />
+              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-white/90 backdrop-blur-md border border-[#BFDBFE] px-4.5 py-2 rounded-full shadow-sm hover:shadow-md transition-shadow">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0E57A4] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0E57A4]" />
+                </span>
+                <Sparkles className="w-3.5 h-3.5 text-[#F16726]" />
                 SLMC-ALIGNED HEALTHCARE EDUCATION
               </span>
             </motion.div>
 
             {/* Headline */}
             <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="w-full">
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-extrabold text-ink leading-[1.08] tracking-tight text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold text-slate-900 leading-[1.06] tracking-tight text-center lg:text-left">
                 Sri Lanka&apos;s Best{" "}
                 <motion.span
                   custom={0.2}
                   variants={heroVariant}
                   initial="hidden"
                   animate="show"
-                  className="relative inline-block text-[#F16726]"
+                  className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#F16726] via-[#FF7D3B] to-[#D94F0D]"
                 >
                   Healthcare
                   {/* Pharmacokinetic Dose Curve Underline */}
@@ -273,7 +290,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               variants={heroVariant}
               initial="hidden"
               animate="show"
-              className="text-base sm:text-lg text-ink-muted max-w-xl font-sans leading-relaxed text-center lg:text-left mx-auto lg:mx-0 pt-1"
+              className="text-base sm:text-lg text-slate-600 max-w-xl font-sans leading-relaxed text-center lg:text-left mx-auto lg:mx-0 pt-2"
             >
               Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
             </motion.p>
@@ -282,7 +299,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             <motion.div
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+              transition={{ duration: 0.6, delay: 0.7, ease: "easeOut" }}
               className="w-full max-w-md py-1 mx-auto lg:mx-0"
             >
               <VitalLine variant="hero" animated={true} />
@@ -295,7 +312,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               transition={{ duration: 0.6, delay: 0.25 }}
               className="block lg:hidden w-full my-3"
             >
-              <div className="relative h-[320px] sm:h-[380px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-linen mx-auto">
+              <div className="relative h-[340px] sm:h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100 mx-auto">
                 <MedicalScannerBeam />
                 <Image
                   src="/hero.jpg"
@@ -308,19 +325,20 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             </motion.div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-4 pt-2 w-full">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-4 pt-3 w-full">
               <motion.div custom={0.55} variants={heroVariant} initial="hidden" animate="show" className="w-full sm:w-auto">
                 <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
                   <motion.button
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.97 }}
-                    className="relative w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-full tracking-wide transition-all duration-200 group"
+                    className="relative w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-full tracking-wide transition-all duration-200 group overflow-hidden"
                     style={{
-                      background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
-                      boxShadow: "0 8px 24px rgba(14,87,164,0.35), 0 2px 8px rgba(241,103,38,0.20)",
+                      background: "linear-gradient(135deg, #0E57A4 0%, #1c6ed4 50%, #0c4887 100%)",
+                      boxShadow: "0 10px 30px rgba(14,87,164,0.38), 0 3px 10px rgba(241,103,38,0.25)",
                     }}
                   >
-                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
                     <span>Enroll on WhatsApp</span>
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </motion.button>
@@ -330,9 +348,9 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               <motion.div custom={0.65} variants={heroVariant} initial="hidden" animate="show" className="w-full sm:w-auto">
                 <Link href="/courses">
                   <motion.button
-                    whileHover={{ scale: 1.03 }}
+                    whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.97 }}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white text-ink transition-all duration-200 border-2 border-[#E2E8F0] hover:border-[#0E57A4]/40 hover:bg-slate-50 group"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white/90 backdrop-blur-md text-slate-900 transition-all duration-200 border-2 border-slate-200 hover:border-[#0E57A4]/50 hover:bg-white shadow-xs hover:shadow-md group"
                   >
                     <span>Browse Programs</span>
                     <ChevronRight className="w-4 h-4 text-[#0E57A4] group-hover:translate-x-1 transition-transform" />
@@ -341,41 +359,51 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
               </motion.div>
             </div>
 
-            {/* Social Proof */}
-            <motion.div custom={0.75} variants={heroVariant} initial="hidden" animate="show" className="flex items-center gap-3 pt-3">
-              <div className="flex -space-x-2">
+            {/* Social Proof Row */}
+            <motion.div custom={0.75} variants={heroVariant} initial="hidden" animate="show" className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+              <div className="flex -space-x-2.5">
                 {[
                   { initials: "DR", bg: "bg-[#0E57A4]" },
                   { initials: "RN", bg: "bg-[#F16726]" },
                   { initials: "ST", bg: "bg-[#4A8B7A]" },
+                  { initials: "PH", bg: "bg-[#0284C7]" },
                 ].map(({ initials, bg }) => (
                   <div
                     key={initials}
-                    className={`w-8 h-8 rounded-full border-2 border-white ${bg} text-white flex items-center justify-center text-[10px] font-bold shadow-xs`}
+                    className={`w-9 h-9 rounded-full border-2 border-white ${bg} text-white flex items-center justify-center text-[10px] font-extrabold shadow-sm`}
                   >
                     {initials}
                   </div>
                 ))}
               </div>
-              <div className="text-sm font-sans font-bold text-ink">
-                Over <span className="text-[#F16726] font-mono font-extrabold">3,500+</span> Active Students
+              <div className="text-xs sm:text-sm font-sans font-bold text-slate-800 flex items-center gap-2">
+                <div className="flex items-center text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <span>Over <span className="text-[#F16726] font-mono font-extrabold text-base">3,500+</span> Active Students</span>
               </div>
             </motion.div>
           </div>
 
-          {/* Right Column: 3D Parallax Tilt Image Stack */}
+          {/* Right Column: 3D Interactive Parallax Frame with Floating Glass Badges */}
           <motion.div
-            initial={{ opacity: 0, x: 25 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.95, x: 20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
             className="hidden lg:block lg:col-span-5 relative"
           >
+            {/* Glowing Backdrop Aura */}
+            <div className="absolute -inset-4 bg-gradient-to-tr from-[#0E57A4]/20 via-[#F16726]/15 to-transparent rounded-[2.5rem] blur-2xl pointer-events-none" />
+
+            {/* Main Interactive Card */}
             <motion.div
               whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="relative h-[440px] sm:h-[500px] w-full rounded-3xl p-2 bg-gradient-to-b from-white via-white/80 to-[#E2E8F0] shadow-2xl border border-white/80"
+              className="relative h-[480px] sm:h-[530px] w-full rounded-[2.2rem] p-2.5 bg-gradient-to-b from-white via-white/90 to-slate-200/90 shadow-2xl border border-white ring-8 ring-white/60"
             >
-              <div className="relative h-full w-full rounded-2xl overflow-hidden bg-linen border border-chart-grid">
+              <div className="relative h-full w-full rounded-3xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-inner">
                 <MedicalScannerBeam />
                 <Image
                   src="/hero.jpg"
@@ -385,6 +413,43 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   priority
                 />
               </div>
+
+              {/* Floating Glass Badge 1: #1 Ranked Academy */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="absolute -top-4 -left-4 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3.5 shadow-xl flex items-center gap-3 z-20"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Award className="w-5.5 h-5.5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-slate-900 font-display">
+                    #1 Ranked Academy
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-500 font-medium">SLMC Exam Prep</div>
+                </div>
+              </motion.div>
+
+              {/* Floating Glass Badge 2: 98.4% Pass Rate */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1 }}
+                className="absolute -bottom-4 -right-4 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3.5 shadow-xl flex items-center gap-3 z-20"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0 shadow-2xs">
+                  <CheckCircle2 className="w-5.5 h-5.5" />
+                </div>
+                <div>
+                  <div className="text-xs font-extrabold text-slate-900 font-mono">98.4% Pass Rate</div>
+                  <div className="text-[10px] font-mono text-emerald-700 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Clinical Excellence
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
           </motion.div>
 
