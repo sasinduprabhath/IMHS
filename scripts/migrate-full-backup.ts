@@ -488,7 +488,13 @@ async function migrateMasterBackup() {
       chaptersSynced++;
     }
 
-    const childLessons = lessonPosts.filter((l) => l.parentId === topic.id);
+    const childLessons = lessonPosts.filter(
+      (l) =>
+        l.parentId === topic.id &&
+        l.type !== "tutor_quiz" &&
+        !l.title.toLowerCase().includes("quiz") &&
+        !l.title.toLowerCase().includes("mcq")
+    );
 
     let lOrder = 1;
     for (const l of childLessons) {
