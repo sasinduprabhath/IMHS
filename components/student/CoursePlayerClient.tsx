@@ -359,53 +359,39 @@ export function CoursePlayerClient({
                 <CheckSquare className="w-4 h-4" />
                 {isCurrentCompleted ? "✓ Completed (click to undo)" : "Mark as Completed"}
               </Button>
-            </div>
+                        {/* Lesson Description / Clinical Notes */}
+            {currentLesson.content && (() => {
+              const cleanedNotes = currentLesson.content
+                .replace(/\\"/g, '"')
+                .replace(/\\'/g, "'")
+                .replace(/\\/g, "")
+                .replace(/<!--[\s\S]*?-->/g, "")
+                .trim();
 
-            {/* Lesson Description */}
-            {currentLesson.content && (
-              <div className="space-y-2">
-                <h4 className="font-mono text-xs text-sage uppercase tracking-wider font-semibold">
-                  Clinical Notes &amp; Guidance
-                </h4>
-                <FormattedText
-                  content={currentLesson.content}
-                  className="text-sm text-ink font-sans"
-                />
-              </div>
-            )}
+              if (!cleanedNotes) return null;
 
-            {/* Download PDF Resource Link */}
-            {currentLesson.driveFileId && (
-              <div className="pt-2">
-                <div className="bg-clinical-teal-surface border border-clinical-teal/30 p-3.5 sm:p-4 rounded-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                  <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                    <div className="w-9 h-9 bg-clinical-teal/15 border border-clinical-teal/30 rounded-lg flex items-center justify-center shrink-0">
-                      <FileDown className="w-5 h-5 text-clinical-teal shrink-0" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h5 className="text-xs font-semibold text-ink font-mono truncate">
-                        Resource File: {currentLesson.driveFileId.includes("drive.google.com") || currentLesson.driveFileId.length > 30 ? "Official PDF Reference File" : currentLesson.driveFileId}
-                      </h5>
-                      <p className="text-[11px] text-ink-muted leading-snug">
-                        Official PDF reference file for this lecture.
-                      </p>
-                    </div>
-                  </div>
+              const hasHtmlTags = cleanedNotes.startsWith("<") || cleanedNotes.includes("<iframe") || cleanedNotes.includes("<p") || cleanedNotes.includes("<a");
 
-                  <a
-                    href={getDocumentDownloadUrl(currentLesson.driveFileId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto shrink-0"
-                  >
-                    <Button size="sm" variant="outline" className="w-full sm:w-auto gap-1.5 text-xs font-semibold bg-white hover:bg-clinical-teal/10 hover:text-clinical-teal border-clinical-teal/30 py-2.5 sm:py-1.5">
-                      <FileDown className="w-4 h-4 text-clinical-teal" /> Download PDF Reference
-                    </Button>
-                  </a>
+              return (
+                <div className="space-y-2 pt-2 border-t border-chart-grid">
+                  <h4 className="font-mono text-xs text-sage uppercase tracking-wider font-semibold">
+                    Clinical Notes &amp; Guidance
+                  </h4>
+                  {hasHtmlTags ? (
+                    <div
+                      className="prose prose-sm text-ink max-w-none font-sans leading-relaxed space-y-3 [&_iframe]:w-full [&_iframe]:min-h-[550px] [&_iframe]:rounded-2xl [&_iframe]:border-0 [&_iframe]:shadow-sm"
+                      dangerouslySetInnerHTML={{ __html: cleanedNotes }}
+                    />
+                  ) : (
+                    <FormattedText
+                      content={cleanedNotes}
+                      className="text-sm text-ink font-sans"
+                    />
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
+              );
+            })()}
+          </div>  </div>
 
           {/* Prev / Next Lesson Navigation Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
