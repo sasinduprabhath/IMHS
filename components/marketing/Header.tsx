@@ -23,6 +23,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -35,12 +36,14 @@ export function Header() {
       className={cn(
         "sticky top-0 left-0 right-0 z-50 transition-all duration-300 -mb-[68px]",
         scrolled
-          ? "bg-white/92 backdrop-blur-xl border-b border-[#E2E8F0] shadow-paper"
+          ? "bg-white/95 backdrop-blur-xl border-b border-[#E2E8F0] shadow-md text-slate-900"
+          : isHomePage
+          ? "backdrop-blur-xl bg-slate-950/70 border-b border-white/10 shadow-lg text-white"
           : "bg-transparent border-b border-transparent"
       )}
     >
       {/* Thin brand-gradient accent line at top */}
-      <div className="h-[2px] bg-gradient-to-r from-clinical-teal via-chart-red to-clinical-teal-light absolute top-0 left-0 right-0" />
+      <div className="h-[2px] bg-gradient-to-r from-[#0E57A4] via-[#F16726] to-[#0E57A4] absolute top-0 left-0 right-0" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] flex items-center justify-between">
         {/* Logo */}
@@ -50,7 +53,10 @@ export function Header() {
             alt="IMHS Logo"
             width={160}
             height={50}
-            className="h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90"
+            className={cn(
+              "h-9 w-auto object-contain transition-all duration-300 group-hover:opacity-90",
+              !scrolled && isHomePage && "brightness-0 invert drop-shadow-sm"
+            )}
             priority
             unoptimized
           />
@@ -69,9 +75,13 @@ export function Header() {
                 href={link.href}
                 className={cn(
                   "relative px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-200 group",
-                  isActive
-                    ? "text-clinical-teal bg-clinical-teal/8 font-semibold"
-                    : "text-ink-muted hover:text-ink hover:bg-linen"
+                  scrolled || !isHomePage
+                    ? isActive
+                      ? "text-[#0E57A4] bg-[#0E57A4]/10 font-semibold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    : isActive
+                    ? "text-white bg-white/20 font-bold shadow-xs"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
                 )}
               >
                 {link.label}
@@ -80,8 +90,10 @@ export function Header() {
                   className={cn(
                     "absolute bottom-1 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300",
                     isActive
-                      ? "bg-clinical-teal"
-                      : "bg-chart-red scale-x-0 group-hover:scale-x-100 origin-left"
+                      ? scrolled || !isHomePage
+                        ? "bg-[#0E57A4]"
+                        : "bg-white"
+                      : "bg-[#F16726] scale-x-0 group-hover:scale-x-100 origin-left"
                   )}
                 />
               </Link>

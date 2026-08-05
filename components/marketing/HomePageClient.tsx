@@ -220,14 +220,15 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
-      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-24 border-b border-slate-800 overflow-hidden bg-slate-950">
-        {/* Full Background Video */}
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-start px-4 sm:px-6 lg:px-12 pt-24 sm:pt-28 pb-16 sm:pb-24 border-b border-slate-800 overflow-hidden bg-slate-950">
+        {/* Full Background Video (Desktop & Tablet) */}
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+          preload="auto"
+          className="hidden md:block absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
         >
           <source
             src="https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4"
@@ -235,116 +236,124 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           />
         </video>
 
-        {/* Multi-layer Dark Gradient Overlay for High Readability */}
+        {/* Mobile Background Fallback Image */}
+        <div
+          className="block md:hidden absolute inset-0 w-full h-full bg-cover bg-center pointer-events-none z-0"
+          style={{ backgroundImage: "url('/hero.jpg')" }}
+        />
+
+        {/* Multi-layer Dark Gradient Overlay for High Readability & Unobstructed Right Video View */}
         <div
           className="absolute inset-0 pointer-events-none z-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(9, 21, 39, 0.78) 0%, rgba(9, 21, 39, 0.88) 60%, rgba(9, 21, 39, 0.95) 100%)",
+              "linear-gradient(90deg, rgba(9, 21, 39, 0.95) 0%, rgba(9, 21, 39, 0.85) 45%, rgba(9, 21, 39, 0.45) 80%, rgba(9, 21, 39, 0.25) 100%)",
           }}
         />
 
-        <div className="max-w-4xl mx-auto w-full text-center flex flex-col items-center justify-center space-y-6 relative z-10">
-          {/* Eyebrow badge */}
-          <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show" className="mx-auto">
-            <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/20 border border-emerald-400/35 px-4 py-1.5 rounded-full shadow-xs backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              SLMC-ALIGNED HEALTHCARE EDUCATION
-            </span>
-          </motion.div>
-
-          {/* Headline */}
-          <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="w-full">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold text-white leading-[1.08] tracking-tight text-center drop-shadow-md">
-              Sri Lanka&apos;s Best{" "}
-              <motion.span
-                custom={0.2}
-                variants={heroVariant}
-                initial="hidden"
-                animate="show"
-                className="inline-block text-[#F16726]"
-              >
-                Healthcare
-              </motion.span>{" "}
-              Education
-            </h1>
-          </motion.div>
-
-          {/* Subtitle */}
-          <motion.p
-            custom={0.4}
-            variants={heroVariant}
-            initial="hidden"
-            animate="show"
-            className="text-base sm:text-xl text-white/85 max-w-2xl font-sans leading-relaxed text-center mx-auto drop-shadow-xs"
-          >
-            Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
-          </motion.p>
-
-          {/* Vital ECG Line */}
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-            className="w-full max-w-md py-1 mx-auto"
-          >
-            <VitalLine variant="hero" animated={true} />
-          </motion.div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 w-full">
-            <motion.div custom={0.55} variants={heroVariant} initial="hidden" animate="show" className="w-full sm:w-auto">
-              <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="relative w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-full tracking-wide transition-all duration-200 group"
-                  style={{
-                    background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
-                    boxShadow: "0 8px 24px rgba(14,87,164,0.45)",
-                  }}
-                >
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Enroll on WhatsApp</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
-              </Link>
+        <div className="max-w-7xl mx-auto w-full relative z-10">
+          {/* Left-Aligned Dark Glass Hero Card (Left 50% Focus) */}
+          <div className="w-full lg:max-w-2xl bg-slate-950/50 backdrop-blur-md p-6 sm:p-10 rounded-3xl border border-white/15 shadow-2xl space-y-6 text-left flex flex-col items-start">
+            {/* Eyebrow badge */}
+            <motion.div custom={0} variants={heroVariant} initial="hidden" animate="show">
+              <span className="inline-flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-widest text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 px-4 py-1.5 rounded-full shadow-xs backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                SLMC-ALIGNED HEALTHCARE EDUCATION
+              </span>
             </motion.div>
 
-            <motion.div custom={0.65} variants={heroVariant} initial="hidden" animate="show" className="w-full sm:w-auto">
-              <Link href="/courses">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white/10 backdrop-blur-md text-white transition-all duration-200 border border-white/30 hover:bg-white/20 group"
+            {/* Headline */}
+            <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="w-full">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white leading-[1.08] tracking-tight text-left drop-shadow-lg">
+                Sri Lanka&apos;s Best{" "}
+                <motion.span
+                  custom={0.2}
+                  variants={heroVariant}
+                  initial="hidden"
+                  animate="show"
+                  className="inline-block text-[#F16726] drop-shadow-md"
                 >
-                  <span>Browse Programs</span>
-                  <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
-                </motion.button>
-              </Link>
+                  Healthcare
+                </motion.span>{" "}
+                Education
+              </h1>
+            </motion.div>
+
+            {/* Subtitle */}
+            <motion.p
+              custom={0.4}
+              variants={heroVariant}
+              initial="hidden"
+              animate="show"
+              className="text-base sm:text-lg text-white/90 font-sans leading-relaxed text-left drop-shadow-sm"
+            >
+              Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
+            </motion.p>
+
+            {/* Vital ECG Line */}
+            <motion.div
+              initial={{ opacity: 0, scaleX: 0 }}
+              animate={{ opacity: 1, scaleX: 1 }}
+              transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+              className="w-full max-w-md py-1"
+            >
+              <VitalLine variant="hero" animated={true} />
+            </motion.div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-4 pt-2 w-full">
+              <motion.div custom={0.55} variants={heroVariant} initial="hidden" animate="show" className="w-full sm:w-auto">
+                <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
+                  <motion.button
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="relative w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold text-sm px-8 py-4 rounded-full tracking-wide transition-all duration-200 group shadow-lg shadow-blue-600/35 ring-1 ring-blue-400/40"
+                    style={{
+                      background: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>Enroll on WhatsApp</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </Link>
+              </motion.div>
+
+              <motion.div custom={0.65} variants={heroVariant} initial="hidden" animate="show" className="w-full sm:w-auto">
+                <Link href="/courses">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white/10 backdrop-blur-md text-white transition-all duration-200 border border-white/30 hover:bg-white/20 group"
+                  >
+                    <span>Browse Programs</span>
+                    <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Social Proof */}
+            <motion.div custom={0.75} variants={heroVariant} initial="hidden" animate="show" className="flex items-center justify-start gap-3 pt-2">
+              <div className="flex -space-x-2">
+                {[
+                  { initials: "DR", bg: "bg-[#0E57A4]" },
+                  { initials: "RN", bg: "bg-[#F16726]" },
+                  { initials: "ST", bg: "bg-[#4A8B7A]" },
+                ].map(({ initials, bg }) => (
+                  <div
+                    key={initials}
+                    className={`w-8 h-8 rounded-full border-2 border-white/80 ${bg} text-white flex items-center justify-center text-[10px] font-bold shadow-xs`}
+                  >
+                    {initials}
+                  </div>
+                ))}
+              </div>
+              <div className="text-sm font-sans font-bold text-white">
+                Over <span className="text-[#F16726] font-mono font-extrabold">3,500+</span> Active Students
+              </div>
             </motion.div>
           </div>
-
-          {/* Social Proof */}
-          <motion.div custom={0.75} variants={heroVariant} initial="hidden" animate="show" className="flex items-center justify-center gap-3 pt-3 mx-auto">
-            <div className="flex -space-x-2">
-              {[
-                { initials: "DR", bg: "bg-[#0E57A4]" },
-                { initials: "RN", bg: "bg-[#F16726]" },
-                { initials: "ST", bg: "bg-[#4A8B7A]" },
-              ].map(({ initials, bg }) => (
-                <div
-                  key={initials}
-                  className={`w-8 h-8 rounded-full border-2 border-white/80 ${bg} text-white flex items-center justify-center text-[10px] font-bold shadow-xs`}
-                >
-                  {initials}
-                </div>
-              ))}
-            </div>
-            <div className="text-sm font-sans font-bold text-white">
-              Over <span className="text-[#F16726] font-mono font-extrabold">3,500+</span> Active Students
-            </div>
-          </motion.div>
         </div>
       </section>
 
