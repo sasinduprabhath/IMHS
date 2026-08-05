@@ -255,13 +255,9 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   variants={heroVariant}
                   initial="hidden"
                   animate="show"
-                  className="relative inline-block text-[#F16726]"
+                  className="inline-block text-[#F16726]"
                 >
                   Healthcare
-                  {/* Pharmacokinetic Dose Curve Underline */}
-                  <span className="absolute -bottom-2.5 sm:-bottom-3.5 left-0 w-full pointer-events-none">
-                    <DoseCurve variant="hero" />
-                  </span>
                 </motion.span>{" "}
                 Education
               </h1>
