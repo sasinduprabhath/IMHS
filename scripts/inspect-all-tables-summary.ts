@@ -1,42 +1,33 @@
-import fs from 'fs';
-import readline from 'readline';
+import fs from "fs";
+import readline from "readline";
 
-async function inspectAllTables() {
-  console.log("=== COMPREHENSIVE ANALYSIS OF u328662350_iIq7V.sql DUMP FILE ===");
-  const sqlPath = 'C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql';
-
-  if (!fs.existsSync(sqlPath)) {
-    console.error("SQL file not found.");
-    return;
-  }
-
-  const fileStream = fs.createReadStream(sqlPath, { encoding: 'utf8' });
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
+async function scanTables() {
+  const sqlPath = "c:\\Users\\User\\Downloads\\IMHS\\u328662350_iIq7V.sql";
+  const fileStream = fs.createReadStream(sqlPath, { encoding: "utf8" });
+  const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
 
   const tableCounts = new Map<string, number>();
 
   for await (const line of rl) {
-    if (line.includes("INSERT INTO `")) {
-      const match = line.match(/INSERT INTO `([^`]+)`/);
+    if (line.startsWith("INSERT INTO `")) {
+      const match = line.match(/^INSERT INTO `([^`]+)`/);
       if (match) {
-        const tableName = match[1];
-        const count = (line.match(/\),\(/g) || []).length + 1;
-        tableCounts.set(tableName, (tableCounts.get(tableName) || 0) + count);
+        const table = match[1];
+        // Count tuples by counting '),' or estimate
+        const count = (line.match(/\),\s*\(/g) || []).length + 1;
+        tableCounts.set(table, (tableCounts.get(table) || 0) + count);
       }
     }
   }
 
-  console.log("\n📊 MAJOR TABLES & RECORD COUNTS IN u328662350_iIq7V.sql:");
-  const tableData: any[] = [];
+  console.log("=========================================================================");
+  console.log(" 📊 SQL DUMP ALL TABLE SUMMARY");
+  console.log("=========================================================================");
   for (const [table, count] of tableCounts.entries()) {
-    tableData.push({ TableName: table, TotalRecords: count });
+    if (table.startsWith("wp_")) {
+      console.log(`- ${table}: ~${count} records`);
+    }
   }
-
-  tableData.sort((a, b) => b.TotalRecords - a.TotalRecords);
-  console.table(tableData.slice(0, 40));
 }
 
-inspectAllTables();
+scanTables();

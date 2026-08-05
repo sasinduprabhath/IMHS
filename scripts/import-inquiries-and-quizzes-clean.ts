@@ -4,7 +4,9 @@ import { prisma } from '../lib/prisma';
 
 async function importInquiriesAndQuizzesClean() {
   console.log("=== IMPORTING CONTACT INQUIRIES & QUIZZES FROM u328662350_iIq7V.sql ===");
-  const sqlPath = 'C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql';
+  const sqlPath = fs.existsSync('C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql')
+    ? 'C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql'
+    : 'c:\\Users\\User\\Downloads\\IMHS\\u328662350_iIq7V.sql';
 
   const fileStream = fs.createReadStream(sqlPath, { encoding: 'utf8' });
   const rl = readline.createInterface({

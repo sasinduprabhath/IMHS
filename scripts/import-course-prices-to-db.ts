@@ -4,7 +4,9 @@ import { prisma } from '../lib/prisma';
 
 async function importCoursePricesToDb() {
   console.log("=== STARTING IMPORT OF COURSE PRICES FROM u328662350_iIq7V.sql ===");
-  const sqlPath = 'C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql';
+  const sqlPath = fs.existsSync('C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql')
+    ? 'C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql'
+    : 'c:\\Users\\User\\Downloads\\IMHS\\u328662350_iIq7V.sql';
 
   if (!fs.existsSync(sqlPath)) {
     console.error("SQL dump file not found at:", sqlPath);
