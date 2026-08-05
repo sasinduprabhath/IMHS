@@ -43,6 +43,14 @@ const nextConfig = {
         protocol: "http",
         hostname: "imhsedu.com",
       },
+      {
+        protocol: "https",
+        hostname: "imhs.edu.lk",
+      },
+      {
+        protocol: "http",
+        hostname: "imhs.edu.lk",
+      },
     ],
   },
   async headers() {
