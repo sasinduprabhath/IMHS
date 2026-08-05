@@ -184,6 +184,10 @@ async function migrateMasterBackup() {
         if (key === "_wp_attached_file") {
           attachedFiles.set(postId, val);
         }
+        if (key === "_tutor_course_product_id") {
+          if (!postMetaPrices.has(postId)) postMetaPrices.set(postId, {});
+          (postMetaPrices.get(postId) as any).productId = val;
+        }
       }
     }
   }
@@ -280,9 +284,12 @@ async function migrateMasterBackup() {
   let coursesSynced = 0;
 
   for (const c of coursePosts) {
-    const prices = postMetaPrices.get(c.id);
-    const price = prices?.price || 4500;
-    const originalPrice = prices?.regularPrice || price + 1500;
+    const directPrices = postMetaPrices.get(c.id);
+    const productId = (directPrices as any)?.productId;
+    const productPrices = productId ? postMetaPrices.get(productId) : undefined;
+
+    const price = directPrices?.price || productPrices?.price || directPrices?.regularPrice || productPrices?.regularPrice || 4500;
+    const originalPrice = directPrices?.regularPrice || productPrices?.regularPrice || price + 1500;
 
     // Check thumbnail file
     const thumbId = postMetaThumbnails.get(c.id);
@@ -327,6 +334,7 @@ async function migrateMasterBackup() {
           coverImage,
           category,
           level,
+          published: true,
         },
       });
     } else {
@@ -340,11 +348,12 @@ async function migrateMasterBackup() {
           coverImage,
           category,
           level,
+          published: true,
         },
       });
     }
     coursesSynced++;
-    console.log(`   ✓ Course: "${c.title}" | Price: LKR ${price} | Image: ${coverImage}`);
+    console.log(`   ✓ Published Course: "${c.title}" | Price: LKR ${price} (Original: LKR ${originalPrice}) | Image: ${coverImage}`);
   }
 
   console.log(`✅ Phase 2 Complete: Synced ${coursesSynced} courses with local /courses/ images.`);
