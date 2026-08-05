@@ -740,52 +740,54 @@ function CoursePlayerContent({
       </div>
 
       {/* ── Main Syllabus Modules & Lessons Container ── */}
-      <div className="bg-white border border-chart-grid rounded-3xl shadow-sm overflow-hidden space-y-0">
-        <div className="p-5 border-b border-chart-grid bg-slate-50 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <BookOpenIcon className="w-5 h-5 text-[#0E57A4]" />
+      <div className="bg-white border-2 border-slate-200/80 rounded-3xl shadow-sm overflow-hidden space-y-0">
+        <div className="p-6 sm:p-7 border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-slate-100/60 to-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#0E57A4]/10 text-[#0E57A4] flex items-center justify-center border border-[#0E57A4]/20 shrink-0 shadow-2xs">
+              <BookOpenIcon className="w-5 h-5" />
+            </div>
             <div>
-              <h2 className="text-base font-display font-bold text-slate-900">
+              <h2 className="text-base sm:text-lg font-display font-bold text-slate-900">
                 Course Syllabus &amp; Curriculum Outline
               </h2>
-              <p className="text-xs text-slate-500 font-mono">
+              <p className="text-xs text-slate-500 font-sans">
                 Click any lesson below to open in dedicated viewer
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3 py-1 rounded-full">
+          <span className="text-xs font-mono font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3.5 py-1 rounded-full shrink-0 shadow-2xs">
             {course.chapters.length} Modules · {allLessons.length} Lessons
           </span>
         </div>
 
         {/* Modules & Lessons List */}
-        <div className="divide-y divide-chart-grid">
+        <div className="divide-y divide-slate-200/70">
           {course.chapters.map((chapter, idx) => {
             const isChBlocked = blockedChapterIds.includes(chapter.id) || (chapter as any).isLocked;
 
             return (
-              <div key={chapter.id} className="p-5 space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-[#0E57A4]/10 text-[#0E57A4] font-mono text-xs font-bold flex items-center justify-center">
+              <div key={chapter.id} className="p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-xl bg-[#0E57A4] text-white font-mono text-xs font-bold flex items-center justify-center shadow-xs">
                       M{idx + 1}
                     </span>
-                    <h3 className="text-sm font-bold text-slate-900 font-display">
+                    <h3 className="text-base font-bold text-slate-900 font-display">
                       {chapter.title}
                     </h3>
                   </div>
                   {isChBlocked ? (
-                    <span className="text-[10px] font-mono text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                    <span className="text-[10px] font-mono text-red-600 bg-red-50 border border-red-200 px-3 py-1 rounded-full font-bold flex items-center gap-1 shadow-2xs">
                       <LockIcon className="w-3 h-3" /> MODULE LOCKED
                     </span>
                   ) : (
-                    <span className="text-xs font-mono text-slate-400">
+                    <span className="text-xs font-mono text-slate-500 bg-slate-100 border border-slate-200/80 px-2.5 py-0.5 rounded-full font-semibold">
                       {chapter.lessons.length} item{chapter.lessons.length === 1 ? "" : "s"}
                     </span>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 gap-2 pt-1">
+                <div className="grid grid-cols-1 gap-2.5 pt-1">
                   {chapter.lessons.map((lesson) => {
                     const isDone = completedLessonIds.has(lesson.id);
                     const isBlocked = isChBlocked || blockedLessonIds.includes(lesson.id) || (lesson as any).isLocked;
@@ -799,15 +801,15 @@ function CoursePlayerContent({
                     return (
                       <div
                         key={lesson.id}
-                        className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                        className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                           isBlocked
-                            ? "bg-red-50/40 border-red-200 text-red-700"
+                            ? "bg-red-50/40 border-red-200/80 text-red-700"
                             : isDone
-                            ? "bg-emerald-50/40 border-emerald-200/60 hover:bg-emerald-50"
-                            : "bg-slate-50/60 border-slate-200 hover:bg-white hover:shadow-xs"
+                            ? "bg-emerald-50/40 border-emerald-200/70 hover:bg-emerald-50/80"
+                            : "bg-slate-50/70 border-slate-200/80 hover:bg-white hover:border-[#0E57A4]/40 hover:shadow-sm"
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="flex items-center gap-3.5 min-w-0 flex-1">
                           {isBlocked ? (
                             <LockIcon className="w-4 h-4 text-red-500 shrink-0" />
                           ) : isDone ? (
@@ -816,18 +818,18 @@ function CoursePlayerContent({
                             <CircleIcon className="w-4 h-4 text-slate-400 shrink-0" />
                           )}
 
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <p className="text-xs font-bold text-slate-900 truncate">{lesson.title}</p>
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">{lesson.title}</p>
                             <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
                               <span
-                                className={`px-2 py-0.5 rounded-full font-bold uppercase shrink-0 flex items-center gap-1 ${
+                                className={`px-2.5 py-0.5 rounded-full font-bold uppercase shrink-0 flex items-center gap-1.5 ${
                                   isBlocked
-                                    ? "bg-red-100 text-red-800"
+                                    ? "bg-red-100 text-red-800 border border-red-200"
                                     : isQuiz
-                                    ? "bg-purple-100 text-purple-800"
+                                    ? "bg-purple-50 text-purple-800 border border-purple-200/80"
                                     : isDocument
-                                    ? "bg-amber-100 text-amber-800"
-                                    : "bg-blue-100 text-blue-800"
+                                    ? "bg-amber-50 text-amber-800 border border-amber-200/80"
+                                    : "bg-blue-50 text-blue-800 border border-blue-200/80"
                                 }`}
                               >
                                 {isQuiz ? (
@@ -836,11 +838,11 @@ function CoursePlayerContent({
                                   </>
                                 ) : isDocument ? (
                                   <>
-                                    <FileTextIcon className="w-3 h-3" /> {docBadge}
+                                    <FileTextIcon className="w-3 h-3 text-amber-700" /> {docBadge}
                                   </>
                                 ) : (
                                   <>
-                                    <VideoIcon className="w-3 h-3" /> VIDEO
+                                    <VideoIcon className="w-3 h-3 text-blue-700" /> VIDEO
                                   </>
                                 )}
                               </span>
@@ -855,7 +857,7 @@ function CoursePlayerContent({
                           <Link href={lessonUrl} className="shrink-0">
                             <Button
                               size="sm"
-                              className="w-full sm:w-auto gap-1.5 text-xs font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl px-4 py-2"
+                              className="w-full sm:w-auto gap-2 text-xs font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-2xl px-4 py-2.5 shadow-xs hover:shadow-md transition-all"
                             >
                               <PlayIcon className="w-3.5 h-3.5 fill-white" /> Open Lesson
                             </Button>
