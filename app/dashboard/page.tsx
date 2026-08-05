@@ -105,10 +105,10 @@ export default async function StudentDashboardPage({
         <div className="relative z-10 p-7 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center font-display font-bold text-white text-2xl shadow-float">
-              {studentInitials}
+            <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center font-display font-bold text-white text-2xl shadow-float overflow-hidden">
+              <img src={(session?.user as any)?.image || dbUser?.image || "/student-avatar.png"} alt={session?.user?.name || "Student"} className="w-full h-full object-cover" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-[#0E57A4] rounded-full" />
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-[#0E57A4] rounded-full z-10" />
           </div>
 
           <div className="flex-1 min-w-0">
