@@ -579,7 +579,11 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
       {/* ── MODAL: CREATE ASSIGNMENT ──────────────────────────────────────── */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div
+            data-lenis-prevent="true"
+            onWheel={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto touch-pan-y overscroll-contain"
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -592,7 +596,9 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative z-10 w-full max-w-xl bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto my-auto"
+              data-lenis-prevent="true"
+              onWheel={(e) => e.stopPropagation()}
+              className="relative z-10 w-full max-w-xl bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto my-auto touch-pan-y overscroll-contain"
             >
               <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
                 <div>

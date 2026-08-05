@@ -108,7 +108,11 @@ export function CourseSelect({
           </div>
 
           {/* Courses List Container */}
-          <div className="max-h-60 overflow-y-auto p-1 divide-y divide-slate-50">
+          <div
+            data-lenis-prevent="true"
+            onWheel={(e) => e.stopPropagation()}
+            className="max-h-60 overflow-y-auto p-1 divide-y divide-slate-50 touch-pan-y overscroll-contain"
+          >
             {filteredCourses.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 font-mono">
                 No courses match your search.
