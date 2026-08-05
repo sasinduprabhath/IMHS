@@ -51,19 +51,15 @@ export async function POST(
       );
     }
 
-    // 2. Single Device Verification Check
-    const userRecord = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { deviceSignature: true },
-    });
-
-    if (userRecord?.deviceSignature && deviceFingerprint) {
-      if (userRecord.deviceSignature !== deviceFingerprint) {
-        return NextResponse.json(
-          { error: "Device Verification Failed: You can only submit assignments from your primary registered device." },
-          { status: 403 }
-        );
-      }
+    // 2. Register/Update Device Signature (Allowed device tracking)
+    if (deviceFingerprint) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          deviceSignature: deviceFingerprint,
+          deviceLockedAt: new Date(),
+        },
+      }).catch(() => {}); // non-blocking update
     }
 
     // 3. Deadline Auto-Lock Check

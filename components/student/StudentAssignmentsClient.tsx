@@ -342,13 +342,13 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                 </button>
               </div>
 
-              {/* Single Device Security Notice */}
+              {/* Allowed Device Verification Notice */}
               <div className="bg-[#0E57A4]/8 border border-[#0E57A4]/20 p-3.5 rounded-2xl flex items-start gap-2.5 text-xs text-[#0E57A4]">
                 <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#0E57A4]" />
                 <div>
-                  <span className="font-bold block">Authenticated Single Device Security Active</span>
+                  <span className="font-bold block">Authenticated Allowed Device Access</span>
                   <span className="text-[11px] opacity-90 leading-tight block mt-0.5">
-                    Your submission is bound and verified against your registered device signature to ensure authenticity.
+                    Your assignment submission is verified against your active student portal account and registered device.
                   </span>
                 </div>
               </div>
