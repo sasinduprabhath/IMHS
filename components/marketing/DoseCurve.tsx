@@ -21,53 +21,101 @@ interface DoseCurveProps {
 
 // Hero variant: a smooth rise-peak-decay absorption curve (Cmax shape)
 // Drawn across the full width, animates pathLength 0→1 on mount.
+// Hero variant: a smooth rise-peak-decay absorption curve (Cmax shape)
+// Drawn across the full width, animates pathLength 0→1 on mount.
 function HeroDoseCurve({ className }: { className?: string }) {
   const shouldReduce = useReducedMotion();
 
   return (
     <svg
-      viewBox="0 0 600 80"
+      viewBox="0 0 350 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="none"
-      className={cn("w-full overflow-visible pointer-events-none", className)}
+      className={cn("w-full h-5 sm:h-7 overflow-visible pointer-events-none", className)}
       aria-hidden="true"
     >
-      {/* Dose curve: gentle rise, sharp peak at ~55%, graceful tail decay */}
+      <defs>
+        {/* Glow Filter */}
+        <filter id="heroDoseGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        {/* Linear Gradient for Stroke */}
+        <linearGradient id="heroDoseGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#F16726" stopOpacity="0.75" />
+          <stop offset="45%" stopColor="#FF7A38" stopOpacity="1" />
+          <stop offset="70%" stopColor="#0E57A4" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#F16726" stopOpacity="0.75" />
+        </linearGradient>
+
+        {/* Soft Area Fill Gradient */}
+        <linearGradient id="heroDoseFill" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#F16726" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#F16726" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {/* Area fill under curve */}
+      {!shouldReduce && (
+        <motion.path
+          d="M 0 30 C 70 30, 120 25, 175 6 C 230 25, 280 30, 350 30 L 350 40 L 0 40 Z"
+          fill="url(#heroDoseFill)"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+        />
+      )}
+
+      {/* Main Curve Stroke */}
       {shouldReduce ? (
         <path
-          d="M 0 70 C 60 70, 120 65, 180 45 C 230 28, 270 8, 310 5 C 360 8, 390 30, 430 50 C 480 68, 540 72, 600 72"
-          stroke="var(--chart-red, #e03131)"
-          strokeWidth="3"
+          d="M 0 30 C 70 30, 120 25, 175 6 C 230 25, 280 30, 350 30"
+          stroke="url(#heroDoseGradient)"
+          strokeWidth="3.5"
           strokeLinecap="round"
           fill="none"
-          opacity="0.8"
+          filter="url(#heroDoseGlow)"
         />
       ) : (
         <motion.path
-          d="M 0 70 C 60 70, 120 65, 180 45 C 230 28, 270 8, 310 5 C 360 8, 390 30, 430 50 C 480 68, 540 72, 600 72"
-          stroke="var(--chart-red, #e03131)"
-          strokeWidth="3"
+          d="M 0 30 C 70 30, 120 25, 175 6 C 230 25, 280 30, 350 30"
+          stroke="url(#heroDoseGradient)"
+          strokeWidth="3.5"
           strokeLinecap="round"
           fill="none"
+          filter="url(#heroDoseGlow)"
           initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 0.8 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
         />
       )}
-      {/* Cmax dot at peak */}
-      {shouldReduce ? (
-        <circle cx="310" cy="5" r="3.5" fill="var(--chart-red, #e03131)" opacity="0.9" />
-      ) : (
-        <motion.circle
-          cx="310"
-          cy="5"
-          r="3.5"
-          fill="var(--chart-red, #e03131)"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 0.9, scale: 1 }}
-          transition={{ duration: 0.3, delay: 1.0 }}
-        />
+
+      {/* Glowing Pulse Dot at Cmax Peak */}
+      {!shouldReduce && (
+        <g>
+          <motion.circle
+            cx="175"
+            cy="6"
+            r="6"
+            fill="#F16726"
+            opacity="0.35"
+            animate={{ scale: [1, 1.8, 1], opacity: [0.35, 0, 0.35] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.circle
+            cx="175"
+            cy="6"
+            r="3.5"
+            fill="#FFFFFF"
+            stroke="#F16726"
+            strokeWidth="2"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.9 }}
+          />
+        </g>
       )}
     </svg>
   );
