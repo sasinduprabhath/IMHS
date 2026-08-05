@@ -89,18 +89,18 @@ export function StudentSidebar({ user }: { user: any }) {
       >
         {collapsed && !isMobile ? (
           <Link href="/dashboard/profile" title="My Profile">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E57A4] to-[#2172C9] flex items-center justify-center font-display font-bold text-white text-sm ring-2 ring-white/10 hover:ring-[#0E57A4]/60 transition-all">
-              {initials}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E57A4] to-[#2172C9] flex items-center justify-center font-display font-bold text-white text-sm ring-2 ring-white/10 hover:ring-[#0E57A4]/60 transition-all overflow-hidden">
+              <img src={user?.image || "/student-avatar.png"} alt={user?.name || "Student"} className="w-full h-full object-cover" />
             </div>
           </Link>
         ) : (
           <Link href="/dashboard/profile" className="flex items-center gap-3 group min-w-0">
             {/* Avatar with gradient ring */}
             <div className="relative shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E57A4] to-[#2172C9] flex items-center justify-center font-display font-bold text-white text-sm shadow-glow">
-                {initials}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E57A4] to-[#2172C9] flex items-center justify-center font-display font-bold text-white text-sm shadow-glow overflow-hidden">
+                <img src={user?.image || "/student-avatar.png"} alt={user?.name || "Student"} className="w-full h-full object-cover" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#0A1628] rounded-full" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#0A1628] rounded-full z-10" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white truncate leading-tight">{user?.name || "Student"}</p>
