@@ -441,7 +441,7 @@ function CoursePlayerContent({
   // ── 3. DEDICATED ANNOUNCEMENT VIEW ──────────────────────────────────────
   if (activeAnnouncementId && currentAnnouncement) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto pb-12">
+      <div className="space-y-6 max-w-6xl mx-auto pb-12">
         <div className="flex items-center justify-between bg-white border border-chart-grid p-4 rounded-2xl">
           <Link
             href={`/dashboard/courses/${course.slug}`}
@@ -449,36 +449,88 @@ function CoursePlayerContent({
           >
             <ArrowLeftIcon className="w-4 h-4" /> Back to Course Syllabus
           </Link>
+          {course.announcements && course.announcements.length > 0 && (
+            <span className="text-xs font-mono text-slate-500 font-semibold">
+              Announcement {course.announcements.findIndex((a) => a.id === currentAnnouncement.id) + 1} of {course.announcements.length}
+            </span>
+          )}
         </div>
-        <div className="bg-white rounded-3xl border-2 border-red-200 p-6 sm:p-8 space-y-6 shadow-sm min-h-[450px]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div className="space-y-1">
-              <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-wider block bg-red-50 border border-red-200 px-2.5 py-0.5 rounded w-max">
-                📢 OFFICIAL BATCH ANNOUNCEMENT
-              </span>
-              <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-900 mt-1">
-                {currentAnnouncement.title}
-              </h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Active Announcement Detail Stage */}
+          <div className="lg:col-span-2 bg-white rounded-3xl border-2 border-red-200 p-6 sm:p-8 space-y-6 shadow-sm min-h-[450px]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="space-y-1">
+                <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-wider inline-block bg-red-50 border border-red-200 px-2.5 py-0.5 rounded">
+                  📢 OFFICIAL BATCH ANNOUNCEMENT
+                </span>
+                <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-900 mt-1">
+                  {currentAnnouncement.title}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 shrink-0">
+                <CalendarIcon className="w-4 h-4 text-red-500" />
+                <span>
+                  {new Date(currentAnnouncement.createdAt).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 shrink-0">
-              <CalendarIcon className="w-4 h-4 text-red-500" />
-              <span>
-                {new Date(currentAnnouncement.createdAt).toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
+            <FormattedText
+              content={currentAnnouncement.content}
+              className="text-sm text-slate-800 leading-relaxed font-sans"
+            />
           </div>
 
-          <FormattedText
-            content={currentAnnouncement.content}
-            className="text-sm text-slate-800 leading-relaxed font-sans"
-          />
+          {/* Right Sidebar: All Batch Announcements List */}
+          <div className="bg-white rounded-3xl border border-chart-grid p-5 space-y-4 shadow-sm h-fit">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-display font-bold text-slate-900 text-sm flex items-center gap-2">
+                <MegaphoneIcon className="w-4 h-4 text-red-600" />
+                All Batch Notices ({course.announcements?.length || 0})
+              </h3>
+            </div>
+
+            <div
+              data-lenis-prevent="true"
+              onWheel={(e) => e.stopPropagation()}
+              className="space-y-2 max-h-[500px] overflow-y-auto pr-1 touch-pan-y overscroll-contain"
+            >
+              {course.announcements?.map((a, idx) => {
+                const isActive = a.id === currentAnnouncement.id;
+                return (
+                  <Link
+                    key={a.id}
+                    href={`/dashboard/courses/${course.slug}?announcementId=${a.id}`}
+                    className={`block p-3 rounded-2xl border transition-all ${
+                      isActive
+                        ? "bg-red-50 border-red-300 shadow-xs font-bold"
+                        : "bg-slate-50/70 border-slate-200/80 hover:bg-slate-100 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="font-mono text-[10px] text-red-600 font-bold uppercase">
+                        Notice #{course.announcements!.length - idx}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(a.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-900 line-clamp-2 leading-snug">
+                      {a.title}
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -565,22 +617,35 @@ function CoursePlayerContent({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-mono text-xs font-bold text-red-600">
                 <MegaphoneIcon className="w-4 h-4" />
-                Latest Batch Announcement ({course.announcements.length})
+                Batch Announcements ({course.announcements.length})
               </div>
               <span className="text-[10px] font-mono text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full font-bold">
-                NOTICE
+                NOTICE HUB
               </span>
             </div>
 
-            <Link
-              href={`/dashboard/courses/${course.slug}?announcementId=${course.announcements[0].id}`}
-              className="block p-3 bg-red-50/50 hover:bg-red-50 rounded-xl border border-red-100 transition-colors"
+            <div
+              data-lenis-prevent="true"
+              onWheel={(e) => e.stopPropagation()}
+              className="space-y-2 max-h-48 overflow-y-auto pr-1 touch-pan-y overscroll-contain"
             >
-              <p className="text-xs font-bold text-slate-900 truncate">{course.announcements[0].title}</p>
-              <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-                {new Date(course.announcements[0].createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-              </p>
-            </Link>
+              {course.announcements.map((a) => (
+                <Link
+                  key={a.id}
+                  href={`/dashboard/courses/${course.slug}?announcementId=${a.id}`}
+                  className="block p-3 bg-red-50/40 hover:bg-red-50/90 rounded-xl border border-red-100/80 transition-all hover:shadow-xs group"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors truncate">
+                      {a.title}
+                    </p>
+                    <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                      {new Date(a.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="bg-white border border-chart-grid p-5 rounded-2xl flex items-center gap-3 text-slate-400 text-xs">
