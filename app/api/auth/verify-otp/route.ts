@@ -86,9 +86,11 @@ export async function POST(req: NextRequest) {
       data: { otpCode: null, otpExpiry: null, otpAttempts: 0 },
     });
 
+    const trustDevice = body.trustDevice ?? true;
+    const deviceSignature = (body.deviceSignature as string) || "";
+
     // Build a signed JWT that the login page can use with NextAuth signIn
-    // We embed the verified user data directly in the token
-    const secret = process.env.NEXTAUTH_SECRET!;
+    const secret = process.env.NEXTAUTH_SECRET || "imhs_default_secret_32_characters_long";
     const verifiedToken = await encode({
       token: {
         id: user.id,
@@ -97,16 +99,33 @@ export async function POST(req: NextRequest) {
         role: user.role,
         phone: user.phone,
         otpVerified: true,
-        // Short-lived: 5 minutes
         exp: Math.floor(Date.now() / 1000) + 5 * 60,
       },
       secret,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       status: "SUCCESS",
       verifiedToken,
     });
+
+    // If student checked "Trust this browser for 30 days"
+    if (trustDevice) {
+      const { createTrustedDeviceToken, TRUSTED_DEVICE_COOKIE_NAME, THIRTY_DAYS_IN_SECONDS } = await import("@/lib/trustedDevice");
+      const trustedCookieVal = await createTrustedDeviceToken(user.id, deviceSignature);
+
+      response.cookies.set({
+        name: TRUSTED_DEVICE_COOKIE_NAME,
+        value: trustedCookieVal,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: THIRTY_DAYS_IN_SECONDS, // 30 Days
+      });
+    }
+
+    return response;
 
   } catch (err) {
     console.error("[verify-otp] Unexpected error:", err);

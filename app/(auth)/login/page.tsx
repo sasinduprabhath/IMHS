@@ -157,6 +157,21 @@ function LoginForm() {
         return;
       }
 
+      if (data.status === "TRUSTED_DEVICE_BYPASS" && data.verifiedToken) {
+        const result = await signIn("credentials", {
+          redirect: false,
+          verifiedToken: data.verifiedToken,
+        });
+        if (result?.error) {
+          setErrorType("general");
+          setError("Session creation failed. Please try logging in again.");
+        } else {
+          router.push(callbackUrl);
+          router.refresh();
+        }
+        return;
+      }
+
       if (data.status === "OTP_SENT") {
         const params = new URLSearchParams({
           email: data.maskedEmail || "",

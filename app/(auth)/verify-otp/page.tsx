@@ -23,6 +23,9 @@ function OtpForm() {
   const pendingUserId = searchParams.get("uid") || "";
   const expiresAt = searchParams.get("exp") || "";
 
+  // Trust browser checkbox state (default true for 30 days recommended balance)
+  const [trustDevice, setTrustDevice] = useState(true);
+
   // Single string state for the 6-digit code (enables seamless mobile keyboard one-time-code auto-suggest & clipboard paste)
   const [otpValue, setOtpValue] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -97,7 +100,7 @@ function OtpForm() {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pendingUserId, otp: otpValue }),
+        body: JSON.stringify({ pendingUserId, otp: otpValue, trustDevice }),
       });
       const data = await res.json();
 
@@ -273,6 +276,25 @@ function OtpForm() {
           <Clipboard className="w-3.5 h-3.5" />
           Paste code from clipboard
         </button>
+      </div>
+
+      {/* ── 30-Day Trusted Browser Checkbox ── */}
+      <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-3.5 rounded-2xl flex items-start gap-3 select-none hover:border-[#0E57A4]/30 transition-colors">
+        <input
+          type="checkbox"
+          id="trustDevice"
+          checked={trustDevice}
+          onChange={(e) => setTrustDevice(e.target.checked)}
+          className="mt-0.5 w-4 h-4 text-[#0E57A4] rounded border-slate-300 focus:ring-[#0E57A4] cursor-pointer"
+        />
+        <label htmlFor="trustDevice" className="cursor-pointer space-y-0.5">
+          <span className="text-xs font-bold text-slate-800 block">
+            Remember This Device for 30 Days <span className="text-[10px] font-mono text-[#0E57A4] bg-[#0E57A4]/10 px-1.5 py-0.2 rounded-full font-bold ml-1">Recommended</span>
+          </span>
+          <span className="text-[11px] text-slate-500 block leading-tight">
+            Log in directly with Email &amp; Password on this browser for the next 30 days without entering an OTP code.
+          </span>
+        </label>
       </div>
 
       {/* Attempts remaining indicator */}

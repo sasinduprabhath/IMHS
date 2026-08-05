@@ -4,11 +4,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { encode } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeEmail, sanitizeString } from "@/lib/sanitization";
 import { generateOtp, hashOtp, otpExpiry, buildOtpEmail, maskEmail } from "@/lib/otp";
 import { sendMail } from "@/lib/mailer";
+import { verifyTrustedDeviceToken, TRUSTED_DEVICE_COOKIE_NAME } from "@/lib/trustedDevice";
 
 export async function POST(req: NextRequest) {
   try {
@@ -71,6 +73,33 @@ export async function POST(req: NextRequest) {
     // ── Admin bypass: skip 2FA & device binding entirely for admin ──────
     if (user.role === "ADMIN") {
       return NextResponse.json({ status: "ADMIN_BYPASS" });
+    }
+
+    // ── 30-Day Trusted Browser Check (Skip 2FA if trusted cookie exists) ─────
+    const trustedCookie = req.cookies.get(TRUSTED_DEVICE_COOKIE_NAME)?.value;
+    if (trustedCookie) {
+      const isTrusted = await verifyTrustedDeviceToken(trustedCookie, user.id, deviceSignature);
+      if (isTrusted) {
+        console.log(`[pre-login] 30-day trusted browser active for ${user.email} -> skipping 2FA OTP.`);
+        const secret = process.env.NEXTAUTH_SECRET || "imhs_default_secret_32_characters_long";
+        const verifiedToken = await encode({
+          token: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            phone: user.phone,
+            otpVerified: true,
+            exp: Math.floor(Date.now() / 1000) + 5 * 60,
+          },
+          secret,
+        });
+
+        return NextResponse.json({
+          status: "TRUSTED_DEVICE_BYPASS",
+          verifiedToken,
+        });
+      }
     }
 
     // ── Device Binding & Device List Check ─────────────────────────────
