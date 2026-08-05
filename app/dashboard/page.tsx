@@ -16,7 +16,14 @@ import {
 export const metadata = { title: "My Courses - IMHS Student Portal" };
 export const revalidate = 0;
 
-export default async function StudentDashboardPage() {
+export default async function StudentDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tour?: string }>;
+}) {
+  const resolvedParams = searchParams ? await searchParams : {};
+  const isForcedTour = resolvedParams.tour === "true";
+
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
@@ -57,7 +64,7 @@ export default async function StudentDashboardPage() {
     console.error("Error fetching student dashboard data:", error);
   }
 
-  const shouldRunTour = dbUser ? !dbUser.hasCompletedTour : false;
+  const shouldRunTour = isForcedTour || (dbUser ? !dbUser.hasCompletedTour : false);
 
   const completedLessonIds = new Set(userProgress.map((p) => p.lessonId));
   const totalLessons = enrollments.reduce(
@@ -428,7 +435,7 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* ── Driver.js Interactive Onboarding Tour ── */}
-      <DashboardTour shouldRun={shouldRunTour} />
+      <DashboardTour shouldRun={shouldRunTour} forceRun={isForcedTour} />
     </div>
   );
 }

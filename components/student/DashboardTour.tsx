@@ -4,18 +4,20 @@ import { useEffect, useRef } from "react";
 
 interface DashboardTourProps {
   shouldRun: boolean;
+  forceRun?: boolean;
 }
 
-export function DashboardTour({ shouldRun }: DashboardTourProps) {
+export function DashboardTour({ shouldRun, forceRun = false }: DashboardTourProps) {
   const driverRef = useRef<any>(null);
   const hasInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (!shouldRun) return;
-    if (hasInitializedRef.current) return;
+    if (!shouldRun && !forceRun) return;
+    if (hasInitializedRef.current && !forceRun) return;
 
-    // Check if tour was already completed in this browser session
-    if (typeof window !== "undefined" && sessionStorage.getItem("imhs_tour_completed") === "true") {
+    if (forceRun && typeof window !== "undefined") {
+      sessionStorage.removeItem("imhs_tour_completed");
+    } else if (typeof window !== "undefined" && sessionStorage.getItem("imhs_tour_completed") === "true") {
       return;
     }
 
@@ -152,7 +154,7 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
       }
       document.querySelectorAll(".driver-popover, .driver-overlay, .driver-popover-wrapper").forEach((el) => el.remove());
     };
-  }, [shouldRun]);
+  }, [shouldRun, forceRun]);
 
   return null;
 }
