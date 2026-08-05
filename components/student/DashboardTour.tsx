@@ -8,18 +8,18 @@ interface DashboardTourProps {
 
 export function DashboardTour({ shouldRun }: DashboardTourProps) {
   const driverRef = useRef<any>(null);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     if (!shouldRun) return;
+    if (hasInitializedRef.current) return;
 
-    // Prevent duplicate tours in single browser session
-    if (typeof window !== "undefined") {
-      if (sessionStorage.getItem("imhs_tour_active") || sessionStorage.getItem("imhs_tour_completed")) {
-        return;
-      }
-      sessionStorage.setItem("imhs_tour_active", "true");
+    // Check if tour was already completed in this browser session
+    if (typeof window !== "undefined" && sessionStorage.getItem("imhs_tour_completed") === "true") {
+      return;
     }
 
+    hasInitializedRef.current = true;
     let isCancelled = false;
     let timerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -32,6 +32,8 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
 
         // Clean up any stale Driver.js popovers or overlays left in DOM
         document.querySelectorAll(".driver-popover, .driver-overlay, .driver-popover-wrapper").forEach((el) => el.remove());
+
+        const isMobile = window.innerWidth < 768;
 
         const rawSteps = [
           {
@@ -60,7 +62,7 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
               title: "Course Directory & Video Player",
               description:
                 "Click any program to access domain-locked HD video lectures, lab reference guides, and chapter progress tracking.",
-              side: "top" as const,
+              side: (isMobile ? "bottom" : "top") as any,
               align: "start" as const,
             },
           },
@@ -70,7 +72,7 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
               title: "24/7 AI Assistant",
               description:
                 "Need instant technical help or portal guidance? Click this floating button anytime to chat with the IMHS AI support assistant.",
-              side: "left" as const,
+              side: (isMobile ? "top" : "left") as any,
               align: "start" as const,
             },
           },
@@ -80,17 +82,22 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
               title: "Admin WhatsApp Escalation",
               description:
                 "Request device resets, submit bank payment receipts, or contact the IMHS administrative desk directly on WhatsApp.",
-              side: "right" as const,
+              side: (isMobile ? "top" : "right") as any,
               align: "start" as const,
             },
           },
         ];
 
-        // Filter steps to only target elements actually present in current DOM
-        const validSteps = rawSteps.filter((s) => !!document.querySelector(s.element));
+        // Filter steps to only target elements actually VISIBLE in current DOM layout
+        const validSteps = rawSteps.filter((s) => {
+          const el = document.querySelector(s.element) as HTMLElement | null;
+          if (!el) return false;
+          const style = window.getComputedStyle(el);
+          return style.display !== "none" && style.visibility !== "hidden" && el.offsetWidth > 0 && el.offsetHeight > 0;
+        });
 
         if (validSteps.length === 0) {
-          sessionStorage.removeItem("imhs_tour_active");
+          hasInitializedRef.current = false;
           return;
         }
 
@@ -120,6 +127,7 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
 
         driverRef.current = driverObj;
 
+        // Launch tour spotlight after short delay for page render stabilization
         timerId = setTimeout(() => {
           if (!isCancelled && driverRef.current) {
             driverObj.drive();
@@ -127,7 +135,7 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
         }, 500);
       } catch (err) {
         console.error("Tour initialization error:", err);
-        sessionStorage.removeItem("imhs_tour_active");
+        hasInitializedRef.current = false;
       }
     }
 
