@@ -355,7 +355,6 @@ export default async function StudentDashboardPage() {
                           )}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
                           className="flex w-full items-center justify-center gap-2 text-xs font-semibold font-mono border border-[#FECACA] text-[#EF4444] hover:bg-[#EF4444] hover:text-white px-4 py-2 rounded-xl transition-all duration-200"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
