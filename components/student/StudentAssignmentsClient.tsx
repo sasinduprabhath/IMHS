@@ -258,9 +258,9 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                     href={a.attachmentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E57A4] hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E57A4] hover:underline bg-[#0E57A4]/8 px-3 py-1.5 rounded-xl border border-[#0E57A4]/20"
                   >
-                    <Download className="w-3.5 h-3.5" /> Download Coursework Brief PDF
+                    <Download className="w-3.5 h-3.5" /> Download Coursework Brief Attachment
                   </a>
                 ) : (
                   <span className="text-xs text-slate-400 italic">No external brief file attached</span>
@@ -273,10 +273,45 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                     className="bg-[#0E57A4] hover:bg-[#0c4a8e] text-white font-semibold text-xs gap-2 rounded-xl"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    {a.submission ? "Update Submission" : "Submit Assignment"}
+                    {a.submission ? "Re-submit / Update File" : "Submit Assignment"}
                   </Button>
                 )}
               </div>
+
+              {/* ── STUDENT SUBMISSION DETAILS CARD ── */}
+              {a.submission && (
+                <div className="bg-[#F8FAFC] border border-[#CBD5E1] p-4 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                      <FileCheck className="w-4 h-4 text-[#0E57A4]" />
+                      Your Submitted Coursework
+                    </div>
+                    <span className="text-[10px] font-mono font-semibold text-slate-400">
+                      Submitted on: {new Date(a.submission.submittedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-[#E2E8F0]">
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-bold text-slate-900 truncate">{a.submission.fileName}</p>
+                      <p className="text-[11px] font-mono text-emerald-700 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        Stored & Linked to Student Record
+                      </p>
+                    </div>
+
+                    <a
+                      href={a.submission.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0E57A4] hover:bg-[#0c4a8e] px-3.5 py-2 rounded-xl transition-all shadow-xs"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      View Submitted File
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* ── GRADED FEEDBACK SECTION ── */}
               {isGraded && a.submission && (
