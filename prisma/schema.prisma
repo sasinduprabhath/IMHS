@@ -16,6 +16,7 @@ model User {
   passwordHash     String
   role             String    @default("STUDENT") // "ADMIN" | "STUDENT"
   status           String    @default("ACTIVE")  // "ACTIVE" | "FROZEN"
+  hasCompletedTour Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -27,9 +28,6 @@ model User {
   otpCode          String?   // Bcrypt-hashed 6-digit OTP
   otpExpiry        DateTime? // OTP expires 10 min after generation
   otpAttempts      Int       @default(0) // Failed OTP attempt counter
-
-  // ─ Onboarding Tour ────────────────────────────────────
-  hasCompletedTour Boolean   @default(false) // Driver.js first-login tour completion flag
 
   devices          StudentDevice[]
   enrollments      Enrollment[]

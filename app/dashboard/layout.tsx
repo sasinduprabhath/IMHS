@@ -2,10 +2,8 @@ import React from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { StudentSidebar } from "@/components/student/StudentSidebar";
 import { AISupportChat } from "@/components/student/AISupportChat";
-import { DashboardTour } from "@/components/student/DashboardTour";
 
 export default async function StudentLayout({
   children,
@@ -16,18 +14,6 @@ export default async function StudentLayout({
 
   if (!session?.user) {
     redirect("/login");
-  }
-
-  // Fetch tour completion flag for current student
-  let hasCompletedTour = true; // safe default: don't show tour if DB fails
-  try {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { hasCompletedTour: true },
-    });
-    hasCompletedTour = dbUser?.hasCompletedTour ?? true;
-  } catch {
-    // If DB lookup fails, skip tour gracefully
   }
 
   return (
@@ -44,12 +30,7 @@ export default async function StudentLayout({
       </main>
 
       {/* AI Support Chatbot — floats over entire dashboard */}
-      <div id="tour-ai-chat">
-        <AISupportChat />
-      </div>
-
-      {/* First-login onboarding tour (Driver.js) */}
-      <DashboardTour shouldRun={!hasCompletedTour} />
+      <AISupportChat />
     </div>
   );
 }

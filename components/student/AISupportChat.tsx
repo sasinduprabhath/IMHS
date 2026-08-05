@@ -408,6 +408,7 @@ export function AISupportChat({ triggerClassName }: { triggerClassName?: string 
       <AnimatePresence>
         {!isOpen && (
           <motion.button
+            id="tour-ai-chat"
             key="trigger"
             initial={{ opacity: 0, scale: 0.8, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

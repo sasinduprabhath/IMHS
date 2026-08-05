@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 
@@ -16,6 +16,13 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
       const { driver } = await import("driver.js");
       await import("driver.js/dist/driver.css");
 
+      const markTourCompleted = () => {
+        if (!destroyed) {
+          destroyed = true;
+          fetch("/api/student/tour", { method: "PATCH" }).catch(() => {});
+        }
+      };
+
       const driverObj = driver({
         showProgress: true,
         animate: true,
@@ -26,14 +33,14 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
         progressText: "Step {{current}} of {{total}}",
         nextBtnText: "Next &rarr;",
         prevBtnText: "&larr; Back",
-        doneBtnText: "Done",
+        doneBtnText: "Got it!",
         steps: [
           {
             element: "#tour-device-badge",
             popover: {
-              title: "Device Security",
+              title: "Device Security Badge",
               description:
-                "Your current device is locked and authenticated. Only this registered device can stream your IMHS video content, keeping your access secure and exclusive.",
+                "Your current device is locked and authenticated. Only this registered device can stream your IMHS video content, keeping your account exclusive and secure.",
               side: "bottom",
               align: "start",
             },
@@ -41,19 +48,19 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
           {
             element: "#tour-stats-grid",
             popover: {
-              title: "Your Progress Stats",
+              title: "Progress & Metrics",
               description:
-                "Track your enrolled courses, active programs, completed lessons, and overall progress percentage all at a glance from this dashboard.",
+                "Track your enrolled courses, active programs, completed lessons, and overall completion percentage in real time.",
               side: "bottom",
               align: "start",
             },
           },
           {
-            element: "#tour-courses-grid",
+            element: "#tour-courses-section",
             popover: {
-              title: "My Enrolled Programs",
+              title: "Course Directory & Video Player",
               description:
-                "Click any course card to open your domain-locked video lectures, downloadable PDF lab references, and chapter-by-chapter progress tracker.",
+                "Click any program to access domain-locked HD video lectures, lab reference guides, and chapter progress tracking.",
               side: "top",
               align: "start",
             },
@@ -63,37 +70,34 @@ export function DashboardTour({ shouldRun }: DashboardTourProps) {
             popover: {
               title: "24/7 AI Assistant",
               description:
-                "Got a portal question or need help navigating a feature? Click this button anytime to chat with the IMHS AI support assistant, instant answers day or night.",
+                "Need instant technical help or portal guidance? Click this floating button anytime to chat with the IMHS AI support assistant.",
               side: "left",
               align: "start",
             },
           },
           {
-            element: "#tour-whatsapp-link",
+            element: "#tour-whatsapp-support",
             popover: {
-              title: "WhatsApp Admin Support",
+              title: "Admin WhatsApp Escalation",
               description:
-                "Need a device reset, want to submit a bank payment receipt, or have an urgent access issue? Click here to reach the IMHS administrative desk directly on WhatsApp.",
+                "Request device resets, submit bank payment receipts, or contact the IMHS administrative desk directly on WhatsApp.",
               side: "right",
               align: "start",
             },
           },
         ],
         onDestroyStarted: () => {
-          if (!destroyed) {
-            destroyed = true;
-            fetch("/api/student/tour", { method: "PATCH" }).catch(() => {});
-          }
+          markTourCompleted();
           driverObj.destroy();
         },
       });
 
-      // Small delay so the dashboard fully renders before spotlighting
+      // Small delay so the dashboard DOM is fully rendered before spotlighting
       setTimeout(() => {
         if (!destroyed) {
           driverObj.drive();
         }
-      }, 800);
+      }, 600);
     }
 
     initTour();

@@ -6,10 +6,11 @@ import { prisma } from "@/lib/prisma";
 import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
 import { createFrozenCourseInquiryWALink } from "@/lib/whatsapp";
+import { DashboardTour } from "@/components/student/DashboardTour";
 import {
   BookOpen, PlayCircle, MessageSquare, ArrowRight,
   Trophy, GraduationCap, FileText, Lock, Sparkles,
-  Target, Zap, CheckCircle2, TrendingUp,
+  Target, Zap, CheckCircle2, TrendingUp, ShieldCheck,
 } from "lucide-react";
 
 export const metadata = { title: "My Courses - IMHS Student Portal" };
@@ -21,10 +22,11 @@ export default async function StudentDashboardPage() {
 
   let enrollments: any[] = [];
   let userProgress: any[] = [];
+  let dbUser: any = null;
 
   try {
     if (userId) {
-      const [userEnrollments, progressList] = await Promise.all([
+      const [userEnrollments, progressList, userRecord] = await Promise.all([
         prisma.enrollment.findMany({
           where: { userId },
           include: {
@@ -42,13 +44,20 @@ export default async function StudentDashboardPage() {
           where: { userId },
           select: { lessonId: true },
         }),
+        prisma.user.findUnique({
+          where: { id: userId },
+          select: { hasCompletedTour: true },
+        }),
       ]);
       enrollments = userEnrollments;
       userProgress = progressList;
+      dbUser = userRecord;
     }
   } catch (error) {
     console.error("Error fetching student dashboard data:", error);
   }
+
+  const shouldRunTour = dbUser ? !dbUser.hasCompletedTour : false;
 
   const completedLessonIds = new Set(userProgress.map((p) => p.lessonId));
   const totalLessons = enrollments.reduce(
@@ -87,7 +96,7 @@ export default async function StudentDashboardPage() {
 
         <div className="relative z-10 p-7 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {/* Avatar */}
-          <div id="tour-device-badge" className="relative shrink-0">
+          <div className="relative shrink-0">
             <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center font-display font-bold text-white text-2xl shadow-float">
               {studentInitials}
             </div>
@@ -95,10 +104,10 @@ export default async function StudentDashboardPage() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold tracking-widest text-white/70 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-pill">
-                <Sparkles className="w-2.5 h-2.5" />
-                IMHS Clinical Candidate
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span id="tour-device-badge" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold tracking-widest text-emerald-300 bg-emerald-500/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-pill">
+                <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" />
+                Device Security Locked
               </span>
               {regId && (
                 <span className="font-mono text-[10px] text-white/50 bg-white/8 border border-white/15 px-2 py-0.5 rounded-pill uppercase tracking-wider">
@@ -201,7 +210,7 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* ── Enrolled Programs Grid ──────────────────────────────────────── */}
-      <div id="tour-courses-grid" className="space-y-5">
+      <div id="tour-courses-section" className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-display font-bold text-ink">My Enrolled Programs</h2>
@@ -419,6 +428,8 @@ export default async function StudentDashboardPage() {
         ))}
       </div>
 
+      {/* ── Driver.js Interactive Onboarding Tour ── */}
+      <DashboardTour shouldRun={shouldRunTour} />
     </div>
   );
 }
