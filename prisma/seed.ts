@@ -7,6 +7,8 @@ async function main() {
   console.log("Seeding database with IMHS production data...");
 
   // Clean existing tables
+  await prisma.assignmentSubmission.deleteMany({});
+  await prisma.assignment.deleteMany({});
   await prisma.lessonProgress.deleteMany({});
   await prisma.enrollment.deleteMany({});
   await prisma.lesson.deleteMany({});
@@ -292,6 +294,36 @@ async function main() {
     data: {
       userId: student1.id,
       courseId: course2.id,
+    },
+  });
+
+  // Create sample assignment brief
+  const assignment1 = await prisma.assignment.create({
+    data: {
+      courseId: course1.id,
+      title: "Clinical Pharmacology Case Study & Dosage Audit",
+      description: "Analyze the provided patient case notes. Calculate loading doses, steady-state plasma concentrations, and recommend dosage adjustments for renal insufficiency.",
+      attachmentUrl: "https://drive.google.com/file/d/demo_brief.pdf",
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      maxMarks: 100,
+      allowLate: true,
+      allowedFileTypes: "PDF,DOCX,ZIP",
+    },
+  });
+
+  // Create graded submission for student1
+  await prisma.assignmentSubmission.create({
+    data: {
+      assignmentId: assignment1.id,
+      userId: student1.id,
+      fileName: "Kasun_Fernando_Pharmacology_CaseStudy.pdf",
+      fileUrl: "https://drive.google.com/file/d/demo_student_submission.pdf",
+      fileSize: 2450000,
+      status: "GRADED",
+      score: 92,
+      feedback: "Excellent pharmacokinetic calculations. Clear reasoning provided for renal dosage adjustments. Well presented clinical report.",
+      gradedAt: new Date(),
+      gradedBy: "Dr. Isuru Wijesinghe",
     },
   });
 

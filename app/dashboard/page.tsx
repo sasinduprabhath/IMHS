@@ -7,6 +7,7 @@ import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
 import { createFrozenCourseInquiryWALink } from "@/lib/whatsapp";
 import { DashboardTour } from "@/components/student/DashboardTour";
+import { StudentAssignmentsClient } from "@/components/student/StudentAssignmentsClient";
 import {
   BookOpen, PlayCircle, MessageSquare, ArrowRight,
   Trophy, GraduationCap, FileText, Lock, Sparkles,
@@ -390,6 +391,12 @@ export default async function StudentDashboardPage({
             })}
           </div>
         )}
+      </div>
+
+      {/* ── My Coursework Assignments Section ───────────────────────────── */}
+      <div className="space-y-4 pt-4 border-t border-[#E2E8F0]">
+        <h2 className="text-xl font-display font-bold text-ink">My Coursework Assignments</h2>
+        <StudentAssignmentsClient />
       </div>
 
       {/* ── Info Cards ───────────────────────────────────────────────────── */}

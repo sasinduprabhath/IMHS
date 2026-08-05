@@ -24,7 +24,9 @@ import {
   Award,
   Calendar,
   MessageCircle,
+  FileCheck,
 } from "lucide-react";
+import { StudentAssignmentsClient } from "@/components/student/StudentAssignmentsClient";
 
 interface Lesson {
   id: string;
@@ -81,8 +83,9 @@ export function CoursePlayerClient({
   const router = useRouter();
   const allLessons = course.chapters.flatMap((ch) => ch.lessons);
 
-  // Selection mode: "LESSON" or "ANNOUNCEMENT"
+  // Selection mode: "LESSON" | "ANNOUNCEMENT" | "ASSIGNMENTS"
   const [selectedAnnouncementId, setSelectedAnnouncementId] = useState<string | null>(null);
+  const [showAssignments, setShowAssignments] = useState(false);
   const [currentLessonId, setCurrentLessonId] = useState<string>(
     allLessons[0]?.id || ""
   );
@@ -132,18 +135,27 @@ export function CoursePlayerClient({
   };
 
   const handleSelectLesson = (lessonId: string) => {
+    setShowAssignments(false);
     setSelectedAnnouncementId(null);
     setCurrentLessonId(lessonId);
   };
 
   const handleSelectAnnouncement = (announcementId: string) => {
+    setShowAssignments(false);
     setSelectedAnnouncementId(announcementId);
+  };
+
+  const handleSelectAssignments = () => {
+    setSelectedAnnouncementId(null);
+    setShowAssignments(true);
   };
 
   // Determine main right content
   let mainContent: React.ReactNode = null;
 
-  if (selectedAnnouncementId && currentAnnouncement) {
+  if (showAssignments) {
+    mainContent = <StudentAssignmentsClient courseId={course.id} />;
+  } else if (selectedAnnouncementId && currentAnnouncement) {
     mainContent = (
       <div className="bg-surface rounded-card overflow-hidden border-2 border-chart-red/30 p-6 sm:p-8 space-y-6 shadow-paper-stack min-h-[500px]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-chart-grid pb-4">
@@ -479,6 +491,30 @@ export function CoursePlayerClient({
             <span className="text-[10px] font-mono text-sage">
               {allLessons.length} items
             </span>
+          </div>
+
+          {/* Assignments & Worksheets Button */}
+          <div className="p-3 bg-[#0E57A4]/5 border-b border-[#0E57A4]/15">
+            <button
+              onClick={handleSelectAssignments}
+              className={`w-full text-left p-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-between gap-2 border-l-2 ${
+                showAssignments
+                  ? "bg-[#0E57A4] text-white shadow-sm border-l-white"
+                  : "bg-white text-[#0E57A4] border-l-[#0E57A4] hover:bg-[#0E57A4]/10 shadow-2xs"
+              }`}
+            >
+              <div className="flex items-center gap-2 font-mono font-bold">
+                <FileCheck className="w-4 h-4 shrink-0" />
+                <span>Assignments &amp; Worksheets</span>
+              </div>
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
+                  showAssignments ? "bg-white/20 text-white" : "bg-[#0E57A4]/15 text-[#0E57A4]"
+                }`}
+              >
+                HUB
+              </span>
+            </button>
           </div>
 
           <div className="divide-y divide-chart-grid max-h-[600px] overflow-y-auto">
