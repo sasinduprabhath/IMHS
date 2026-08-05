@@ -220,7 +220,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-center justify-start px-4 sm:px-6 lg:px-12 pt-20 pb-20 overflow-hidden bg-slate-950">
+      <section className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-[68px] overflow-hidden bg-slate-950">
         {/* Full Background Video (Desktop & Tablet) */}
         <video
           autoPlay
@@ -251,7 +251,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           }}
         />
 
-        <div className="max-w-7xl mx-auto w-full relative z-10">
+        <div className="max-w-7xl mx-auto w-full relative z-10 my-auto py-12">
           {/* Left-Aligned Hero Text Block */}
           <div className="w-full lg:max-w-2xl space-y-6 text-left flex flex-col items-start">
             {/* Headline */}
