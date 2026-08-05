@@ -347,79 +347,80 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="w-full flex-1 min-h-[calc(100vh-68px)] flex items-stretch font-sans overflow-hidden">
-      {/* Left brand panel (Vertically & Horizontally Centered) */}
+      {/* Left brand panel */}
       <div
-        className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-8 xl:p-16 relative overflow-hidden self-stretch"
+        className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center p-8 xl:p-12 relative overflow-hidden self-stretch"
         style={{ background: "linear-gradient(160deg, #071120 0%, #0A1628 50%, #0C1A30 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(ellipse 70% 60% at 20% 0%, rgba(14,87,164,.20) 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 80% 100%, rgba(241,103,38,.10) 0%, transparent 50%)" }} />
         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#0E57A4] via-[#F16726] to-[#0E57A4]" />
 
-        {/* Centered content block */}
-        <div className="relative z-10 my-auto max-w-md w-full mx-auto space-y-8">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-white/50 font-bold border border-white/10 bg-white/5 px-3 py-1.5 rounded-full">
-              <ShieldCheck className="w-3 h-3 text-[#60A5FA]" />
-              Secure Academic Portal
+        {/* Vertically centered content container */}
+        <div className="my-auto space-y-8 max-w-xl mx-auto w-full relative z-10">
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-white/40 font-bold border border-white/10 bg-white/5 px-3 py-1.5 rounded-full">
+                <ShieldCheck className="w-3 h-3" />
+                Secure Academic Portal
+              </div>
+              <h1 className="text-3xl xl:text-4xl font-display font-bold text-white leading-[1.15]">
+                Sri Lanka&apos;s Premier<br />
+                <span className="text-[#60A5FA]">Healthcare Education</span><br />
+                Platform
+              </h1>
+              <p className="text-white/45 text-xs sm:text-sm leading-relaxed max-w-sm">
+                Access your full clinical curriculum - SLMC exam prep, pathology masterclasses, ECG training, and certification programs.
+              </p>
             </div>
-            <h1 className="text-3xl xl:text-4xl font-display font-bold text-white leading-[1.15]">
-              Sri Lanka&apos;s Premier<br />
-              <span className="text-[#60A5FA]">Healthcare Education</span><br />
-              Platform
-            </h1>
-            <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
-              Access your full clinical curriculum - SLMC exam prep, pathology masterclasses, ECG training, and certification programs.
-            </p>
+            <ul className="space-y-2.5">
+              {FEATURES.map(({ icon: Icon, text }, i) => (
+                <motion.li
+                  key={text}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + i * 0.08 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="w-7 h-7 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center shrink-0">
+                    <Icon className="w-3.5 h-3.5 text-[#60A5FA]" />
+                  </div>
+                  <span className="text-white/65 text-xs sm:text-sm font-sans">{text}</span>
+                </motion.li>
+              ))}
+            </ul>
           </div>
 
-          <ul className="space-y-3">
-            {FEATURES.map(({ icon: Icon, text }, i) => (
-              <motion.li
-                key={text}
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.08 }}
-                className="flex items-center gap-3"
-              >
-                <div className="w-8 h-8 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center shrink-0 shadow-sm">
-                  <Icon className="w-4 h-4 text-[#60A5FA]" />
-                </div>
-                <span className="text-white/75 text-xs sm:text-sm font-sans font-medium">{text}</span>
-              </motion.li>
-            ))}
-          </ul>
-
-          <div className="relative z-10 flex items-center justify-between pt-6 border-t border-white/10">
+          <div className="flex items-center gap-8 pt-6 border-t border-white/10">
             {[
               { value: "3,500+", label: "Graduates" },
               { value: "2019", label: "Established" },
               { value: "4+", label: "Programs" },
             ].map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <div className="text-lg xl:text-xl font-display font-bold text-white">{value}</div>
-                <div className="text-[10px] font-mono uppercase text-white/40 tracking-wider">{label}</div>
+              <div key={label} className="text-left">
+                <div className="text-lg xl:text-xl font-display font-bold text-white leading-none">{value}</div>
+                <div className="text-[10px] font-mono uppercase text-white/40 tracking-wider mt-1">{label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Right form panel (Vertically & Horizontally Centered) */}
+      {/* Right form panel */}
       <div
-        className="flex-1 lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-hidden self-stretch"
+        className="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 relative overflow-hidden self-stretch"
         style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 40%, #ffffff 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(ellipse 80% 60% at 80% 0%, rgba(14,87,164,.06) 0%, transparent 55%)" }} />
 
-        {/* Centered card block */}
-        <div className="relative z-10 my-auto w-full max-w-md flex flex-col items-center gap-4">
+        {/* Vertically centered form container */}
+        <div className="my-auto w-full max-w-md flex flex-col items-center space-y-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="w-full bg-white rounded-3xl p-6 sm:p-8"
+            className="w-full bg-white rounded-2xl p-6 sm:p-7"
             style={{ boxShadow: "0 8px 40px rgba(10,18,30,.10), 0 2px 8px rgba(10,18,30,.06)", border: "1px solid #E2E8F0" }}
           >
             <Suspense fallback={<div className="p-4 text-center font-mono text-xs text-sage">Loading…</div>}>
