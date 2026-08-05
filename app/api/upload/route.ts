@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import fs from "fs";
-import path from "path";
+import { uploadToGoogleDrive } from "@/lib/googleDrive";
 
 export async function POST(req: Request) {
   try {
@@ -27,28 +26,20 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Save to public/uploads/briefs or public/uploads/submissions
-    const targetFolder = folder === "briefs" ? "briefs" : "submissions";
-    const uploadDir = path.join(process.cwd(), "public", "uploads", targetFolder);
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Generate clean unique filename
-    const cleanOriginalName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-    const uniqueFileName = `${Date.now()}_${cleanOriginalName}`;
-    const fullPath = path.join(uploadDir, uniqueFileName);
-
-    fs.writeFileSync(fullPath, buffer);
-
-    const publicUrl = `/uploads/${targetFolder}/${uniqueFileName}`;
+    // Upload to Google Drive (or fallback local storage)
+    const result = await uploadToGoogleDrive({
+      buffer,
+      fileName: file.name,
+      mimeType: file.type,
+      folderName: folder === "briefs" ? "briefs" : "submissions",
+    });
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: result.url,
       fileName: file.name,
       fileSize: file.size,
+      isGoogleDrive: result.isGoogleDrive,
     });
   } catch (error: any) {
     console.error("File upload error:", error);
