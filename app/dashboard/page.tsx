@@ -87,7 +87,7 @@ export default async function StudentDashboardPage() {
 
         <div className="relative z-10 p-7 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {/* Avatar */}
-          <div className="relative shrink-0">
+          <div id="tour-device-badge" className="relative shrink-0">
             <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center font-display font-bold text-white text-2xl shadow-float">
               {studentInitials}
             </div>
@@ -131,7 +131,7 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* ── Bento Stats Grid ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div id="tour-stats-grid" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Enrolled",
@@ -201,7 +201,7 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* ── Enrolled Programs Grid ──────────────────────────────────────── */}
-      <div className="space-y-5">
+      <div id="tour-courses-grid" className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-display font-bold text-ink">My Enrolled Programs</h2>

@@ -28,6 +28,9 @@ model User {
   otpExpiry        DateTime? // OTP expires 10 min after generation
   otpAttempts      Int       @default(0) // Failed OTP attempt counter
 
+  // ─ Onboarding Tour ────────────────────────────────────
+  hasCompletedTour Boolean   @default(false) // Driver.js first-login tour completion flag
+
   devices          StudentDevice[]
   enrollments      Enrollment[]
   progress         LessonProgress[]

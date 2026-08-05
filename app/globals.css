@@ -433,3 +433,84 @@ main {
 .contact-input:focus {
   border-bottom-color: #0E57A4;
 }
+
+/* ================================================================
+   Driver.js -- IMHS Brand Theme Overrides
+   Clinical Blue #0E57A4 | Vibrant Orange #F16726
+   ================================================================ */
+
+/* Overlay backdrop */
+#driver-overlay {
+  background: rgba(10, 18, 30, 0.76) !important;
+  backdrop-filter: blur(2px);
+}
+
+/* Popover card */
+.driver-popover {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(14, 87, 164, 0.15) !important;
+  box-shadow: 0 20px 60px rgba(10, 18, 30, 0.22), 0 4px 16px rgba(14, 87, 164, 0.12) !important;
+  padding: 20px 22px 16px !important;
+  font-family: var(--font-sans, system-ui) !important;
+  max-width: 320px !important;
+}
+
+.driver-popover-title {
+  color: #0E57A4 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  margin-bottom: 6px !important;
+}
+
+.driver-popover-description {
+  color: #334155 !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+
+.driver-popover-progress-text {
+  color: #94A3B8 !important;
+  font-size: 11px !important;
+}
+
+.driver-popover-footer {
+  margin-top: 16px !important;
+  border-top: 1px solid rgba(14, 87, 164, 0.1) !important;
+  padding-top: 12px !important;
+}
+
+.driver-popover-next-btn {
+  background: linear-gradient(135deg, #0E57A4 0%, #2172C9 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 7px 16px !important;
+  cursor: pointer !important;
+}
+.driver-popover-next-btn:hover { opacity: 0.88 !important; }
+
+.driver-popover-prev-btn {
+  background: transparent !important;
+  border: 1px solid rgba(14, 87, 164, 0.25) !important;
+  border-radius: 10px !important;
+  color: #0E57A4 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 7px 14px !important;
+  cursor: pointer !important;
+}
+.driver-popover-prev-btn:hover { background: rgba(14, 87, 164, 0.06) !important; }
+
+.driver-popover-close-btn {
+  color: #94A3B8 !important;
+  cursor: pointer !important;
+}
+.driver-popover-close-btn:hover { color: #F16726 !important; }
+
+.driver-active-element {
+  box-shadow: 0 0 0 4px rgba(14, 87, 164, 0.45) !important;
+  border-radius: 12px !important;
+}

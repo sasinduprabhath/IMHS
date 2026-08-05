@@ -186,6 +186,7 @@ export function StudentSidebar({ user }: { user: any }) {
 
         {/* WhatsApp Support */}
         <a
+          id="tour-whatsapp-link"
           href={supportWaLink}
           target="_blank"
           rel="noopener noreferrer"
