@@ -34,9 +34,42 @@ function findBestLocalImage(title: string, slug: string): string {
     }
   }
 
-  // Pick first available banner as fallback
   const firstBanner = localImages.find((i) => i.endsWith(".png") || i.endsWith(".jpg") || i.endsWith(".jpeg"));
   return firstBanner ? `/courses/${firstBanner}` : "/courses/Blue-and-White-Modern-Pharmacy-Lab-Poster-13.png";
+}
+
+function extractVideoOrDriveInfo(metaValue: string | null): { vimeoVideoId: string | null; driveFileId: string | null; type: "VIDEO" | "DOCUMENT" } {
+  if (!metaValue) return { vimeoVideoId: null, driveFileId: null, type: "VIDEO" };
+
+  const vimeoMatch = metaValue.match(/vimeo\.com\/(?:video\/)?([0-9]+)(?:\?h=([a-zA-Z0-9]+))?/);
+  if (vimeoMatch && vimeoMatch[1]) {
+    const videoId = vimeoMatch[1];
+    const hash = vimeoMatch[2];
+    return {
+      vimeoVideoId: hash ? `${videoId}/${hash}` : videoId,
+      driveFileId: null,
+      type: "VIDEO",
+    };
+  }
+
+  const driveMatch = metaValue.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return {
+      vimeoVideoId: null,
+      driveFileId: driveMatch[1],
+      type: "DOCUMENT",
+    };
+  }
+
+  if (metaValue.endsWith(".pdf") || metaValue.endsWith(".pptx") || metaValue.endsWith(".docx")) {
+    return {
+      vimeoVideoId: null,
+      driveFileId: metaValue,
+      type: "DOCUMENT",
+    };
+  }
+
+  return { vimeoVideoId: null, driveFileId: null, type: "VIDEO" };
 }
 
 interface ParsedUser {
@@ -57,6 +90,7 @@ interface ParsedPost {
   parentId: string;
   status: string;
   content: string;
+  order: number;
 }
 
 async function migrateMasterBackup() {
@@ -75,6 +109,7 @@ async function migrateMasterBackup() {
   const postsMap = new Map<string, ParsedPost>();
   const postMetaPrices = new Map<string, { price?: number; regularPrice?: number }>();
   const postMetaThumbnails = new Map<string, string>();
+  const postMetaMap = new Map<string, Map<string, string>>();
   const attachedFiles = new Map<string, string>();
   const userPhonesMap = new Map<string, string>();
 
@@ -122,7 +157,7 @@ async function migrateMasterBackup() {
       }
     }
 
-    // 2. Parse wp_usermeta (Phone numbers)
+    // 2. Parse wp_usermeta (Phones)
     if (currentTarget === "wp_usermeta" && trimmed.startsWith("(")) {
       const match = trimmed.match(/^\(\s*\d+,\s*(\d+),\s*'([^']*)',\s*'([^']*)'\)/);
       if (match) {
@@ -135,39 +170,49 @@ async function migrateMasterBackup() {
       }
     }
 
-    // 3. Parse wp_posts (Courses, Topics, Lessons, Enrollments)
-    if (currentTarget === "wp_posts" && trimmed.startsWith("(")) {
-      const match = trimmed.match(/^\(\s*(\d+),\s*(\d+),\s*'[^']*',\s*'[^']*',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*'([^']*)',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*(\d+),\s*'([^']*)',\s*\d+,\s*'([^']*)'/);
-      if (match) {
-        const id = match[1];
-        const authorId = match[2];
-        const content = match[3];
-        const title = match[4];
-        const status = match[6];
-        const slug = match[7];
-        const parentId = match[8];
-        const type = match[10];
+    // 3. Parse wp_posts (Courses, Topics/Chapters, Lessons, Enrollments)
+    if (currentTarget === "wp_posts" && (trimmed.startsWith("(") || trimmed.includes("INSERT INTO"))) {
+      const items = trimmed.split("),(");
+      for (const item of items) {
+        const match = item.match(/^\(?\s*(\d+),\s*(\d+),\s*'[^']*',\s*'[^']*',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*'([^']*)',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*'[^']*',\s*(\d+),\s*'([^']*)',\s*(\d+),\s*'([^']*)'/);
+        if (match) {
+          const id = match[1];
+          const authorId = match[2];
+          const content = match[3];
+          const title = match[4];
+          const status = match[6];
+          const slug = match[7];
+          const parentId = match[8];
+          const order = parseInt(match[10], 10) || 0;
+          const type = match[11];
 
-        postsMap.set(id, {
-          id,
-          authorId,
-          title,
-          slug,
-          type,
-          parentId,
-          status,
-          content,
-        });
+          postsMap.set(id, {
+            id,
+            authorId,
+            title,
+            slug,
+            type,
+            parentId,
+            status,
+            content,
+            order,
+          });
+        }
       }
     }
 
-    // 4. Parse wp_postmeta (Prices, Cover Image IDs, Attachment file paths)
+    // 4. Parse wp_postmeta (Prices, Videos, Attachments, Cover Images)
     if (currentTarget === "wp_postmeta" && trimmed.startsWith("(")) {
       const matches = Array.from(trimmed.matchAll(/\((\d+),\s*(\d+),\s*'([^']+)',\s*'([^']*)'\)/g));
       for (const m of matches) {
         const postId = m[2];
         const key = m[3];
         const val = m[4];
+
+        if (!postMetaMap.has(postId)) {
+          postMetaMap.set(postId, new Map());
+        }
+        postMetaMap.get(postId)!.set(key, val);
 
         if (key === "_price" || key === "_regular_price") {
           const num = Math.round(parseFloat(val) || 0);
@@ -194,7 +239,7 @@ async function migrateMasterBackup() {
 
   console.log(`✅ SQL Parsing Complete! Summary:`);
   console.log(`   - Users Extracted: ${usersMap.size}`);
-  console.log(`   - Posts Extracted: ${postsMap.size}`);
+  console.log(`   - Posts/Records Extracted: ${postsMap.size}`);
   console.log(`   - PostMeta Extracted: ${postMetaPrices.size} price records`);
 
   // ── PHASE 1: USERS & PASSWORDS & REG IDs ──────────────────────────────
@@ -291,7 +336,6 @@ async function migrateMasterBackup() {
     const price = directPrices?.price || productPrices?.price || directPrices?.regularPrice || productPrices?.regularPrice || 4500;
     const originalPrice = directPrices?.regularPrice || productPrices?.regularPrice || price + 1500;
 
-    // Check thumbnail file
     const thumbId = postMetaThumbnails.get(c.id);
     const attached = thumbId ? attachedFiles.get(thumbId) : null;
     const attachedFilename = attached ? path.basename(attached) : null;
@@ -353,10 +397,9 @@ async function migrateMasterBackup() {
       });
     }
     coursesSynced++;
-    console.log(`   ✓ Published Course: "${c.title}" | Price: LKR ${price} (Original: LKR ${originalPrice}) | Image: ${coverImage}`);
   }
 
-  console.log(`✅ Phase 2 Complete: Synced ${coursesSynced} courses with local /courses/ images.`);
+  console.log(`✅ Phase 2 Complete: Synced ${coursesSynced} courses with local /courses/ images & prices.`);
 
   // ── PHASE 3: ENROLLMENTS ──────────────────────────────────────────────
   console.log("\n🔄 Phase 3: Syncing Student Course Enrollments...");
@@ -407,8 +450,81 @@ async function migrateMasterBackup() {
 
   console.log(`✅ Phase 3 Complete: Verified ${enrollmentsSynced} student enrollments.`);
 
+  // ── PHASE 4: CHAPTERS & LESSONS ────────────────────────────────────────
+  console.log("\n🔄 Phase 4: Syncing Course Chapters (Topics) & Lesson Modules...");
+
+  const topicPosts = Array.from(postsMap.values()).filter((p) => p.type === "topics");
+  const lessonPosts = Array.from(postsMap.values()).filter((p) => p.type === "lesson");
+
+  console.log(`   Found ${topicPosts.length} Chapters (topics) and ${lessonPosts.length} Lessons in SQL dump.`);
+
+  let chaptersSynced = 0;
+  let lessonsSynced = 0;
+
+  for (const topic of topicPosts) {
+    const parentCoursePost = postsMap.get(topic.parentId);
+    if (!parentCoursePost) continue;
+
+    const dbCourse = await prisma.course.findFirst({
+      where: { OR: [{ slug: parentCoursePost.slug }, { title: parentCoursePost.title }] },
+    });
+
+    if (!dbCourse) continue;
+
+    const safeChapterTitle = topic.title.slice(0, 190);
+
+    let chapter = await prisma.chapter.findFirst({
+      where: { title: safeChapterTitle, courseId: dbCourse.id },
+    });
+
+    if (!chapter) {
+      chapter = await prisma.chapter.create({
+        data: {
+          title: safeChapterTitle,
+          order: topic.order || chaptersSynced + 1,
+          courseId: dbCourse.id,
+        },
+      });
+      chaptersSynced++;
+    }
+
+    const childLessons = lessonPosts.filter((l) => l.parentId === topic.id);
+
+    let lOrder = 1;
+    for (const l of childLessons) {
+      const meta = postMetaMap.get(l.id);
+      const videoMeta = meta?.get("_tutor_lesson_video") || meta?.get("video") || null;
+      const attachMeta = meta?.get("_tutor_lesson_attachments") || meta?.get("_wp_attached_file") || null;
+
+      const { vimeoVideoId, driveFileId, type } = extractVideoOrDriveInfo(videoMeta || attachMeta);
+
+      const safeTitle = l.title.slice(0, 190);
+
+      const existingLesson = await prisma.lesson.findFirst({
+        where: { title: safeTitle, chapterId: chapter.id },
+      });
+
+      if (!existingLesson) {
+        await prisma.lesson.create({
+          data: {
+            title: safeTitle,
+            order: l.order || lOrder++,
+            type,
+            vimeoVideoId,
+            driveFileId,
+            content: l.content || null,
+            chapterId: chapter.id,
+          },
+        });
+        lessonsSynced++;
+      }
+    }
+  }
+
+  console.log(`✅ Phase 4 Complete: Created/Verified ${chaptersSynced} Chapters and ${lessonsSynced} Lessons.`);
+
   console.log("=========================================================================");
-  console.log(" 🎉 MASTER MIGRATION & LOCAL IMAGE SYNC COMPLETED SUCCESSFULLY!");
+  console.log(" 🎉 MASTER BACKUP MIGRATION & ASSET SYNC COMPLETED SUCCESSFULLY!");
   console.log("=========================================================================");
 }
 
