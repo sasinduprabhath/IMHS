@@ -224,7 +224,17 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
               </div>
 
               {/* Instructions & Guidelines */}
-              <p className="text-xs text-slate-600 leading-relaxed font-sans">{a.description}</p>
+              {a.description && (
+                <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <FileText className="w-4 h-4 text-[#0E57A4]" />
+                    Coursework Instructions & Guidelines
+                  </div>
+                  <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line font-sans pl-6">
+                    {a.description.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\/g, "")}
+                  </div>
+                </div>
+              )}
 
               {/* Specs & Due Date */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E2E8F0] text-[11px] font-mono text-slate-600">
@@ -258,9 +268,9 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                     href={a.attachmentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E57A4] hover:underline bg-[#0E57A4]/8 px-3 py-1.5 rounded-xl border border-[#0E57A4]/20"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0E57A4] hover:bg-[#0c4a8e] px-3.5 py-2 rounded-xl transition-all shadow-xs"
                   >
-                    <Download className="w-3.5 h-3.5" /> Download Coursework Brief Attachment
+                    <ExternalLink className="w-3.5 h-3.5" /> View Coursework Brief
                   </a>
                 ) : (
                   <span className="text-xs text-slate-400 italic">No external brief file attached</span>
