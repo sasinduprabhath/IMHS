@@ -5,8 +5,10 @@ import path from "path";
 
 /**
  * Uploads a file directly to Google Drive.
- * Uses Google Drive API Service Account credentials from environment variables if present.
- * Falls back to local public uploads storage if credentials are missing.
+ * Supports:
+ * 1. Google OAuth2 Refresh Token (Uploads directly into personal/workspace Drive quota)
+ * 2. Google Service Account (Requires Shared Drive or Workspace delegation)
+ * 3. Local Public Storage fallback
  */
 export async function uploadToGoogleDrive({
   buffer,
@@ -19,6 +21,10 @@ export async function uploadToGoogleDrive({
   mimeType: string;
   folderName?: "briefs" | "submissions";
 }): Promise<{ url: string; driveFileId?: string; isGoogleDrive: boolean }> {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   let privateKey = process.env.GOOGLE_PRIVATE_KEY;
   const targetFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
@@ -27,22 +33,24 @@ export async function uploadToGoogleDrive({
     privateKey = privateKey.replace(/\\n/g, "\n");
   }
 
-  // ── 1. If Google Drive credentials exist in .env ─────────────────────────
-  if (clientEmail && privateKey && targetFolderId) {
+  // ── OPTION A: GOOGLE OAUTH2 REFRESH TOKEN (Direct Personal/Workspace Storage) ──
+  if (clientId && clientSecret && refreshToken && targetFolderId) {
     try {
-      const auth = new google.auth.JWT({
-        email: clientEmail,
-        key: privateKey,
-        scopes: ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"],
-      });
+      console.log("🚀 Attempting Google Drive API upload via OAuth2 Refresh Token...");
+      const oauth2Client = new google.auth.OAuth2(
+        clientId,
+        clientSecret,
+        "https://developers.google.com/oauthplayground"
+      );
 
-      const drive = google.drive({ version: "v3", auth });
+      oauth2Client.setCredentials({ refresh_token: refreshToken });
+      const drive = google.drive({ version: "v3", auth: oauth2Client });
 
       const stream = new Readable();
       stream.push(buffer);
       stream.push(null);
 
-      const fileMetadata = {
+      const fileMetadata: any = {
         name: `${folderName === "briefs" ? "[BRIEF]" : "[SUBMISSION]"} ${fileName}`,
         parents: [targetFolderId],
       };
@@ -62,18 +70,14 @@ export async function uploadToGoogleDrive({
       const webViewLink = response.data.webViewLink;
 
       if (fileId) {
-        // Set public reader permissions on the uploaded Drive file
+        // Set public reader permission
         await drive.permissions.create({
           fileId: fileId,
-          requestBody: {
-            role: "reader",
-            type: "anyone",
-          },
+          requestBody: { role: "reader", type: "anyone" },
         }).catch(() => {});
 
         const driveUrl = webViewLink || `https://drive.google.com/file/d/${fileId}/view`;
-
-        console.log(`✅ File uploaded to Google Drive: ${driveUrl}`);
+        console.log(`✅ File uploaded to Google Drive via OAuth2: ${driveUrl}`);
         return {
           url: driveUrl,
           driveFileId: fileId,
@@ -81,12 +85,67 @@ export async function uploadToGoogleDrive({
         };
       }
     } catch (err: any) {
-      console.error("❌ Google Drive Upload Exception:", err?.message || err);
-      // Fallback to local storage below if Drive API fails
+      console.error("❌ Google OAuth2 Upload Error:", err?.message || err);
     }
   }
 
-  // ── 2. Fallback to Local Public Storage ──────────────────────────────────
+  // ── OPTION B: SERVICE ACCOUNT (Shared Drives / Workspace) ─────────────────
+  if (clientEmail && privateKey && targetFolderId) {
+    try {
+      console.log("🚀 Attempting Google Drive API upload via Service Account...");
+      const auth = new google.auth.JWT({
+        email: clientEmail,
+        key: privateKey,
+        scopes: ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"],
+      });
+
+      const drive = google.drive({ version: "v3", auth });
+
+      const stream = new Readable();
+      stream.push(buffer);
+      stream.push(null);
+
+      const fileMetadata: any = {
+        name: `${folderName === "briefs" ? "[BRIEF]" : "[SUBMISSION]"} ${fileName}`,
+        parents: [targetFolderId],
+      };
+
+      const media = {
+        mimeType: mimeType || "application/octet-stream",
+        body: stream,
+      };
+
+      const response = await drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: "id, webViewLink, webContentLink",
+        supportsAllDrives: true,
+      });
+
+      const fileId = response.data.id;
+      const webViewLink = response.data.webViewLink;
+
+      if (fileId) {
+        await drive.permissions.create({
+          fileId: fileId,
+          requestBody: { role: "reader", type: "anyone" },
+          supportsAllDrives: true,
+        }).catch(() => {});
+
+        const driveUrl = webViewLink || `https://drive.google.com/file/d/${fileId}/view`;
+        console.log(`✅ File uploaded to Google Drive via Service Account: ${driveUrl}`);
+        return {
+          url: driveUrl,
+          driveFileId: fileId,
+          isGoogleDrive: true,
+        };
+      }
+    } catch (err: any) {
+      console.error("❌ Google Service Account Upload Error:", err?.message || err);
+    }
+  }
+
+  // ── OPTION C: LOCAL STORAGE FALLBACK ─────────────────────────────────────
   const targetFolder = folderName === "briefs" ? "briefs" : "submissions";
   const uploadDir = path.join(process.cwd(), "public", "uploads", targetFolder);
 
@@ -101,7 +160,7 @@ export async function uploadToGoogleDrive({
   fs.writeFileSync(fullPath, buffer);
 
   const localUrl = `/uploads/${targetFolder}/${uniqueFileName}`;
-  console.log(`📁 File saved to local storage: ${localUrl}`);
+  console.log(`📁 File saved to local storage fallback: ${localUrl}`);
 
   return {
     url: localUrl,
