@@ -62,6 +62,7 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               phone: user.phone,
               role: user.role,
+              studentId: user.studentId,
             };
           } catch {
             throw new Error("Verification failed. Please log in again.");
@@ -118,6 +119,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           phone: user.phone,
           role: user.role,
+          studentId: user.studentId,
         };
       },
     }),
@@ -129,6 +131,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as any).role;
         token.phone = (user as any).phone;
+        token.studentId = (user as any).studentId;
       }
       return token;
     },
@@ -137,6 +140,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
         (session.user as any).phone = token.phone as string;
+        (session.user as any).studentId = token.studentId as string;
       }
       return session;
     },

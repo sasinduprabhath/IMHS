@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
             name: user.name,
             role: user.role,
             phone: user.phone,
+            studentId: user.studentId,
             otpVerified: true,
             exp: Math.floor(Date.now() / 1000) + 5 * 60,
           },

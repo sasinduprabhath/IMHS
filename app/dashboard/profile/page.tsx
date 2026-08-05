@@ -11,7 +11,18 @@ import {
 
 export default function StudentProfilePage() {
   const { data: session } = useSession();
-  const user = session?.user as any;
+  const [profileUser, setProfileUser] = useState<any>(null);
+
+  React.useEffect(() => {
+    fetch("/api/student/profile")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) setProfileUser(data.user);
+      })
+      .catch(() => {});
+  }, []);
+
+  const user = profileUser || (session?.user as any);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
