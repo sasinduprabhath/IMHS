@@ -95,6 +95,39 @@ function CoursePlayerContent({
   );
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Pending Assignment Stats for Hub Card
+  const [assignmentSummary, setAssignmentSummary] = useState<{
+    pendingCount: number;
+    nextTitle?: string;
+    nextDueDate?: string;
+  }>({ pendingCount: 0 });
+
+  React.useEffect(() => {
+    fetch(`/api/student/assignments?courseId=${course.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.assignments && Array.isArray(data.assignments)) {
+          const pending = data.assignments.filter(
+            (a: any) => !a.submission || a.status === "PENDING" || a.status === "OVERDUE"
+          );
+          if (pending.length > 0) {
+            pending.sort(
+              (a: any, b: any) =>
+                new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+            );
+            setAssignmentSummary({
+              pendingCount: pending.length,
+              nextTitle: pending[0].title,
+              nextDueDate: pending[0].dueDate,
+            });
+          } else {
+            setAssignmentSummary({ pendingCount: 0 });
+          }
+        }
+      })
+      .catch(() => {});
+  }, [course.id]);
+
   // Active Lesson lookup
   const currentLesson = allLessons.find((l) => l.id === activeLessonId) || null;
   const currentIndex = currentLesson ? allLessons.findIndex((l) => l.id === currentLesson.id) : -1;
@@ -489,18 +522,37 @@ function CoursePlayerContent({
         {/* Assignments Hub Card */}
         <Link
           href={`/dashboard/courses/${course.slug}?tab=assignments`}
-          className="bg-white border-2 border-[#0E57A4]/20 hover:border-[#0E57A4] p-5 rounded-2xl flex items-center justify-between gap-4 transition-all shadow-xs hover:shadow-md group"
+          className="bg-white border-2 border-[#0E57A4]/20 hover:border-[#0E57A4] p-5 rounded-2xl flex items-center justify-between gap-4 transition-all shadow-xs hover:shadow-md group relative overflow-hidden"
         >
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-12 h-12 rounded-2xl bg-[#0E57A4]/10 text-[#0E57A4] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <FileCheckIcon className="w-6 h-6" />
             </div>
-            <div className="space-y-0.5">
-              <span className="font-mono text-[10px] uppercase font-bold text-[#0E57A4] bg-[#0E57A4]/10 px-2 py-0.5 rounded-full">
-                Coursework Portal
-              </span>
-              <h3 className="text-base font-bold text-slate-900">Assignments &amp; Worksheets Hub</h3>
-              <p className="text-xs text-slate-500">Submit coursework &amp; view qualitative grades</p>
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-mono text-[10px] uppercase font-bold text-[#0E57A4] bg-[#0E57A4]/10 px-2 py-0.5 rounded-full">
+                  Coursework Portal
+                </span>
+                {assignmentSummary.pendingCount > 0 ? (
+                  <span className="font-mono text-[10px] uppercase font-bold text-amber-700 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                    ⚡ {assignmentSummary.pendingCount} Pending
+                  </span>
+                ) : (
+                  <span className="font-mono text-[10px] uppercase font-bold text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    ✓ All Up To Date
+                  </span>
+                )}
+              </div>
+              <h3 className="text-base font-bold text-slate-900 truncate">Assignments &amp; Worksheets Hub</h3>
+              {assignmentSummary.nextTitle && assignmentSummary.nextDueDate ? (
+                <p className="text-xs font-medium text-amber-700 truncate flex items-center gap-1">
+                  <span className="font-bold">🚨 Next Due:</span>
+                  <span className="font-semibold text-slate-900">{assignmentSummary.nextTitle.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\/g, "")}</span>
+                  <span className="font-mono text-[11px] text-slate-500">({new Date(assignmentSummary.nextDueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })})</span>
+                </p>
+              ) : (
+                <p className="text-xs text-slate-500">Submit coursework &amp; view qualitative grades</p>
+              )}
             </div>
           </div>
 

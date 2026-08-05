@@ -66,6 +66,32 @@ export async function POST(req: Request) {
       },
     });
 
+    // Auto-create an official batch announcement for the newly published assignment
+    try {
+      const formattedDate = new Date(dueDate).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      const cleanAssignmentTitle = title
+        .replace(/\\"/g, '"')
+        .replace(/\\'/g, "'")
+        .replace(/\\/g, "");
+
+      await prisma.courseAnnouncement.create({
+        data: {
+          courseId,
+          title: `📢 New Coursework Brief: ${cleanAssignmentTitle}`,
+          content: `A new assignment "${cleanAssignmentTitle}" has been published for your course.\n\n📅 Deadline: ${formattedDate}\n💯 Maximum Marks: ${maxMarks} Points\n\nPlease open the "Assignments & Worksheets Hub" in your portal to view full instructions and submit your file.`,
+        },
+      });
+    } catch (announcementErr) {
+      console.error("Error auto-creating assignment announcement:", announcementErr);
+    }
+
     return NextResponse.json({ success: true, assignment });
   } catch (error) {
     console.error("Error creating assignment:", error);
