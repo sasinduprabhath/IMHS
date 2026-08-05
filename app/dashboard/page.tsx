@@ -91,54 +91,65 @@ export default async function StudentDashboardPage({
     <div className="space-y-8">
 
       {/* ── Hero Welcome Banner ──────────────────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden"
+      <div
+        className="relative rounded-3xl overflow-hidden border border-white/20 shadow-xl"
         style={{
-          background: "linear-gradient(135deg, #0E57A4 0%, #1a6fc4 50%, #0d5fa8 100%)",
-          boxShadow: "0 8px 32px rgba(14,87,164,.30), 0 2px 8px rgba(14,87,164,.15)",
-        }}>
-        {/* Mesh gradient overlay */}
-        <div className="absolute inset-0 opacity-30"
+          background: "linear-gradient(135deg, #093972 0%, #0E57A4 45%, #1868c2 80%, #0c4887 100%)",
+          boxShadow: "0 12px 36px rgba(14,87,164,.35), 0 4px 12px rgba(14,87,164,.2)",
+        }}
+      >
+        {/* Mesh radial background glow */}
+        <div
+          className="absolute inset-0 opacity-40 pointer-events-none"
           style={{
-            backgroundImage: "radial-gradient(ellipse 80% 60% at 80% 0%, rgba(255,255,255,.15) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 10% 100%, rgba(241,103,38,.20) 0%, transparent 50%)"
-          }} />
+            backgroundImage:
+              "radial-gradient(circle at 85% 15%, rgba(255,255,255,0.22) 0%, transparent 55%), radial-gradient(circle at 10% 90%, rgba(241,103,38,0.25) 0%, transparent 45%)",
+          }}
+        />
 
-        <div className="relative z-10 p-7 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          {/* Avatar */}
-          <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center font-display font-bold text-white text-2xl shadow-float overflow-hidden">
-              <img src={(session?.user as any)?.image || dbUser?.image || "/student-avatar.png"} alt={session?.user?.name || "Student"} className="w-full h-full object-cover" />
+        <div className="relative z-10 p-7 sm:p-8 md:p-9 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 min-w-0 flex-1">
+            {/* 3D Student Avatar */}
+            <div className="relative shrink-0 group">
+              <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl ring-4 ring-white/25 border-2 border-white bg-white/10 backdrop-blur-md flex items-center justify-center font-display font-bold text-white text-2xl shadow-xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
+                <img
+                  src={(session?.user as any)?.image || dbUser?.image || "/student-avatar.png"}
+                  alt={session?.user?.name || "Student"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 bg-emerald-400 border-2 border-[#0E57A4] rounded-full z-10 shadow-sm" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-[#0E57A4] rounded-full z-10" />
-          </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span id="tour-device-badge" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold tracking-widest text-emerald-300 bg-emerald-500/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-pill">
-                <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" />
-                Device Security Locked
-              </span>
-              {regId && (
-                <span className="font-mono text-[10px] text-white/50 bg-white/8 border border-white/15 px-2 py-0.5 rounded-pill uppercase tracking-wider">
-                  {regId}
+            <div className="space-y-1.5 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span id="tour-device-badge" className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold tracking-wider text-emerald-300 bg-emerald-500/20 border border-emerald-400/35 px-3 py-0.5 rounded-full shadow-xs">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  Device Security Locked
                 </span>
-              )}
+                {regId && (
+                  <span className="font-mono text-[10px] text-white/80 bg-white/15 border border-white/25 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                    ID: {regId}
+                  </span>
+                )}
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white leading-tight tracking-tight">
+                Welcome back, {studentFirstName}! 👋
+              </h1>
+              <p className="text-xs sm:text-sm text-white/75 font-sans leading-relaxed max-w-xl">
+                Your portal gives you full access to video lectures, lab references, and certification progress.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-white leading-tight">
-              Welcome back, {studentFirstName}! 👋
-            </h1>
-            <p className="text-sm text-white/65 font-sans mt-1 leading-relaxed">
-              Your portal gives you full access to video lectures, lab references, and certification progress.
-            </p>
           </div>
 
-          {/* Overall progress ring area */}
+          {/* Overall Completion Glass Widget */}
           {totalLessons > 0 && (
-            <div className="hidden sm:flex flex-col items-center gap-1 shrink-0 bg-white/8 border border-white/15 rounded-2xl px-6 py-4 backdrop-blur-sm">
-              <div className="text-3xl font-display font-bold text-white">{overallProgress}%</div>
-              <div className="text-[10px] font-mono uppercase text-white/50 tracking-widest">Complete</div>
-              <div className="w-16 bg-white/15 rounded-full h-1.5 mt-1">
+            <div className="hidden sm:flex flex-col items-center justify-center shrink-0 bg-white/12 border border-white/25 rounded-2xl px-6 py-4.5 backdrop-blur-md shadow-inner text-center min-w-[120px]">
+              <div className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">{overallProgress}%</div>
+              <div className="text-[9px] font-mono uppercase text-white/75 tracking-widest font-bold pt-0.5">Overall Complete</div>
+              <div className="w-20 bg-white/20 rounded-full h-1.5 mt-2 overflow-hidden p-0.5">
                 <div
-                  className="h-full bg-white rounded-full transition-all duration-1000"
+                  className="h-full bg-white rounded-full transition-all duration-1000 shadow-sm"
                   style={{ width: `${overallProgress}%` }}
                 />
               </div>

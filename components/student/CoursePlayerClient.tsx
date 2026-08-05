@@ -455,21 +455,27 @@ function CoursePlayerContent({
         </div>
 
         {/* Header Widget */}
-        <div className="bg-gradient-to-r from-red-950 via-red-900 to-red-700 p-6 rounded-2xl text-white space-y-2 shadow-sm">
+        <div
+          className="relative rounded-3xl overflow-hidden border border-white/20 p-7 sm:p-8 text-white space-y-2 shadow-xl"
+          style={{
+            background: "linear-gradient(135deg, #500713 0%, #881337 45%, #be123c 80%, #9f1239 100%)",
+            boxShadow: "0 12px 36px rgba(159,18,57,.35), 0 4px 12px rgba(159,18,57,.2)",
+          }}
+        >
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase font-bold text-white/80 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full">
+            <span className="font-mono text-[10px] uppercase font-bold text-white/90 bg-white/15 border border-white/25 px-3 py-0.5 rounded-full shadow-xs">
               Notice Hub
             </span>
           </div>
-          <h2 className="text-xl font-display font-bold">Official Batch Announcements &amp; Notices</h2>
-          <p className="text-xs text-white/80">
+          <h2 className="text-2xl sm:text-3xl font-display font-bold leading-tight">Official Batch Announcements &amp; Notices</h2>
+          <p className="text-xs sm:text-sm text-white/80 max-w-3xl leading-relaxed">
             Read all official batch announcements, timetable updates, coursework releases, and administrative notices for {course.title}.
           </p>
         </div>
 
         {/* Announcements Cards List */}
         {!course.announcements || course.announcements.length === 0 ? (
-          <div className="bg-white border border-chart-grid p-12 rounded-2xl text-center space-y-3">
+          <div className="bg-white border border-chart-grid p-12 rounded-3xl text-center space-y-3 shadow-xs">
             <MegaphoneIcon className="w-10 h-10 text-slate-300 mx-auto" />
             <p className="text-sm font-semibold text-slate-700">No Announcements Published</p>
             <p className="text-xs text-slate-400 max-w-md mx-auto">
@@ -481,19 +487,19 @@ function CoursePlayerContent({
             {course.announcements.map((a, idx) => (
               <div
                 key={a.id}
-                className="bg-white border-2 border-red-100 hover:border-red-300 rounded-2xl p-6 space-y-4 transition-all shadow-xs"
+                className="bg-white border-2 border-rose-100/90 hover:border-rose-300 rounded-3xl p-6 sm:p-7 space-y-4 transition-all duration-200 shadow-xs hover:shadow-md"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
                   <div className="space-y-1">
-                    <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-wider inline-block bg-red-50 border border-red-200 px-2.5 py-0.5 rounded">
+                    <span className="font-mono text-[10px] text-rose-700 font-bold uppercase tracking-wider inline-block bg-rose-50 border border-rose-200 px-3 py-0.5 rounded-full shadow-2xs">
                       Notice #{course.announcements!.length - idx}
                     </span>
-                    <h3 className="text-base sm:text-lg font-display font-bold text-slate-900 mt-1">
+                    <h3 className="text-base sm:text-xl font-display font-bold text-slate-900 mt-1">
                       {a.title}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 shrink-0">
-                    <CalendarIcon className="w-4 h-4 text-red-500" />
+                  <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 shrink-0 bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl">
+                    <CalendarIcon className="w-4 h-4 text-rose-500" />
                     <span>
                       {new Date(a.createdAt).toLocaleDateString("en-GB", {
                         day: "2-digit",
@@ -620,30 +626,36 @@ function CoursePlayerContent({
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-16">
       {/* ── Top Header Banner ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-gradient-to-r from-[#0C1A30] via-[#0E57A4] to-[#1a6fc4] p-6 sm:p-8 rounded-3xl text-white shadow-md">
-        <div className="space-y-2">
+      <div
+        className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-7 sm:p-9 rounded-3xl text-white shadow-xl overflow-hidden border border-white/20"
+        style={{
+          background: "linear-gradient(135deg, #093972 0%, #0E57A4 45%, #1868c2 80%, #0c4887 100%)",
+          boxShadow: "0 12px 36px rgba(14,87,164,.35), 0 4px 12px rgba(14,87,164,.2)",
+        }}
+      >
+        <div className="space-y-2.5 max-w-3xl">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-white/70 hover:text-white transition-colors bg-white/10 px-3 py-1 rounded-full border border-white/20"
+            className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-white/80 hover:text-white transition-colors bg-white/15 px-3 py-1 rounded-full border border-white/25 shadow-xs"
           >
             <ArrowLeftIcon className="w-3.5 h-3.5" /> Back to Student Dashboard
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold leading-tight pt-1">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold leading-tight tracking-tight pt-1">
             {course.title}
           </h1>
-          <p className="text-xs text-white/80 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-white/75 leading-relaxed font-sans">
             Access your course lectures, video recordings, downloadable PDF documents, assignments hub, and official batch notices.
           </p>
         </div>
 
         {/* Progress Bar Widget */}
-        <div className="w-full md:w-72 bg-white/10 backdrop-blur-xs p-4 rounded-2xl border border-white/20 shrink-0 space-y-2">
+        <div className="w-full md:w-72 bg-white/12 backdrop-blur-md p-5 rounded-2xl border border-white/25 shrink-0 space-y-2.5 shadow-inner">
           <div className="flex items-center justify-between text-xs font-mono font-bold">
-            <span className="text-white/80 uppercase">Overall Completion</span>
-            <span className="text-white font-mono text-sm">{progressPercent}%</span>
+            <span className="text-white/85 uppercase tracking-wider text-[10px]">Overall Completion</span>
+            <span className="text-white font-mono text-sm font-bold">{progressPercent}%</span>
           </div>
           <VitalLine variant="progress" progress={progressPercent} />
-          <p className="text-[11px] font-mono text-white/70 text-right pt-0.5">
+          <p className="text-[11px] font-mono text-white/75 text-right font-medium">
             {completedLessonIds.size} of {allLessons.length} items completed
           </p>
         </div>

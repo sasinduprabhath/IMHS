@@ -159,63 +159,73 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
   return (
     <div className="space-y-6">
       {/* ── Header Widget ── */}
-      <div className="bg-gradient-to-r from-[#0C1A30] to-[#0E57A4] p-6 rounded-2xl text-white space-y-2 shadow-sm">
+      <div
+        className="relative rounded-3xl overflow-hidden border border-white/20 p-7 sm:p-8 text-white space-y-2 shadow-xl"
+        style={{
+          background: "linear-gradient(135deg, #093972 0%, #0E57A4 45%, #1868c2 80%, #0c4887 100%)",
+          boxShadow: "0 12px 36px rgba(14,87,164,.35), 0 4px 12px rgba(14,87,164,.2)",
+        }}
+      >
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] uppercase font-bold text-white/80 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full">
+          <span className="font-mono text-[10px] uppercase font-bold text-white/90 bg-white/15 border border-white/25 px-3 py-0.5 rounded-full shadow-xs">
             Coursework Portal
           </span>
         </div>
-        <h2 className="text-xl font-display font-bold">Assignments & Worksheets Hub</h2>
-        <p className="text-xs text-white/70">
-          Download coursework briefs, submit completed assignments from your authenticated device, and view live marks & qualitative feedback.
+        <h2 className="text-2xl sm:text-3xl font-display font-bold leading-tight">Assignments &amp; Worksheets Hub</h2>
+        <p className="text-xs sm:text-sm text-white/80 max-w-3xl leading-relaxed">
+          Download coursework briefs, submit completed assignments from your authenticated device, and view live marks &amp; qualitative feedback.
         </p>
       </div>
 
       {/* ── Assignment Cards Grid ── */}
-      <div className="grid grid-cols-1 gap-5">
+      <div className="grid grid-cols-1 gap-6">
         {assignments.map((a) => {
           const isPastDue = new Date() > new Date(a.dueDate);
           const isGraded = a.status === "GRADED" && a.submission?.score !== null;
 
+          const cleanCourseTitle = a.course.title
+            .replace(/\\"/g, '"')
+            .replace(/\\'/g, "'")
+            .replace(/\\/g, "");
+
           return (
             <div
               key={a.id}
-              className="bg-white border border-[#E2E8F0] rounded-2xl p-6 space-y-5 hover:shadow-card transition-all duration-200"
-              style={{ boxShadow: "0 2px 10px rgba(10,18,30,.04)" }}
+              className="bg-white border-2 border-[#E2E8F0] hover:border-[#0E57A4]/40 rounded-3xl p-6 sm:p-7 space-y-5 shadow-xs hover:shadow-md transition-all duration-200"
             >
               {/* Top Row: Course Title & Status Badge */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F1F5F9] pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div className="space-y-1">
-                  <span className="font-mono text-[10px] uppercase font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-2.5 py-0.5 rounded-full">
-                    {a.course.title}
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3 py-0.5 rounded-full">
+                    {cleanCourseTitle}
                   </span>
-                  <h3 className="text-base sm:text-lg font-display font-bold text-slate-900 mt-1">{a.title}</h3>
+                  <h3 className="text-base sm:text-xl font-display font-bold text-slate-900 mt-1">{a.title}</h3>
                 </div>
 
                 {/* Live Status Badges */}
                 <div className="shrink-0">
                   {isGraded ? (
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full shadow-xs">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-full shadow-xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                       GRADED · {a.submission?.score} / {a.maxMarks}
                     </span>
                   ) : a.status === "SUBMITTED" ? (
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3.5 py-1.5 rounded-full">
                       <Clock className="w-4 h-4 text-blue-600" />
                       Submitted · Pending Review
                     </span>
                   ) : a.status === "LATE" ? (
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-full">
                       <AlertCircle className="w-4 h-4 text-amber-600" />
                       Late Submission
                     </span>
                   ) : a.status === "CLOSED" ? (
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-3.5 py-1.5 rounded-full">
                       <AlertCircle className="w-4 h-4 text-red-600" />
                       Submission Closed
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full">
                       <Clock className="w-4 h-4 text-slate-500" />
                       Pending Submission
                     </span>
@@ -225,10 +235,10 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
 
               {/* Instructions & Guidelines */}
               {a.description && (
-                <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-2">
+                <div className="bg-[#F8FAFC] border border-[#CBD5E1]/60 p-4 sm:p-5 rounded-2xl space-y-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
                     <FileText className="w-4 h-4 text-[#0E57A4]" />
-                    Coursework Instructions & Guidelines
+                    Coursework Instructions &amp; Guidelines
                   </div>
                   <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line font-sans pl-6">
                     {a.description.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\/g, "")}
@@ -236,41 +246,41 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                 </div>
               )}
 
-              {/* Specs & Due Date */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E2E8F0] text-[11px] font-mono text-slate-600">
-                <div>
-                  <span className="text-slate-400 block text-[10px]">Due Date:</span>
+              {/* Specs & Due Date Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#F8FAFC] p-4 rounded-2xl border border-[#E2E8F0] text-[11px] font-mono text-slate-600">
+                <div className="space-y-0.5">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Due Date:</span>
                   <span className={`font-semibold ${isPastDue ? "text-amber-600 font-bold" : "text-slate-800"}`}>
                     {new Date(a.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </span>
                 </div>
 
-                <div>
-                  <span className="text-slate-400 block text-[10px]">Max Marks:</span>
+                <div className="space-y-0.5">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Max Marks:</span>
                   <span className="font-semibold text-slate-800">{a.maxMarks} Points</span>
                 </div>
 
-                <div>
-                  <span className="text-slate-400 block text-[10px]">Allowed Files:</span>
+                <div className="space-y-0.5">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Allowed Files:</span>
                   <span className="font-semibold text-slate-800">{a.allowedFileTypes}</span>
                 </div>
 
-                <div>
-                  <span className="text-slate-400 block text-[10px]">Late Submissions:</span>
+                <div className="space-y-0.5">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Late Submissions:</span>
                   <span className="font-semibold text-slate-800">{a.allowLate ? "Allowed" : "Locked"}</span>
                 </div>
               </div>
 
               {/* Brief Attachment & Action Row */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                 {a.attachmentUrl ? (
                   <a
                     href={a.attachmentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0E57A4] hover:bg-[#0c4a8e] px-3.5 py-2 rounded-xl transition-all shadow-xs"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-white bg-[#0E57A4] hover:bg-[#0c4a8e] px-4 py-2.5 rounded-2xl transition-all shadow-xs hover:shadow-md"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" /> View Coursework Brief
+                    <ExternalLink className="w-4 h-4" /> View Coursework Brief
                   </a>
                 ) : (
                   <span className="text-xs text-slate-400 italic">No external brief file attached</span>
@@ -280,9 +290,9 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                 {a.status !== "CLOSED" && (
                   <Button
                     onClick={() => handleOpenSubmit(a)}
-                    className="bg-[#0E57A4] hover:bg-[#0c4a8e] text-white font-semibold text-xs gap-2 rounded-xl"
+                    className="bg-[#0E57A4] hover:bg-[#0c4a8e] text-white font-bold text-xs gap-2 rounded-2xl px-5 py-2.5 shadow-md hover:shadow-lg transition-all"
                   >
-                    <Upload className="w-3.5 h-3.5" />
+                    <Upload className="w-4 h-4" />
                     {a.submission ? "Re-submit / Update File" : "Submit Assignment"}
                   </Button>
                 )}
