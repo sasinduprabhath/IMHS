@@ -20,14 +20,22 @@ export async function GET() {
       where: { status: "PENDING" },
     });
 
+    // Pending / Ungraded Assignment Submissions count
+    const pendingAssignmentsCount = await prisma.assignmentSubmission.count({
+      where: {
+        status: { in: ["SUBMITTED", "LATE"] },
+      },
+    });
+
     return NextResponse.json({
       unresolvedInquiriesCount,
       pendingBookingsCount,
+      pendingAssignmentsCount,
     });
   } catch (error: any) {
     console.error("Error fetching notification counts:", error);
     return NextResponse.json(
-      { unresolvedInquiriesCount: 0, pendingBookingsCount: 0 },
+      { unresolvedInquiriesCount: 0, pendingBookingsCount: 0, pendingAssignmentsCount: 0 },
       { status: 500 }
     );
   }

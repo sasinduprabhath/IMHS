@@ -42,9 +42,14 @@ export function AdminSidebar({ user }: { user: any }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [counts, setCounts] = useState<{ unresolvedInquiriesCount: number; pendingBookingsCount: number }>({
+  const [counts, setCounts] = useState<{
+    unresolvedInquiriesCount: number;
+    pendingBookingsCount: number;
+    pendingAssignmentsCount: number;
+  }>({
     unresolvedInquiriesCount: 0,
     pendingBookingsCount: 0,
+    pendingAssignmentsCount: 0,
   });
 
   useEffect(() => {
@@ -137,7 +142,8 @@ export function AdminSidebar({ user }: { user: any }) {
           const active = isActive(href, exact);
 
           let badgeCount = 0;
-          if (href === "/admin/inquiries") badgeCount = counts.unresolvedInquiriesCount;
+          if (href === "/admin/assignments") badgeCount = counts.pendingAssignmentsCount;
+          else if (href === "/admin/inquiries") badgeCount = counts.unresolvedInquiriesCount;
           else if (href === "/admin/bookings") badgeCount = counts.pendingBookingsCount;
 
           return (
