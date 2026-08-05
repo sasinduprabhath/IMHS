@@ -438,6 +438,86 @@ function CoursePlayerContent({
     );
   }
 
+  // ── 3. DEDICATED ANNOUNCEMENTS TAB VIEW ─────────────────────────────────
+  if (activeTab === "announcements") {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto pb-12">
+        <div className="flex items-center justify-between bg-white border border-chart-grid p-4 rounded-2xl">
+          <Link
+            href={`/dashboard/courses/${course.slug}`}
+            className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#0E57A4] hover:underline"
+          >
+            <ArrowLeftIcon className="w-4 h-4" /> Back to Course Syllabus
+          </Link>
+          <span className="text-xs font-mono font-semibold text-slate-500">
+            Total Announcements ({course.announcements?.length || 0})
+          </span>
+        </div>
+
+        {/* Header Widget */}
+        <div className="bg-gradient-to-r from-red-950 via-red-900 to-red-700 p-6 rounded-2xl text-white space-y-2 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase font-bold text-white/80 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full">
+              Notice Hub
+            </span>
+          </div>
+          <h2 className="text-xl font-display font-bold">Official Batch Announcements &amp; Notices</h2>
+          <p className="text-xs text-white/80">
+            Read all official batch announcements, timetable updates, coursework releases, and administrative notices for {course.title}.
+          </p>
+        </div>
+
+        {/* Announcements Cards List */}
+        {!course.announcements || course.announcements.length === 0 ? (
+          <div className="bg-white border border-chart-grid p-12 rounded-2xl text-center space-y-3">
+            <MegaphoneIcon className="w-10 h-10 text-slate-300 mx-auto" />
+            <p className="text-sm font-semibold text-slate-700">No Announcements Published</p>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
+              There are no official batch notices published for this course yet.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {course.announcements.map((a, idx) => (
+              <div
+                key={a.id}
+                className="bg-white border-2 border-red-100 hover:border-red-300 rounded-2xl p-6 space-y-4 transition-all shadow-xs"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                  <div className="space-y-1">
+                    <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-wider inline-block bg-red-50 border border-red-200 px-2.5 py-0.5 rounded">
+                      Notice #{course.announcements!.length - idx}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-display font-bold text-slate-900 mt-1">
+                      {a.title}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 shrink-0">
+                    <CalendarIcon className="w-4 h-4 text-red-500" />
+                    <span>
+                      {new Date(a.createdAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                <FormattedText
+                  content={a.content}
+                  className="text-xs sm:text-sm text-slate-800 leading-relaxed font-sans"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // ── 3. DEDICATED ANNOUNCEMENT VIEW ──────────────────────────────────────
   if (activeAnnouncementId && currentAnnouncement) {
     return (
@@ -613,40 +693,32 @@ function CoursePlayerContent({
 
         {/* Batch Announcements Card */}
         {course.announcements && course.announcements.length > 0 ? (
-          <div className="bg-white border-2 border-red-200 p-5 rounded-2xl space-y-3 shadow-xs">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-mono text-xs font-bold text-red-600">
-                <MegaphoneIcon className="w-4 h-4" />
-                Batch Announcements ({course.announcements.length})
+          <Link
+            href={`/dashboard/courses/${course.slug}?tab=announcements`}
+            className="bg-white border-2 border-red-200 hover:border-red-400 p-5 rounded-2xl flex items-center justify-between gap-4 transition-all shadow-xs hover:shadow-md group relative overflow-hidden"
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <MegaphoneIcon className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-mono text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full font-bold">
-                NOTICE HUB
-              </span>
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono text-[10px] uppercase font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                    Official Notice Hub
+                  </span>
+                  <span className="font-mono text-[10px] uppercase font-bold text-red-700 bg-red-100 border border-red-300 px-2 py-0.5 rounded-full">
+                    {course.announcements.length} Published
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 truncate">Batch Announcements Portal</h3>
+                <p className="text-xs text-slate-600 truncate">
+                  Latest: <span className="font-semibold text-slate-900">{course.announcements[0].title}</span>
+                </p>
+              </div>
             </div>
 
-            <div
-              data-lenis-prevent="true"
-              onWheel={(e) => e.stopPropagation()}
-              className="space-y-2 max-h-48 overflow-y-auto pr-1 touch-pan-y overscroll-contain"
-            >
-              {course.announcements.map((a) => (
-                <Link
-                  key={a.id}
-                  href={`/dashboard/courses/${course.slug}?announcementId=${a.id}`}
-                  className="block p-3 bg-red-50/40 hover:bg-red-50/90 rounded-xl border border-red-100/80 transition-all hover:shadow-xs group"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors truncate">
-                      {a.title}
-                    </p>
-                    <span className="text-[10px] text-slate-400 font-mono shrink-0">
-                      {new Date(a.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+            <ChevronRightIcon className="w-5 h-5 text-slate-400 group-hover:text-red-600 shrink-0 transition-transform group-hover:translate-x-1" />
+          </Link>
         ) : (
           <div className="bg-white border border-chart-grid p-5 rounded-2xl flex items-center gap-3 text-slate-400 text-xs">
             <MegaphoneIcon className="w-5 h-5 shrink-0 text-slate-300" />
