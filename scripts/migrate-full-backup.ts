@@ -38,21 +38,28 @@ function findBestLocalImage(title: string, slug: string): string {
   return firstBanner ? `/courses/${firstBanner}` : "/courses/Blue-and-White-Modern-Pharmacy-Lab-Poster-13.png";
 }
 
-function extractVideoOrDriveInfo(metaValue: string | null): { vimeoVideoId: string | null; driveFileId: string | null; type: "VIDEO" | "DOCUMENT" } {
-  if (!metaValue) return { vimeoVideoId: null, driveFileId: null, type: "VIDEO" };
+function extractVideoOrDriveInfo(text: string | null, metaObj?: Map<string, string>): { vimeoVideoId: string | null; driveFileId: string | null; type: "VIDEO" | "DOCUMENT" } {
+  let fullText = text || "";
+  if (metaObj) {
+    for (const [k, v] of metaObj.entries()) {
+      fullText += " " + k + " " + v;
+    }
+  }
 
-  const vimeoMatch = metaValue.match(/vimeo\.com\/(?:video\/)?([0-9]+)(?:\?h=([a-zA-Z0-9]+))?/);
+  // 1. Vimeo Video ID
+  const vimeoMatch = fullText.match(/(?:vimeo\.com\/(?:video\/)?|source_vimeo"|vimeo_id"|vimeo":s:\d+:|\/player\.vimeo\.com\/video\/)([0-9]{6,12})/i);
   if (vimeoMatch && vimeoMatch[1]) {
     const videoId = vimeoMatch[1];
-    const hash = vimeoMatch[2];
+    const hashMatch = fullText.match(/(?:h=|hash=|\?h=)([a-zA-Z0-9]{8,12})/);
     return {
-      vimeoVideoId: hash ? `${videoId}/${hash}` : videoId,
+      vimeoVideoId: hashMatch ? `${videoId}/${hashMatch[1]}` : videoId,
       driveFileId: null,
       type: "VIDEO",
     };
   }
 
-  const driveMatch = metaValue.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  // 2. Google Drive File ID
+  const driveMatch = fullText.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|d\/)([a-zA-Z0-9_-]{25,50})/i);
   if (driveMatch && driveMatch[1]) {
     return {
       vimeoVideoId: null,
@@ -61,10 +68,12 @@ function extractVideoOrDriveInfo(metaValue: string | null): { vimeoVideoId: stri
     };
   }
 
-  if (metaValue.endsWith(".pdf") || metaValue.endsWith(".pptx") || metaValue.endsWith(".docx")) {
+  // 3. Document / PDF link
+  const docMatch = fullText.match(/(https?:\/\/[^\s"']+\.(?:pdf|docx|pptx|xlsx))/i);
+  if (docMatch && docMatch[1]) {
     return {
       vimeoVideoId: null,
-      driveFileId: metaValue,
+      driveFileId: docMatch[1],
       type: "DOCUMENT",
     };
   }
@@ -113,6 +122,11 @@ async function migrateMasterBackup() {
   const attachedFiles = new Map<string, string>();
   const userPhonesMap = new Map<string, string>();
 
+  // Taxonomy maps
+  const termsMap = new Map<string, string>();
+  const termTaxonomyMap = new Map<string, { termId: string; taxonomy: string }>();
+  const postCategoryRelMap = new Map<string, string[]>();
+
   console.log("⚡ Step 1: Parsing SQL dump file line by line (413 MB)...");
 
   const fileStream = fs.createReadStream(sqlPath, { encoding: "utf8" });
@@ -131,11 +145,44 @@ async function migrateMasterBackup() {
       currentTarget = "wp_posts";
     } else if (trimmed.startsWith("INSERT INTO `wp_postmeta`")) {
       currentTarget = "wp_postmeta";
+    } else if (trimmed.startsWith("INSERT INTO `wp_terms`")) {
+      currentTarget = "wp_terms";
+    } else if (trimmed.startsWith("INSERT INTO `wp_term_taxonomy`")) {
+      currentTarget = "wp_term_taxonomy";
+    } else if (trimmed.startsWith("INSERT INTO `wp_term_relationships`")) {
+      currentTarget = "wp_term_relationships";
     } else if (trimmed.startsWith("INSERT INTO `") || trimmed.startsWith("CREATE TABLE") || trimmed.startsWith("ALTER TABLE")) {
       currentTarget = null;
     }
 
-    // 1. Parse wp_users
+    // 1. wp_terms
+    if (currentTarget === "wp_terms" && trimmed.startsWith("(")) {
+      const matches = Array.from(trimmed.matchAll(/\((\d+),\s*'([^']*)',\s*'([^']*)',\s*\d+\)/g));
+      for (const m of matches) {
+        termsMap.set(m[1], m[2]);
+      }
+    }
+
+    // 2. wp_term_taxonomy
+    if (currentTarget === "wp_term_taxonomy" && trimmed.startsWith("(")) {
+      const matches = Array.from(trimmed.matchAll(/\((\d+),\s*(\d+),\s*'([^']+)'/g));
+      for (const m of matches) {
+        termTaxonomyMap.set(m[1], { termId: m[2], taxonomy: m[3] });
+      }
+    }
+
+    // 3. wp_term_relationships
+    if (currentTarget === "wp_term_relationships" && trimmed.startsWith("(")) {
+      const matches = Array.from(trimmed.matchAll(/\((\d+),\s*(\d+),\s*\d+\)/g));
+      for (const m of matches) {
+        const postId = m[1];
+        const termTaxId = m[2];
+        if (!postCategoryRelMap.has(postId)) postCategoryRelMap.set(postId, []);
+        postCategoryRelMap.get(postId)!.push(termTaxId);
+      }
+    }
+
+    // 4. wp_users
     if (currentTarget === "wp_users" && trimmed.startsWith("(")) {
       const match = trimmed.match(/^\(\s*(\d+),\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)',\s*(\d+),\s*'([^']*)'\)/);
       if (match) {
@@ -157,7 +204,7 @@ async function migrateMasterBackup() {
       }
     }
 
-    // 2. Parse wp_usermeta (Phones)
+    // 5. wp_usermeta
     if (currentTarget === "wp_usermeta" && trimmed.startsWith("(")) {
       const match = trimmed.match(/^\(\s*\d+,\s*(\d+),\s*'([^']*)',\s*'([^']*)'\)/);
       if (match) {
@@ -170,7 +217,7 @@ async function migrateMasterBackup() {
       }
     }
 
-    // 3. Parse wp_posts (Courses, Topics/Chapters, Lessons, Enrollments)
+    // 6. wp_posts
     if (currentTarget === "wp_posts" && (trimmed.startsWith("(") || trimmed.includes("INSERT INTO"))) {
       const items = trimmed.split("),(");
       for (const item of items) {
@@ -201,7 +248,7 @@ async function migrateMasterBackup() {
       }
     }
 
-    // 4. Parse wp_postmeta (Prices, Videos, Attachments, Cover Images)
+    // 7. wp_postmeta
     if (currentTarget === "wp_postmeta" && trimmed.startsWith("(")) {
       const matches = Array.from(trimmed.matchAll(/\((\d+),\s*(\d+),\s*'([^']+)',\s*'([^']*)'\)/g));
       for (const m of matches) {
@@ -239,10 +286,11 @@ async function migrateMasterBackup() {
 
   console.log(`✅ SQL Parsing Complete! Summary:`);
   console.log(`   - Users Extracted: ${usersMap.size}`);
-  console.log(`   - Posts/Records Extracted: ${postsMap.size}`);
-  console.log(`   - PostMeta Extracted: ${postMetaPrices.size} price records`);
+  console.log(`   - Posts Extracted: ${postsMap.size}`);
+  console.log(`   - Category Terms Extracted: ${termsMap.size}`);
+  console.log(`   - Category Mappings Extracted: ${postCategoryRelMap.size}`);
 
-  // ── PHASE 1: USERS & PASSWORDS & REG IDs ──────────────────────────────
+  // ── PHASE 1: USERS ───────────────────────────────────────────────────
   console.log("\n🔄 Phase 1: Migrating Student Accounts & Official Reg IDs...");
   let usersCreated = 0;
   let usersUpdated = 0;
@@ -312,8 +360,8 @@ async function migrateMasterBackup() {
 
   console.log(`✅ Phase 1 Complete: Created ${usersCreated} new accounts, updated ${usersUpdated} existing accounts.`);
 
-  // ── PHASE 2: COURSES & LOCAL /courses/ COVER IMAGES ────────────────────
-  console.log("\n🔄 Phase 2: Syncing All Courses with Local public/courses Images & Prices...");
+  // ── PHASE 2: COURSES & CATEGORIES ────────────────────────────────────
+  console.log("\n🔄 Phase 2: Syncing Courses, Categories, Local Images & Prices...");
 
   const coursePosts = Array.from(postsMap.values()).filter(
     (p) =>
@@ -347,22 +395,24 @@ async function migrateMasterBackup() {
       coverImage = findBestLocalImage(c.title, c.slug);
     }
 
-    let category = "Modern Pharmacy (SLMC Registration)";
+    // Resolve Categories from Taxonomy
+    const categoryNames: string[] = [];
+    const taxIds = postCategoryRelMap.get(c.id) || [];
+    for (const tid of taxIds) {
+      const taxInfo = termTaxonomyMap.get(tid);
+      if (taxInfo && (taxInfo.taxonomy === "course-category" || taxInfo.taxonomy === "category" || taxInfo.taxonomy === "course-tag")) {
+        const name = termsMap.get(taxInfo.termId);
+        if (name) categoryNames.push(name);
+      }
+    }
+
+    let category = categoryNames.length > 0 ? categoryNames.join(", ") : "Modern Pharmacy (SLMC Registration)";
     let level = "Intermediate";
 
-    if (c.title.toLowerCase().includes("manufacturing")) {
-      category = "Pharmaceutical Manufacturing";
-      level = "Expert";
-    } else if (c.title.toLowerCase().includes("laboratory") || c.title.toLowerCase().includes("diploma")) {
-      category = "Medical Laboratory Technology";
-      level = "All Levels";
-    } else if (c.title.toLowerCase().includes("science")) {
-      category = "Foundation in Pharmaceutical Science";
-      level = "Beginner";
-    } else if (c.title.toLowerCase().includes("fast track") || c.title.toLowerCase().includes("revision")) {
-      category = "SLMC Fast Track Revision";
-      level = "Advanced";
-    }
+    if (c.title.toLowerCase().includes("manufacturing")) level = "Expert";
+    else if (c.title.toLowerCase().includes("laboratory") || c.title.toLowerCase().includes("diploma")) level = "All Levels";
+    else if (c.title.toLowerCase().includes("science")) level = "Beginner";
+    else if (c.title.toLowerCase().includes("fast track") || c.title.toLowerCase().includes("revision")) level = "Advanced";
 
     const existingCourse = await prisma.course.findFirst({
       where: { OR: [{ slug: c.slug }, { title: c.title }] },
@@ -399,7 +449,7 @@ async function migrateMasterBackup() {
     coursesSynced++;
   }
 
-  console.log(`✅ Phase 2 Complete: Synced ${coursesSynced} courses with local /courses/ images & prices.`);
+  console.log(`✅ Phase 2 Complete: Synced ${coursesSynced} courses with Categories, Images & Prices.`);
 
   // ── PHASE 3: ENROLLMENTS ──────────────────────────────────────────────
   console.log("\n🔄 Phase 3: Syncing Student Course Enrollments...");
@@ -450,8 +500,8 @@ async function migrateMasterBackup() {
 
   console.log(`✅ Phase 3 Complete: Verified ${enrollmentsSynced} student enrollments.`);
 
-  // ── PHASE 4: CHAPTERS & LESSONS ────────────────────────────────────────
-  console.log("\n🔄 Phase 4: Syncing Course Chapters (Topics) & Lesson Modules...");
+  // ── PHASE 4: CHAPTERS & LESSONS (WITH VIMEO & DRIVE FILES) ────────────
+  console.log("\n🔄 Phase 4: Syncing Course Chapters & Lessons (Vimeo Videos & Drive Documents)...");
 
   const topicPosts = Array.from(postsMap.values()).filter((p) => p.type === "topics");
   const lessonPosts = Array.from(postsMap.values()).filter((p) => p.type === "lesson");
@@ -460,6 +510,8 @@ async function migrateMasterBackup() {
 
   let chaptersSynced = 0;
   let lessonsSynced = 0;
+  let vimeoCount = 0;
+  let driveCount = 0;
 
   for (const topic of topicPosts) {
     const parentCoursePost = postsMap.get(topic.parentId);
@@ -498,11 +550,11 @@ async function migrateMasterBackup() {
 
     let lOrder = 1;
     for (const l of childLessons) {
-      const meta = postMetaMap.get(l.id);
-      const videoMeta = meta?.get("_tutor_lesson_video") || meta?.get("video") || null;
-      const attachMeta = meta?.get("_tutor_lesson_attachments") || meta?.get("_wp_attached_file") || null;
+      const metaObj = postMetaMap.get(l.id);
+      const { vimeoVideoId, driveFileId, type } = extractVideoOrDriveInfo(l.content, metaObj);
 
-      const { vimeoVideoId, driveFileId, type } = extractVideoOrDriveInfo(videoMeta || attachMeta);
+      if (vimeoVideoId) vimeoCount++;
+      if (driveFileId) driveCount++;
 
       const safeTitle = l.title.slice(0, 190);
 
@@ -510,7 +562,17 @@ async function migrateMasterBackup() {
         where: { title: safeTitle, chapterId: chapter.id },
       });
 
-      if (!existingLesson) {
+      if (existingLesson) {
+        await prisma.lesson.update({
+          where: { id: existingLesson.id },
+          data: {
+            type,
+            vimeoVideoId: vimeoVideoId || existingLesson.vimeoVideoId,
+            driveFileId: driveFileId || existingLesson.driveFileId,
+            content: l.content || existingLesson.content,
+          },
+        });
+      } else {
         await prisma.lesson.create({
           data: {
             title: safeTitle,
@@ -527,7 +589,7 @@ async function migrateMasterBackup() {
     }
   }
 
-  console.log(`✅ Phase 4 Complete: Created/Verified ${chaptersSynced} Chapters and ${lessonsSynced} Lessons.`);
+  console.log(`✅ Phase 4 Complete: Synced ${chaptersSynced} Chapters and ${lessonsSynced} Lessons (${vimeoCount} Vimeo Videos, ${driveCount} Drive Documents).`);
 
   console.log("=========================================================================");
   console.log(" 🎉 MASTER BACKUP MIGRATION & ASSET SYNC COMPLETED SUCCESSFULLY!");
