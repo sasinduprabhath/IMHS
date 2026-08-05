@@ -221,26 +221,20 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-[68px] overflow-hidden bg-slate-950">
-        {/* Full Background Video (Desktop & Tablet) */}
+        {/* Full Background Video (All Devices: Mobile, Tablet & Desktop) */}
         <video
           autoPlay
           loop
           muted
           playsInline
           preload="auto"
-          className="hidden md:block absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
         >
           <source
             src="https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4"
             type="video/mp4"
           />
         </video>
-
-        {/* Mobile Background Fallback Image */}
-        <div
-          className="block md:hidden absolute inset-0 w-full h-full bg-cover bg-center pointer-events-none z-0"
-          style={{ backgroundImage: "url('/hero.jpg')" }}
-        />
 
         {/* Multi-layer Dark Gradient Overlay for High Readability & Unobstructed Right Video View */}
         <div
