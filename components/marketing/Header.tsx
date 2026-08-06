@@ -16,6 +16,7 @@ const navLinks = [
   { href: "/courses", label: "Courses" },
   { href: "/consultation", label: "Mentorship" },
   { href: "/#achievements", label: "Achievements" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -71,7 +72,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "relative px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-200 group",
+                  "relative px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 group",
                   scrolled || !isHomePage
                     ? isActive
                       ? "text-[#0E57A4] bg-[#0E57A4]/10 font-semibold"
@@ -85,7 +86,7 @@ export function Header() {
                 {/* Active / hover indicator */}
                 <span
                   className={cn(
-                    "absolute bottom-1 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300",
+                    "absolute bottom-1 left-3 right-3 h-0.5 rounded-full transition-all duration-300",
                     isActive
                       ? scrolled || !isHomePage
                         ? "bg-[#0E57A4]"
@@ -122,14 +123,19 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile hamburger - High Visibility Contrast Pill */}
         <motion.button
-          className="lg:hidden p-2.5 rounded-lg text-ink hover:bg-linen transition-colors"
+          className={cn(
+            "lg:hidden p-2 rounded-xl border transition-all duration-200 shadow-sm flex items-center justify-center",
+            scrolled || !isHomePage
+              ? "bg-slate-100 border-slate-300 text-[#0A121E] hover:bg-slate-200 hover:text-[#0E57A4]"
+              : "bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30 hover:text-white"
+          )}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           whileTap={{ scale: 0.9 }}
           aria-label="Toggle navigation"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileMenuOpen ? <X className="w-6 h-6 stroke-[2.5]" /> : <Menu className="w-6 h-6 stroke-[2.5]" />}
         </motion.button>
       </div>
 
