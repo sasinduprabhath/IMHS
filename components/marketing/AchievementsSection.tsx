@@ -19,21 +19,21 @@ interface VideoItem {
 const ACHIEVEMENTS_VIDEOS: VideoItem[] = [
   {
     id: '1',
-    youtubeId: 'rGxAPjR18zY',
-    title: 'IMHS Modern Pharmacy Course — Day 01 Introduction Session',
-    category: 'Lecture Series',
-    duration: '1h 56m',
-    views: '1.5K+ views',
-    thumbnail: 'https://img.youtube.com/vi/rGxAPjR18zY/hqdefault.jpg',
-  },
-  {
-    id: '2',
     youtubeId: 'TM1nTXW2Ogs',
     title: 'IMHS General Convocation & Batch 09 Ceremony Highlights',
     category: 'Convocation',
     duration: '12m 08s',
     views: '1.9K+ views',
     thumbnail: 'https://img.youtube.com/vi/TM1nTXW2Ogs/hqdefault.jpg',
+  },
+  {
+    id: '2',
+    youtubeId: 'rGxAPjR18zY',
+    title: 'IMHS Modern Pharmacy Course — Day 01 Introduction Session',
+    category: 'Lecture Series',
+    duration: '1h 56m',
+    views: '1.5K+ views',
+    thumbnail: 'https://img.youtube.com/vi/rGxAPjR18zY/hqdefault.jpg',
   },
   {
     id: '3',
@@ -96,7 +96,7 @@ export function AchievementsSection() {
           <RevealOnScroll className="lg:col-span-7 flex flex-col gap-4">
             <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl shadow-blue-950/50 group">
               <iframe
-                src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`}
+                src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=0&rel=0`}
                 title={activeVideo.title}
                 className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -142,8 +142,8 @@ export function AchievementsSection() {
               <span className="text-xs text-slate-400 font-mono">{ACHIEVEMENTS_VIDEOS.length} Videos</span>
             </div>
 
-            {/* Scrollable Video List */}
-            <div className="flex flex-col gap-2.5 max-h-[460px] overflow-y-auto pr-1">
+            {/* Scrollable Video List without Visible Scrollbar */}
+            <div className="flex flex-col gap-2.5 max-h-[500px] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {ACHIEVEMENTS_VIDEOS.map((video) => {
                 const isActive = activeVideo.id === video.id;
 
