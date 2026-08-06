@@ -117,41 +117,56 @@ const HOW_IT_WORKS = [
   },
 ];
 
-const CONVOCATION_CARDS = [
+const ACHIEVEMENT_VIDEOS = [
   {
-    id: "conv-1",
-    type: "photo" as const,
-    title: "Convocation Ceremony 2024",
-    subtitle: "IMHS General Convocation 2024",
-    placeholder: "bg-gradient-to-br from-[#0E57A4]/30 to-[#2172C9]/40",
+    id: "v1",
+    title: "Ceylon Pharma College - A Journey of Excellence",
+    subtitle: "Certificate Course in Pharmacy Practice 1st Day - Batch 18",
+    videoUrl: "https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4",
+    thumbnail: "/gallery/convocation-2024.webp",
+    tag: "BATCH 18 CONVOCATION",
+    duration: "03:45",
+    description: "Witness the inauguration and grand milestone celebration of pharmacy practice students at IMHS.",
   },
   {
-    id: "conv-2",
-    type: "photo" as const,
-    title: "Academic Gowns & Honours",
-    subtitle: "IMHS General Convocation 2024",
-    placeholder: "bg-gradient-to-br from-[#F16726]/20 to-[#0E57A4]/30",
+    id: "v2",
+    title: "Student Testimonials & Campus Life",
+    subtitle: "Real Student Stories & Career Transformation",
+    videoUrl: "/gallery/gallery-video-1.mp4",
+    thumbnail: "/gallery/graduation-ceremony.webp",
+    tag: "STUDENT SUCCESS",
+    duration: "04:12",
+    description: "Hear directly from our certified pharmacy practice and healthcare graduates about their learning journey.",
   },
   {
-    id: "conv-3",
-    type: "photo" as const,
-    title: "Faculty & Graduates",
-    subtitle: "IMHS General Convocation 2024",
-    placeholder: "bg-gradient-to-br from-[#4A8B7A]/30 to-[#0E57A4]/20",
+    id: "v3",
+    title: "Inside Our State-of-the-Art Labs",
+    subtitle: "Practical Pharmacy Dispensaries & Simulation Labs",
+    videoUrl: "/gallery/gallery-video-2.mp4",
+    thumbnail: "/gallery/pharmaceutical-lab.jpg",
+    tag: "CLINICAL LABS",
+    duration: "02:50",
+    description: "Take an exclusive walkthrough of our modern clinical simulation labs and practical dispensary counters.",
   },
   {
-    id: "conv-4",
-    type: "video" as const,
-    title: "Ceremony Highlights Reel",
-    subtitle: "IMHS General Convocation 2024",
-    placeholder: "bg-gradient-to-br from-[#0B192C]/80 to-[#0E57A4]/50",
+    id: "v4",
+    title: "Annual Convocation Ceremony",
+    subtitle: "Graduation Honours & Award Distribution",
+    videoUrl: "/gallery/gallery-video-3.mp4",
+    thumbnail: "/gallery/pharmacy-practical.jpg",
+    tag: "SLMC GRADUATION",
+    duration: "05:18",
+    description: "Highlights from our annual graduation ceremony where students receive SLMC-aligned pharmacy certifications.",
   },
   {
-    id: "conv-5",
-    type: "video" as const,
-    title: "Keynote Address",
-    subtitle: "IMHS General Convocation 2024",
-    placeholder: "bg-gradient-to-br from-[#0E57A4]/50 to-[#F16726]/30",
+    id: "v5",
+    title: "A Message from Our Chairman",
+    subtitle: "Visionary Healthcare Education & Leadership",
+    videoUrl: "https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4",
+    thumbnail: "/gallery/faculty-consultation.jpg",
+    tag: "FACULTY DIRECTORY",
+    duration: "03:10",
+    description: "Inspiring words and strategic direction from Dr. Isuru Wijesinghe & senior medical board members.",
   },
 ];
 
@@ -175,6 +190,18 @@ interface ContactForm {
 
 export function HomePageClient({ courses, faculty, testimonials }: HomePageClientProps) {
   const galleryRef = useRef<HTMLDivElement>(null);
+
+  // Achievements Video Showcase State
+  const [selectedVideo, setSelectedVideo] = useState(ACHIEVEMENT_VIDEOS[0]);
+  const achievementVideoRef = useRef<HTMLVideoElement>(null);
+
+  const handleSelectVideo = (video: typeof ACHIEVEMENT_VIDEOS[0]) => {
+    setSelectedVideo(video);
+    if (achievementVideoRef.current) {
+      achievementVideoRef.current.load();
+      achievementVideoRef.current.play().catch(() => {});
+    }
+  };
 
   // Contact form state
   const [contactForm, setContactForm] = useState<ContactForm>({
@@ -793,97 +820,142 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </div>
       </section>
 
-      {/* ── 8. CONVOCATION & OUTCOMES ─────────────────────────────────────── */}
+      {/* ── 8. OUR ACHIEVEMENTS (VIDEO SHOWCASE) ────────────────────────── */}
       <section className="bg-linen/50 py-20 border-b border-chart-grid overflow-hidden">
         <BlisterDivider className="mb-8" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <RevealOnScroll className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-                MILESTONES &amp; ACHIEVEMENTS
-              </span>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-ink">
-                IMHS General Convocation 2024
-              </h2>
-              <p className="text-sm text-ink-muted max-w-lg">
-                Celebrating our graduates&apos; achievements in clinical excellence and healthcare education.
-              </p>
-            </div>
-            <Link href="/gallery">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" className="gap-2 group bg-white border-chart-grid hover:border-[#0E57A4] whitespace-nowrap">
-                  <Images className="w-4 h-4 text-[#0E57A4]" />
-                  View Full Gallery
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </motion.div>
-            </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          
+          {/* Section Header */}
+          <RevealOnScroll className="text-center space-y-3">
+            <span className="font-mono text-xs text-[#F16726] uppercase tracking-widest font-bold">
+              MILESTONES &amp; EXCELLENCE
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-ink tracking-tight">
+              Our Achievements
+            </h2>
+            <div className="w-16 h-1.5 rounded-full bg-[#10B981] mx-auto shadow-xs" />
           </RevealOnScroll>
 
-          {/* Scroll-snap gallery */}
-          <div className="relative">
-            <button
-              onClick={() => scrollGallery("left")}
-              aria-label="Scroll gallery left"
-              className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-chart-grid shadow-md items-center justify-center hover:border-[#0E57A4]/40 hover:shadow-lg transition-all"
-            >
-              <ChevronLeft className="w-4 h-4 text-ink-muted" />
-            </button>
-            <button
-              onClick={() => scrollGallery("right")}
-              aria-label="Scroll gallery right"
-              className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-chart-grid shadow-md items-center justify-center hover:border-[#0E57A4]/40 hover:shadow-lg transition-all"
-            >
-              <ChevronRight className="w-4 h-4 text-ink-muted" />
-            </button>
-
-            <div
-              ref={galleryRef}
-              className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {CONVOCATION_CARDS.map((card) => (
-                <div
-                  key={card.id}
-                  className="snap-start shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden border border-chart-grid bg-surface group relative"
-                  style={{ boxShadow: "var(--shadow-card)" }}
-                >
-                  <div className={`relative h-52 ${card.placeholder} overflow-hidden`}>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                      {card.type === "video" ? (
-                        <>
-                          <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-                            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-                          </div>
-                          <span className="text-[10px] font-mono text-white/70 uppercase tracking-widest">Click to Play</span>
-                        </>
-                      ) : (
-                        <Images className="w-10 h-10 text-white/40" />
-                      )}
-                    </div>
-                    <Link
-                      href="/gallery"
-                      className="absolute inset-0 z-10"
-                      aria-label={`View ${card.title} in gallery`}
-                    >
-                      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-[#0A121E]/70 to-transparent">
-                        <ExternalLink className="w-3.5 h-3.5 text-white/60 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+          {/* 2-Column Showcase Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Left Column: Main Video Player */}
+            <RevealOnScroll className="lg:col-span-7 space-y-4">
+              <div className="rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 shadow-xl space-y-4 transition-all">
+                
+                {/* Responsive Aspect Video Container */}
+                <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-950 shadow-inner border border-slate-800 group">
+                  {/* Top Overlay Badge & Subtitle */}
+                  <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-b from-slate-950/85 via-slate-950/40 to-transparent flex items-center justify-between text-white z-10 pointer-events-none">
+                    <div className="flex items-center gap-2 max-w-[80%]">
+                      <div className="w-7 h-7 rounded-full bg-[#10B981] flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
+                        IMHS
                       </div>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-[#F16726] font-bold">{card.subtitle}</span>
-                    <h3 className="text-sm font-semibold text-ink font-sans leading-snug">{card.title}</h3>
-                    <div className="flex items-center gap-1 pt-1">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${card.type === "video" ? "bg-[#F16726]/10 text-[#F16726] border border-[#F16726]/20" : "bg-[#0E57A4]/10 text-[#0E57A4] border border-[#0E57A4]/20"}`}>
-                        {card.type === "video" ? "VIDEO" : "PHOTO"}
+                      <span className="text-xs font-semibold font-sans truncate drop-shadow-sm">
+                        {selectedVideo.subtitle}
                       </span>
                     </div>
+                    <span className="font-mono text-[9px] uppercase font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-0.5 rounded-full backdrop-blur-md">
+                      NOW PLAYING
+                    </span>
                   </div>
+
+                  {/* HTML5 Video Element */}
+                  <video
+                    key={selectedVideo.id}
+                    ref={achievementVideoRef}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                    poster={selectedVideo.thumbnail}
+                  >
+                    <source src={selectedVideo.videoUrl} type="video/mp4" />
+                  </video>
                 </div>
-              ))}
-            </div>
+
+                {/* Video Info Footer */}
+                <div className="space-y-2 px-1 pt-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-xl sm:text-2xl font-display font-extrabold text-ink leading-snug">
+                      {selectedVideo.title}
+                    </h3>
+                    <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                      {selectedVideo.tag}
+                    </span>
+                  </div>
+                  <p className="text-sm text-ink-muted leading-relaxed">
+                    {selectedVideo.description}
+                  </p>
+                </div>
+              </div>
+            </RevealOnScroll>
+
+            {/* Right Column: Watch Next Playlist */}
+            <RevealOnScroll className="lg:col-span-5 space-y-4">
+              <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-xl space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <h3 className="font-display font-extrabold text-ink text-lg flex items-center gap-2">
+                    <Play className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+                    Watch Next
+                  </h3>
+                  <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                    {ACHIEVEMENT_VIDEOS.length} Videos
+                  </span>
+                </div>
+
+                {/* Playlist Items */}
+                <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
+                  {ACHIEVEMENT_VIDEOS.map((video) => {
+                    const isSelected = selectedVideo.id === video.id;
+                    return (
+                      <motion.button
+                        key={video.id}
+                        onClick={() => handleSelectVideo(video)}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`w-full text-left p-2.5 rounded-2xl border transition-all duration-200 flex items-center gap-3 group ${
+                          isSelected
+                            ? "bg-emerald-50/90 border-2 border-emerald-500 shadow-md ring-2 ring-emerald-500/15"
+                            : "bg-slate-50/70 border-slate-200/80 hover:border-emerald-300 hover:bg-slate-100/80"
+                        }`}
+                      >
+                        {/* Video Thumbnail Box */}
+                        <div className="relative w-24 sm:w-28 aspect-video rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200">
+                          <Image
+                            src={video.thumbnail}
+                            alt={video.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className={`absolute inset-0 flex items-center justify-center ${isSelected ? "bg-emerald-950/40" : "bg-black/30 group-hover:bg-black/20"}`}>
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isSelected ? "bg-emerald-500 text-white" : "bg-white/80 text-ink"}`}>
+                              <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                            </div>
+                          </div>
+                          <span className="absolute bottom-1 right-1 font-mono text-[9px] font-bold text-white bg-black/70 px-1.5 py-0.5 rounded">
+                            {video.duration}
+                          </span>
+                        </div>
+
+                        {/* Title & Tag */}
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <h4 className={`text-xs sm:text-sm font-bold font-display line-clamp-2 leading-snug ${isSelected ? "text-emerald-950" : "text-ink group-hover:text-emerald-700"}`}>
+                            {video.title}
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <span className={`font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded ${isSelected ? "bg-emerald-200/80 text-emerald-900" : "bg-slate-200/70 text-slate-600"}`}>
+                              {video.tag}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            </RevealOnScroll>
+
           </div>
         </div>
       </section>
