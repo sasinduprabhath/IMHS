@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/animations";
 import { CourseCardSkeleton } from "@/components/ui/skeleton";
 import { AchievementsSection } from "@/components/marketing/AchievementsSection";
+import { TrustAccreditationStrip } from "@/components/marketing/TrustAccreditationStrip";
 import {
   PhoneCall,
   BookOpen,
@@ -381,30 +382,8 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         </div>
       </section>
 
-      {/* ── 2. TRUST STRIP ─────────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-[#E2E8F0] py-6">
-        <BlisterDivider className="mb-4" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center font-mono text-[10px] uppercase tracking-widest text-sage/70 font-bold mb-5">
-            Recognized Standards &amp; Certifications
-          </p>
-          <StaggerChildren className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { icon: Award, label: "PHARMACEUTICAL GUILD", color: "#0E57A4" },
-              { icon: GraduationCap, label: "CONTINUING MED CREDITS", color: "#6366F1" },
-              { icon: ShieldCheck, label: "INSTITUTIONAL CERT", color: "#10B981" },
-              { icon: CheckCircle2, label: "TERTIARY CARE FACULTY", color: "#F16726" },
-            ].map(({ icon: Icon, label, color }) => (
-              <StaggerItem key={label}>
-                <div className="flex items-center justify-center gap-2.5 text-xs font-mono font-semibold text-ink-muted py-2.5 px-4 rounded-xl border border-[#E2E8F0] hover:border-[#BFDBFE] hover:shadow-paper transition-all duration-200 bg-[#F8FAFC] group cursor-default">
-                  <Icon className="w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110" style={{ color }} />
-                  <span className="tracking-wider text-[10px]">{label}</span>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-        </div>
-      </section>
+      {/* ── 2. TRUST & ACCREDITATION STRIP ───────────────────────────────── */}
+      <TrustAccreditationStrip />
 
       {/* ── 3. COURSES CATALOG ─────────────────────────────────────────────── */}
       <section id="programs" className="relative bg-linen/50 py-20 border-y border-chart-grid overflow-hidden">
