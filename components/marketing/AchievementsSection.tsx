@@ -93,8 +93,8 @@ export function AchievementsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
           {/* Main Cinema Player (Left 7/12) */}
-          <RevealOnScroll className="lg:col-span-7 flex flex-col h-full">
-            <div className="relative aspect-video w-full h-full rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl shadow-blue-950/50 group">
+          <RevealOnScroll className="lg:col-span-7 flex flex-col justify-center">
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl shadow-blue-950/50 group">
               <iframe
                 src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=0&rel=0`}
                 title={activeVideo.title}
@@ -107,17 +107,17 @@ export function AchievementsSection() {
 
           {/* Watch Next Playlist Sidebar (Right 5/12) */}
           <RevealOnScroll className="lg:col-span-5 flex flex-col h-full">
-            <div className="h-full bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-3">
-              <div className="flex items-center justify-between pb-2.5 border-b border-white/10 shrink-0">
-                <h4 className="font-bold text-sm text-white flex items-center gap-2">
+            <div className="h-full bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 sm:p-4 flex flex-col gap-2 justify-between">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10 shrink-0">
+                <h4 className="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#F16726]" />
                   <span>Watch Next</span>
                 </h4>
-                <span className="text-xs text-slate-400 font-mono">{ACHIEVEMENTS_VIDEOS.length} Videos</span>
+                <span className="text-[11px] text-slate-400 font-mono">{ACHIEVEMENTS_VIDEOS.length} Videos</span>
               </div>
 
-              {/* Scrollable Video List matching left video height */}
-              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {/* Video List perfectly fitting sidebar height */}
+              <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 overflow-hidden">
                 {ACHIEVEMENTS_VIDEOS.map((video) => {
                   const isActive = activeVideo.id === video.id;
 
@@ -127,20 +127,20 @@ export function AchievementsSection() {
                       onClick={() => setActiveVideo(video)}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`relative flex items-center gap-3 p-2 rounded-xl transition text-left group shrink-0 ${
+                      className={`relative flex items-center gap-2.5 p-1.5 rounded-xl transition text-left group flex-1 min-h-0 ${
                         isActive
                           ? 'bg-blue-900/40 border border-blue-500/40 shadow-md'
                           : 'hover:bg-slate-800/60 border border-transparent'
                       }`}
                     >
                       {/* Thumbnail Container */}
-                      <div className="relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-white/10">
+                      <div className="relative w-20 sm:w-24 aspect-video rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-white/10">
                         <img
                           src={video.thumbnail}
                           alt={video.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                         />
-                        <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/80 text-[10px] text-white font-mono">
+                        <div className="absolute bottom-0.5 right-0.5 px-1 py-0.2 rounded bg-black/80 text-[9px] text-white font-mono">
                           {video.duration}
                         </div>
 
@@ -150,20 +150,20 @@ export function AchievementsSection() {
                             isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                           }`}
                         >
-                          <div className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg">
-                            <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
+                          <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg">
+                            <Play className="w-3 h-3 fill-white ml-0.5" />
                           </div>
                         </div>
                       </div>
 
                       {/* Video Info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 text-[10px] text-[#F16726] font-semibold mb-0.5">
-                          {isActive && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                        <div className="flex items-center gap-1 text-[9px] text-[#F16726] font-semibold mb-0.5">
+                          {isActive && <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />}
                           <span>{video.category}</span>
                         </div>
                         <h5
-                          className={`text-xs font-semibold line-clamp-2 leading-snug ${
+                          className={`text-xs font-semibold line-clamp-2 leading-tight ${
                             isActive ? 'text-white font-bold' : 'text-slate-300 group-hover:text-white'
                           }`}
                         >
