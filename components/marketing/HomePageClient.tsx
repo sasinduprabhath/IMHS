@@ -35,6 +35,7 @@ import {
   Users,
   Star,
   ChevronRight,
+  ChevronLeft,
   Play,
   HeartPulse,
   Stethoscope,
@@ -45,7 +46,6 @@ import {
   Send,
   Images,
   ExternalLink,
-  ChevronLeft,
   Lock,
   Download,
   Activity,
@@ -202,6 +202,13 @@ interface ContactForm {
 
 export function HomePageClient({ courses, faculty, testimonials }: HomePageClientProps) {
   const galleryRef = useRef<HTMLDivElement>(null);
+  const coursesCatalogRef = useRef<HTMLDivElement>(null);
+
+  const scrollCoursesCatalog = (direction: "left" | "right") => {
+    if (!coursesCatalogRef.current) return;
+    const scrollAmount = direction === "left" ? -340 : 340;
+    coursesCatalogRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+  };
 
   // Achievements Video Showcase State
   const [selectedVideo, setSelectedVideo] = useState(ACHIEVEMENT_VIDEOS[0]);
@@ -389,7 +396,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       <section id="programs" className="relative bg-linen/50 py-12 sm:py-20 border-y border-chart-grid overflow-hidden">
         <div className="absolute inset-0 dot-grid-bg pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
           <RevealOnScroll className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-1.5 sm:space-y-2">
               <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
@@ -399,77 +406,109 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 Featured Medical Programs
               </h2>
             </div>
-            <Link href="/courses" className="w-full sm:w-auto">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" className="w-full sm:w-auto gap-2 justify-center group bg-white border-chart-grid hover:border-[#0E57A4]">
-                  View All Programs
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </motion.div>
-            </Link>
+
+            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+              {/* Scroll Controls */}
+              <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-chart-grid shadow-xs shrink-0">
+                <button
+                  onClick={() => scrollCoursesCatalog("left")}
+                  aria-label="Scroll courses left"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-[#0E57A4] hover:bg-slate-100 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scrollCoursesCatalog("right")}
+                  aria-label="Scroll courses right"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-[#0E57A4] hover:bg-slate-100 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <Link href="/courses" className="shrink-0">
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <Button variant="outline" className="gap-2 justify-center group bg-white border-chart-grid hover:border-[#0E57A4]">
+                    View All Programs
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
           </RevealOnScroll>
 
-          <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {/* Horizontally Scrollable Cards Container */}
+          <div
+            ref={coursesCatalogRef}
+            className="flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
             {courses.length === 0
-              ? [1, 2, 3].map((i) => <CourseCardSkeleton key={i} />)
+              ? [1, 2, 3, 4].map((i) => (
+                  <div key={i} className="snap-start shrink-0 w-[285px] sm:w-[340px]">
+                    <CourseCardSkeleton />
+                  </div>
+                ))
               : courses.map((course) => (
-                <StaggerItem key={course.id}>
-                  <HoverCard className="h-full">
-                    <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/60 hover:shadow-xl transition-all duration-300 group">
-                      {/* Cover Image */}
-                      <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
-                        {course.coverImage ? (
-                          <Image
-                            src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
-                            alt={course.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Microscope className="w-16 h-16 text-[#0E57A4]/20" />
+                  <div
+                    key={course.id}
+                    className="snap-start shrink-0 w-[285px] sm:w-[340px] md:w-[360px] flex flex-col"
+                  >
+                    <HoverCard className="h-full">
+                      <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/60 hover:shadow-xl transition-all duration-300 group">
+                        {/* Cover Image */}
+                        <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
+                          {course.coverImage ? (
+                            <Image
+                              src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
+                              alt={course.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Microscope className="w-16 h-16 text-[#0E57A4]/20" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent" />
+                          <div className="absolute bottom-3 left-3 bg-[#0A121E]/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded-lg">
+                            {formatCurrency(course.price)}
                           </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-3 left-3 bg-[#0A121E]/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded-lg">
-                          {formatCurrency(course.price)}
-                        </div>
-                      </div>
-
-                      <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
-                        <div className="space-y-2">
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-[#F16726] font-semibold">
-                            {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
-                          </span>
-                          <h3 className="text-base font-bold font-sans text-ink line-clamp-2 leading-snug group-hover:text-[#0E57A4] transition-colors">
-                            {course.title}
-                          </h3>
-                          <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
-                            {course.description}
-                          </p>
                         </div>
 
-                        <div className="pt-3 sm:pt-4 border-t border-chart-grid/60 flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />
-                            ))}
+                        <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <span className="font-mono text-[10px] uppercase tracking-wider text-[#F16726] font-semibold">
+                              {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
+                            </span>
+                            <h3 className="text-base font-bold font-sans text-ink line-clamp-2 leading-snug group-hover:text-[#0E57A4] transition-colors">
+                              {course.title}
+                            </h3>
+                            <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                              {course.description}
+                            </p>
                           </div>
-                          <Link
-                            href={createCourseInquiryWALink(course.title)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-semibold text-[#0E57A4] font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform hover:underline"
-                          >
-                            Enroll Now <ChevronRight className="w-3.5 h-3.5" />
-                          </Link>
+
+                          <div className="pt-3 sm:pt-4 border-t border-chart-grid/60 flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />
+                              ))}
+                            </div>
+                            <Link
+                              href={createCourseInquiryWALink(course.title)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-semibold text-[#0E57A4] font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform hover:underline"
+                            >
+                              Enroll Now <ChevronRight className="w-3.5 h-3.5" />
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </HoverCard>
-                </StaggerItem>
-              ))}
-          </StaggerChildren>
+                    </HoverCard>
+                  </div>
+                ))}
+          </div>
         </div>
       </section>
 
