@@ -885,36 +885,25 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                     </span>
                   </div>
 
-                  {/* YouTube Embed Player / HTML5 Video Fallback */}
-                  {selectedVideo.youtubeId ? (
-                    <iframe
-                      key={selectedVideo.id}
-                      src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?autoplay=1&rel=0`}
-                      title={selectedVideo.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      className="w-full h-full border-0 z-0"
-                    />
-                  ) : (
-                    <video
-                      key={selectedVideo.id}
-                      ref={achievementVideoRef}
-                      controls
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover"
-                      poster={selectedVideo.thumbnail}
-                    >
-                      <source src={selectedVideo.videoUrl} type="video/mp4" />
-                    </video>
-                  )}
+                  {/* Video Player */}
+                  <video
+                    key={selectedVideo.id}
+                    ref={achievementVideoRef}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover z-0"
+                    poster={selectedVideo.thumbnail}
+                  >
+                    <source src={selectedVideo.videoUrl} type="video/mp4" />
+                  </video>
 
                   {/* Watch on YouTube Floating Button */}
                   <Link
-                    href={selectedVideo.youtubeUrl}
+                    href="https://www.youtube.com/@imhs-instituteofmedicinean6349"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-black/80 hover:bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/20 transition-all shadow-md group/yt"
+                    className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-black/80 hover:bg-red-600 text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full border border-white/20 transition-all shadow-md group/yt"
                   >
                     <span>Watch on</span>
                     <span className="font-extrabold tracking-tight text-white flex items-center gap-0.5">
