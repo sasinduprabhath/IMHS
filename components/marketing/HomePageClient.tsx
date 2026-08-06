@@ -386,22 +386,22 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       <TrustAccreditationStrip />
 
       {/* ── 3. COURSES CATALOG ─────────────────────────────────────────────── */}
-      <section id="programs" className="relative bg-linen/50 py-20 border-y border-chart-grid overflow-hidden">
+      <section id="programs" className="relative bg-linen/50 py-12 sm:py-20 border-y border-chart-grid overflow-hidden">
         <div className="absolute inset-0 dot-grid-bg pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <RevealOnScroll className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-2">
-              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
+          <RevealOnScroll className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold block">
                 ACTIVE COURSE CATALOG
               </span>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-ink">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-ink tracking-tight">
                 Featured Medical Programs
               </h2>
             </div>
-            <Link href="/courses">
+            <Link href="/courses" className="self-start sm:self-auto">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" className="gap-2 group bg-white border-chart-grid hover:border-[#0E57A4]">
+                <Button variant="outline" className="gap-2 group bg-white border-chart-grid hover:border-[#0E57A4] w-full sm:w-auto text-xs sm:text-sm py-2 sm:py-2.5">
                   View All Programs
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -409,7 +409,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
             </Link>
           </RevealOnScroll>
 
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {courses.length === 0
               ? [1, 2, 3].map((i) => <CourseCardSkeleton key={i} />)
               : courses.map((course) => (

@@ -56,24 +56,24 @@ const CERTIFICATIONS: CertificationItem[] = [
 
 export function TrustAccreditationStrip() {
   return (
-    <section className="relative py-12 bg-gradient-to-b from-slate-50/80 via-white to-slate-50/80 overflow-hidden border-y border-slate-200/60">
+    <section className="relative py-8 sm:py-12 bg-gradient-to-b from-slate-50/80 via-white to-slate-50/80 overflow-hidden border-y border-slate-200/60">
       <BlisterDivider className="mb-4" />
       {/* Background Micro Accents */}
       <div className="absolute inset-0 bg-[radial-gradient(#0E57A4_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header Tag */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="h-px w-12 bg-slate-200" />
-          <span className="text-[11px] font-mono font-bold tracking-widest text-slate-400 uppercase flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-[#F16726]" />
+        <div className="flex items-center justify-center gap-2 mb-6 sm:mb-8 text-center px-2">
+          <div className="hidden sm:block h-px w-8 sm:w-12 bg-slate-200" />
+          <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-widest text-slate-400 uppercase flex items-center justify-center gap-1.5 flex-wrap">
+            <Sparkles className="w-3 h-3 text-[#F16726] shrink-0" />
             RECOGNIZED STANDARDS &amp; CERTIFICATIONS
           </span>
-          <div className="h-px w-12 bg-slate-200" />
+          <div className="hidden sm:block h-px w-8 sm:w-12 bg-slate-200" />
         </div>
 
         {/* 4-Card Accreditation Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {CERTIFICATIONS.map((item, index) => {
             const Icon = item.icon;
 
@@ -85,13 +85,13 @@ export function TrustAccreditationStrip() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className={`group relative p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-sm transition-all duration-300 ${item.bgGlow} flex items-center gap-3.5`}
+                className={`group relative p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-xs sm:shadow-sm transition-all duration-300 ${item.bgGlow} flex items-center gap-3 sm:gap-3.5`}
               >
                 {/* Icon Container */}
                 <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center border shadow-xs transition-transform duration-300 group-hover:scale-110 shrink-0 ${item.colorClass}`}
+                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center border shadow-xs transition-transform duration-300 group-hover:scale-110 shrink-0 ${item.colorClass}`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
 
                 {/* Text Block */}
