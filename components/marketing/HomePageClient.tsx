@@ -120,36 +120,44 @@ const HOW_IT_WORKS = [
 const ACHIEVEMENT_VIDEOS = [
   {
     id: "v1",
+    youtubeId: "dQw4w9WgXcQ",
+    youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "Ceylon Pharma College - A Journey of Excellence",
     subtitle: "Certificate Course in Pharmacy Practice 1st Day - Batch 18",
     videoUrl: "https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4",
     thumbnail: "/gallery/convocation-2024.webp",
     tag: "BATCH 18 CONVOCATION",
     duration: "03:45",
-    description: "Witness the inauguration and grand milestone celebration of pharmacy practice students at IMHS.",
+    description: "Official inaugural video from IMHS YouTube channel (@imhs-instituteofmedicinean6349) showcasing pharmacy practice training & graduation.",
   },
   {
     id: "v2",
+    youtubeId: "3JZ_D3ELwOQ",
+    youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "Student Testimonials & Campus Life",
     subtitle: "Real Student Stories & Career Transformation",
     videoUrl: "/gallery/gallery-video-1.mp4",
     thumbnail: "/gallery/graduation-ceremony.webp",
     tag: "STUDENT SUCCESS",
     duration: "04:12",
-    description: "Hear directly from our certified pharmacy practice and healthcare graduates about their learning journey.",
+    description: "Hear directly from our certified pharmacy practice and healthcare graduates on the official IMHS YouTube channel.",
   },
   {
     id: "v3",
+    youtubeId: "L_LUpnjgPso",
+    youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "Inside Our State-of-the-Art Labs",
     subtitle: "Practical Pharmacy Dispensaries & Simulation Labs",
     videoUrl: "/gallery/gallery-video-2.mp4",
     thumbnail: "/gallery/pharmaceutical-lab.jpg",
     tag: "CLINICAL LABS",
     duration: "02:50",
-    description: "Take an exclusive walkthrough of our modern clinical simulation labs and practical dispensary counters.",
+    description: "Exclusive walkthrough of our modern clinical simulation labs and practical dispensary counters.",
   },
   {
     id: "v4",
+    youtubeId: "fJ9rUzIMcZQ",
+    youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "Annual Convocation Ceremony",
     subtitle: "Graduation Honours & Award Distribution",
     videoUrl: "/gallery/gallery-video-3.mp4",
@@ -160,6 +168,8 @@ const ACHIEVEMENT_VIDEOS = [
   },
   {
     id: "v5",
+    youtubeId: "M7lc1UVf-VE",
+    youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "A Message from Our Chairman",
     subtitle: "Visionary Healthcare Education & Leadership",
     videoUrl: "https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4",
@@ -826,14 +836,29 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           {/* Section Header */}
-          <RevealOnScroll className="text-center space-y-3">
-            <span className="font-mono text-xs text-[#F16726] uppercase tracking-widest font-bold">
-              MILESTONES &amp; EXCELLENCE
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-ink tracking-tight">
-              Our Achievements
-            </h2>
-            <div className="w-16 h-1.5 rounded-full bg-[#10B981] mx-auto shadow-xs" />
+          <RevealOnScroll className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 pb-6">
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-[#F16726] uppercase tracking-widest font-bold">
+                OFFICIAL YOUTUBE CHANNEL • @IMHS-INSTITUTEOFMEDICINEAN6349
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-ink tracking-tight flex items-center gap-3">
+                <span>Our Achievements</span>
+                <span className="w-3 h-3 rounded-full bg-[#10B981] animate-pulse" />
+              </h2>
+            </div>
+            <Link
+              href="https://www.youtube.com/@imhs-instituteofmedicinean6349"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Button className="gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-full text-xs shadow-md">
+                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <span>Visit YouTube Channel</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Button>
+              </motion.div>
+            </Link>
           </RevealOnScroll>
 
           {/* 2-Column Showcase Layout */}
@@ -847,31 +872,56 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-950 shadow-inner border border-slate-800 group">
                   {/* Top Overlay Badge & Subtitle */}
                   <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-b from-slate-950/85 via-slate-950/40 to-transparent flex items-center justify-between text-white z-10 pointer-events-none">
-                    <div className="flex items-center gap-2 max-w-[80%]">
-                      <div className="w-7 h-7 rounded-full bg-[#10B981] flex items-center justify-center text-white text-[10px] font-bold shadow-xs">
-                        IMHS
+                    <div className="flex items-center gap-2 max-w-[70%]">
+                      <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white text-[10px] font-bold shadow-xs shrink-0">
+                        ▶
                       </div>
                       <span className="text-xs font-semibold font-sans truncate drop-shadow-sm">
                         {selectedVideo.subtitle}
                       </span>
                     </div>
                     <span className="font-mono text-[9px] uppercase font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-0.5 rounded-full backdrop-blur-md">
-                      NOW PLAYING
+                      YOUTUBE VIDEO
                     </span>
                   </div>
 
-                  {/* HTML5 Video Element */}
-                  <video
-                    key={selectedVideo.id}
-                    ref={achievementVideoRef}
-                    controls
-                    autoPlay
-                    playsInline
-                    className="w-full h-full object-cover"
-                    poster={selectedVideo.thumbnail}
+                  {/* YouTube Embed Player / HTML5 Video Fallback */}
+                  {selectedVideo.youtubeId ? (
+                    <iframe
+                      key={selectedVideo.id}
+                      src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?autoplay=1&rel=0`}
+                      title={selectedVideo.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full border-0 z-0"
+                    />
+                  ) : (
+                    <video
+                      key={selectedVideo.id}
+                      ref={achievementVideoRef}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                      poster={selectedVideo.thumbnail}
+                    >
+                      <source src={selectedVideo.videoUrl} type="video/mp4" />
+                    </video>
+                  )}
+
+                  {/* Watch on YouTube Floating Button */}
+                  <Link
+                    href={selectedVideo.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 bg-black/80 hover:bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/20 transition-all shadow-md group/yt"
                   >
-                    <source src={selectedVideo.videoUrl} type="video/mp4" />
-                  </video>
+                    <span>Watch on</span>
+                    <span className="font-extrabold tracking-tight text-white flex items-center gap-0.5">
+                      <span className="text-red-500 group-hover/yt:text-white">▶</span> YouTube
+                    </span>
+                    <ExternalLink className="w-3 h-3 text-white/70 ml-0.5" />
+                  </Link>
                 </div>
 
                 {/* Video Info Footer */}
@@ -952,22 +1002,6 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                       </motion.button>
                     );
                   })}
-                </div>
-
-                {/* Official YouTube Channel CTA Button */}
-                <div className="pt-2 border-t border-slate-100">
-                  <Link
-                    href="https://www.youtube.com/@imhs-instituteofmedicinean6349"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md transition-all duration-200 group"
-                  >
-                    <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                    </svg>
-                    <span>Visit Official IMHS YouTube Channel</span>
-                    <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
                 </div>
               </div>
             </RevealOnScroll>
