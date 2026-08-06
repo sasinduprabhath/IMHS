@@ -63,13 +63,13 @@ export function TrustAccreditationStrip() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header Tag */}
-        <div className="flex items-center justify-center gap-2 mb-6 sm:mb-8 text-center px-2">
-          <div className="hidden sm:block h-px w-8 sm:w-12 bg-slate-200" />
+        <div className="flex items-center justify-center gap-2 mb-6 sm:mb-8 text-center">
+          <div className="h-px w-6 sm:w-12 bg-slate-200 hidden sm:block" />
           <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-widest text-slate-400 uppercase flex items-center justify-center gap-1.5 flex-wrap">
             <Sparkles className="w-3 h-3 text-[#F16726] shrink-0" />
-            RECOGNIZED STANDARDS &amp; CERTIFICATIONS
+            <span>RECOGNIZED STANDARDS &amp; CERTIFICATIONS</span>
           </span>
-          <div className="hidden sm:block h-px w-8 sm:w-12 bg-slate-200" />
+          <div className="h-px w-6 sm:w-12 bg-slate-200 hidden sm:block" />
         </div>
 
         {/* 4-Card Accreditation Grid */}
@@ -85,7 +85,7 @@ export function TrustAccreditationStrip() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className={`group relative p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-xs sm:shadow-sm transition-all duration-300 ${item.bgGlow} flex items-center gap-3 sm:gap-3.5`}
+                className={`group relative p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-sm transition-all duration-300 ${item.bgGlow} flex items-center gap-3 sm:gap-3.5`}
               >
                 {/* Icon Container */}
                 <div
@@ -101,7 +101,7 @@ export function TrustAccreditationStrip() {
                       {item.title}
                     </h4>
                   </div>
-                  <p className="text-[11px] font-sans text-slate-500 font-medium truncate">
+                  <p className="text-[10px] sm:text-[11px] font-sans text-slate-500 font-medium truncate">
                     {item.subtitle}
                   </p>
                 </div>

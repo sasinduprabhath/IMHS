@@ -392,16 +392,16 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
           <RevealOnScroll className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-1.5 sm:space-y-2">
-              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold block">
+              <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
                 ACTIVE COURSE CATALOG
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-ink tracking-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-ink">
                 Featured Medical Programs
               </h2>
             </div>
-            <Link href="/courses" className="self-start sm:self-auto">
+            <Link href="/courses" className="w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" className="gap-2 group bg-white border-chart-grid hover:border-[#0E57A4] w-full sm:w-auto text-xs sm:text-sm py-2 sm:py-2.5">
+                <Button variant="outline" className="w-full sm:w-auto gap-2 justify-center group bg-white border-chart-grid hover:border-[#0E57A4]">
                   View All Programs
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -417,7 +417,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                   <HoverCard className="h-full">
                     <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/60 hover:shadow-xl transition-all duration-300 group">
                       {/* Cover Image */}
-                      <div className="relative h-48 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
+                      <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
                         {course.coverImage ? (
                           <Image
                             src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
@@ -436,7 +436,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                         </div>
                       </div>
 
-                      <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                      <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
                         <div className="space-y-2">
                           <span className="font-mono text-[10px] uppercase tracking-wider text-[#F16726] font-semibold">
                             {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
@@ -449,7 +449,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                           </p>
                         </div>
 
-                        <div className="pt-4 border-t border-chart-grid/60 flex items-center justify-between">
+                        <div className="pt-3 sm:pt-4 border-t border-chart-grid/60 flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             {[1, 2, 3, 4, 5].map((s) => (
                               <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />
