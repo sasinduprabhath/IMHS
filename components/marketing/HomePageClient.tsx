@@ -20,6 +20,7 @@ import {
 import { CourseCardSkeleton } from "@/components/ui/skeleton";
 import { AchievementsSection } from "@/components/marketing/AchievementsSection";
 import { TrustAccreditationStrip } from "@/components/marketing/TrustAccreditationStrip";
+import { EnrollmentProcessSection } from "@/components/marketing/EnrollmentProcessSection";
 import {
   PhoneCall,
   BookOpen,
@@ -795,59 +796,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       </section>
 
       {/* ── 7. 4-STEP INTERACTIVE ENROLLMENT WORKFLOW ─────────────────────── */}
-      <section id="enroll" className="bg-surface border-y border-chart-grid py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
-          <RevealOnScroll className="text-center space-y-2">
-            <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-              ENROLLMENT PROCESS
-            </span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-ink">
-              How to Get Started in 4 Steps
-            </h2>
-          </RevealOnScroll>
-
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {HOW_IT_WORKS.map(({ step, icon: Icon, title, body }, index) => (
-              <StaggerItem key={step}>
-                <div className="relative text-center space-y-4 group">
-                  {/* Pharmacokinetic Dose Curve connector line */}
-                  {index < HOW_IT_WORKS.length - 1 && (
-                    <div className="hidden md:block absolute top-10 left-[calc(50%+32px)] right-0 overflow-hidden pointer-events-none">
-                      <DoseCurve variant="divider" />
-                    </div>
-                  )}
-
-                  <div className="relative mx-auto w-20 h-20 bg-[#EBF3FA] border border-[#0E57A4]/20 rounded-full flex items-center justify-center group-hover:border-[#0E57A4] group-hover:shadow-md transition-all duration-300">
-                    <Icon className="w-8 h-8 text-[#0E57A4]" />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#4A8B7A] rounded-full flex items-center justify-center shadow-xs">
-                      <span className="text-[10px] font-mono font-bold text-white">{step}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <h3 className="text-sm font-bold text-ink font-sans">{title}</h3>
-                    <p className="text-xs text-ink-muted leading-relaxed px-2">{body}</p>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerChildren>
-
-          <RevealOnScroll className="text-center pt-4">
-            <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-block">
-                <Button
-                  size="lg"
-                  className="gap-2.5 bg-[#F16726] hover:bg-[#d95517] border-0 text-white shadow-lg font-bold px-10 text-sm rounded-full"
-                >
-                  <PhoneCall className="w-5 h-5" />
-                  Start Enrollment Now
-                </Button>
-              </motion.div>
-            </Link>
-          </RevealOnScroll>
-        </div>
-      </section>
+      <EnrollmentProcessSection />
 
       {/* ── 8. OUR ACHIEVEMENTS & HIGHLIGHTS ─────────────────────────────────────── */}
       <AchievementsSection />
