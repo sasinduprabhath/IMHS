@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -22,6 +23,7 @@ interface CourseItem {
 const ITEMS_PER_PAGE = 10;
 
 export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseItem[] }) {
+  const router = useRouter();
   const [courses, setCourses] = useState<CourseItem[]>(initialCourses);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -145,7 +147,11 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
               return (
                 <div
                   key={course.id}
-                  className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest('a, button')) return;
+                    router.push(`/admin/courses/${course.id}/edit`);
+                  }}
+                  className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -249,7 +255,11 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                   return (
                     <tr
                       key={course.id}
-                      className="hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).closest('a, button')) return;
+                        router.push(`/admin/courses/${course.id}/edit`);
+                      }}
+                      className="hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal cursor-pointer"
                     >
                       <td className="p-4 font-semibold text-ink">
                         <div className="flex items-center gap-2.5">

@@ -456,16 +456,17 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
                           )}
                         </td>
 
-                        {/* File Download */}
+                        {/* File Link */}
                         <td className="py-4 px-4">
                           <a
                             href={s.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E57A4] hover:underline bg-[#0E57A4]/8 border border-[#0E57A4]/20 px-2.5 py-1 rounded-lg"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0E57A4] hover:text-[#F16726] bg-[#0E57A4]/8 hover:bg-[#0E57A4]/15 border border-[#0E57A4]/20 px-3 py-1.5 rounded-xl transition-all shadow-2xs"
+                            title={`Open ${s.fileName}`}
                           >
-                            <Download className="w-3.5 h-3.5" />
-                            <span className="max-w-[120px] truncate">{s.fileName}</span>
+                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                            <span>Open File</span>
                           </a>
                         </td>
 
@@ -807,7 +808,7 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
                     rel="noopener noreferrer"
                     className="text-[#0E57A4] font-semibold underline flex items-center gap-1"
                   >
-                    <Download className="w-3.5 h-3.5" /> {selectedSubmission.fileName}
+                    <ExternalLink className="w-3.5 h-3.5" /> Open File ({selectedSubmission.fileName})
                   </a>
                 </div>
                 <div className="flex justify-between text-slate-600">

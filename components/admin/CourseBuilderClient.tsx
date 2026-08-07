@@ -389,16 +389,44 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
           </div>
         </div>
 
-        <Button
-          onClick={handleSaveAll}
-          disabled={isSaving}
-          variant="default"
-          size="lg"
-          className="gap-2 font-semibold shadow-sm bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 shrink-0"
-        >
-          <Save className="w-4 h-4" />
-          {isSaving ? "Saving…" : "Save All Changes"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {/* Publish to Catalog Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setPublished(!published)}
+            className={cn(
+              "inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold transition-all border shadow-2xs select-none cursor-pointer",
+              published
+                ? "bg-emerald-500/10 text-emerald-700 border-emerald-300 hover:bg-emerald-500/20"
+                : "bg-amber-500/10 text-amber-800 border-amber-300 hover:bg-amber-500/20"
+            )}
+            title={published ? "Currently Live - Click to change status to Draft" : "Currently Draft - Click to Publish to Catalog"}
+          >
+            {published ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
+            <span>{published ? "Published Live" : "Draft (Hidden)"}</span>
+            <div className={cn(
+              "w-7 h-3.5 rounded-full relative transition-colors ml-1",
+              published ? "bg-emerald-600" : "bg-slate-300"
+            )}>
+              <div className={cn(
+                "w-2.5 h-2.5 rounded-full bg-white absolute top-0.5 transition-transform",
+                published ? "translate-x-3.5" : "translate-x-0.5"
+              )} />
+            </div>
+          </button>
+
+          {/* Save All Changes Button */}
+          <Button
+            onClick={handleSaveAll}
+            disabled={isSaving}
+            variant="default"
+            size="lg"
+            className="gap-2 font-semibold shadow-sm bg-[#0E57A4] hover:bg-[#0c4a8e] text-white border-0 shrink-0"
+          >
+            <Save className="w-4 h-4" />
+            {isSaving ? "Saving…" : "Save All Changes"}
+          </Button>
+        </div>
       </div>
 
       {/* ── Save Feedback ── */}
