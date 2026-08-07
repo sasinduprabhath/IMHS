@@ -53,16 +53,16 @@ export default async function CoursesCatalogPage() {
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={450} className="-top-24 -left-24 opacity-15" />
         {/* DNA Helix left accent */}
-        <DNAHelix width={65} height={320} className="absolute left-8 top-16 opacity-35 hidden lg:block" />
+        <DNAHelix width={65} height={320} className="absolute left-8 top-16 opacity-35 hidden lg:block transform-gpu pointer-events-none" />
         {/* Atomic orbit top right */}
-        <AtomicOrbit size={190} color="#F16726" className="absolute -top-12 -right-12 opacity-20" />
+        <AtomicOrbit size={190} color="#F16726" className="absolute -top-12 -right-12 opacity-20 transform-gpu pointer-events-none" />
         {/* Floating molecules */}
-        <FloatingMolecules count={7} className="opacity-45" />
+        <FloatingMolecules count={5} className="opacity-45 transform-gpu pointer-events-none" />
         {/* Chem bond particles */}
-        <ChemBondParticles count={10} className="opacity-30" />
+        <ChemBondParticles count={6} className="opacity-30 transform-gpu pointer-events-none" />
         {/* Medical crosses */}
-        <MedicalCross size={26} color="#0E57A4" className="absolute top-24 right-1/4 opacity-25" />
-        <MedicalCross size={18} color="#4A8B7A" className="absolute bottom-10 left-1/3 opacity-20" />
+        <MedicalCross size={26} color="#0E57A4" className="absolute top-24 right-1/4 opacity-25 transform-gpu pointer-events-none" />
+        <MedicalCross size={18} color="#4A8B7A" className="absolute bottom-10 left-1/3 opacity-20 transform-gpu pointer-events-none" />
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
             ACADEMIC CURRICULUM

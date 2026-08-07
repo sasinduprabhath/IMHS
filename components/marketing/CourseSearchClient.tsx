@@ -417,7 +417,7 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                   <Link
                     key={course.id}
                     href={`/courses/${course.slug}`}
-                    className="block bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper flex flex-col justify-between hover:border-clinical-teal/60 hover:shadow-xl transition-all duration-300 group"
+                    className="block bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper flex flex-col justify-between hover:border-clinical-teal/60 hover:shadow-xl transition-all duration-250 ease-out group transform-gpu"
                   >
                     {/* Cover Photo Frame */}
                     <div className="relative h-48 bg-linen overflow-hidden">
@@ -429,7 +429,7 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                               src={imgSrc}
                               alt={course.title}
                               fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out transform-gpu"
                               unoptimized={imgSrc.startsWith("http")}
                             />
                           );
