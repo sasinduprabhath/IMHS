@@ -696,7 +696,7 @@ export default function AddStudentWizardPage() {
           {React.createElement(STEPS[step - 1].icon, { className: "w-4 h-4 text-chart-red" })}
           <div>
             <p className="text-[10px] font-mono text-sage uppercase">Step {step} of {STEPS.length}</p>
-            <p className="text-sm font-semibold text-ink leading-none mt-0.5">
+            <p className="text-sm font-semibold text-ink leading-snug mt-0.5">
               {step === 1 && "Personal Details"}
               {step === 2 && "Access Setup"}
               {step === 3 && (confirmed ? "Account Created Successfully" : "Review & Confirm")}

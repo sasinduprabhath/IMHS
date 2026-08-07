@@ -150,7 +150,7 @@ export function StudentSidebar({ user }: { user: any }) {
                 )}
               />
               {(!collapsed || isMobile) && (
-                <span className="text-sm font-sans font-medium leading-none">{label}</span>
+                <span className="text-sm font-sans font-medium leading-normal py-0.5">{label}</span>
               )}
               {/* Active indicator bar */}
               {active && collapsed && !isMobile && (

@@ -774,7 +774,7 @@ export default function NewCoursePage() {
             <p className="text-[10px] font-mono text-sage uppercase">
               Step {step} of {STEPS.length}
             </p>
-            <p className="text-sm font-semibold text-ink leading-none mt-0.5">
+            <p className="text-sm font-semibold text-ink leading-snug mt-0.5">
               {step === 1 && "Course Identity"}
               {step === 2 && "Pricing Configuration"}
               {step === 3 && "Course Details"}

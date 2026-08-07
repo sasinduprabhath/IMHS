@@ -179,7 +179,7 @@ export function AdminSidebar({ user }: { user: any }) {
 
               {(!collapsed || isMobile) && (
                 <div className="flex items-center justify-between w-full min-w-0">
-                  <span className="text-sm font-sans font-medium leading-none truncate">{label}</span>
+                  <span className="text-sm font-sans font-medium leading-normal py-0.5 truncate">{label}</span>
                   {badgeCount > 0 && (
                     <span
                       className={cn(
