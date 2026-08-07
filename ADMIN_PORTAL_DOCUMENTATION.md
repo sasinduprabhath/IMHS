@@ -95,22 +95,36 @@ The **IMHS Admin Control Panel** is an executive-level administration portal des
 │ 📂 Chapter 01: Pharmacokinetics   │ 📹 Add Lesson to Chapter           │
 │   ├── Lesson 01: Drug Absorption  │    ├── Title: IV Infusion Kinetics │
 │   └── Lesson 02: Bioavailability  │    └── Vimeo ID: 999797525/e1a3ade   │
-└───────────────────────────────────┴────────────────────────────────────┘
-```
-
 ### 1. Course Details & Metadata Tab:
 - **Basic Info**: Title, Slug, Description, Category (e.g. *Modern Pharmacy (SLMC Registration)*, *Pharmaceutical Manufacturing*, *Forensic Pharmacy*).
 - **Pricing & Access**: Price (LKR), Original Price (for discount badges), Validity Period (*Lifetime Access*, *1 Year Access*).
-- **Cover Image URL**: Remote image URL or Google Drive photo URL.
+- **Total Video Modules & Lessons**: Total HD Video & Drive clinical lecture assets.
 
-### 2. Chapters & Modules Management:
-- **Add Module / Chapter**: Create new modules with custom ordering (`order` field).
-- **Reorder & Rename**: Edit chapter titles directly in place.
-- **Delete Chapter**: Removes the chapter and nested lessons cleanly.
+---
 
-### 3. Lesson Video & Document Asset Manager:
-- **Lesson Types**: `VIDEO` (Vimeo hosted HD lectures) or `DOCUMENT` (PDF / Google Drive case files).
-- **Vimeo Integration**: Supports standard Vimeo video IDs as well as private unlisted hash URLs (e.g. `999797525/e1a3adefb3`).
+## 5. Course & Curriculum Builder Architecture
+
+```
+Course
+ └── Chapters (Ordered)
+      └── Lessons (Ordered)
+           ├── Type: VIDEO (HD Video Stream ID)
+           ├── Type: DOCUMENT (Google Drive File ID / PDF)
+           └── Type: QUIZ (Interactive Assessment)
+```
+
+### Course Builder Data Model
+```
+Chapter
+ ├── id, title, order
+ └── lessons:
+      ├── Lesson 01: Pharmacology Overview  │    └── Video Stream ID: 76979871
+      └── Lesson 02: Bioavailability        │    └── Video Stream ID: 999797525/e1a3ade
+```
+
+### Key Workflow Principles
+- **Lesson Types**: `VIDEO` (Domain-locked HD video lectures) or `DOCUMENT` (PDF / Google Drive case files).
+- **Video Integration**: Supports standard video IDs as well as private unlisted hash URLs (e.g. `999797525/e1a3adefb3`).
 - **Google Drive Integration**: Extracts file IDs from shared Google Drive links for seamless document previews.
 
 ---

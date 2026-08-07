@@ -522,7 +522,7 @@ function Step4({
                             onChange={(e) =>
                               updateLesson(chapter.tempId, lesson.tempId, { vimeoVideoId: e.target.value })
                             }
-                            placeholder="Vimeo ID..."
+                            placeholder="HD Video Stream ID..."
                             className="flex-1 bg-linen/40 border border-chart-grid/60 rounded px-2.5 py-1 text-[10px] font-mono text-ink focus:outline-none focus:border-clinical-teal"
                           />
                         ) : (

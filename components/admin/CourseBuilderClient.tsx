@@ -825,7 +825,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                                           type="text"
                                           value={lesson.vimeoVideoId}
                                           onChange={(e) => updateLesson(cIdx, lIdx, "vimeoVideoId", e.target.value)}
-                                          placeholder="Vimeo ID (e.g. 76979871)"
+                                          placeholder="HD Video Stream ID (e.g. 76979871)"
                                           className="flex-1 min-w-[140px] bg-linen/40 border border-chart-grid/60 rounded px-2.5 py-1.5 text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
                                         />
                                       ) : (
