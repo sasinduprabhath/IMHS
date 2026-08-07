@@ -26,11 +26,11 @@ export default async function AdminLayout({
       <AdminSidebar user={session.user} />
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile spacer for the fixed top bar */}
         <div className="lg:hidden h-14 shrink-0" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1">
           <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}
           </div>
