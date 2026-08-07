@@ -799,14 +799,15 @@ function CoursePlayerContent({
                     const lessonUrl = `/dashboard/courses/${course.slug}?lessonId=${lesson.id}`;
 
                     return (
-                      <div
+                      <Link
                         key={lesson.id}
-                        className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                        href={isBlocked ? "#" : lessonUrl}
+                        className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group ${
                           isBlocked
-                            ? "bg-red-50/40 border-red-200/80 text-red-700"
+                            ? "bg-red-50/40 border-red-200/80 text-red-700 cursor-not-allowed opacity-75"
                             : isDone
-                            ? "bg-emerald-50/40 border-emerald-200/70 hover:bg-emerald-50/80"
-                            : "bg-slate-50/70 border-slate-200/80 hover:bg-white hover:border-[#0E57A4]/40 hover:shadow-sm"
+                            ? "bg-emerald-50/40 border-emerald-200/70 hover:bg-emerald-100/60 hover:border-emerald-400 hover:shadow-md cursor-pointer"
+                            : "bg-slate-50/70 border-slate-200/80 hover:bg-white hover:border-[#0E57A4]/60 hover:shadow-md cursor-pointer"
                         }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -815,11 +816,11 @@ function CoursePlayerContent({
                           ) : isDone ? (
                             <CheckCircleIcon className="w-4 h-4 text-emerald-600 shrink-0" />
                           ) : (
-                            <CircleIcon className="w-4 h-4 text-slate-400 shrink-0" />
+                            <CircleIcon className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-[#0E57A4]" />
                           )}
 
                           <div className="min-w-0 flex-1 space-y-1">
-                            <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">{lesson.title}</p>
+                            <p className="text-xs sm:text-sm font-bold text-slate-900 truncate group-hover:text-[#0E57A4] transition-colors">{lesson.title}</p>
                             <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
                               <span
                                 className={`px-2.5 py-0.5 rounded-full font-bold uppercase shrink-0 flex items-center gap-1.5 ${
@@ -854,16 +855,15 @@ function CoursePlayerContent({
 
                         {/* Open Lesson Action */}
                         {!isBlocked && (
-                          <Link href={lessonUrl} className="shrink-0">
-                            <Button
-                              size="sm"
-                              className="w-full sm:w-auto gap-2 text-xs font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-2xl px-4 py-2.5 shadow-xs hover:shadow-md transition-all"
+                          <div className="shrink-0">
+                            <div
+                              className="w-full sm:w-auto gap-2 text-xs font-bold bg-[#0E57A4] group-hover:bg-[#0c4a8e] text-white rounded-2xl px-4 py-2.5 shadow-xs group-hover:shadow-md transition-all inline-flex items-center justify-center"
                             >
                               <PlayIcon className="w-3.5 h-3.5 fill-white" /> Open Lesson
-                            </Button>
-                          </Link>
+                            </div>
+                          </div>
                         )}
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>
