@@ -453,7 +453,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   return (
     <div className="space-y-0 max-w-5xl mx-auto">
       {/* ── Sticky Top Header & Navigation Bar ── */}
-      <div className="sticky top-0 z-30 bg-[#F0F5FB]/95 backdrop-blur-md pt-4 pb-3 mb-6 border-b border-chart-grid/80 shadow-xs -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 space-y-4 transition-all">
+      <div className="sticky top-14 lg:top-0 z-30 bg-[#F0F5FB]/98 backdrop-blur-lg -mt-8 pt-6 pb-3.5 mb-6 border-b border-chart-grid/80 shadow-xs -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 space-y-4 transition-all">
         {/* Top Header Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
