@@ -30,6 +30,7 @@ import {
   GripVertical,
   ChevronDown,
   ChevronRight,
+  AlertTriangle,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -166,10 +167,80 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
   const [isAssigningFaculty, setIsAssigningFaculty] = useState(false);
 
-  // ── Save State ──
+  // ── Save State & Unsaved Changes Tracking ──
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [initialSnapshot, setInitialSnapshot] = useState<string>("");
+
+  // Initialize baseline snapshot when course mounts or after successful save
+  React.useEffect(() => {
+    const snap = JSON.stringify({
+      title: course.title,
+      slug: course.slug,
+      description: course.description,
+      price: course.price,
+      originalPrice: course.originalPrice || "",
+      type: course.type || "Course",
+      category: course.category || "Modern Pharmacy Course",
+      level: course.level || "All Levels",
+      enrollmentValidity: course.enrollmentValidity || "Lifetime Access",
+      totalEnrolled: course.totalEnrolled || 450,
+      published: course.published,
+      coverImage: course.coverImage || "",
+      chapters: course.chapters.map((ch) => ({
+        id: ch.id,
+        title: ch.title,
+        order: ch.order,
+        lessons: ch.lessons.map((l) => ({
+          id: l.id,
+          title: l.title,
+          order: l.order,
+          type: (l.type as any) || (l.vimeoVideoId ? "VIDEO" : "DOCUMENT"),
+          vimeoVideoId: l.vimeoVideoId || "",
+          driveFileId: l.driveFileId || "",
+          content: l.content || "",
+        })),
+      })),
+      announcements: (course.announcements || []).map((a) => ({ id: a.id, title: a.title, content: a.content })),
+      assignedInstructors: course.instructors ? course.instructors.map((i) => i.facultyMember.id) : [],
+    });
+    setInitialSnapshot(snap);
+  }, [course]);
+
+  // Current real-time snapshot
+  const currentSnapshot = JSON.stringify({
+    title,
+    slug,
+    description,
+    price,
+    originalPrice,
+    type,
+    category,
+    level,
+    enrollmentValidity,
+    totalEnrolled,
+    published,
+    coverImage,
+    chapters,
+    announcements: announcements.map((a) => ({ id: a.id, title: a.title, content: a.content })),
+    assignedInstructors: assignedInstructors.map((i) => i.id),
+  });
+
+  const isDirty = initialSnapshot !== "" && initialSnapshot !== currentSnapshot;
+
+  // Browser beforeunload event listener
+  React.useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   // ─── Chapter / Lesson Helpers ───────────────────────────────────────────────
   const toggleChapter = (idx: number) =>
@@ -308,8 +379,8 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     if (res.ok) setAssignedInstructors((prev) => prev.filter((f) => f.id !== fmId));
   };
 
-  // ─── Save All ───────────────────────────────────────────────────────────────
-  const handleSaveAll = async () => {
+  // ─── Save All & Unsaved Navigation Handlers ─────────────────────────────────────
+  const handleSaveAll = async (): Promise<boolean> => {
     setIsSaving(true);
     setSaveSuccess(false);
     setSaveError("");
@@ -335,17 +406,42 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       });
 
       if (res.ok) {
+        setInitialSnapshot(currentSnapshot);
         setSaveSuccess(true);
         router.refresh();
         setTimeout(() => setSaveSuccess(false), 3000);
+        return true;
       } else {
         setSaveError("Failed to save syllabus structure.");
+        return false;
       }
     } catch {
       setSaveError("An error occurred while saving.");
+      return false;
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleBackNavigation = () => {
+    if (isDirty) {
+      setShowUnsavedModal(true);
+    } else {
+      router.push("/admin/courses");
+    }
+  };
+
+  const handleSaveAndExit = async () => {
+    const ok = await handleSaveAll();
+    if (ok) {
+      setShowUnsavedModal(false);
+      router.push("/admin/courses");
+    }
+  };
+
+  const handleDiscardAndExit = () => {
+    setShowUnsavedModal(false);
+    router.push("/admin/courses");
   };
 
   const unassignedFaculty = allFaculty.filter(
@@ -364,12 +460,19 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-chart-grid mb-6">
         <div>
-          <Link
-            href="/admin/courses"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-clinical-teal mb-1.5"
+          <button
+            type="button"
+            onClick={handleBackNavigation}
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-[#0E57A4] mb-1.5 transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Course Manager
-          </Link>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Course Manager</span>
+            {isDirty && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 border border-amber-300 text-[9px] font-bold uppercase animate-pulse">
+                Unsaved Changes
+              </span>
+            )}
+          </button>
           <h1 className="text-2xl font-display font-semibold text-ink leading-tight">
             {course.title}
           </h1>
@@ -1077,6 +1180,55 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── Unsaved Changes Confirmation Modal ── */}
+      {showUnsavedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200 space-y-5 relative">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-display font-bold text-slate-900">
+                  Unsaved Changes Detected
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                  You have unsaved changes in <strong className="text-slate-900">&ldquo;{title}&rdquo;</strong>. Would you like to save your edits before exiting back to the Course Manager?
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowUnsavedModal(false)}
+                className="w-full sm:w-auto text-xs font-semibold rounded-xl text-slate-600 border-slate-200 hover:bg-slate-100 cursor-pointer"
+              >
+                Keep Editing
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleDiscardAndExit}
+                className="w-full sm:w-auto text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl cursor-pointer"
+              >
+                Discard &amp; Exit
+              </Button>
+              <Button
+                type="button"
+                disabled={isSaving}
+                onClick={handleSaveAndExit}
+                className="w-full sm:w-auto text-xs font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shadow-xs gap-1.5 cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5" />
+                {isSaving ? "Saving…" : "Save & Exit"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
