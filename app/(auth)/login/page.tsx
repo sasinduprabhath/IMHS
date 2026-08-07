@@ -423,7 +423,7 @@ export default function LoginPage() {
 
       {/* Right form panel */}
       <div
-        className="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 relative overflow-hidden self-stretch"
+        className="flex-1 flex flex-col items-center justify-center px-4 sm:px-8 pt-10 sm:pt-14 pb-8 sm:pb-12 relative overflow-hidden self-stretch"
         style={{ background: "linear-gradient(160deg, #EBF3FA 0%, #F8FAFC 40%, #ffffff 100%)" }}
       >
         <div className="absolute inset-0 pointer-events-none"
