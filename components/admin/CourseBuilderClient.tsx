@@ -451,133 +451,136 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
 
   // ─── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-0 max-w-5xl mx-auto">
-      {/* ── Sticky Top Header & Navigation Bar ── */}
-      <div className="sticky top-14 lg:top-0 z-30 bg-[#F0F5FB]/98 backdrop-blur-lg -mt-8 pt-6 pb-3.5 mb-6 border-b border-chart-grid/80 shadow-xs -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 space-y-4 transition-all">
-        {/* Top Header Row */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
+    <div className="max-w-5xl mx-auto">
+      {/* ── Sticky Navigation Header ── */}
+      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-chart-grid shadow-sm mb-6">
+        {/* Page Header Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-0 pt-4 pb-4">
+        <div>
+          <button
+            type="button"
+            onClick={handleBackNavigation}
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-[#0E57A4] mb-1.5 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Course Manager</span>
+            {isDirty && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 border border-amber-300 text-[9px] font-bold uppercase animate-pulse">
+                Unsaved Changes
+              </span>
+            )}
+          </button>
+          <h1 className="text-2xl font-display font-semibold text-ink leading-tight">
+            {course.title}
+          </h1>
+          <div className="flex items-center gap-2 mt-1">
+            <span className={cn(
+              "inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase",
+              published
+                ? "bg-clinical-teal/15 text-clinical-teal"
+                : "bg-chart-grid text-ink-muted"
+            )}>
+              {published ? <Eye className="w-2.5 h-2.5" /> : <EyeOff className="w-2.5 h-2.5" />}
+              {published ? "Published" : "Draft"}
+            </span>
+            <span className="text-xs font-mono text-sage">
+              {chapters.length} chapters · {totalLessons} lessons
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {/* Publish to Catalog Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setPublished(!published)}
+            className={cn(
+              "inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold transition-all border shadow-2xs select-none cursor-pointer",
+              published
+                ? "bg-emerald-500/10 text-emerald-700 border-emerald-300 hover:bg-emerald-500/20"
+                : "bg-amber-500/10 text-amber-800 border-amber-300 hover:bg-amber-500/20"
+            )}
+            title={published ? "Currently Live - Click to change status to Draft" : "Currently Draft - Click to Publish to Catalog"}
+          >
+            {published ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
+            <span>{published ? "Published Live" : "Draft (Hidden)"}</span>
+            <div className={cn(
+              "w-7 h-3.5 rounded-full relative transition-colors ml-1",
+              published ? "bg-emerald-600" : "bg-slate-300"
+            )}>
+              <div className={cn(
+                "w-2.5 h-2.5 rounded-full bg-white absolute top-0.5 transition-transform",
+                published ? "translate-x-3.5" : "translate-x-0.5"
+              )} />
+            </div>
+          </button>
+
+          {/* Save All Changes Button */}
+          <Button
+            onClick={handleSaveAll}
+            disabled={isSaving}
+            variant="default"
+            size="lg"
+            className="gap-2 font-semibold shadow-sm bg-[#0E57A4] hover:bg-[#0c4a8e] text-white border-0 shrink-0"
+          >
+            <Save className="w-4 h-4" />
+            {isSaving ? "Saving…" : "Save All Changes"}
+          </Button>
+        </div>
+        </div>
+
+        {/* ── Save Feedback (inside sticky bar) ── */}
+      {saveSuccess && (
+        <div className="mb-4 bg-clinical-teal-surface border border-clinical-teal/30 p-3.5 rounded-card text-xs font-mono text-clinical-teal flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          All changes saved successfully!
+        </div>
+      )}
+      {saveError && (
+        <div className="mb-4 bg-chart-red/8 border border-chart-red/30 p-3.5 rounded-card text-xs font-mono text-chart-red flex items-center gap-2">
+          ⚠️ {saveError}
+        </div>
+      )}
+
+        {/* ── Tab Bar ── */}
+        <div className="flex items-center gap-1 bg-linen/60 p-1 rounded-card border border-chart-grid overflow-x-auto">
+        {TABS.map(({ id, label, icon: Icon }) => {
+          const badge =
+            id === "instructors" ? assignedInstructors.length :
+              id === "announcements" ? announcements.length :
+                id === "syllabus" ? chapters.length : null;
+
+          return (
             <button
-              type="button"
-              onClick={handleBackNavigation}
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-[#0E57A4] mb-1 transition-colors cursor-pointer"
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-md text-xs font-mono font-semibold transition-all whitespace-nowrap",
+                activeTab === id
+                  ? "bg-white text-clinical-teal shadow-xs border border-chart-grid/60"
+                  : "text-ink-muted hover:text-ink hover:bg-white/60"
+              )}
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Course Manager</span>
-              {isDirty && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 border border-amber-300 text-[9px] font-bold uppercase animate-pulse">
-                  Unsaved Changes
+              <Icon className="w-3.5 h-3.5 shrink-0" />
+              {label}
+              {badge !== null && (
+                <span className={cn(
+                  "text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none",
+                  activeTab === id
+                    ? "bg-clinical-teal/15 text-clinical-teal"
+                    : "bg-chart-grid text-ink-muted"
+                )}>
+                  {badge}
                 </span>
               )}
             </button>
-            <h1 className="text-xl sm:text-2xl font-display font-semibold text-ink leading-tight">
-              {course.title}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={cn(
-                "inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase",
-                published
-                  ? "bg-clinical-teal/15 text-clinical-teal"
-                  : "bg-chart-grid text-ink-muted"
-              )}>
-                {published ? <Eye className="w-2.5 h-2.5" /> : <EyeOff className="w-2.5 h-2.5" />}
-                {published ? "Published" : "Draft"}
-              </span>
-              <span className="text-xs font-mono text-sage">
-                {chapters.length} chapters · {totalLessons} lessons
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            {/* Publish to Catalog Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setPublished(!published)}
-              className={cn(
-                "inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold transition-all border shadow-2xs select-none cursor-pointer",
-                published
-                  ? "bg-emerald-500/10 text-emerald-700 border-emerald-300 hover:bg-emerald-500/20"
-                  : "bg-amber-500/10 text-amber-800 border-amber-300 hover:bg-amber-500/20"
-              )}
-              title={published ? "Currently Live - Click to change status to Draft" : "Currently Draft - Click to Publish to Catalog"}
-            >
-              {published ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
-              <span>{published ? "Published Live" : "Draft (Hidden)"}</span>
-              <div className={cn(
-                "w-7 h-3.5 rounded-full relative transition-colors ml-1",
-                published ? "bg-emerald-600" : "bg-slate-300"
-              )}>
-                <div className={cn(
-                  "w-2.5 h-2.5 rounded-full bg-white absolute top-0.5 transition-transform",
-                  published ? "translate-x-3.5" : "translate-x-0.5"
-                )} />
-              </div>
-            </button>
-
-            {/* Save All Changes Button */}
-            <Button
-              onClick={handleSaveAll}
-              disabled={isSaving}
-              variant="default"
-              size="lg"
-              className="gap-2 font-semibold shadow-sm bg-[#0E57A4] hover:bg-[#0c4a8e] text-white border-0 shrink-0 cursor-pointer"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? "Saving…" : "Save All Changes"}
-            </Button>
-          </div>
-        </div>
-
-        {/* ── Save Feedback ── */}
-        {saveSuccess && (
-          <div className="bg-clinical-teal-surface border border-clinical-teal/30 p-3 rounded-card text-xs font-mono text-clinical-teal flex items-center gap-2 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            All changes saved successfully!
-          </div>
-        )}
-        {saveError && (
-          <div className="bg-chart-red/8 border border-chart-red/30 p-3 rounded-card text-xs font-mono text-chart-red flex items-center gap-2">
-            ⚠️ {saveError}
-          </div>
-        )}
-
-        {/* ── Tab Bar ── */}
-        <div className="flex items-center gap-1 bg-white/90 p-1 rounded-card border border-chart-grid/80 overflow-x-auto shadow-2xs">
-          {TABS.map(({ id, label, icon: Icon }) => {
-            const badge =
-              id === "instructors" ? assignedInstructors.length :
-                id === "announcements" ? announcements.length :
-                  id === "syllabus" ? chapters.length : null;
-
-            return (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-md text-xs font-mono font-semibold transition-all whitespace-nowrap cursor-pointer",
-                  activeTab === id
-                    ? "bg-[#0E57A4] text-white shadow-xs"
-                    : "text-ink-muted hover:text-ink hover:bg-slate-100"
-                )}
-              >
-                <Icon className="w-3.5 h-3.5 shrink-0" />
-                {label}
-                {badge !== null && (
-                  <span className={cn(
-                    "text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none",
-                    activeTab === id
-                      ? "bg-white/20 text-white"
-                      : "bg-chart-grid text-ink-muted"
-                  )}>
-                    {badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          );
+        })}
         </div>
       </div>
+
+      {/* ── Scrollable Tab Content ── */}
+      <div className="mt-6">
 
       {/* ══════════════════════════════════════════════════════════════════
           TAB: SETTINGS
@@ -1229,6 +1232,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
           </div>
         </div>
       )}
+      </div>{/* end scrollable tab content */}
     </div>
   );
 }
