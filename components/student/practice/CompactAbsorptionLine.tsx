@@ -1,60 +1,79 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface CompactAbsorptionLineProps {
-  progress: number; // 0 to 1
-  stepsCount?: number;
-  currentStepIndex?: number;
-  stepLabels?: string[];
+  progress: number;          // 0–1
+  stepIndex: number;         // current step (0-based)
+  totalSteps: number;
+  waypoints?: string[];      // optional step labels
   className?: string;
 }
 
 export function CompactAbsorptionLine({
   progress,
-  stepsCount = 6,
-  currentStepIndex = 1,
-  stepLabels,
+  stepIndex,
+  totalSteps,
+  waypoints = [],
   className,
 }: CompactAbsorptionLineProps) {
-  const safeProgress = Math.min(1, Math.max(0, progress));
+  const clampedProgress = Math.max(0, Math.min(1, progress));
 
   return (
-    <div className={cn("w-full space-y-1.5", className)}>
-      {/* Top track & filled bar */}
-      <div className="relative h-2.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
-        {/* Animated fill gradient */}
-        <motion.div
-          className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#0E57A4] via-[#4A8B7A] to-[#F16726] rounded-full"
-          initial={{ width: 0 }}
-          animate={{ width: `${safeProgress * 100}%` }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+    <div className={cn("w-full", className)} aria-hidden="true">
+      {/* Track */}
+      <div className="relative h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        {/* Fill */}
+        <div
+          className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${clampedProgress * 100}%`,
+            background: "linear-gradient(90deg, #0E57A4 0%, #2172C9 50%, #4A8B7A 100%)",
+          }}
         />
-
-        {/* Pulse glow leading node */}
-        {safeProgress > 0 && safeProgress < 1 && (
-          <motion.div
-            className="absolute top-0 bottom-0 w-3 -ml-1.5 bg-white/80 blur-[2px] rounded-full"
-            style={{ left: `${safeProgress * 100}%` }}
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-        )}
+        {/* Step nodes */}
+        {totalSteps > 1 &&
+          Array.from({ length: totalSteps }).map((_, i) => {
+            const pct = (i / (totalSteps - 1)) * 100;
+            const isDone = i < stepIndex;
+            const isCurrent = i === stepIndex;
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 transition-all duration-300",
+                  isDone
+                    ? "w-2.5 h-2.5 bg-[#0E57A4] border-[#0E57A4]"
+                    : isCurrent
+                    ? "w-3 h-3 bg-white border-[#0E57A4] shadow-md ring-2 ring-[#0E57A4]/30"
+                    : "w-2 h-2 bg-white border-slate-300"
+                )}
+                style={{ left: `${pct}%` }}
+              />
+            );
+          })}
       </div>
 
-      {/* Step nodes & waypoints readout */}
-      {stepsCount > 0 && (
-        <div className="flex items-center justify-between px-0.5 text-[10px] font-mono text-slate-500">
-          <span className="font-semibold text-slate-700">
-            {stepLabels && stepLabels[currentStepIndex - 1]
-              ? stepLabels[currentStepIndex - 1]
-              : `Step ${currentStepIndex} of ${stepsCount}`}
-          </span>
-          <span className="text-slate-400 font-bold">
-            {Math.round(safeProgress * 100)}% Complete
-          </span>
+      {/* Waypoint labels */}
+      {waypoints.length > 0 && (
+        <div className="flex justify-between mt-1.5 px-0">
+          {waypoints.map((label, i) => (
+            <span
+              key={i}
+              className={cn(
+                "text-[9px] font-mono font-semibold uppercase tracking-wider truncate max-w-[72px] text-center leading-tight",
+                i === stepIndex
+                  ? "text-[#0E57A4]"
+                  : i < stepIndex
+                  ? "text-[#4A8B7A]"
+                  : "text-slate-400"
+              )}
+              style={{ width: `${100 / waypoints.length}%` }}
+            >
+              {label}
+            </span>
+          ))}
         </div>
       )}
     </div>

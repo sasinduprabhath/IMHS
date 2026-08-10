@@ -65,6 +65,12 @@ const config: Config = {
           text: "rgba(255,255,255,0.62)",
           "text-active": "#FFFFFF",
         },
+        // Error/incorrect state — WCAG AA compliant (5.05:1 on white). Use ONLY for errors.
+        "clinical-red": {
+          DEFAULT: "#C1443A",
+          light: "#FDECEA",
+          hover: "#A63830",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "Plus Jakarta Sans", "system-ui", "sans-serif"],

@@ -1,151 +1,250 @@
 import React from "react";
 import Link from "next/link";
-import { Metadata } from "next";
-import { Button } from "@/components/ui/button";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import {
-  FileText, Pill, BookOpen, Zap, ArrowRight, Sparkles, CheckCircle2,
-  Brain, ShieldCheck, Clock, Award, Play
+  FlaskConical, Zap, ClipboardList, FileText,
+  ChevronRight, Lock, Flame, BookOpen, Star
 } from "lucide-react";
+import { DRUGS } from "@/data/drugs";
 
-export const metadata: Metadata = {
-  title: "Interactive Learning Hub — IMHS Clinical Practice",
-  description: "Master pharmaceutical dispensing, drug classification, module assessments, and rapid recall pharmacy challenges.",
+export const metadata = {
+  title: "Practice Hub — IMHS Student Portal",
+  description: "Interactive pharmacology practice activities: Prescription Review, Drug Classification, Module Assessment, and Pharmacy Rush.",
 };
 
 const ACTIVITIES = [
   {
     id: "prescription-review",
-    title: "Activity 01: Prescription Review Challenge",
-    subtitle: "Step-by-step clinical audit of prescription scripts & dispensing decisions",
+    number: "01",
+    title: "Prescription Review Challenge",
+    subtitle: "Clinical Decision Making",
+    description: "Evaluate a real prescription step-by-step — identify patient details, spot dispensing errors, and counsel the patient.",
     icon: FileText,
-    badgeColor: "bg-blue-500/10 text-blue-700 border-blue-300",
-    iconBg: "bg-blue-50 text-[#0E57A4]",
-    duration: "10-15 Min",
-    type: "Clinical Audit",
-    description: "Inspect real prescription images, audit patient & medicine details, identify clinical dosing problems, select pharmacist actions, and construct patient counselling advice.",
-    features: ["Script Zoom & Inspect", "Dosage & Interaction Checks", "Dispensing Decision Audit", "Counselling Point Evaluation"]
+    color: "#0E57A4",
+    bg: "rgba(14,87,164,.07)",
+    border: "rgba(14,87,164,.18)",
+    gradient: "linear-gradient(135deg, #0E57A4 0%, #2172C9 100%)",
+    href: "/dashboard/practice/prescription-review",
+    steps: ["Prescription Image", "Patient Details", "Medicines", "Problem ID", "Action", "Counselling"],
+    badge: "New Case",
+    badgeColor: "#0E57A4",
+    locked: false,
   },
   {
     id: "drug-classification",
-    title: "Activity 02: Drug Classification Challenge",
-    subtitle: "Classify medicines into therapeutic classes, MOA, side effects, & antidotes",
-    icon: Pill,
-    badgeColor: "bg-teal-500/10 text-teal-700 border-teal-300",
-    iconBg: "bg-teal-50 text-[#4A8B7A]",
-    duration: "8-12 Min",
-    type: "Pharmacology",
-    description: "Systematically classify medicines from generic names. Identify pharmacological classes, exact mechanisms of action, adverse drug reactions, key interactions, and reversal agents.",
-    features: ["Generic ℞ Profile", "MOA Identification", "Side Effect Audit", "Antidote & Reversal Agent"]
+    number: "02",
+    title: "Drug Classification Challenge",
+    subtitle: "Pharmacology",
+    description: "Identify a drug's class, mechanism, side effects, interactions, and antidote — in a 6-step guided wizard.",
+    icon: FlaskConical,
+    color: "#4A8B7A",
+    bg: "rgba(74,139,122,.07)",
+    border: "rgba(74,139,122,.18)",
+    gradient: "linear-gradient(135deg, #4A8B7A 0%, #6DADA0 100%)",
+    href: "/dashboard/practice/drug-classification",
+    steps: ["Identify", "Class", "MOA", "Side Effects", "Interactions", "Antidote"],
+    badge: "5 Drugs",
+    badgeColor: "#4A8B7A",
+    locked: false,
   },
   {
     id: "module-assessment",
-    title: "Activity 03: Module Assessment Evaluation",
-    subtitle: "Summative 100 True/False question evaluation covering full module topics",
-    icon: BookOpen,
-    badgeColor: "bg-purple-500/10 text-purple-700 border-purple-300",
-    iconBg: "bg-purple-50 text-purple-700",
-    duration: "20-30 Min",
-    type: "Assessment",
-    description: "Test your comprehensive mastery with True/False clinical evaluations. Features one-question-at-a-time mobile pacing, automatic autosave resume, and topic-by-topic scorecards.",
-    features: ["100 T/F Evaluation", "Autosave & Resume", "Topic Mastery Analysis", "Incorrect Only Filter"]
+    number: "03",
+    title: "Module Assessment",
+    subtitle: "True / False Exam",
+    description: "Test your knowledge with True/False questions. Auto-saved progress, topic-grouped results, and missed-answer review.",
+    icon: ClipboardList,
+    color: "#6366F1",
+    bg: "rgba(99,102,241,.07)",
+    border: "rgba(99,102,241,.18)",
+    gradient: "linear-gradient(135deg, #6366F1 0%, #818CF8 100%)",
+    href: "/dashboard/practice/module-assessment",
+    steps: ["Questions", "Auto-save", "Review", "Filter", "Explanations"],
+    badge: "22 Questions",
+    badgeColor: "#6366F1",
+    locked: false,
   },
   {
     id: "pharmacy-rush",
-    title: "Activity 04: IMHS Pharmacy Rush (Game)",
-    subtitle: "Rapid-fire 10-round timed recall challenge for individual medicines",
+    number: "04",
+    title: "Pharmacy Rush",
+    subtitle: "Timed Game",
+    description: "Beat the 15-second clock across 10 rounds — Drug Class, MOA, Side Effects, Counselling, and a final Quick Decision!",
     icon: Zap,
-    badgeColor: "bg-orange-500/10 text-orange-700 border-orange-300",
-    iconBg: "bg-orange-50 text-[#F16726]",
-    duration: "3-5 Min",
-    type: "Rapid Recall",
-    description: "Beat the clock in a 10-round rapid-fire game testing drug class, indications, MOA, dosage forms, side effects, precautions, and quick pharmacist decisions.",
-    features: ["10-Round Rapid Game", "Timed Rush vs Practice Mode", "Mono Live Counter", "Scorecard Breakdown"]
-  }
+    color: "#F16726",
+    bg: "rgba(241,103,38,.07)",
+    border: "rgba(241,103,38,.18)",
+    gradient: "linear-gradient(135deg, #E05A10 0%, #F16726 100%)",
+    href: "/dashboard/practice/pharmacy-rush",
+    steps: ["Drug Class", "Indication", "MOA", "Strength", "Form", "Admin", "Side FX", "Precaution", "Counselling", "Decision"],
+    badge: "Rush Mode",
+    badgeColor: "#F16726",
+    locked: false,
+  },
 ];
 
-export default function PracticeHubPage() {
+export default async function PracticeHubPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect("/login");
+
+  const studentFirstName = session.user.name?.split(" ")[0] || "Learner";
+
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-12">
-      {/* ── HERO BANNER ── */}
-      <div className="bg-gradient-to-r from-[#0C1A30] via-[#0A2540] to-[#0C1A30] text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-800 relative overflow-hidden space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
-          <div className="space-y-2 max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs text-[#F16726] uppercase font-bold tracking-widest bg-[#F16726]/10 border border-[#F16726]/30 px-3.5 py-1 rounded-full">
-              <Sparkles className="w-3.5 h-3.5" /> Interactive Clinical Mastery
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-white tracking-wide">
-              IMHS Interactive Learning Hub
+    <div className="space-y-8">
+      {/* ── Hero Banner ──────────────────────────────────────────────────── */}
+      <div
+        className="relative rounded-3xl overflow-hidden border border-white/20 shadow-xl"
+        style={{
+          background: "linear-gradient(135deg, #0A2540 0%, #0E57A4 50%, #1868c2 100%)",
+          boxShadow: "0 12px 36px rgba(14,87,164,.35)",
+        }}
+      >
+        {/* Mesh glow */}
+        <div
+          className="absolute inset-0 opacity-40 pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18) 0%, transparent 50%), radial-gradient(circle at 15% 80%, rgba(241,103,38,0.25) 0%, transparent 40%)",
+          }}
+        />
+
+        <div className="relative z-10 p-7 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Flame className="w-4 h-4 text-[#F16726]" />
+              <span className="text-[#F16726] font-mono text-[10px] uppercase font-bold tracking-widest">
+                IMHS Practice Hub
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-white leading-tight">
+              Train Like a Pharmacist, {studentFirstName}.
             </h1>
-            <p className="text-sm text-slate-300 font-sans leading-relaxed">
-              Dr. Isuru Wijesinghe&apos;s clinical practice suite. Test your practical dispensing accuracy, pharmacology classification, and rapid decision-making skills.
+            <p className="text-xs sm:text-sm text-white/70 font-sans leading-relaxed max-w-md">
+              Four interactive activities covering prescription analysis, drug classification, timed knowledge challenges, and formal assessment practice.
             </p>
           </div>
 
-          <div className="bg-white/10 border border-white/20 p-4 rounded-2xl space-y-1 text-center font-mono text-xs shrink-0">
-            <span className="text-slate-300 block text-[10px] uppercase">PRACTICE SUITE</span>
-            <strong className="text-emerald-400 text-lg block">4 Active Modules</strong>
-            <span className="text-slate-400 text-[10px]">Instant Clinical Feedback</span>
+          {/* Drug count pills */}
+          <div className="shrink-0 flex flex-col items-center text-center bg-white/10 border border-white/20 rounded-2xl px-5 py-4 backdrop-blur-md">
+            <span className="text-3xl font-display font-bold text-white">{DRUGS.length}</span>
+            <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-white/60 mt-0.5">Drugs in Library</span>
           </div>
         </div>
       </div>
 
-      {/* ── 4 ACTIVITY CARDS GRID ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {ACTIVITIES.map((act) => {
+      {/* ── Activity Cards ───────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {ACTIVITIES.map((act, i) => {
           const Icon = act.icon;
           return (
             <div
               key={act.id}
-              className="bg-white rounded-3xl p-6 border border-slate-200 shadow-paper hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-5 group"
+              className={`group relative bg-white rounded-3xl border overflow-hidden flex flex-col transition-all duration-250 hover:shadow-card-hover ${
+                act.locked ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-1"
+              }`}
+              style={{ border: `1.5px solid ${act.border}`, boxShadow: "0 2px 8px rgba(10,18,30,.05)" }}
             >
-              <div className="space-y-4">
+              {/* Top accent bar */}
+              <div className="h-1.5 w-full" style={{ background: act.gradient }} />
+
+              <div className="p-6 flex flex-col flex-1 gap-4">
+                {/* Header */}
                 <div className="flex items-start justify-between gap-3">
-                  <div className={`w-12 h-12 rounded-2xl ${act.iconBg} border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs`}>
-                    <Icon className="w-6 h-6" />
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
+                      style={{ background: act.bg, border: `1px solid ${act.border}` }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: act.color }} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-mono font-bold uppercase tracking-widest" style={{ color: act.color }}>
+                        Activity {act.number} — {act.subtitle}
+                      </p>
+                      <h2 className="text-base font-display font-bold text-ink leading-snug mt-0.5">
+                        {act.title}
+                      </h2>
+                    </div>
                   </div>
-                  <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase border ${act.badgeColor}`}>
-                    {act.type}
+
+                  {/* Badge */}
+                  <span
+                    className="shrink-0 text-[9px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border"
+                    style={{
+                      color: act.badgeColor,
+                      background: `${act.badgeColor}12`,
+                      borderColor: `${act.badgeColor}30`,
+                    }}
+                  >
+                    {act.badge}
                   </span>
                 </div>
 
-                <div className="space-y-1">
-                  <h3 className="text-lg font-display font-bold text-slate-900 group-hover:text-[#0E57A4] transition-colors">
-                    {act.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                    {act.subtitle}
-                  </p>
-                </div>
+                {/* Description */}
+                <p className="text-sm text-ink-muted leading-relaxed">{act.description}</p>
 
-                <p className="text-xs text-slate-600 font-sans leading-relaxed">
-                  {act.description}
-                </p>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {act.features.map((feat, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-[11px] font-mono text-slate-600">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span className="truncate">{feat}</span>
-                    </div>
+                {/* Step pills */}
+                <div className="flex flex-wrap gap-1.5">
+                  {act.steps.map((step, j) => (
+                    <span
+                      key={step}
+                      className="text-[9px] font-mono font-bold px-2 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200"
+                    >
+                      {act.id === "pharmacy-rush" ? `R${j + 1}` : `${j + 1}`}. {step}
+                    </span>
                   ))}
                 </div>
-              </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-                <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" /> {act.duration}
-                </span>
-
-                <Link href={`/dashboard/practice/${act.id}`}>
-                  <Button className="text-xs font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shadow-xs gap-1.5 cursor-pointer">
-                    <span>Start Activity</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Button>
-                </Link>
+                {/* CTA */}
+                <div className="mt-auto pt-4 border-t border-slate-100">
+                  {act.locked ? (
+                    <div className="flex items-center gap-2 text-xs text-ink-muted font-mono">
+                      <Lock className="w-4 h-4" />
+                      Coming soon
+                    </div>
+                  ) : (
+                    <Link
+                      href={act.href}
+                      className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg active:scale-95"
+                      style={{ background: act.gradient }}
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Start Activity {act.number}
+                      <ChevronRight className="w-4 h-4 ml-auto" />
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* ── Available Drugs Info ─────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3" style={{ boxShadow: "0 2px 8px rgba(10,18,30,.04)" }}>
+        <div className="flex items-center gap-2">
+          <FlaskConical className="w-4 h-4 text-[#4A8B7A]" />
+          <h3 className="text-sm font-display font-bold text-ink">Drug Library</h3>
+          <span className="text-[10px] font-mono font-bold text-[#4A8B7A] bg-[#4A8B7A]/10 px-2 py-0.5 rounded-full border border-[#4A8B7A]/20">
+            {DRUGS.length} available
+          </span>
+        </div>
+        <p className="text-xs text-ink-muted">Activities can be played for any drug in the library. Use the <code className="font-mono text-[10px] bg-slate-100 px-1 py-0.5 rounded">?drug=</code> URL parameter to select a specific drug.</p>
+        <div className="flex flex-wrap gap-2">
+          {DRUGS.map((drug) => (
+            <div key={drug.id} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+              <span className="text-xs font-display font-semibold text-ink">{drug.genericName}</span>
+              <span className="text-[9px] font-mono text-ink-muted">{drug.drugClass.split(" ")[0]}</span>
+              <div className="flex items-center gap-1">
+                <Link href={`/dashboard/practice/drug-classification?drug=${drug.id}`} className="text-[9px] font-mono font-bold text-[#4A8B7A] hover:underline">Classify</Link>
+                <span className="text-slate-300">·</span>
+                <Link href={`/dashboard/practice/pharmacy-rush?drug=${drug.id}`} className="text-[9px] font-mono font-bold text-[#F16726] hover:underline">Rush</Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

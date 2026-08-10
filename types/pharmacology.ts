@@ -1,3 +1,7 @@
+// ─── IMHS Interactive Learning Hub — Core Types ─────────────────────────────
+// §3.2 Shared data model from the IMHS_Interactive_Learning_Hub spec.
+
+// ─── Drug ────────────────────────────────────────────────────────────────────
 export interface Drug {
   id: string;
   genericName: string;
@@ -5,77 +9,104 @@ export interface Drug {
   drugClass: string;
   mechanismOfAction: string;
   mainIndications: string[];
-  commonStrengths: string[];        // e.g. ["5 mg", "10 mg"]
-  dosageForms: string[];            // e.g. ["Tablet"]
-  administration: string;           // e.g. "Once daily"
+  commonStrengths: string[];   // e.g. ["5 mg", "10 mg"]
+  dosageForms: string[];       // e.g. ["Tablet"]
+  administration: string;      // e.g. "Once daily"
   commonSideEffects: string[];
   keyInteractions: string[];
   contraindicationsPrecautions: string[];
   counsellingPoints: string[];
-  antidote?: string;                // undefined if none applicable
+  antidote?: string;           // omit if none applicable
+  quickDecisionScenario?: {
+    scenario: string;
+    options: string[];
+    correctIndex: number;
+  };
+}
+
+// ─── Prescription Case ───────────────────────────────────────────────────────
+export interface PrescribedMedicine {
+  name: string;
+  strength: string;
+  dose: string;
+  frequency: string;
+  duration: string;
+}
+
+export interface PrescriptionProblem {
+  id: string;
+  label: string; // "Wrong dose", "Drug interaction", "Contraindication", etc.
 }
 
 export interface PrescriptionCase {
   id: string;
-  title: string;
-  imageUrl: string;
+  imageUrl: string;         // path to prescription image
   patient: {
     name: string;
     age: number;
-    sex: 'Male' | 'Female' | 'Other';
+    sex: string;
     date: string;
-    weightKg?: number;
-    diagnosis?: string;
   };
-  medicines: {
-    id: string;
-    name: string;
-    strength: string;
-    dose: string;
-    frequency: string;
-    duration: string;
-  }[];
+  medicines: PrescribedMedicine[];
   hasProblem: boolean;
-  problemCategory?: 'Dosing Error' | 'Drug Interaction' | 'Contraindication' | 'Illegible Script' | 'Incomplete Prescription' | 'None';
-  problemDescription?: string;
-  problemOptions?: string[];
+  problemOptions?: PrescriptionProblem[];
+  correctProblemIds?: string[];  // which problem options are correct
   expectedAction: 'dispense' | 'do_not_dispense';
-  actionReason: string;
+  dispensingReason: string;
   expectedCounsellingPoints: string[];
 }
 
-export interface ModuleQuestion {
-  id: string;
-  moduleId: string;
-  moduleTitle: string;
-  topic: string;
-  statement: string;
-  isTrue: boolean;
-  explanation: string;
-}
-
-export interface RushRoundOption {
-  id: string;
-  text: string;
-  isCorrect: boolean;
-}
-
-export interface RushRound {
-  roundNumber: number;
-  topic: 'drugClass' | 'mainIndication' | 'mechanismOfAction' | 'availableStrength' | 'dosageForm' | 'administration' | 'commonSideEffect' | 'precaution' | 'counsellingPoint' | 'quickDecision';
-  topicLabel: string;
-  question: string;
-  options: RushRoundOption[];
-  explanation: string;
-}
+// ─── Activity Attempt ────────────────────────────────────────────────────────
+export type ActivityType =
+  | 'prescription_review'
+  | 'drug_classification'
+  | 'module_assessment'
+  | 'pharmacy_rush';
 
 export interface ActivityAttempt {
   id: string;
-  userId?: string;
-  activityType: 'prescription_review' | 'drug_classification' | 'module_assessment' | 'pharmacy_rush';
+  userId: string;
+  activityType: ActivityType;
+  moduleId?: string;
+  drugId?: string;
   startedAt: string;
   completedAt?: string;
-  score: number;
-  maxScore: number;
-  details?: Record<string, any>;
+  score?: number;
+  maxScore?: number;
+  responses: Record<string, unknown>;
 }
+
+// ─── Pharmacy Rush ───────────────────────────────────────────────────────────
+export type RoundTopic =
+  | 'drugClass'
+  | 'mainIndication'
+  | 'mechanismOfAction'
+  | 'availableStrength'
+  | 'dosageForm'
+  | 'administration'
+  | 'commonSideEffect'
+  | 'contraindication'
+  | 'counsellingPoint'
+  | 'quickDecision';
+
+export interface RushRound {
+  roundNumber: number;
+  topic: RoundTopic;
+  topicLabel: string;
+  question: string;
+  options: string[];
+  correctIndex: number; // 0-based
+}
+
+// ─── Module Assessment ───────────────────────────────────────────────────────
+export interface QuizQuestion {
+  id: string;
+  moduleId: string;
+  statement: string;
+  answer: boolean; // true = True, false = False
+  topic?: string;  // used for grouping in results review
+  explanation?: string;
+}
+
+// ─── Shared Option shape ─────────────────────────────────────────────────────
+export type OptionState = 'idle' | 'selected' | 'correct' | 'incorrect' | 'revealed';

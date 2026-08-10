@@ -1,197 +1,189 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, X, AlertTriangle, ChevronRight, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CompactAbsorptionLine } from "./CompactAbsorptionLine";
 import { cn } from "@/lib/utils";
+import { X, AlertTriangle } from "lucide-react";
+import { CompactAbsorptionLine } from "./CompactAbsorptionLine";
 
 interface ActivityShellProps {
   title: string;
   subtitle?: string;
   stepLabel?: string;
-  progress?: number; // 0 to 1
-  stepsCount?: number;
-  currentStepIndex?: number;
-  stepLabels?: string[];
+  stepIndex?: number;
+  totalSteps?: number;
+  waypoints?: string[];
   onExit?: () => void;
   onBack?: () => void;
   onNext?: () => void;
-  disableNext?: boolean;
   nextLabel?: string;
   backLabel?: string;
-  isSubmitting?: boolean;
-  hideFooter?: boolean;
+  nextDisabled?: boolean;
+  showNav?: boolean;
   children: React.ReactNode;
+  accentColor?: string;
+  headerExtra?: React.ReactNode;
 }
 
 export function ActivityShell({
   title,
   subtitle,
   stepLabel,
-  progress = 0,
-  stepsCount,
-  currentStepIndex,
-  stepLabels,
+  stepIndex = 0,
+  totalSteps = 1,
+  waypoints = [],
   onExit,
   onBack,
   onNext,
-  disableNext = false,
   nextLabel = "Continue",
   backLabel = "Back",
-  isSubmitting = false,
-  hideFooter = false,
+  nextDisabled = false,
+  showNav = true,
   children,
+  accentColor = "#0E57A4",
+  headerExtra,
 }: ActivityShellProps) {
-  const router = useRouter();
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+
+  const progress = totalSteps > 1 ? stepIndex / (totalSteps - 1) : 1;
 
   const handleExitClick = () => {
     if (onExit) {
-      onExit();
-    } else {
       setShowExitConfirm(true);
     }
   };
 
-  const confirmExit = () => {
-    setShowExitConfirm(false);
-    router.push("/dashboard/practice");
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between select-none">
-      {/* ── Top Header ── */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 space-y-3">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleExitClick}
-                className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                title="Exit Activity"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div>
-                <h1 className="text-base sm:text-lg font-display font-bold text-slate-900 leading-tight">
-                  {title}
-                </h1>
-                {subtitle && (
-                  <p className="text-xs text-slate-500 font-sans hidden sm:block">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-            </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#EBF3FA] via-[#F8FAFC] to-white">
+      {/* ── Sticky Header ──────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+          {/* Exit button */}
+          {onExit && (
+            <button
+              onClick={handleExitClick}
+              className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-clinical-red hover:bg-clinical-red-light transition-all duration-200"
+              aria-label="Exit activity"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
 
-            <div className="flex items-center gap-3">
+          {/* Title block */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-sm font-display font-bold text-ink truncate">{title}</h2>
               {stepLabel && (
-                <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[#0E57A4]">
+                <span
+                  className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                  style={{ background: `${accentColor}18`, color: accentColor }}
+                >
                   {stepLabel}
                 </span>
               )}
-              <button
-                type="button"
-                onClick={handleExitClick}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Exit"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
+            {subtitle && (
+              <p className="text-[11px] text-ink-muted mt-0.5 truncate">{subtitle}</p>
+            )}
           </div>
 
-          {/* Progress Absorption Line */}
-          <CompactAbsorptionLine
-            progress={progress}
-            stepsCount={stepsCount}
-            currentStepIndex={currentStepIndex}
-            stepLabels={stepLabels}
-          />
+          {/* Header extra slot (e.g., score ticker) */}
+          {headerExtra && <div className="shrink-0">{headerExtra}</div>}
         </div>
+
+        {/* Compact Absorption Line */}
+        {totalSteps > 1 && (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-2">
+            <CompactAbsorptionLine
+              progress={progress}
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
+              waypoints={waypoints}
+            />
+          </div>
+        )}
       </header>
 
-      {/* ── Main Activity Content Body ── */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {children}
+      {/* ── Main Content ────────────────────────────────────────────────── */}
+      <main
+        className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8"
+        // Step focus management: aria-live region for SR
+      >
+        <div role="region" aria-label={stepLabel ?? title} aria-live="polite">
+          {children}
+        </div>
       </main>
 
-      {/* ── Sticky Bottom Footer Bar ── */}
-      {!hideFooter && (
-        <footer className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 py-3.5 px-4 sm:px-6 shadow-lg">
-          <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+      {/* ── Navigation Footer ───────────────────────────────────────────── */}
+      {showNav && (onBack || onNext) && (
+        <footer className="sticky bottom-0 z-10 bg-white/90 backdrop-blur-md border-t border-slate-200/60">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
             {onBack ? (
-              <Button
-                type="button"
-                variant="outline"
+              <button
                 onClick={onBack}
-                className="text-xs font-semibold rounded-xl text-slate-600 border-slate-200 hover:bg-slate-100 gap-1.5"
+                className="flex items-center gap-2 text-sm font-semibold text-ink-muted hover:text-ink px-4 py-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all duration-200"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>{backLabel}</span>
-              </Button>
+                ← {backLabel}
+              </button>
             ) : (
               <div />
             )}
 
             {onNext && (
-              <Button
-                type="button"
-                disabled={disableNext || isSubmitting}
+              <button
                 onClick={onNext}
+                disabled={nextDisabled}
                 className={cn(
-                  "text-xs font-bold rounded-xl shadow-xs gap-1.5 px-6 transition-all",
-                  disableNext
-                    ? "bg-slate-200 text-slate-400 cursor-not-allowed border-0"
-                    : "bg-[#0E57A4] hover:bg-[#0c4a8e] text-white border-0"
+                  "flex items-center gap-2 text-sm font-bold px-6 py-2.5 rounded-xl text-white transition-all duration-200 shadow-sm",
+                  nextDisabled
+                    ? "opacity-50 cursor-not-allowed bg-slate-400"
+                    : "hover:opacity-90 hover:shadow-md active:scale-95"
                 )}
+                style={{ background: nextDisabled ? undefined : accentColor }}
               >
-                <span>{isSubmitting ? "Processing…" : nextLabel}</span>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+                {nextLabel} →
+              </button>
             )}
           </div>
         </footer>
       )}
 
-      {/* ── Exit Confirmation Dialog Modal ── */}
+      {/* ── Exit Confirmation Modal ──────────────────────────────────────── */}
       {showExitConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-6 h-6" />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="exit-confirm-title"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-sm w-full space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-display font-bold text-slate-900">
-                  Exit Learning Activity?
+              <div>
+                <h3 id="exit-confirm-title" className="font-display font-bold text-ink text-base">
+                  Exit this activity?
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                  Your current session progress for this activity will not be saved. Are you sure you want to exit back to the Interactive Hub?
-                </p>
+                <p className="text-xs text-ink-muted mt-0.5">Your progress in this activity will be lost.</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
-              <Button
-                type="button"
-                variant="outline"
+            <div className="flex gap-2 pt-1">
+              <button
                 onClick={() => setShowExitConfirm(false)}
-                className="text-xs font-semibold rounded-xl text-slate-600 border-slate-200 hover:bg-slate-100"
+                className="flex-1 text-sm font-semibold text-ink py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
               >
-                Continue Activity
-              </Button>
-              <Button
-                type="button"
-                onClick={confirmExit}
-                className="text-xs font-bold bg-[#C1443A] hover:bg-[#a6372f] text-white rounded-xl shadow-xs"
+                Stay
+              </button>
+              <button
+                onClick={() => {
+                  setShowExitConfirm(false);
+                  onExit?.();
+                }}
+                className="flex-1 text-sm font-bold text-white py-2.5 rounded-xl bg-clinical-red hover:bg-clinical-red-hover transition-colors"
               >
-                Exit Session
-              </Button>
+                Exit
+              </button>
             </div>
           </div>
         </div>

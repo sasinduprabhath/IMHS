@@ -1,134 +1,153 @@
-import { RushRound } from "@/types/pharmacology";
+import type { RoundTopic } from "@/types/pharmacology";
+import type { Drug } from "@/types/pharmacology";
 
-export const AMLODIPINE_RUSH_ROUNDS: RushRound[] = [
-  {
-    roundNumber: 1,
-    topic: "drugClass",
-    topicLabel: "Round 01 — Drug Class",
-    question: "Amlodipine belongs to which pharmacological class?",
-    options: [
-      { id: "a", text: "ACE inhibitor", isCorrect: false },
-      { id: "b", text: "Calcium channel blocker", isCorrect: true },
-      { id: "c", text: "Beta blocker", isCorrect: false },
-      { id: "d", text: "Angiotensin receptor blocker (ARB)", isCorrect: false }
-    ],
-    explanation: "Amlodipine is a long-acting dihydropyridine calcium channel blocker (CCB)."
-  },
-  {
-    roundNumber: 2,
-    topic: "mainIndication",
-    topicLabel: "Round 02 — Main Indication",
-    question: "What is the primary clinical indication for Amlodipine?",
-    options: [
-      { id: "a", text: "Hypertension", isCorrect: true },
-      { id: "b", text: "Bronchial Asthma", isCorrect: false },
-      { id: "c", text: "Type 2 Diabetes Mellitus", isCorrect: false },
-      { id: "d", text: "Acute Bacterial Infection", isCorrect: false }
-    ],
-    explanation: "Amlodipine is widely indicated for essential hypertension and chronic stable angina."
-  },
-  {
-    roundNumber: 3,
-    topic: "mechanismOfAction",
-    topicLabel: "Round 03 — Mechanism",
-    question: "What is the primary mechanism of action of Amlodipine?",
-    options: [
-      { id: "a", text: "Blocks L-type calcium channels in vascular smooth muscle", isCorrect: true },
-      { id: "b", text: "Inhibits Angiotensin Converting Enzyme (ACE)", isCorrect: false },
-      { id: "c", text: "Stimulates Beta-2 adrenergic receptors", isCorrect: false },
-      { id: "d", text: "Blocks Histamine H2 receptors in stomach", isCorrect: false }
-    ],
-    explanation: "It inhibits transmembrane calcium influx into arterial smooth muscle cells, inducing vasodilation."
-  },
-  {
-    roundNumber: 4,
-    topic: "availableStrength",
-    topicLabel: "Round 04 — Strength",
-    question: "Which is a standard common oral tablet strength for Amlodipine?",
-    options: [
-      { id: "a", text: "5 mg", isCorrect: true },
-      { id: "b", text: "50 mg", isCorrect: false },
-      { id: "c", text: "500 mg", isCorrect: false },
-      { id: "d", text: "1 g (1000 mg)", isCorrect: false }
-    ],
-    explanation: "Standard oral daily strengths for Amlodipine are 2.5 mg, 5 mg, and 10 mg."
-  },
-  {
-    roundNumber: 5,
-    topic: "dosageForm",
-    topicLabel: "Round 05 — Dosage Form",
-    question: "What is the most common oral dosage form for Amlodipine?",
-    options: [
-      { id: "a", text: "Oral Tablet", isCorrect: true },
-      { id: "b", text: "Inhaler", isCorrect: false },
-      { id: "c", text: "Eye Drop", isCorrect: false },
-      { id: "d", text: "Rectal Suppository", isCorrect: false }
-    ],
-    explanation: "Amlodipine is primarily formulated as oral uncoated or film-coated tablets."
-  },
-  {
-    roundNumber: 6,
-    topic: "administration",
-    topicLabel: "Round 06 — Administration",
-    question: "How is Amlodipine usually administered?",
-    options: [
-      { id: "a", text: "Once daily", isCorrect: true },
-      { id: "b", text: "Every hour", isCorrect: false },
-      { id: "c", text: "Once weekly", isCorrect: false },
-      { id: "d", text: "Only when acute blood pressure spikes occur", isCorrect: false }
-    ],
-    explanation: "Amlodipine has a long elimination half-life (~30–50 hours), enabling convenient once-daily dosing."
-  },
-  {
-    roundNumber: 7,
-    topic: "commonSideEffect",
-    topicLabel: "Round 07 — Side Effect",
-    question: "Which is a classic, well-documented side effect of Amlodipine therapy?",
-    options: [
-      { id: "a", text: "Ankle oedema (lower leg swelling)", isCorrect: true },
-      { id: "b", text: "Severe Hypoglycaemia", isCorrect: false },
-      { id: "c", text: "Persistent dry cough", isCorrect: false },
-      { id: "d", text: "Oral thrush", isCorrect: false }
-    ],
-    explanation: "Precapillary arteriolar vasodilation leads to dependent fluid accumulation in ankles and feet."
-  },
-  {
-    roundNumber: 8,
-    topic: "precaution",
-    topicLabel: "Round 08 — Precaution",
-    question: "What key clinical parameter should be routinely monitored in patients taking Amlodipine?",
-    options: [
-      { id: "a", text: "Blood pressure & pulse rate", isCorrect: true },
-      { id: "b", text: "Hearing acuity only", isCorrect: false },
-      { id: "c", text: "Blood group antibodies", isCorrect: false },
-      { id: "d", text: "Visual acuity only", isCorrect: false }
-    ],
-    explanation: "Regular blood pressure and heart rate monitoring ensures efficacy and prevents symptomatic hypotension."
-  },
-  {
-    roundNumber: 9,
-    topic: "counsellingPoint",
-    topicLabel: "Round 09 — Counselling",
-    question: "Which is the most appropriate patient counselling advice for Amlodipine?",
-    options: [
-      { id: "a", text: "Take regularly every day as prescribed", isCorrect: true },
-      { id: "b", text: "Stop taking immediately when blood pressure feels normal", isCorrect: false },
-      { id: "c", text: "Double the next dose if a daily dose is missed", isCorrect: false },
-      { id: "d", text: "Take only when blood pressure feels high", isCorrect: false }
-    ],
-    explanation: "Antihypertensive therapy requires continuous daily adherence to maintain target BP control."
-  },
-  {
-    roundNumber: 10,
-    topic: "quickDecision",
-    topicLabel: "Round 10 — Quick Decision",
-    question: "A patient reports troublesome ankle swelling 3 weeks after starting Amlodipine. What is the best action?",
-    options: [
-      { id: "a", text: "Ignore it as irrelevant", isCorrect: false },
-      { id: "b", text: "Double the amlodipine dose", isCorrect: false },
-      { id: "c", text: "Seek pharmacist / doctor review for dose adjustment or combination therapy", isCorrect: true },
-      { id: "d", text: "Stop all prescribed medicines permanently without medical consultation", isCorrect: false }
-    ],
-    explanation: "Prompt clinical review allows dose reduction or addition of an ACE inhibitor/ARB to alleviate CCB-induced oedema."
-  }
+// ─── Pharmacy Rush — Round Topic Order ───────────────────────────────────────
+// Verified against the fully-worked Amlodipine example from the source PDF.
+// "Administration" (Round 06) replaces "Interaction" — confirmed visually from spec.
+// Update this list if the academic team provides a revised 10-round spec.
+
+export const ROUND_TOPICS: { topic: RoundTopic; label: string }[] = [
+  { topic: "drugClass",           label: "Drug Class" },
+  { topic: "mainIndication",      label: "Main Indication" },
+  { topic: "mechanismOfAction",   label: "Mechanism of Action" },
+  { topic: "availableStrength",   label: "Available Strength" },
+  { topic: "dosageForm",          label: "Dosage Form" },
+  { topic: "administration",      label: "Administration" },
+  { topic: "commonSideEffect",    label: "Common Side Effect" },
+  { topic: "contraindication",    label: "Contraindication / Precaution" },
+  { topic: "counsellingPoint",    label: "Patient Counselling Point" },
+  { topic: "quickDecision",       label: "Pharmacist Quick Decision" },
 ];
+
+// ─── Generate Rush Rounds from a Drug record ─────────────────────────────────
+// Pure function — no randomness, consistent and testable.
+// All 10 rounds pre-generated at game start (no per-round network requests).
+
+export function generateRushRounds(drug: Drug) {
+  // Helper: pick N wrong options from a pool that excludes the correct one
+  function buildOptions(correct: string, wrongs: string[], count = 3): { options: string[]; correctIndex: number } {
+    const wrongPool = wrongs.filter((w) => w !== correct).slice(0, count);
+    // Pad with generic wrong answers if pool is thin
+    const genericWrongs = [
+      "ACE Inhibitor", "Beta Blocker", "Opioid Analgesic", "Inhaler",
+      "IV infusion only", "500 mg", "1 g", "250 mg", "Twice weekly",
+      "Every 4 hours", "Dry cough", "Hypoglycaemia", "Oral thrush",
+    ].filter((g) => g !== correct && !wrongPool.includes(g));
+    while (wrongPool.length < count) {
+      wrongPool.push(genericWrongs[wrongPool.length] ?? "None of the above");
+    }
+
+    // Shuffle: put correct at index A (0)
+    const opts = [correct, ...wrongPool.slice(0, 3)];
+    // Rotate so correct isn't always first — fixed rotation to stay deterministic
+    const rotation = drug.id.length % 4;
+    const rotated = [...opts.slice(rotation), ...opts.slice(0, rotation)];
+    const correctIndex = rotated.indexOf(correct);
+    return { options: rotated, correctIndex };
+  }
+
+  const rounds = ROUND_TOPICS.map((rt, i) => {
+    const roundNumber = i + 1;
+    const { topic, label: topicLabel } = rt;
+
+    switch (topic) {
+      case "drugClass": {
+        const { options, correctIndex } = buildOptions(drug.drugClass, [
+          "ACE Inhibitor", "Beta Blocker (β-blocker)", "ARB (Angiotensin Receptor Blocker)", "Diuretic",
+          "Nitrate", "Biguanide", "HMG-CoA Reductase Inhibitor", "PPI",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `${drug.genericName} belongs to which drug class?`, options, correctIndex };
+      }
+      case "mainIndication": {
+        const correct = drug.mainIndications[0];
+        const { options, correctIndex } = buildOptions(correct, [
+          "Asthma", "Type 1 Diabetes", "Bacterial infection", "Fungal infection",
+          "Hypothyroidism", "Anaemia", "Epilepsy", "Depression",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `${drug.genericName} is most commonly used for?`, options, correctIndex };
+      }
+      case "mechanismOfAction": {
+        const correct = drug.mechanismOfAction.split(",")[0].trim();
+        const { options, correctIndex } = buildOptions(correct, [
+          "Blocks ACE (Angiotensin-Converting Enzyme)",
+          "Stimulates β₂ adrenergic receptors",
+          "Blocks H₂ histamine receptors",
+          "Inhibits COX-2 enzyme",
+          "Activates GABA-A receptors",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `What is the main mechanism of action of ${drug.genericName}?`, options, correctIndex };
+      }
+      case "availableStrength": {
+        const correct = drug.commonStrengths[0];
+        const { options, correctIndex } = buildOptions(correct, [
+          "50 mg", "500 mg", "1 g", "100 mcg", "250 mg", "2 g", "0.5 mg",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `What is a common tablet/capsule strength of ${drug.genericName}?`, options, correctIndex };
+      }
+      case "dosageForm": {
+        const correct = drug.dosageForms[0];
+        const { options, correctIndex } = buildOptions(correct, [
+          "Inhaler", "Eye drop", "Suppository", "Transdermal patch", "IV injection only",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `The most common dosage form of ${drug.genericName} is?`, options, correctIndex };
+      }
+      case "administration": {
+        const correct = drug.administration;
+        const { options, correctIndex } = buildOptions(correct, [
+          "Every hour", "Once weekly", "Only when symptoms occur", "Every 4 hours",
+          "Twice daily after meals", "Every 12 hours on empty stomach",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `${drug.genericName} is usually taken?`, options, correctIndex };
+      }
+      case "commonSideEffect": {
+        const correct = drug.commonSideEffects[0];
+        const { options, correctIndex } = buildOptions(correct, [
+          "Hypoglycaemia", "Dry cough", "Oral thrush", "Hearing loss",
+          "Visual disturbance", "Constipation", "Hair loss",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `What is a common side effect of ${drug.genericName}?`, options, correctIndex };
+      }
+      case "contraindication": {
+        const correct = drug.contraindicationsPrecautions[drug.contraindicationsPrecautions.length - 1];
+        const { options, correctIndex } = buildOptions(correct, [
+          "Monitor hearing only", "Monitor blood group only",
+          "No monitoring required", "Monitor visual acuity only",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `When prescribing ${drug.genericName}, what should be monitored or avoided?`, options, correctIndex };
+      }
+      case "counsellingPoint": {
+        const correct = drug.counsellingPoints[0];
+        const { options, correctIndex } = buildOptions(correct, [
+          "Stop when symptoms improve completely",
+          "Double the next dose if you miss one",
+          "Take only when you feel the condition is active",
+          "Share remaining tablets with family members",
+        ]);
+        return { roundNumber, topic, topicLabel, question: `Most important patient counselling point for ${drug.genericName}?`, options, correctIndex };
+      }
+      case "quickDecision": {
+        if (drug.quickDecisionScenario) {
+          return {
+            roundNumber, topic, topicLabel,
+            question: drug.quickDecisionScenario.scenario,
+            options: drug.quickDecisionScenario.options,
+            correctIndex: drug.quickDecisionScenario.correctIndex,
+          };
+        }
+        return {
+          roundNumber, topic, topicLabel,
+          question: `A patient on ${drug.genericName} reports an unusual side effect. Best pharmacist action?`,
+          options: [
+            "Ignore the complaint",
+            "Double the dose",
+            "Advise patient to seek pharmacist/doctor review",
+            "Stop all medicines permanently",
+          ],
+          correctIndex: 2,
+        };
+      }
+    }
+  });
+
+  return rounds;
+}
