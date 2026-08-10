@@ -19,6 +19,7 @@ import {
   MessageCircle,
   BookOpen,
   LayoutDashboard,
+  Sparkles,
 } from "lucide-react";
 
 const SIDEBAR_STORAGE_KEY = "imhs_student_sidebar_collapsed";
@@ -29,7 +30,14 @@ const NAV_LINKS = [
     label: "My Courses",
     icon: GraduationCap,
     exact: false,
-    match: (p: string) => p.startsWith("/dashboard") && !p.startsWith("/dashboard/profile"),
+    match: (p: string) => p.startsWith("/dashboard") && !p.startsWith("/dashboard/profile") && !p.startsWith("/dashboard/practice"),
+  },
+  {
+    href: "/dashboard/practice",
+    label: "Learning Hub",
+    icon: Sparkles,
+    exact: false,
+    match: (p: string) => p.startsWith("/dashboard/practice"),
   },
   {
     href: "/dashboard/profile",
