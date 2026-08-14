@@ -1,48 +1,44 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { uploadToGoogleDrive } from "@/lib/googleDrive";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
-    }
-
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    const folder = (formData.get("folder") as string) || "submissions"; // "briefs" | "submissions"
+    const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No file selected for upload." }, { status: 400 });
-    }
-
-    // Validate size (max 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-      return NextResponse.json({ error: "File exceeds maximum limit of 50MB." }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Upload to Google Drive (or fallback local storage)
-    const result = await uploadToGoogleDrive({
-      buffer,
-      fileName: file.name,
-      mimeType: file.type,
-      folderName: folder === "briefs" ? "briefs" : "submissions",
-    });
+    // Ensure target folder public/practice/prescriptions exists
+    const uploadDir = path.join(process.cwd(), "public", "practice", "prescriptions");
+    await mkdir(uploadDir, { recursive: true });
+
+    // Generate unique filename with original extension
+    const ext = path.extname(file.name) || ".png";
+    const sanitizeName = path.basename(file.name, ext).replace(/[^a-zA-Z0-9_-]/g, "_");
+    const filename = `case-${Date.now()}-${sanitizeName}${ext}`;
+    const filePath = path.join(uploadDir, filename);
+
+    // Write file to public/practice/prescriptions/
+    await writeFile(filePath, buffer);
+
+    const relativeUrl = `/practice/prescriptions/${filename}`;
 
     return NextResponse.json({
       success: true,
-      url: result.url,
-      fileName: file.name,
-      fileSize: file.size,
-      isGoogleDrive: result.isGoogleDrive,
+      url: relativeUrl,
+      filename,
     });
   } catch (error: any) {
-    console.error("File upload error:", error);
-    return NextResponse.json({ error: "Server failed to process file upload." }, { status: 500 });
+    console.error("Error saving file to public/practice/prescriptions/:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to upload file to public directory" },
+      { status: 500 }
+    );
   }
 }

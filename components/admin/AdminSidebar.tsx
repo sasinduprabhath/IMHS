@@ -24,12 +24,14 @@ import {
   Plus,
   Calendar,
   FileCheck,
+  FlaskConical,
 } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/students", label: "Students", icon: Users, exact: false },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, exact: false },
+  { href: "/admin/learning-hub", label: "Learning Hub CMS", icon: FlaskConical, exact: false },
   { href: "/admin/assignments", label: "Assignments", icon: FileCheck, exact: false },
   { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare, exact: false },
   { href: "/admin/bookings", label: "Consultations", icon: Calendar, exact: false },

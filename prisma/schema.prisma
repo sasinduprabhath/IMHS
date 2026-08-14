@@ -33,6 +33,9 @@ model User {
   enrollments      Enrollment[]
   progress         LessonProgress[]
   assignmentSubmissions AssignmentSubmission[]
+  activityLogs     StudentActivityLog[]
+  gameLeaderboards PharmacyRushLeaderboard[]
+  courseAssessmentResults CourseAssessmentResult[]
 }
 
 model StudentDevice {
@@ -70,6 +73,8 @@ model Course {
   announcements      CourseAnnouncement[]
   instructors        CourseInstructor[]
   assignments        Assignment[]
+  assessmentQuestions ModuleAssessmentQuestion[]
+  assessmentResults  CourseAssessmentResult[]
 }
 
 model Chapter {
@@ -247,7 +252,137 @@ model AssignmentSubmission {
 
   @@unique([assignmentId, userId])
   @@index([userId])
-  @@index([status])
+}
+
+// ─── IMHS Interactive Learning Hub & Admin CMS Models ─────────
+
+model Module {
+  id           String                     @id @default(cuid())
+  title        String
+  code         String                     @unique
+  description  String?                    @db.Text
+  tfQuestions  ModuleAssessmentQuestion[]
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+}
+
+model PrescriptionCase {
+  id                String   @id @default(cuid())
+  title             String
+  imageUrl          String   @db.Text
+  patientDetails    Json     // { name, age, sex, date, diagnosis }
+  medicineDetails   Json     // Array of { name, strength, dose, frequency, duration }
+  hasProblem        Boolean  @default(false)
+  problemOptions    Json     // Options presented to student
+  correctProblem    String?  @db.Text
+  shouldDispense    Boolean  @default(true)
+  dispenseReason    String   @db.Text
+  counsellingPoints Json     // Array of correct counselling points
+  isPublished       Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model DrugKnowledge {
+  id                 String   @id @default(cuid())
+  genericName        String   @unique
+  drugClass          String
+  drugClassOptions   Json     // Array of strings
+  mechanismOfAction  String   @db.Text
+  moaOptions         Json     // Array of strings
+  sideEffects        Json     // Array of strings
+  sideEffectOptions  Json     // Array of strings
+  interactions       Json     // Array of strings
+  interactionOptions Json     // Array of strings
+  antidote           String?  @db.Text
+  antidoteOptions    Json?    // Array of strings
+  isPublished        Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model ModuleAssessmentQuestion {
+  id          String   @id @default(cuid())
+  moduleId    String?
+  module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  courseId    String?
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  question    String   @db.Text
+  isTrue      Boolean
+  explanation String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([moduleId])
+  @@index([courseId])
+}
+
+model CourseAssessmentResult {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  score       Int
+  maxScore    Int
+  percentage  Float
+  passed      Boolean  @default(false)
+  completedAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model PharmacyRushConfig {
+  id              String              @id @default(cuid())
+  medicineName    String
+  isActive        Boolean             @default(true)
+  timePerRoundSec Int                 @default(15)
+  rounds          PharmacyRushRound[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model PharmacyRushRound {
+  id            String             @id @default(cuid())
+  configId      String
+  config        PharmacyRushConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  roundNumber   Int
+  challengeType String
+  questionText  String             @db.Text
+  options       Json               // Array of 4 strings
+  correctOption String             @db.Text
+  pointsValue   Int                @default(10)
+
+  @@index([configId])
+}
+
+model StudentActivityLog {
+  id           String   @id @default(cuid())
+  studentId    String
+  student      User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  activityType String   // "PRESCRIPTION_REVIEW", "DRUG_CLASS", "MODULE_ASSESSMENT", "PHARMACY_RUSH"
+  referenceId  String?
+  score        Int
+  maxScore     Int      @default(100)
+  completedAt  DateTime @default(now())
+
+  @@index([studentId])
+  @@index([activityType])
+}
+
+model PharmacyRushLeaderboard {
+  id           String   @id @default(cuid())
+  studentId    String
+  student      User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  medicineName String
+  score        Int
+  timeTakenSec Int
+  playedAt     DateTime @default(now())
+
+  @@index([studentId])
+  @@index([score])
 }
 
 

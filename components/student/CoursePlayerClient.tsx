@@ -28,6 +28,13 @@ import {
   Play as PlayIcon,
 } from "lucide-react";
 import { StudentAssignmentsClient } from "@/components/student/StudentAssignmentsClient";
+import { ModuleAssessmentActivity } from "@/components/student/practice/ModuleAssessmentActivity";
+import {
+  getCourseAssessmentQuestions,
+  getCourseAssessmentResult,
+  submitCourseAssessmentResult,
+} from "@/actions/assessment-actions";
+import { ClipboardList, Trophy } from "lucide-react";
 
 interface Lesson {
   id: string;
@@ -94,6 +101,25 @@ function CoursePlayerContent({
     new Set(initialCompletedLessonIds)
   );
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // End-of-Course Assessment State
+  const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+  const [assessmentQuestions, setAssessmentQuestions] = useState<any[]>([]);
+  const [assessmentResult, setAssessmentResult] = useState<any>(null);
+
+  const isAllLessonsCompleted = allLessons.length > 0 && completedLessonIds.size >= allLessons.length;
+
+  React.useEffect(() => {
+    getCourseAssessmentResult(course.id).then((res) => {
+      if (res) setAssessmentResult(res);
+    });
+  }, [course.id]);
+
+  const handleStartCourseAssessment = async () => {
+    const questions = await getCourseAssessmentQuestions(course.id);
+    setAssessmentQuestions(questions);
+    setShowAssessmentModal(true);
+  };
 
   // Pending Assignment Stats for Hub Card
   const [assignmentSummary, setAssignmentSummary] = useState<{
@@ -871,6 +897,79 @@ function CoursePlayerContent({
             );
           })}
         </div>
+      </div>
+
+      {/* ── End-of-Course Module Assessment Card ── */}
+      <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-md overflow-hidden relative">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] px-3 py-1 rounded-full border border-[#0E57A4]/20">
+                End-of-Course Module Assessment
+              </span>
+              {isAllLessonsCompleted ? (
+                <span className="text-[10px] font-mono font-bold uppercase text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
+                  <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-600" /> Assessment Unlocked
+                </span>
+              ) : (
+                <span className="text-[10px] font-mono font-bold uppercase text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1">
+                  <LockIcon className="w-3.5 h-3.5 text-amber-600" /> Locked until lessons complete
+                </span>
+              )}
+            </div>
+            <h2 className="text-xl font-display font-extrabold text-slate-900 pt-1">
+              Course Final Assessment
+            </h2>
+            <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
+              {isAllLessonsCompleted
+                ? "You have completed 100% of the lessons in this course! You are now eligible to take the End-of-Course Module Assessment."
+                : `Complete all ${allLessons.length} lessons in this course to unlock the End-of-Course Module Assessment. Current Progress: ${completedLessonIds.size}/${allLessons.length} completed.`}
+            </p>
+          </div>
+
+          <div className="shrink-0">
+            {isAllLessonsCompleted ? (
+              <Link
+                href={`/dashboard/courses/${course.slug}/assessment`}
+                className="px-6 py-3 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-105 active:scale-95 flex items-center gap-2 inline-flex"
+              >
+                <ClipboardList className="w-4 h-4" />
+                Start End-of-Course Assessment
+              </Link>
+            ) : (
+              <button
+                disabled
+                className="px-6 py-3 rounded-2xl bg-slate-200 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-2"
+              >
+                <LockIcon className="w-4 h-4" />
+                Locked ({allLessons.length - completedLessonIds.size} lessons remaining)
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Previous Assessment Score Banner */}
+        {assessmentResult && (
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-6 h-6 text-emerald-600 shrink-0" />
+              <div>
+                <p className="text-xs font-bold text-emerald-950">Previous Assessment Record</p>
+                <p className="text-[11px] font-mono text-emerald-700">
+                  Score: {assessmentResult.score}/{assessmentResult.maxScore} ({Math.round(assessmentResult.percentage)}%) · {assessmentResult.passed ? "Passed with Distinction" : "Completed"}
+                </p>
+              </div>
+            </div>
+            {isAllLessonsCompleted && (
+              <Link
+                href={`/dashboard/courses/${course.slug}/assessment`}
+                className="text-xs font-bold text-[#0E57A4] hover:underline font-mono"
+              >
+                Retake Assessment
+              </Link>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Assigned Course Instructors Card ── */}

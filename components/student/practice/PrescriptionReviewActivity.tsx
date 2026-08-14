@@ -38,6 +38,7 @@ export function PrescriptionReviewActivity({ prescriptionCase }: PrescriptionRev
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [imgFailed, setImgFailed] = useState(false);
   const [patientAnswer, setPatientAnswer] = useState<PatientAnswer>({ name: "", age: "", sex: "", date: "" });
   const [selectedProblemIds, setSelectedProblemIds] = useState<string[]>([]);
   const [problemSubmitted, setProblemSubmitted] = useState(false);
@@ -169,42 +170,75 @@ export function PrescriptionReviewActivity({ prescriptionCase }: PrescriptionRev
                 <button onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-ink hover:bg-slate-50 shadow-xs" aria-label="Zoom out"><ZoomOut className="w-4 h-4" /></button>
                 {zoom !== 1 && <button onClick={() => setZoom(1)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-ink hover:bg-slate-50 shadow-xs text-[9px] font-mono font-bold">1:1</button>}
               </div>
-              <div className="overflow-auto" style={{ maxHeight: "480px" }}>
+
+              <div className="overflow-auto" style={{ maxHeight: "520px" }}>
                 <div style={{ transform: `scale(${zoom})`, transformOrigin: "top left", transition: "transform 0.2s ease" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={prescriptionCase.imageUrl}
-                    alt={`Prescription for ${prescriptionCase.patient.name}`}
-                    className="w-full"
-                    onError={(e) => {
-                      // Fallback when real image not yet available
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                  {/* Placeholder when image fails to load */}
-                  <div className="w-full min-h-[320px] bg-gradient-to-br from-slate-50 to-white border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 gap-3 p-8">
-                    <FileText className="w-12 h-12 opacity-30" />
-                    <div className="text-center space-y-1">
-                      <p className="text-sm font-semibold font-mono">Prescription Image</p>
-                      <p className="text-xs">Real prescription case image</p>
-                      <p className="text-xs opacity-70">Clinical staff: upload image to /public/practice/prescriptions/case-01.png</p>
-                    </div>
-                    {/* Simulated prescription text for demo */}
-                    <div className="mt-4 w-full max-w-xs bg-white rounded-xl border border-slate-200 p-4 shadow-sm text-left space-y-2 font-mono text-xs text-slate-600">
-                      <div className="text-center font-bold text-slate-800 text-sm border-b border-slate-200 pb-2">GENERAL HOSPITAL</div>
-                      <div><span className="font-bold">Patient:</span> {prescriptionCase.patient.name}</div>
-                      <div><span className="font-bold">Age/Sex:</span> {prescriptionCase.patient.age}y / {prescriptionCase.patient.sex}</div>
-                      <div><span className="font-bold">Date:</span> {prescriptionCase.patient.date}</div>
-                      <div className="border-t border-slate-100 pt-2 space-y-1">
-                        {prescriptionCase.medicines.map((m, i) => (
-                          <div key={i} className="border-b border-dashed border-slate-100 pb-1">
-                            <div className="font-bold">{i + 1}. {m.name} {m.strength}</div>
-                            <div className="pl-3 text-[10px]">{m.dose} — {m.frequency} × {m.duration}</div>
-                          </div>
-                        ))}
+                  {prescriptionCase.imageUrl && !imgFailed ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={prescriptionCase.imageUrl}
+                      alt={`Prescription for ${prescriptionCase.patient.name}`}
+                      className="w-full object-contain"
+                      onError={() => setImgFailed(true)}
+                    />
+                  ) : (
+                    /* Authentic Medical Prescription Pad Document */
+                    <div className="w-full p-8 bg-[#FDFDFD] border border-slate-200 font-sans space-y-6 select-none">
+                      {/* Hospital Header */}
+                      <div className="flex items-center justify-between border-b-2 border-[#0E57A4] pb-4">
+                        <div className="space-y-0.5">
+                          <h3 className="text-lg font-display font-bold text-[#0E57A4] uppercase tracking-wider">
+                            IMHS CLINICAL TEACHING HOSPITAL
+                          </h3>
+                          <p className="text-xs text-slate-500 font-mono">Department of Clinical Pharmacy & Therapeutics</p>
+                          <p className="text-[10px] text-slate-400 font-mono">Reg No: PH/COL/2024/0981 · Emergency: +94 11 269 1111</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-[#0E57A4]/10 border border-[#0E57A4]/20 flex items-center justify-center font-display font-bold text-[#0E57A4] text-xl">
+                          Rx
+                        </div>
+                      </div>
+
+                      {/* Patient Info Bar */}
+                      <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                        <div><span className="text-slate-400 block text-[9px] uppercase font-bold">Patient Name</span><span className="font-bold text-slate-800">{prescriptionCase.patient.name}</span></div>
+                        <div><span className="text-slate-400 block text-[9px] uppercase font-bold">Age / Sex</span><span className="font-bold text-slate-800">{prescriptionCase.patient.age} Yrs / {prescriptionCase.patient.sex}</span></div>
+                        <div><span className="text-slate-400 block text-[9px] uppercase font-bold">Date</span><span className="font-bold text-slate-800">{prescriptionCase.patient.date}</span></div>
+                        <div><span className="text-slate-400 block text-[9px] uppercase font-bold">B.P.</span><span className="font-bold text-slate-800">145/92 mmHg</span></div>
+                      </div>
+
+                      {/* Rx Medicine List */}
+                      <div className="space-y-4 pt-2">
+                        <div className="text-2xl font-serif font-bold text-[#0E57A4] italic">Rx</div>
+                        <div className="space-y-3 pl-4">
+                          {prescriptionCase.medicines.map((m, i) => (
+                            <div key={i} className="border-b border-dashed border-slate-200 pb-2 flex items-start justify-between">
+                              <div>
+                                <div className="text-sm font-display font-bold text-slate-900">
+                                  {i + 1}. {m.name} {m.strength}
+                                </div>
+                                <div className="text-xs font-mono text-slate-600 pl-4 mt-0.5">
+                                  Sig: {m.dose} — {m.frequency}
+                                </div>
+                              </div>
+                              <div className="text-xs font-mono font-semibold text-slate-500">
+                                M.i.t: {m.duration}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Doctor Signature Block */}
+                      <div className="pt-6 border-t border-slate-200 flex items-center justify-between text-xs font-mono text-slate-500">
+                        <div>Ref: CLIN-CASE-01</div>
+                        <div className="text-right space-y-1">
+                          <div className="font-serif italic text-sm font-bold text-slate-700">Dr. I. Wijesinghe</div>
+                          <div className="text-[10px] text-slate-400">MBBS, M.Pharm (Clinical Specialist)</div>
+                          <div className="text-[9px] text-slate-400">SLMC Reg: 48921</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

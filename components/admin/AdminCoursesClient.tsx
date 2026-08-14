@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
   BookOpen, Plus, Edit3, Eye, CheckCircle2, XCircle,
-  Users, Layers, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink
+  Users, Layers, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink, ClipboardList
 } from "lucide-react";
 
 interface CourseItem {
@@ -205,9 +205,15 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
 
                   {/* Actions */}
                   <div className="flex items-center justify-end gap-2 pt-2 border-t border-chart-grid/40">
-                    <Link href={`/admin/courses/${course.id}/edit`} className="flex-1">
-                      <Button size="sm" className="w-full h-8 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0">
+                    <Link href={`/admin/courses/${course.id}/edit`}>
+                      <Button size="sm" className="h-8 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0">
                         <Edit3 className="w-3 h-3" /> Syllabus Builder
+                      </Button>
+                    </Link>
+
+                    <Link href={`/admin/courses/${course.id}/assessments`}>
+                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 text-[#0E57A4] border-[#0E57A4]/30 hover:bg-[#EBF3FA] font-semibold">
+                        <ClipboardList className="w-3 h-3" /> Questions
                       </Button>
                     </Link>
 
@@ -319,7 +325,13 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/admin/courses/${course.id}/edit`}>
                             <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 shadow-xs">
-                              <Edit3 className="w-3 h-3" /> Syllabus Builder
+                              <Edit3 className="w-3 h-3" /> Syllabus
+                            </Button>
+                          </Link>
+
+                          <Link href={`/admin/courses/${course.id}/assessments`}>
+                            <Button size="sm" variant="outline" className="h-7 px-2.5 text-[11px] gap-1 text-[#0E57A4] border-[#0E57A4]/30 hover:bg-[#EBF3FA] font-semibold shadow-xs">
+                              <ClipboardList className="w-3 h-3" /> Questions
                             </Button>
                           </Link>
 
