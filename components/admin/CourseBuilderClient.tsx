@@ -31,6 +31,10 @@ import {
   ChevronDown,
   ChevronRight,
   AlertTriangle,
+  Upload,
+  ImageIcon,
+  Camera,
+  Loader2,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -132,6 +136,36 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   const [published, setPublished] = useState(course.published);
   const [coverImage, setCoverImage] = useState(course.coverImage || "");
   const [imgError, setImgError] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [coverUploadError, setCoverUploadError] = useState("");
+
+  const handleCoverUpload = async (file: File) => {
+    if (!file) return;
+    setIsUploadingCover(true);
+    setCoverUploadError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "courses");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setCoverImage(data.url);
+        setImgError(false);
+      } else {
+        setCoverUploadError(data.error || "Failed to upload image.");
+      }
+    } catch {
+      setCoverUploadError("Network error while uploading cover image.");
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
 
   // ── Syllabus State ──
   const [chapters, setChapters] = useState<ChapterInput[]>(
@@ -460,7 +494,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
             <button
               type="button"
               onClick={handleBackNavigation}
-              className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-[#0E57A4] mb-1.5 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-[#0E57A4] mb-2 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Course Manager</span>
@@ -470,22 +504,71 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                 </span>
               )}
             </button>
-            <h1 className="text-2xl font-display font-bold text-slate-900 leading-tight">
-              {course.title}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={cn(
-                "inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border uppercase",
-                published
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-slate-100 text-slate-600 border-slate-200"
-              )}>
-                {published ? <Eye className="w-2.5 h-2.5" /> : <EyeOff className="w-2.5 h-2.5" />}
-                {published ? "Published Live" : "Draft (Hidden)"}
-              </span>
-              <span className="text-xs font-mono text-slate-500">
-                {chapters.length} chapters · {totalLessons} lessons
-              </span>
+
+            {/* Course Title + Quick Cover Thumbnail */}
+            <div className="flex items-start gap-4">
+              <div className="relative group shrink-0 w-24 h-16 sm:w-28 sm:h-18 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-xs">
+                {coverImage && !imgError ? (
+                  <Image
+                    src={coverImage}
+                    alt={course.title}
+                    fill
+                    className="object-cover transition-transform duration-200 group-hover:scale-105"
+                    unoptimized
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-[10px] font-mono">
+                    <ImageIcon className="w-5 h-5 mb-0.5" />
+                    <span>No Cover</span>
+                  </div>
+                )}
+                {isUploadingCover && (
+                  <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center text-white text-[10px] font-bold gap-1">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  </div>
+                )}
+                {/* Hover Overlay to Change Image */}
+                {!isUploadingCover && (
+                  <label className="absolute inset-0 bg-slate-950/65 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-bold cursor-pointer transition-opacity backdrop-blur-xs select-none">
+                    <Camera className="w-4 h-4 mb-0.5" />
+                    <span>Change</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/jpg"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleCoverUpload(f);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div>
+                <h1 className="text-2xl font-display font-bold text-slate-900 leading-tight">
+                  {course.title}
+                </h1>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  <span className={cn(
+                    "inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border uppercase",
+                    published
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border-slate-200"
+                  )}>
+                    {published ? <Eye className="w-2.5 h-2.5" /> : <EyeOff className="w-2.5 h-2.5" />}
+                    {published ? "Published Live" : "Draft (Hidden)"}
+                  </span>
+                  <span className="text-xs font-mono text-slate-500">
+                    {chapters.length} chapters · {totalLessons} lessons
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">·</span>
+                  <span className="text-xs font-mono font-semibold text-clinical-teal">
+                    LKR {price.toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -721,35 +804,99 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
 
           {/* Cover Image + Visibility */}
           <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
-            <h2 className="text-xs font-bold border-b border-slate-200 pb-3 font-mono uppercase tracking-wider text-slate-500">
-              Cover Image & Visibility
-            </h2>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h2 className="text-xs font-bold font-mono uppercase tracking-wider text-slate-500">
+                Cover Image & Branding
+              </h2>
+              {coverImage && (
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Image Configured
+                </span>
+              )}
+            </div>
 
+            {/* Direct File Drag & Drop Upload Box */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Cover Image URL</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Upload New Cover Image (PNG, JPG, WEBP)
+              </label>
+              <div className="relative border-2 border-dashed border-slate-300 hover:border-[#0E57A4] bg-slate-50/70 hover:bg-blue-50/20 transition-all rounded-2xl p-6 text-center group cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/jpg"
+                  disabled={isUploadingCover}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleCoverUpload(f);
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                />
+                <div className="space-y-2">
+                  <div className="w-10 h-10 rounded-xl bg-[#0E57A4]/10 text-[#0E57A4] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    {isUploadingCover ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 group-hover:text-[#0E57A4] transition-colors">
+                      {isUploadingCover ? "Uploading banner image..." : "Click or drag & drop to upload new cover"}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Recommended: 1200x630px (Max 5MB)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {coverUploadError && (
+                <p className="text-xs text-rose-600 font-mono mt-1.5 flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" /> {coverUploadError}
+                </p>
+              )}
+            </div>
+
+            {/* Image URL Manual Override */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Or Direct Image URL / Local Path
+              </label>
               <input
-                type="url"
-                placeholder="https://example.com/image.png"
+                type="text"
+                placeholder="e.g. /courses/my-course-banner.png or https://..."
                 value={coverImage}
                 onChange={(e) => { setImgError(false); setCoverImage(e.target.value); }}
-                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
               />
             </div>
 
+            {/* Live Banner Preview */}
             {coverImage && (
-              <div className="relative h-44 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+              <div className="relative h-48 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-xs">
                 {!imgError ? (
-                  <Image
-                    src={coverImage}
-                    alt="Cover preview"
-                    fill
-                    className="object-cover"
-                    onError={() => setImgError(true)}
-                    unoptimized
-                  />
+                  <>
+                    <Image
+                      src={coverImage}
+                      alt="Cover preview"
+                      fill
+                      className="object-cover"
+                      onError={() => setImgError(true)}
+                      unoptimized
+                    />
+                    <div className="absolute top-2.5 right-2.5 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCoverImage("");
+                          setImgError(false);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-slate-900/80 hover:bg-rose-600 text-white text-[11px] font-mono font-bold transition-colors backdrop-blur-xs flex items-center gap-1 cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Remove
+                      </button>
+                    </div>
+                  </>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-xs font-mono text-slate-500">
-                    ⚠ Image failed to load - check the URL
+                  <div className="flex items-center justify-center h-full text-xs font-mono text-rose-500 bg-rose-50/50">
+                    ⚠ Image failed to load - check the URL or path
                   </div>
                 )}
               </div>
@@ -781,6 +928,101 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       ══════════════════════════════════════════════════════════════════ */}
       {activeTab === "syllabus" && (
         <div className="space-y-4">
+          {/* Course Cover Banner Quick Manager in Syllabus */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="relative w-28 h-20 sm:w-36 sm:h-22 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs group">
+                {coverImage && !imgError ? (
+                  <Image
+                    src={coverImage}
+                    alt="Course cover"
+                    fill
+                    className="object-cover transition-transform duration-200 group-hover:scale-105"
+                    unoptimized
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
+                    <ImageIcon className="w-6 h-6 mb-1" />
+                    <span>No Image</span>
+                  </div>
+                )}
+                {isUploadingCover && (
+                  <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center text-white text-xs font-bold gap-1.5">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                    Course Cover Image
+                  </span>
+                  {coverImage && (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Active
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-mono text-slate-600 truncate max-w-xs sm:max-w-md" title={coverImage || "No cover image set"}>
+                  {coverImage || "No cover image set for this course."}
+                </p>
+                <p className="text-[11px] text-slate-400 leading-tight">
+                  Banner displayed on student portal, catalog, and curriculum headers.
+                </p>
+                {coverUploadError && (
+                  <p className="text-xs text-rose-600 font-mono flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" /> {coverUploadError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0 w-full md:w-auto justify-end">
+              {/* Upload Button */}
+              <label className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[#0E57A4] border border-slate-200 text-xs font-bold transition-all shadow-xs cursor-pointer select-none">
+                {isUploadingCover ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                <span>{isUploadingCover ? "Uploading..." : "Upload New Cover"}</span>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/jpg"
+                  disabled={isUploadingCover}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleCoverUpload(f);
+                  }}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Edit URL / Settings shortcut */}
+              <button
+                type="button"
+                onClick={() => setActiveTab("settings")}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Image Settings</span>
+              </button>
+
+              {coverImage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCoverImage("");
+                    setImgError(false);
+                  }}
+                  className="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer"
+                  title="Remove Cover Image"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Toolbar */}
           <div className="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
             <div>
@@ -791,7 +1033,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                 Organize curriculum structure. Save changes with &ldquo;Save All Changes&rdquo; above.
               </p>
             </div>
-            <Button onClick={addChapter} size="sm" className="gap-1.5 text-xs font-mono font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shrink-0">
+            <Button onClick={addChapter} size="sm" className="gap-1.5 text-xs font-mono font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shrink-0 cursor-pointer">
               <Plus className="w-3.5 h-3.5" /> Add Chapter
             </Button>
           </div>

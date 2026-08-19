@@ -162,9 +162,9 @@ export async function POST(req: Request) {
       });
     }
 
-    // ── 3. PRESCRIPTION / CASE IMAGES (Admin Only) ────────────────────────
+    // ── 3. COURSE COVER IMAGES & PRACTICE ASSETS (Admin Only) ────────────
     if (userRole !== "ADMIN") {
-      logger.security("UNAUTHORIZED_ADMIN_ACCESS", "Non-admin attempted to upload prescription image", { userId: session.user.id, ip: clientIp });
+      logger.security("UNAUTHORIZED_ADMIN_ACCESS", "Non-admin attempted to upload course image", { userId: session.user.id, ip: clientIp });
       return NextResponse.json({ error: "Unauthorized: Admin access required." }, { status: 403 });
     }
 
@@ -196,7 +196,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: signatureCheck.error }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "practice", "prescriptions");
+    const targetSubfolder = folder === "courses" ? "courses" : "practice/prescriptions";
+    const uploadDir = path.join(process.cwd(), "public", ...targetSubfolder.split("/"));
     await mkdir(uploadDir, { recursive: true });
 
     const { safeFileName } = generateSafeFileName(file.name, ext);
@@ -204,9 +205,9 @@ export async function POST(req: Request) {
 
     await writeFile(filePath, buffer);
 
-    const relativeUrl = `/practice/prescriptions/${safeFileName}`;
+    const relativeUrl = `/${targetSubfolder}/${safeFileName}`;
 
-    logger.info(`Prescription image stored safely`, { userId: session.user.id, safeFileName });
+    logger.info(`Course / asset image stored safely`, { userId: session.user.id, safeFileName, folder: targetSubfolder });
 
     return NextResponse.json({
       success: true,
