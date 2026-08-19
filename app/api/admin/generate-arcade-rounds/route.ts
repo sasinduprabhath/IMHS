@@ -1,8 +1,15 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS, getClientIp } from "@/lib/rate-limit";
+import { sanitizeString } from "@/lib/sanitization";
+import { z } from "zod";
 
 export const runtime = "nodejs";
+
+const generateArcadeSchema = z.object({
+  medicineName: z.string().min(1, "Medicine name is required").max(150, "Medicine name too long"),
+});
 
 export async function POST(req: Request) {
   try {
@@ -11,10 +18,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
-    const { medicineName } = await req.json();
-    if (!medicineName || typeof medicineName !== "string" || !medicineName.trim()) {
-      return NextResponse.json({ error: "Medicine name is required." }, { status: 400 });
+    const clientIp = getClientIp(req);
+    const rateLimit = checkRateLimit(
+      `ai:arcade_gen:${session.user.id || clientIp}`,
+      RATE_LIMITS.AI_QUIZ_GEN.maxAttempts,
+      RATE_LIMITS.AI_QUIZ_GEN.windowMs
+    );
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.resetTime, rateLimit.limit, rateLimit.remaining, "AI quiz generation rate limit exceeded. Please wait a minute.");
     }
+
+    const body = await req.json();
+    const parsed = generateArcadeSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Medicine name is required." }, { status: 400 });
+    }
+
+    const medicineName = sanitizeString(parsed.data.medicineName, 150);
 
     const apiKey =
       process.env.GOOGLE_AI_STUDIO_API_KEY ||

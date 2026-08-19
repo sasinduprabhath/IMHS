@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const course = await prisma.course.findUnique({ where: { slug } });
   return {
-    title: course ? `${course.title} — End-of-Course Assessment` : "End-of-Course Assessment",
+    title: course ? `${course.title} - End-of-Course Assessment` : "End-of-Course Assessment",
   };
 }
 
@@ -66,7 +66,7 @@ export default async function CourseAssessmentFullPage({
     <div className="w-full space-y-6">
       <ModuleAssessmentActivity
         moduleId={course.id}
-        moduleTitle={`${course.title} — End-of-Course Assessment`}
+        moduleTitle={`${course.title} - End-of-Course Assessment`}
         questions={questions}
       />
     </div>

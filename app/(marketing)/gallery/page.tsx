@@ -2,9 +2,24 @@ import React from "react";
 import { GalleryClient } from "@/components/marketing/GalleryClient";
 
 export const metadata = {
-  title: "IMHS Gallery - Institutional Events, Convocations & Practicals",
+  title: "Campus Gallery | Convocations, Practicals & Life at IMHS",
   description:
-    "Explore photo highlights from IMHS annual convocations, graduation ceremonies, laboratory practicals, and clinical seminars in Sri Lanka.",
+    "Explore photo and video highlights from IMHS annual convocations, graduation ceremonies, laboratory practicals, and clinical seminars in Sri Lanka.",
+  alternates: {
+    canonical: "https://imhsedu.com/gallery",
+  },
+  openGraph: {
+    title: "IMHS Campus & Convocation Gallery",
+    description: "Explore laboratory practicals, graduation ceremonies, and clinical seminars at IMHS.",
+    url: "https://imhsedu.com/gallery",
+    images: [{ url: "/gallery/convocation-2024.webp", width: 1200, height: 630, alt: "IMHS Convocation & Campus Gallery" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Campus Gallery | IMHS Education",
+    description: "Annual convocations, practical dispensaries, and clinical labs.",
+    images: ["/gallery/convocation-2024.webp"],
+  },
 };
 
 const GALLERY_ITEMS = [

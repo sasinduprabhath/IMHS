@@ -35,13 +35,35 @@ export async function generateMetadata({ params }: CourseDetailPageProps) {
   const { slug } = await params;
   try {
     const course = await prisma.course.findUnique({ where: { slug } });
-    if (!course) return { title: "Course Not Found - IMHS" };
+    if (!course) return { title: "Course Not Found | IMHS" };
+    const coverUrl = course.coverImage
+      ? course.coverImage.startsWith("http")
+        ? course.coverImage
+        : `https://imhsedu.com${course.coverImage}`
+      : "https://imhsedu.com/gallery/imhs-campus.jpg";
+
     return {
-      title: `${course.title} - IMHS`,
-      description: course.description,
+      title: `${course.title} | IMHS Pharmacy Education`,
+      description: course.description?.slice(0, 160) || "SLMC-aligned modern pharmacy course at IMHS.",
+      alternates: {
+        canonical: `https://imhsedu.com/courses/${slug}`,
+      },
+      openGraph: {
+        title: `${course.title} | IMHS`,
+        description: course.description?.slice(0, 160) || "SLMC-aligned modern pharmacy course at IMHS.",
+        url: `https://imhsedu.com/courses/${slug}`,
+        images: [{ url: coverUrl, width: 1200, height: 630, alt: course.title }],
+        type: "article",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${course.title} | IMHS`,
+        description: course.description?.slice(0, 160),
+        images: [coverUrl],
+      },
     };
   } catch {
-    return { title: "Course Details - IMHS" };
+    return { title: "Course Details | IMHS" };
   }
 }
 
@@ -88,13 +110,43 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
     ? formatGoogleDriveImageUrl(course.coverImage) || course.coverImage
     : null;
 
+  const courseJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: course.title,
+    description: course.description,
+    provider: {
+      "@type": "EducationalOrganization",
+      name: "Institute of Medicine and Health Sciences (IMHS)",
+      sameAs: "https://imhsedu.com",
+    },
+    educationalLevel: course.level || "All Levels",
+    courseCode: courseCode,
+    offers: {
+      "@type": "Offer",
+      category: "Paid",
+      price: course.price || 0,
+      priceCurrency: "LKR",
+      availability: "https://schema.org/InStock",
+    },
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      courseMode: "blended",
+      courseWorkload: course.enrollmentValidity || "Lifetime Access",
+    },
+  };
+
   return (
     <div className="min-h-screen bg-linen/20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
+      />
 
       {/* ── MAIN LAYOUT ─────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12">
 
-        {/* Inline back link — plain text, no bar */}
+        {/* Inline back link - plain text, no bar */}
         <Link
           href="/courses"
           className="inline-flex items-center gap-1.5 text-xs font-mono text-sage hover:text-clinical-teal transition-colors group mb-6"
@@ -266,13 +318,12 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                           return (
                             <li key={lesson.id} className="flex items-center justify-between px-5 py-2.5 hover:bg-linen/10 transition-colors">
                               <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
-                                <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
-                                  isQuiz ? "bg-purple-50 border border-purple-200" :
-                                  isDoc ? "bg-amber-50 border border-amber-200" :
-                                  "bg-clinical-teal/8 border border-clinical-teal/15"}`}>
+                                <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${isQuiz ? "bg-purple-50 border border-purple-200" :
+                                    isDoc ? "bg-amber-50 border border-amber-200" :
+                                      "bg-clinical-teal/8 border border-clinical-teal/15"}`}>
                                   {isQuiz ? <HelpCircle className="w-2.5 h-2.5 text-purple-600" /> :
-                                   isDoc ? <FileText className="w-2.5 h-2.5 text-amber-600" /> :
-                                   <Video className="w-2.5 h-2.5 text-clinical-teal" />}
+                                    isDoc ? <FileText className="w-2.5 h-2.5 text-amber-600" /> :
+                                      <Video className="w-2.5 h-2.5 text-clinical-teal" />}
                                 </div>
                                 <span className="text-xs text-ink-muted truncate">{lesson.title}</span>
                               </div>

@@ -17,21 +17,22 @@ export default async function AdminCourseAssessmentPage({
 
   const { id } = await params;
 
-  const courses: any[] = await prisma.$queryRaw`
-    SELECT id, title, slug FROM Course WHERE id = ${id} LIMIT 1
-  `;
+  const course = await prisma.course.findUnique({
+    where: { id },
+    select: { id: true, title: true, slug: true },
+  });
 
-  if (!courses || courses.length === 0) {
+  if (!course) {
     notFound();
   }
 
-  const course = courses[0];
+  const assessmentQuestions = await prisma.moduleAssessmentQuestion.findMany({
+    where: { courseId: course.id },
+    select: { id: true, question: true, isTrue: true, explanation: true },
+    orderBy: { createdAt: "asc" },
+  });
 
-  const assessmentQuestions: any[] = await prisma.$queryRaw`
-    SELECT id, question, isTrue, explanation FROM ModuleAssessmentQuestion WHERE courseId = ${course.id} ORDER BY createdAt ASC
-  `;
-
-  const formattedQuestions = (assessmentQuestions || []).map((q: any) => ({
+  const formattedQuestions = assessmentQuestions.map((q) => ({
     id: q.id,
     question: q.question,
     isTrue: Boolean(q.isTrue),

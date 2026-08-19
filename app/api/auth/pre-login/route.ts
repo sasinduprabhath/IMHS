@@ -6,36 +6,56 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { encode } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, RATE_LIMITS, rateLimitResponse } from "@/lib/rate-limit";
 import { sanitizeEmail, sanitizeString } from "@/lib/sanitization";
 import { generateOtp, hashOtp, otpExpiry, buildOtpEmail, maskEmail } from "@/lib/otp";
 import { sendMail } from "@/lib/mailer";
 import { verifyTrustedDeviceToken, TRUSTED_DEVICE_COOKIE_NAME } from "@/lib/trustedDevice";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
+
+const preLoginSchema = z.object({
+  email: z.string().min(1, "Email or Student ID is required").max(150, "Identifier too long"),
+  password: z.string().min(1, "Password is required").max(100, "Password max 100 characters"),
+  deviceSignature: z.string().max(100).optional().default(""),
+  deviceInfo: z.string().max(200).optional().default("Unknown Device"),
+});
 
 export async function POST(req: NextRequest) {
+  const clientIp = getClientIp(req);
   try {
     const body = await req.json();
-    const rawEmail = body.email as string;
-    const rawPassword = body.password as string;
-    const deviceSignature = (body.deviceSignature as string) || "";
-    const deviceInfo = (body.deviceInfo as string) || "Unknown Device";
-
-    if (!rawEmail || !rawPassword) {
-      return NextResponse.json({ status: "ERROR", message: "Missing credentials." }, { status: 400 });
+    const parsed = preLoginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({
+        status: "ERROR",
+        message: parsed.error.issues[0]?.message || "Invalid input parameters.",
+      }, { status: 400 });
     }
+
+    const { email: rawEmail, password: rawPassword, deviceSignature, deviceInfo } = parsed.data;
 
     const email = sanitizeEmail(rawEmail);
     const password = sanitizeString(rawPassword, 100);
 
-    // ── Rate limiting ──────────────────────────────────────────────────
-    const forwardedFor = req.headers.get("x-forwarded-for") || "127.0.0.1";
-    const clientIp = forwardedFor.split(",")[0].trim();
-    const rateLimitKey = `auth:pre-login:${clientIp}:${email}`;
-    const rateLimit = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
-    if (!rateLimit.success) {
+    // ── Rate limiting (Strict IP + Account Protection) ─────────────────
+    // 1. IP-wide brute force prevention
+    const ipLimit = checkRateLimit(`auth:pre-login:ip:${clientIp}`, RATE_LIMITS.AUTH_IP.maxAttempts, RATE_LIMITS.AUTH_IP.windowMs);
+    if (!ipLimit.success) {
+      logger.security("RATE_LIMIT_EXCEEDED", `IP rate limit exceeded on pre-login`, { ip: clientIp, path: "/api/auth/pre-login" });
       return NextResponse.json({
         status: "ERROR",
-        message: "Too many login attempts. Please wait 15 minutes and try again.",
+        message: "Too many login attempts from your network. Please wait 15 minutes and try again.",
+      }, { status: 429 });
+    }
+
+    // 2. Targeted account credential protection
+    const accountLimit = checkRateLimit(`auth:pre-login:acc:${email}`, RATE_LIMITS.AUTH_ACCOUNT.maxAttempts, RATE_LIMITS.AUTH_ACCOUNT.windowMs);
+    if (!accountLimit.success) {
+      logger.security("RATE_LIMIT_EXCEEDED", `Account rate limit exceeded for ${email}`, { ip: clientIp, path: "/api/auth/pre-login" });
+      return NextResponse.json({
+        status: "ERROR",
+        message: "Too many login attempts for this account. Please wait 15 minutes and try again.",
       }, { status: 429 });
     }
 
@@ -53,10 +73,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
+      logger.security("AUTH_LOGIN_FAILED", `Login attempt for non-existent account: ${email}`, { ip: clientIp, path: "/api/auth/pre-login" });
       return NextResponse.json({ status: "ERROR", message: "Invalid email or password." }, { status: 401 });
     }
 
     if (user.status === "FROZEN") {
+      logger.security("AUTH_ACCOUNT_LOCKED", `Attempted login on frozen account: ${user.email}`, { userId: user.id, ip: clientIp });
       return NextResponse.json({
         status: "ERROR",
         message: "Your account has been frozen by administration. Contact IMHS Support.",
@@ -67,21 +89,25 @@ export async function POST(req: NextRequest) {
     const cleanHash = user.passwordHash.replace(/^\$wp\$/, "");
     const isValidPassword = await bcrypt.compare(password, cleanHash);
     if (!isValidPassword) {
+      logger.security("AUTH_LOGIN_FAILED", `Invalid password entered for ${user.email}`, { userId: user.id, ip: clientIp });
       return NextResponse.json({ status: "ERROR", message: "Invalid email or password." }, { status: 401 });
     }
 
     // ── Admin bypass: skip 2FA & device binding entirely for admin ──────
     if (user.role === "ADMIN") {
+      logger.security("AUTH_LOGIN_SUCCESS", `Admin pre-login authenticated: ${user.email}`, { userId: user.id, ip: clientIp });
       return NextResponse.json({ status: "ADMIN_BYPASS" });
     }
 
-    // ── 30-Day Trusted Browser Check (Skip 2FA if trusted cookie exists) ─────
     const trustedCookie = req.cookies.get(TRUSTED_DEVICE_COOKIE_NAME)?.value;
     if (trustedCookie) {
       const isTrusted = await verifyTrustedDeviceToken(trustedCookie, user.id, deviceSignature);
       if (isTrusted) {
-        console.log(`[pre-login] 30-day trusted browser active for ${user.email} -> skipping 2FA OTP.`);
-        const secret = process.env.NEXTAUTH_SECRET || "imhs_default_secret_32_characters_long";
+        logger.security("AUTH_LOGIN_SUCCESS", `30-day trusted device recognized for ${user.email}`, { userId: user.id, ip: clientIp });
+        const secret = process.env.NEXTAUTH_SECRET;
+        if (!secret) {
+          throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
+        }
         const verifiedToken = await encode({
           token: {
             id: user.id,
@@ -154,6 +180,12 @@ export async function POST(req: NextRequest) {
 
           const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
 
+          logger.security("AUTH_DEVICE_LOCKED", `Device mismatch for user ${user.email}`, {
+            userId: user.id,
+            ip: clientIp,
+            details: { deviceInfo },
+          });
+
           return NextResponse.json({
             status: "DEVICE_LOCKED",
             message:
@@ -224,8 +256,9 @@ export async function POST(req: NextRequest) {
         html: emailContent.html,
         text: emailContent.text,
       });
+      logger.security("AUTH_OTP_SENT", `2FA OTP email dispatched for user ${user.email}`, { userId: user.id, ip: clientIp });
     } catch (mailErr) {
-      console.error("[pre-login] Failed to send OTP email:", mailErr);
+      logger.error("Failed to send OTP email", mailErr, { userId: user.id, ip: clientIp });
       await prisma.user.update({
         where: { id: user.id },
         data: { otpCode: null, otpExpiry: null },

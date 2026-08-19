@@ -1,6 +1,6 @@
 import type { QuizQuestion } from "@/types/pharmacology";
 
-// ─── Module Assessment — Question Bank ────────────────────────────────────────
+// ─── Module Assessment - Question Bank ────────────────────────────────────────
 // True/False questions for Module Assessment (Activity 03).
 // Expand to 100 per module with clinical content team input.
 // Each question tagged with a `topic` for grouped review in results screen.
@@ -21,7 +21,7 @@ export const MODULE_QUESTIONS: QuizQuestion[] = [
     topic: "Cardiovascular Drugs",
     statement: "Amlodipine is primarily used to treat asthma.",
     answer: false,
-    explanation: "Amlodipine is used for hypertension and angina — not asthma. Beta-2 agonists are used for asthma.",
+    explanation: "Amlodipine is used for hypertension and angina - not asthma. Beta-2 agonists are used for asthma.",
   },
   {
     id: "cv-03",
@@ -53,7 +53,7 @@ export const MODULE_QUESTIONS: QuizQuestion[] = [
     topic: "Cardiovascular Drugs",
     statement: "Amlodipine should be abruptly stopped when blood pressure normalises.",
     answer: false,
-    explanation: "Antihypertensives must not be stopped abruptly — this can cause rebound hypertension. Continue until instructed by the prescriber.",
+    explanation: "Antihypertensives must not be stopped abruptly - this can cause rebound hypertension. Continue until instructed by the prescriber.",
   },
 
   // ── DIABETES DRUGS ────────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ export const MODULE_QUESTIONS: QuizQuestion[] = [
     topic: "Cardiovascular Drugs",
     statement: "Atorvastatin is safe to use in pregnancy.",
     answer: false,
-    explanation: "Statins are contraindicated in pregnancy — they may cause congenital abnormalities. Pregnancy must be excluded before starting a statin.",
+    explanation: "Statins are contraindicated in pregnancy - they may cause congenital abnormalities. Pregnancy must be excluded before starting a statin.",
   },
   {
     id: "st-03",
@@ -189,7 +189,7 @@ export const MODULE_QUESTIONS: QuizQuestion[] = [
     topic: "Gastrointestinal Drugs",
     statement: "Omeprazole should be taken 30 minutes before breakfast for maximum effect.",
     answer: true,
-    explanation: "PPIs work best when proton pumps are actively secreting acid — i.e., at meal stimulation. Pre-breakfast dosing is optimal.",
+    explanation: "PPIs work best when proton pumps are actively secreting acid - i.e., at meal stimulation. Pre-breakfast dosing is optimal.",
   },
   {
     id: "gi-03",
@@ -205,7 +205,7 @@ export const MODULE_QUESTIONS: QuizQuestion[] = [
     topic: "Gastrointestinal Drugs",
     statement: "Omeprazole capsules should be crushed before swallowing for faster absorption.",
     answer: false,
-    explanation: "Omeprazole capsules are enteric-coated — crushing destroys the coating, exposing the drug to gastric acid before it reaches the small intestine.",
+    explanation: "Omeprazole capsules are enteric-coated - crushing destroys the coating, exposing the drug to gastric acid before it reaches the small intestine.",
   },
 ];
 

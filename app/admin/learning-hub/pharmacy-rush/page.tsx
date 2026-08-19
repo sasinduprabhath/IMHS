@@ -5,7 +5,7 @@ import { PharmacyRushEditor, type RushConfigItem } from "@/components/admin/Phar
 import { DRUGS } from "@/data/drugs";
 
 export const metadata = {
-  title: "Pharmacy Rush Configurator — Admin CMS",
+  title: "Pharmacy Rush Configurator - Admin CMS",
 };
 
 export default async function AdminPharmacyRushPage() {

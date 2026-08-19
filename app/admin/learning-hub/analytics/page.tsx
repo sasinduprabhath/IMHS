@@ -5,7 +5,7 @@ import { AnalyticsTable } from "@/components/admin/AnalyticsTable";
 import { ArrowLeft, BarChart3, Trophy, Users, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Student Analytics & Gradebook — Admin CMS",
+  title: "Student Analytics & Gradebook - Admin CMS",
 };
 
 export default async function AdminAnalyticsPage() {

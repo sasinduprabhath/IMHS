@@ -110,7 +110,7 @@ function Step1({
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Course Title *
           </label>
           <input
@@ -119,21 +119,21 @@ function Step1({
             placeholder="e.g. Modern Pharmacy Course (SLMC Prep)"
             value={form.title}
             onChange={(e) => handleTitle(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal focus:ring-1 focus:ring-clinical-teal/20"
+            className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
           />
         </div>
         <div>
-          <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             URL Slug *
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-ink-muted select-none">/courses/</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 select-none">/courses/</span>
             <input
               type="text"
               required
               value={form.slug}
               onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-              className="w-full pl-[70px] pr-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm font-mono text-ink focus:outline-none focus:border-clinical-teal"
+              className="w-full pl-[70px] pr-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
             />
           </div>
         </div>
@@ -141,7 +141,7 @@ function Step1({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Course Type
           </label>
           <CustomSelect
@@ -154,7 +154,7 @@ function Step1({
           />
         </div>
         <div>
-          <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Category
           </label>
           <input
@@ -162,7 +162,7 @@ function Step1({
             placeholder="e.g. Modern Pharmacy Course"
             value={form.category}
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-            className="w-full px-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal"
+            className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
           />
         </div>
       </div>
@@ -179,10 +179,10 @@ function Step2({
 }) {
   return (
     <div className="space-y-5">
-      <div className="bg-linen/40 p-5 rounded-card border border-chart-grid space-y-5">
+      <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-5 shadow-xs">
         <div>
-          <label className="block text-xs font-mono text-ink font-bold mb-1.5">
-            Discounted Current Fee (රු) *
+          <label className="block text-xs font-bold text-slate-900 mb-1.5">
+            Discounted Current Fee (LKR) *
           </label>
           <input
             type="number"
@@ -192,16 +192,16 @@ function Step2({
             onChange={(e) =>
               setForm((f) => ({ ...f, price: e.target.value !== "" ? Number(e.target.value) : "" }))
             }
-            className="w-full px-3.5 py-2.5 bg-white border border-chart-grid rounded-input text-lg font-mono text-ink font-bold focus:outline-none focus:border-clinical-teal"
+            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-lg font-mono text-slate-900 font-bold focus:outline-none focus:border-[#0E57A4] transition-colors"
           />
-          <p className="text-[10px] font-mono text-sage mt-1.5">
-            This is the actual price charged to the student.
+          <p className="text-[10px] font-mono text-slate-500 mt-1.5">
+            This is the actual enrollment price charged to the student.
           </p>
         </div>
 
         <div>
-          <label className="block text-xs font-mono text-ink font-bold mb-1.5">
-            Original Price (රු - Strikethrough, optional)
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Original Price (LKR - Strikethrough, optional)
           </label>
           <input
             type="number"
@@ -214,10 +214,10 @@ function Step2({
                 originalPrice: e.target.value !== "" ? Number(e.target.value) : "",
               }))
             }
-            className="w-full px-3.5 py-2.5 bg-white border border-chart-grid rounded-input text-lg font-mono text-sage focus:outline-none focus:border-clinical-teal"
+            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-lg font-mono text-slate-400 focus:outline-none focus:border-[#0E57A4] transition-colors"
           />
-          <p className="text-[10px] font-mono text-sage mt-1.5">
-            Higher price shown with a strikethrough to show a discount (e.g.{" "}
+          <p className="text-[10px] font-mono text-slate-500 mt-1.5">
+            Higher price shown with a strikethrough to indicate a discount (e.g.{" "}
             <span className="line-through">LKR 65,000</span>).
           </p>
         </div>
@@ -225,21 +225,21 @@ function Step2({
 
       {/* Preview */}
       {typeof form.price === "number" && (
-        <div className="p-4 rounded-card border border-clinical-teal/30 bg-clinical-teal-surface/30 flex items-center gap-4">
+        <div className="p-4 rounded-2xl border border-blue-200 bg-blue-50/50 flex items-center gap-4">
           <div>
-            <p className="text-xs font-mono text-sage mb-0.5">Preview</p>
+            <p className="text-xs font-mono text-slate-500 mb-0.5">Price Display Preview</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-display font-bold text-ink">
+              <span className="text-2xl font-display font-bold text-slate-900">
                 LKR {Number(form.price).toLocaleString()}
               </span>
               {typeof form.originalPrice === "number" && (
-                <span className="text-base text-sage line-through font-mono">
+                <span className="text-base text-slate-400 line-through font-mono">
                   LKR {form.originalPrice.toLocaleString()}
                 </span>
               )}
             </div>
-            {typeof form.originalPrice === "number" && typeof form.price === "number" && (
-              <span className="text-[10px] font-mono text-chart-red font-bold">
+            {typeof form.originalPrice === "number" && typeof form.price === "number" && form.originalPrice > form.price && (
+              <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-block mt-1">
                 Save LKR {(form.originalPrice - form.price).toLocaleString()}
               </span>
             )}
@@ -262,8 +262,8 @@ function Step3({
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
-          Level
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          Difficulty Level
         </label>
         <CustomSelect
           options={[
@@ -278,7 +278,7 @@ function Step3({
       </div>
 
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           Course Description *
         </label>
         <textarea
@@ -287,15 +287,15 @@ function Step3({
           placeholder="Detailed overview of what students will master in this course..."
           value={form.description}
           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-          className="w-full px-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal resize-none"
+          className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] resize-none transition-colors"
         />
-        <p className="text-[10px] font-mono text-sage mt-1">
+        <p className="text-[10px] font-mono text-slate-400 mt-1">
           {form.description.length} characters
         </p>
       </div>
 
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           Cover Image URL
         </label>
         <input
@@ -306,12 +306,12 @@ function Step3({
             setImgError(false);
             setForm((f) => ({ ...f, coverImage: e.target.value }));
           }}
-          className="w-full px-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm font-mono text-ink focus:outline-none focus:border-clinical-teal"
+          className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
         />
 
         {/* Live preview */}
         {form.coverImage && (
-          <div className="mt-3 relative h-44 w-full rounded-card overflow-hidden border border-chart-grid bg-linen">
+          <div className="mt-3 relative h-44 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
             {!imgError ? (
               <Image
                 src={form.coverImage}
@@ -322,7 +322,7 @@ function Step3({
                 unoptimized
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-xs font-mono text-ink-muted">
+              <div className="flex items-center justify-center h-full text-xs font-mono text-slate-500">
                 ⚠ Image failed to load - check the URL
               </div>
             )}
@@ -417,34 +417,36 @@ function Step4({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-mono text-ink-muted">
-          Build your syllabus here, or skip and add it later in the course editor.
+      <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <p className="text-xs font-mono text-slate-500">
+          Build your syllabus chapters here, or skip and customize later in the curriculum builder.
         </p>
-        <Button type="button" size="sm" variant="outline" onClick={addChapter} className="gap-1.5 text-xs font-mono shrink-0">
+        <Button type="button" size="sm" onClick={addChapter} className="gap-1.5 text-xs font-mono font-bold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shrink-0">
           <Plus className="w-3.5 h-3.5" /> Add Chapter
         </Button>
       </div>
 
       {form.chapters.length === 0 && (
-        <div className="border-2 border-dashed border-chart-grid rounded-card p-10 text-center text-ink-muted">
-          <Layers className="w-8 h-8 mx-auto mb-2 opacity-30" />
-          <p className="text-sm font-mono">No chapters yet.</p>
-          <p className="text-xs mt-1 text-sage">Click "Add Chapter" to start building your syllabus.</p>
+        <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center text-slate-400 bg-white">
+          <Layers className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+          <p className="text-sm font-semibold text-slate-700">No chapters added yet</p>
+          <p className="text-xs mt-1 text-slate-400">Click &ldquo;Add Chapter&rdquo; to begin organizing modules.</p>
         </div>
       )}
 
       <div className="space-y-3">
         {form.chapters.map((chapter, cIdx) => (
-          <div key={chapter.tempId} className="border border-chart-grid rounded-card overflow-hidden">
+          <div key={chapter.tempId} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
             {/* Chapter Header */}
-            <div className="flex items-center gap-2 px-3 py-2.5 bg-linen/60 border-b border-chart-grid">
-              <span className="text-[10px] font-mono text-sage shrink-0">CH {String(cIdx + 1).padStart(2, "0")}</span>
+            <div className="flex items-center gap-2 px-4 py-3 bg-slate-50/80 border-b border-slate-200">
+              <span className="text-[10px] font-mono font-bold text-[#0E57A4] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">
+                CH {String(cIdx + 1).padStart(2, "0")}
+              </span>
               <input
                 type="text"
                 value={chapter.title}
                 onChange={(e) => updateChapterTitle(chapter.tempId, e.target.value)}
-                className="flex-1 bg-transparent text-sm font-medium text-ink focus:outline-none min-w-0"
+                className="flex-1 bg-transparent text-sm font-semibold text-slate-900 focus:outline-none min-w-0"
                 placeholder="Chapter title..."
               />
               <div className="flex items-center gap-1 shrink-0">
@@ -452,7 +454,7 @@ function Step4({
                   type="button"
                   onClick={() => moveChapter(chapter.tempId, -1)}
                   disabled={cIdx === 0}
-                  className="p-1 rounded text-ink-muted hover:text-ink disabled:opacity-30 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-25 transition-colors cursor-pointer"
                 >
                   <MoveUp className="w-3.5 h-3.5" />
                 </button>
@@ -460,14 +462,14 @@ function Step4({
                   type="button"
                   onClick={() => moveChapter(chapter.tempId, 1)}
                   disabled={cIdx === form.chapters.length - 1}
-                  className="p-1 rounded text-ink-muted hover:text-ink disabled:opacity-30 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-25 transition-colors cursor-pointer"
                 >
                   <MoveDown className="w-3.5 h-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => addLesson(chapter.tempId)}
-                  className="p-1 rounded text-clinical-teal hover:bg-clinical-teal/10 transition-colors"
+                  className="p-1.5 rounded-lg text-[#0E57A4] hover:bg-blue-50 transition-colors cursor-pointer"
                   title="Add Lesson"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -475,7 +477,7 @@ function Step4({
                 <button
                   type="button"
                   onClick={() => removeChapter(chapter.tempId)}
-                  className="p-1 rounded text-chart-red hover:bg-chart-red/10 transition-colors"
+                  className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
                   title="Remove Chapter"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -485,21 +487,21 @@ function Step4({
 
             {/* Lessons */}
             {chapter.lessons.length === 0 ? (
-              <div className="px-4 py-3 text-xs font-mono text-sage">
-                No lessons - click <Plus className="w-3 h-3 inline" /> to add one.
+              <div className="px-4 py-3 text-xs font-mono text-slate-500">
+                No lessons in this chapter yet - click <Plus className="w-3 h-3 inline text-[#0E57A4]" /> to add one.
               </div>
             ) : (
-              <div className="divide-y divide-chart-grid/60">
+              <div className="divide-y divide-slate-100">
                 {chapter.lessons.map((lesson, lIdx) => (
-                  <div key={lesson.tempId} className="px-3 py-2.5 bg-surface flex items-start gap-2">
-                    <span className="text-[9px] font-mono text-sage/70 pt-2 shrink-0 w-5">{lIdx + 1}</span>
-                    <div className="flex-1 min-w-0 space-y-1.5">
+                  <div key={lesson.tempId} className="px-4 py-3 bg-white hover:bg-slate-50/50 flex items-start gap-2.5">
+                    <span className="text-[10px] font-mono text-slate-400 pt-2 shrink-0 w-6 font-semibold">{lIdx + 1}.</span>
+                    <div className="flex-1 min-w-0 space-y-2">
                       <input
                         type="text"
                         value={lesson.title}
                         onChange={(e) => updateLesson(chapter.tempId, lesson.tempId, { title: e.target.value })}
                         placeholder="Lesson title..."
-                        className="w-full bg-linen/40 border border-chart-grid/60 rounded px-2.5 py-1.5 text-xs text-ink focus:outline-none focus:border-clinical-teal"
+                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] font-medium transition-colors"
                       />
                       <div className="flex gap-2">
                         <select
@@ -509,7 +511,7 @@ function Step4({
                               type: e.target.value as "VIDEO" | "DOCUMENT",
                             })
                           }
-                          className="text-[10px] font-mono bg-linen/40 border border-chart-grid/60 rounded px-2 py-1 text-ink focus:outline-none"
+                          className="text-[11px] font-mono font-semibold bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-1 text-slate-800 focus:outline-none"
                         >
                           <option value="VIDEO">📹 Video</option>
                           <option value="DOCUMENT">📄 Document</option>
@@ -523,7 +525,7 @@ function Step4({
                               updateLesson(chapter.tempId, lesson.tempId, { vimeoVideoId: e.target.value })
                             }
                             placeholder="HD Video Stream ID..."
-                            className="flex-1 bg-linen/40 border border-chart-grid/60 rounded px-2.5 py-1 text-[10px] font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                            className="flex-1 bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1 text-[11px] font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
                           />
                         ) : (
                           <input
@@ -533,7 +535,7 @@ function Step4({
                               updateLesson(chapter.tempId, lesson.tempId, { driveFileId: e.target.value })
                             }
                             placeholder="Google Drive ID..."
-                            className="flex-1 bg-linen/40 border border-chart-grid/60 rounded px-2.5 py-1 text-[10px] font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                            className="flex-1 bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1 text-[11px] font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
                           />
                         )}
                       </div>
@@ -541,9 +543,9 @@ function Step4({
                     <button
                       type="button"
                       onClick={() => removeLesson(chapter.tempId, lesson.tempId)}
-                      className="p-1 mt-1 rounded text-chart-red hover:bg-chart-red/10 transition-colors shrink-0"
+                      className="p-1.5 mt-1 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -568,7 +570,7 @@ function Step5({
   return (
     <div className="space-y-5">
       {/* Summary card */}
-      <div className="bg-linen/50 border border-chart-grid rounded-card divide-y divide-chart-grid overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 overflow-hidden shadow-xs">
         {[
           { label: "Title", value: form.title },
           { label: "Slug", value: `/courses/${form.slug}`, mono: true },
@@ -600,11 +602,11 @@ function Step5({
             value: form.coverImage ? "Set ✓" : "None (can be set later)",
           },
         ].map(({ label, value, mono }) => (
-          <div key={label} className="flex gap-4 px-4 py-3">
-            <span className="text-[10px] font-mono text-sage font-bold uppercase shrink-0 w-24 pt-0.5">
+          <div key={label} className="flex gap-4 px-5 py-3.5">
+            <span className="text-[10px] font-mono text-slate-500 font-bold uppercase shrink-0 w-24 pt-0.5">
               {label}
             </span>
-            <span className={cn("text-sm text-ink break-all", mono && "font-mono text-xs")}>
+            <span className={cn("text-sm font-semibold text-slate-900 break-all", mono && "font-mono text-xs text-[#0E57A4]")}>
               {value}
             </span>
           </div>
@@ -612,11 +614,11 @@ function Step5({
       </div>
 
       {/* Publish toggle */}
-      <div className="p-4 rounded-card border border-chart-grid bg-surface flex items-center justify-between gap-4">
+      <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-4 shadow-xs">
         <div>
-          <p className="text-sm font-medium text-ink">Publish immediately</p>
-          <p className="text-xs text-ink-muted mt-0.5">
-            If enabled, the course will be visible on the public catalog right after creation.
+          <p className="text-sm font-bold text-slate-900">Publish immediately to catalog</p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            If enabled, the course will be publicly visible on the IMHS catalog right after creation.
           </p>
         </div>
         <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -626,7 +628,7 @@ function Step5({
             onChange={(e) => setForm((f) => ({ ...f, published: e.target.checked }))}
             className="sr-only peer"
           />
-          <div className="w-10 h-5 bg-chart-grid rounded-full peer peer-checked:bg-clinical-teal transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
+          <div className="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:bg-emerald-600 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
         </label>
       </div>
     </div>
@@ -703,18 +705,18 @@ export default function NewCoursePage() {
       <div>
         <Link
           href="/admin/courses"
-          className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-clinical-teal mb-3"
+          className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-[#0E57A4] mb-3 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Course Manager
         </Link>
-        <span className="block font-mono text-xs text-chart-red uppercase font-semibold">
+        <span className="block font-mono text-[10px] text-[#F16726] uppercase font-bold tracking-wider">
           CURRICULUM CREATION
         </span>
-        <h1 className="text-3xl font-display font-semibold text-ink">
+        <h1 className="text-3xl font-display font-bold text-slate-900">
           Create New Course
         </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
-          Complete all steps to build your course. You can edit everything after creation.
+        <p className="text-xs text-slate-500 mt-1">
+          Complete all steps to configure your course program. You can refine everything after creation in the builder.
         </p>
       </div>
 
@@ -737,17 +739,17 @@ export default function NewCoursePage() {
               >
                 <div
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
+                    "w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition-all shadow-xs",
                     active
-                      ? "bg-clinical-teal text-white shadow-md"
+                      ? "bg-[#0E57A4] text-white shadow-md"
                       : done
-                        ? "bg-clinical-teal/20 text-clinical-teal border border-clinical-teal/30"
-                        : "bg-linen border border-chart-grid text-ink-muted"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-slate-100 border border-slate-200 text-slate-400"
                   )}
                 >
-                  {done ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                  {done ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <Icon className="w-4 h-4" />}
                 </div>
-                <span className="hidden sm:block text-[10px] font-mono text-center leading-tight">
+                <span className="hidden sm:block text-[10px] font-mono font-semibold text-center leading-tight">
                   {s.label}
                 </span>
               </div>
@@ -755,8 +757,8 @@ export default function NewCoursePage() {
               {i < STEPS.length - 1 && (
                 <div
                   className={cn(
-                    "h-px flex-1 max-w-[40px] transition-colors mt-[-16px]",
-                    step > s.id ? "bg-clinical-teal" : "bg-chart-grid"
+                    "h-0.5 flex-1 max-w-[40px] transition-colors mt-[-16px]",
+                    step > s.id ? "bg-emerald-500" : "bg-slate-200"
                   )}
                 />
               )}
@@ -766,15 +768,15 @@ export default function NewCoursePage() {
       </div>
 
       {/* Step Card */}
-      <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         {/* Step Title Bar */}
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-chart-grid bg-linen/40">
-          {React.createElement(STEPS[step - 1].icon, { className: "w-4 h-4 text-clinical-teal" })}
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+          {React.createElement(STEPS[step - 1].icon, { className: "w-4 h-4 text-[#0E57A4]" })}
           <div>
-            <p className="text-[10px] font-mono text-sage uppercase">
+            <p className="text-[10px] font-mono font-bold text-slate-500 uppercase">
               Step {step} of {STEPS.length}
             </p>
-            <p className="text-sm font-semibold text-ink leading-snug mt-0.5">
+            <p className="text-sm font-bold text-slate-900 leading-snug mt-0.5">
               {step === 1 && "Course Identity"}
               {step === 2 && "Pricing Configuration"}
               {step === 3 && "Course Details"}
@@ -787,7 +789,7 @@ export default function NewCoursePage() {
         {/* Step Body */}
         <div className="px-6 py-6">
           {errorMsg && (
-            <div className="mb-4 bg-chart-red/8 border border-chart-red/30 p-3 rounded text-xs text-chart-red font-mono">
+            <div className="mb-4 bg-rose-50 border border-rose-200 p-3.5 rounded-xl text-xs text-rose-700 font-mono font-bold">
               ⚠️ {errorMsg}
             </div>
           )}
@@ -799,13 +801,13 @@ export default function NewCoursePage() {
         </div>
 
         {/* Navigation Footer */}
-        <div className="px-6 py-4 border-t border-chart-grid flex items-center justify-between bg-linen/20">
+        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
           <Button
             type="button"
             variant="ghost"
             onClick={() => setStep((s) => s - 1)}
             disabled={step === 1}
-            className="gap-1.5 text-xs font-mono"
+            className="gap-1.5 text-xs font-mono font-semibold text-slate-600 rounded-xl"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </Button>
@@ -813,20 +815,18 @@ export default function NewCoursePage() {
           {step < STEPS.length ? (
             <Button
               type="button"
-              variant="default"
               onClick={() => setStep((s) => s + 1)}
               disabled={!canAdvance()}
-              className="gap-1.5 text-xs font-semibold"
+              className="gap-1.5 text-xs font-semibold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shadow-xs"
             >
               Continue <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           ) : (
             <Button
               type="button"
-              variant="default"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="gap-2 font-semibold"
+              className="gap-2 font-semibold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shadow-xs"
             >
               <Save className="w-4 h-4" />
               {isSubmitting ? "Creating Course..." : "Create Course"}

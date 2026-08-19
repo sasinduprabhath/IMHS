@@ -38,17 +38,17 @@ export function ScoreTicker({ score, maxScore = 100, className, label = "SCORE" 
 
   return (
     <div className={cn("flex flex-col items-center", className)}>
-      <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-ink-muted">{label}</span>
+      <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-500">{label}</span>
       <motion.div
         key={score}
-        initial={{ scale: score > 0 ? 1.25 : 1, color: score > 0 ? "#4A8B7A" : "#0A121E" }}
-        animate={{ scale: 1, color: "#0A121E" }}
+        initial={{ scale: score > 0 ? 1.25 : 1, color: score > 0 ? "#0E57A4" : "#0F172A" }}
+        animate={{ scale: 1, color: "#0F172A" }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="text-xl font-mono font-bold text-ink leading-none tabular-nums"
+        className="text-xl font-mono font-bold text-slate-900 leading-none tabular-nums"
       >
         {displayScore}
         {maxScore && (
-          <span className="text-xs font-mono text-ink-muted font-normal">/{maxScore}</span>
+          <span className="text-xs font-mono text-slate-400 font-normal">/{maxScore}</span>
         )}
       </motion.div>
     </div>

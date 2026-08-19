@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitization";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,16 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") {
       return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    }
+
+    const clientIp = getClientIp(req);
+    const rateLimit = checkRateLimit(
+      `admin:student_create:${session.user.id || clientIp}`,
+      RATE_LIMITS.STUDENT_CREATE.maxAttempts,
+      RATE_LIMITS.STUDENT_CREATE.windowMs
+    );
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.resetTime, rateLimit.limit, rateLimit.remaining, "Rate limit exceeded for student account creation. Please wait a few minutes.");
     }
 
     const body = await req.json();

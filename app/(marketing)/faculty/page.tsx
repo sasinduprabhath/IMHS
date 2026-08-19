@@ -7,8 +7,24 @@ import { AtomicOrbit, BenzeneRing, MedicalCross, FloatingMolecules, PillCapsuleO
 import { Stethoscope, Users, Star, GraduationCap, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Faculty Directory - IMHS Senior Lecturers & Directors",
-  description: "Meet the senior consultants, pharmacists, and healthcare directors teaching at IMHS.",
+  title: "Faculty Directory | Senior Lecturers & Medical Board",
+  description:
+    "Meet the senior medical consultants, registered pharmacists, and healthcare lecturers directing clinical education at IMHS Sri Lanka.",
+  alternates: {
+    canonical: "https://imhsedu.com/faculty",
+  },
+  openGraph: {
+    title: "Faculty Directory | IMHS Academic Board",
+    description: "Senior medical consultants and clinical pharmacology experts at IMHS.",
+    url: "https://imhsedu.com/faculty",
+    images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "IMHS Faculty Directory" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Faculty Directory | IMHS Medical Board",
+    description: "Learn from experienced clinical practitioners and SLMC registered pharmacists.",
+    images: ["/gallery/faculty-consultation.jpg"],
+  },
 };
 
 export const revalidate = 60;
@@ -25,7 +41,7 @@ export default async function FacultyPage() {
     <div className="overflow-x-hidden bg-surface">
 
       {/* ── HERO (LIGHT MODE) ── */}
-      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
+      <section id="top" className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={500} className="-top-20 -right-20 opacity-15" />
         {/* Atomic orbit top-right */}
@@ -68,7 +84,7 @@ export default async function FacultyPage() {
       </section>
 
       {/* ── FACULTY GRID ── */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-6 sm:space-y-10">
+      <section id="directory" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-6 sm:space-y-10">
         {/* Subtle pill orbs in faculty grid background */}
         <PillCapsuleOrbs count={4} className="opacity-50" />
         <RevealOnScroll className="text-center space-y-2">

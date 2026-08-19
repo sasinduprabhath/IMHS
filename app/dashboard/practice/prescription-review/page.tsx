@@ -1,6 +1,7 @@
 import { PrescriptionSideBySideWizard } from "@/components/hub/PrescriptionSideBySideWizard";
-import { getPrescriptionCaseById as getDbCaseById } from "@/actions/prescription-actions";
-import { getPrescriptionCaseById as getStaticCaseById, DEFAULT_CASE_ID } from "@/data/prescriptionCases";
+import { PrescriptionCasePicker, PrescriptionCaseSummary } from "@/components/hub/PrescriptionCasePicker";
+import { getPrescriptionCaseById as getDbCaseById, getPrescriptionCases } from "@/actions/prescription-actions";
+import { notFound } from "next/navigation";
 
 export const metadata = {
   title: "Prescription Review Challenge — IMHS Practice Hub",
@@ -13,91 +14,87 @@ interface Props {
 
 export default async function PrescriptionReviewPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
-  const caseId = params.case || DEFAULT_CASE_ID;
+  const caseParam = params.case;
 
-  let caseData: any = null;
+  // 1. Fetch all real DB cases
+  const dbCases = await getPrescriptionCases();
 
-  // 1. Try DB lookup first (for custom cases created by admin)
-  if (caseId) {
-    try {
-      const dbCase = await getDbCaseById(caseId);
-      if (dbCase) {
-        const patient = (dbCase.patientDetails as any) || {};
-        const medicines = Array.isArray(dbCase.medicineDetails) ? dbCase.medicineDetails : [];
-        const counsellingPoints = Array.isArray(dbCase.counsellingPoints) ? dbCase.counsellingPoints : [];
+  if (!dbCases || dbCases.length === 0) {
+    notFound();
+  }
 
-        caseData = {
-          id: dbCase.id,
-          title: dbCase.title || "Prescription Case Review",
-          imageUrl: dbCase.imageUrl || "/practice/prescriptions/case-01.png",
-          groundTruth: {
-            patientName: patient.name || "Patient",
-            patientAge: patient.age || 58,
-            patientGender: patient.sex || "Female",
-            rxDate: patient.date || "2024-01-15",
-            medicines: medicines.length > 0 ? medicines : [
-              { name: "Amlodipine", strength: "10 mg", dose: "1 tablet", frequency: "Twice daily", duration: "30 days" }
-            ],
-            hasProblem: dbCase.hasProblem,
-            shouldDispense: dbCase.shouldDispense,
-            dispenseReason: dbCase.dispenseReason,
-            counsellingPoints: counsellingPoints.length > 0 ? counsellingPoints : [
-              "Take at prescribed dose only",
-              "Take with meals",
-              "Report side effects to doctor"
-            ],
-          },
-        };
-      }
-    } catch (e) {
-      console.error("DB case lookup failed:", e);
+  // Create clean numbered case references (no answer spoilers)
+  const caseSummaries: PrescriptionCaseSummary[] = dbCases.map((c: any, index: number) => ({
+    id: c.id,
+    caseNumber: index + 1,
+    difficulty: "Standard" as const,
+  }));
+
+  // ── If no case is selected in URL, show Case Selection Lobby ────────────
+  if (!caseParam) {
+    return <PrescriptionCasePicker cases={caseSummaries} />;
+  }
+
+  // ── Resolve clean case param (e.g. "?case=1" -> 1st case, or by ID) ──────
+  let targetId = caseParam;
+  let caseIndex = 0;
+
+  const parsedNumber = parseInt(caseParam, 10);
+  if (!isNaN(parsedNumber) && parsedNumber >= 1 && parsedNumber <= caseSummaries.length) {
+    targetId = caseSummaries[parsedNumber - 1].id;
+    caseIndex = parsedNumber - 1;
+  } else {
+    const foundIndex = caseSummaries.findIndex((c) => c.id === caseParam);
+    if (foundIndex >= 0) {
+      caseIndex = foundIndex;
     }
   }
 
-  // 2. Fallback to static seed data if not found in DB
-  if (!caseData) {
-    const staticCase = getStaticCaseById(caseId) || getStaticCaseById(DEFAULT_CASE_ID);
-    if (staticCase) {
-      caseData = {
-        id: staticCase.id,
-        title: `Case Review: ${staticCase.patient.name}`,
-        imageUrl: staticCase.imageUrl,
-        groundTruth: {
-          patientName: staticCase.patient.name,
-          patientAge: staticCase.patient.age,
-          patientGender: staticCase.patient.sex,
-          rxDate: staticCase.patient.date,
-          medicines: staticCase.medicines,
-          hasProblem: staticCase.hasProblem,
-          shouldDispense: staticCase.expectedAction === "dispense",
-          dispenseReason: staticCase.dispensingReason,
-          counsellingPoints: staticCase.expectedCounsellingPoints,
-        },
-      };
-    }
+  // ── Load the real DB case data ──────────────────────────────────────────
+  const dbCase = await getDbCaseById(targetId);
+  if (!dbCase) {
+    return <PrescriptionCasePicker cases={caseSummaries} />;
   }
 
-  // Final emergency fallback to ensure page NEVER throws 404
-  if (!caseData) {
-    caseData = {
-      id: "case-01",
-      title: "Prescription Case Review #1",
-      imageUrl: "/practice/prescriptions/case-01.png",
-      groundTruth: {
-        patientName: "Kumari Perera",
-        patientAge: 58,
-        patientGender: "Female",
-        rxDate: "2024-01-15",
-        medicines: [
-          { name: "Amlodipine", strength: "10 mg", dose: "1 tablet", frequency: "Twice daily", duration: "30 days" }
-        ],
-        hasProblem: true,
-        shouldDispense: false,
-        dispenseReason: "Amlodipine 10 mg BD exceeds maximum recommended daily dose (10 mg/day).",
-        counsellingPoints: ["Take at prescribed dose only", "Report side effects"],
-      },
-    };
-  }
+  const patient = (dbCase.patientDetails as any) || {};
+  const rawMedicines = Array.isArray(dbCase.medicineDetails) ? dbCase.medicineDetails : [];
+  const medicines = rawMedicines.length > 0
+    ? rawMedicines.map((m: any) => ({
+        name: String(m.name || "Prescribed Drug"),
+        strength: String(m.strength || "Standard Dose"),
+        dose: String(m.dose || "1 tablet"),
+        frequency: String(m.frequency || "Daily"),
+        duration: String(m.duration || "30 days"),
+      }))
+    : [
+        { name: "Prescribed Drug", strength: "Standard Dose", dose: "1 tablet", frequency: "Daily", duration: "30 days" }
+      ];
+
+  const rawCounselling = Array.isArray(dbCase.counsellingPoints) ? dbCase.counsellingPoints : [];
+  const counsellingPoints = rawCounselling.length > 0
+    ? rawCounselling.map((c: any) => String(c))
+    : [
+        "Take at prescribed dose only",
+        "Take with meals",
+        "Report side effects to doctor"
+      ];
+
+  const caseData = {
+    id: String(caseIndex + 1),
+    title: `Clinical Prescription Review #${caseIndex + 1}`,
+    imageUrl: dbCase.imageUrl || "/practice/prescriptions/case-01.png",
+    groundTruth: {
+      patientName: patient.name || "Patient",
+      patientAge: patient.age || 58,
+      patientGender: patient.sex || "Female",
+      rxDate: patient.date || "2024-01-15",
+      medicines,
+      hasProblem: Boolean(dbCase.hasProblem),
+      shouldDispense: Boolean(dbCase.shouldDispense),
+      dispenseReason: dbCase.dispenseReason || "",
+      counsellingPoints,
+    },
+  };
 
   return <PrescriptionSideBySideWizard caseData={caseData} />;
 }

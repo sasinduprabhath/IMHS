@@ -1,7 +1,7 @@
 import type { Drug } from "@/types/pharmacology";
 
 // ─── IMHS Drug Database ───────────────────────────────────────────────────────
-// Seed data — expand with clinical staff input.
+// Seed data - expand with clinical staff input.
 // Amlodipine is the fully-worked example from the spec (all 10 Rush rounds verified).
 
 export const DRUGS: Drug[] = [
@@ -25,10 +25,10 @@ export const DRUGS: Drug[] = [
       "Fatigue",
     ],
     keyInteractions: [
-      "Simvastatin (increased statin levels — limit simvastatin dose)",
+      "Simvastatin (increased statin levels - limit simvastatin dose)",
       "Cyclosporin (increased cyclosporin levels)",
-      "CYP3A4 inhibitors (e.g., clarithromycin — increase amlodipine levels)",
-      "CYP3A4 inducers (e.g., rifampicin — reduce amlodipine levels)",
+      "CYP3A4 inhibitors (e.g., clarithromycin - increase amlodipine levels)",
+      "CYP3A4 inducers (e.g., rifampicin - reduce amlodipine levels)",
     ],
     contraindicationsPrecautions: [
       "Severe aortic stenosis",
@@ -45,13 +45,13 @@ export const DRUGS: Drug[] = [
       "Change positions slowly to avoid dizziness",
       "Contact your doctor if chest pain occurs",
     ],
-    antidote: undefined, // No specific antidote — calcium gluconate for CCB overdose is supportive, not specific reversal
+    antidote: undefined, // No specific antidote - calcium gluconate for CCB overdose is supportive, not specific reversal
     quickDecisionScenario: {
       scenario: "Patient reports troublesome ankle swelling while on Amlodipine. Best pharmacist action?",
       options: [
-        "Ignore it — ankle swelling is not a medication issue",
+        "Ignore it - ankle swelling is not a medication issue",
         "Double the dose for better blood pressure control",
-        "Seek pharmacist/doctor review — ankle oedema is a common Amlodipine side effect that may need dose adjustment or drug change",
+        "Seek pharmacist/doctor review - ankle oedema is a common Amlodipine side effect that may need dose adjustment or drug change",
         "Stop all medicines permanently",
       ],
       correctIndex: 2,
@@ -78,7 +78,7 @@ export const DRUGS: Drug[] = [
       "Rarely: Lactic acidosis (serious)",
     ],
     keyInteractions: [
-      "Iodinated contrast media (hold 48h before/after — risk of renal impairment and lactic acidosis)",
+      "Iodinated contrast media (hold 48h before/after - risk of renal impairment and lactic acidosis)",
       "Alcohol (increased risk of lactic acidosis)",
       "ACE inhibitors (enhanced hypoglycaemic effect)",
       "Corticosteroids (antagonise glucose-lowering effect)",
@@ -104,7 +104,7 @@ export const DRUGS: Drug[] = [
       options: [
         "Continue Metformin as normal",
         "Double the Metformin dose to ensure stable glucose control",
-        "Advise patient to withhold Metformin before and 48h after contrast — refer to doctor",
+        "Advise patient to withhold Metformin before and 48h after contrast - refer to doctor",
         "Discontinue Metformin permanently",
       ],
       correctIndex: 2,
@@ -131,7 +131,7 @@ export const DRUGS: Drug[] = [
       "Rarely: New-onset diabetes",
     ],
     keyInteractions: [
-      "Clarithromycin / Erythromycin (CYP3A4 inhibitors — increase statin levels → myopathy risk)",
+      "Clarithromycin / Erythromycin (CYP3A4 inhibitors - increase statin levels → myopathy risk)",
       "Amlodipine (limit simvastatin; atorvastatin interaction less severe)",
       "Cyclosporin (markedly increased statin levels)",
       "Grapefruit juice (increases statin exposure)",
@@ -148,17 +148,17 @@ export const DRUGS: Drug[] = [
       "Take at the same time each day",
       "Avoid grapefruit and grapefruit juice",
       "Report unexplained muscle pain, tenderness or weakness immediately",
-      "Do not stop without consulting your doctor — long-term therapy is important",
+      "Do not stop without consulting your doctor - long-term therapy is important",
       "This medicine does not replace a healthy diet",
-      "Alcohol in moderation only — alcohol increases liver risk",
+      "Alcohol in moderation only - alcohol increases liver risk",
     ],
     antidote: undefined,
     quickDecisionScenario: {
       scenario: "Patient on Atorvastatin 40 mg reports severe muscle pain and dark urine. Best action?",
       options: [
-        "Reassure patient — muscle aches are always mild with statins",
+        "Reassure patient - muscle aches are always mild with statins",
         "Increase the dose to improve cholesterol control",
-        "Stop Atorvastatin immediately and refer to doctor urgently — possible rhabdomyolysis",
+        "Stop Atorvastatin immediately and refer to doctor urgently - possible rhabdomyolysis",
         "Advise the patient to take paracetamol and continue the statin",
       ],
       correctIndex: 2,
@@ -180,20 +180,20 @@ export const DRUGS: Drug[] = [
       "Diarrhoea",
       "Nausea",
       "Skin rash",
-      "Allergic reactions (urticaria, anaphylaxis — rare)",
+      "Allergic reactions (urticaria, anaphylaxis - rare)",
       "Oral/vaginal candidiasis",
     ],
     keyInteractions: [
-      "Warfarin (may enhance anticoagulant effect — monitor INR)",
-      "Oral contraceptives (may reduce efficacy — controversial, advise additional contraception)",
+      "Warfarin (may enhance anticoagulant effect - monitor INR)",
+      "Oral contraceptives (may reduce efficacy - controversial, advise additional contraception)",
       "Methotrexate (increased methotrexate toxicity)",
       "Probenecid (increases amoxicillin levels by reducing renal excretion)",
     ],
     contraindicationsPrecautions: [
       "Known hypersensitivity to penicillins or cephalosporins (cross-reactivity ~1–2%)",
-      "Mononucleosis (infectious mono) — high risk of rash",
+      "Mononucleosis (infectious mono) - high risk of rash",
       "Use with caution in renal impairment (dose adjust)",
-      "History of severe allergy (anaphylaxis) — contraindicated",
+      "History of severe allergy (anaphylaxis) - contraindicated",
     ],
     counsellingPoints: [
       "Complete the full course even if symptoms improve",
@@ -207,8 +207,8 @@ export const DRUGS: Drug[] = [
     quickDecisionScenario: {
       scenario: "Patient requests Amoxicillin for a viral cold. Best pharmacist action?",
       options: [
-        "Dispense Amoxicillin — antibiotics are always helpful for colds",
-        "Advise that antibiotics are not effective for viral infections — recommend supportive care and refer to doctor if symptoms worsen",
+        "Dispense Amoxicillin - antibiotics are always helpful for colds",
+        "Advise that antibiotics are not effective for viral infections - recommend supportive care and refer to doctor if symptoms worsen",
         "Dispense a higher dose for faster effect",
         "Refer immediately to hospital emergency",
       ],
@@ -242,11 +242,11 @@ export const DRUGS: Drug[] = [
       "Long-term: Vitamin B12 deficiency",
     ],
     keyInteractions: [
-      "Clopidogrel (PPIs may reduce antiplatelet effect — use pantoprazole instead)",
+      "Clopidogrel (PPIs may reduce antiplatelet effect - use pantoprazole instead)",
       "Methotrexate (PPIs may increase methotrexate levels)",
-      "Warfarin (may increase INR — monitor)",
-      "Iron and Vitamin B12 supplements (reduced absorption — separate timing)",
-      "Atazanavir (reduced HIV drug absorption — avoid combination)",
+      "Warfarin (may increase INR - monitor)",
+      "Iron and Vitamin B12 supplements (reduced absorption - separate timing)",
+      "Atazanavir (reduced HIV drug absorption - avoid combination)",
     ],
     contraindicationsPrecautions: [
       "Use at the lowest effective dose for shortest duration",
@@ -256,9 +256,9 @@ export const DRUGS: Drug[] = [
     ],
     counsellingPoints: [
       "Take 30 minutes before breakfast for maximum effect",
-      "Swallow capsule whole — do not crush or chew (enteric-coated)",
+      "Swallow capsule whole - do not crush or chew (enteric-coated)",
       "Do not use long-term without doctor review",
-      "Report persistent diarrhoea — may indicate C. difficile",
+      "Report persistent diarrhoea - may indicate C. difficile",
       "Tell your pharmacist about all other medicines including herbals",
       "Lifestyle changes (avoid fatty foods, elevate head of bed) alongside medication",
     ],
@@ -268,7 +268,7 @@ export const DRUGS: Drug[] = [
       options: [
         "Amlodipine side effect",
         "Vitamin C deficiency from PPI use",
-        "Hypomagnesaemia — a recognised long-term PPI complication",
+        "Hypomagnesaemia - a recognised long-term PPI complication",
         "Omeprazole allergy reaction",
       ],
       correctIndex: 2,

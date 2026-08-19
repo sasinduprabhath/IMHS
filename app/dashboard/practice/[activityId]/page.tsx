@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-// This dynamic route is currently unused — specific activity routes are used instead:
+// This dynamic route is currently unused - specific activity routes are used instead:
 // /dashboard/practice/prescription-review
 // /dashboard/practice/drug-classification
 // /dashboard/practice/module-assessment

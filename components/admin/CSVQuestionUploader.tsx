@@ -90,14 +90,14 @@ export function CSVQuestionUploader({ onImportComplete }: { onImportComplete?: (
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h3 className="text-base font-display font-bold text-ink flex items-center gap-2">
+          <h3 className="text-base font-display font-bold text-slate-900 flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-[#0E57A4]" />
             Bulk CSV / Excel Question Import
           </h3>
-          <p className="text-xs text-ink-muted mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Upload 100+ True/False assessment questions at once using CSV format.
           </p>
         </div>
@@ -120,10 +120,10 @@ export function CSVQuestionUploader({ onImportComplete }: { onImportComplete?: (
         />
         <div className="space-y-2 pointer-events-none">
           <Upload className="w-8 h-8 text-slate-400 mx-auto" />
-          <p className="text-sm font-semibold text-ink">
+          <p className="text-sm font-semibold text-slate-900">
             {file ? file.name : "Click or Drag & Drop CSV file here"}
           </p>
-          <p className="text-xs text-ink-muted font-mono">
+          <p className="text-xs text-slate-400 font-mono">
             Supported format: CSV with headers (moduleCode, question, isTrue, explanation)
           </p>
         </div>
@@ -131,14 +131,14 @@ export function CSVQuestionUploader({ onImportComplete }: { onImportComplete?: (
 
       {/* Feedback & Preview */}
       {error && (
-        <div className="p-3.5 bg-clinical-red-light border border-clinical-red/30 rounded-xl text-xs text-clinical-red flex items-center gap-2 font-medium">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2 font-bold font-mono">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           {error}
         </div>
       )}
 
       {successCount !== null && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2 font-bold">
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2 font-bold font-mono">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           Successfully imported {successCount} assessment questions into the question bank!
         </div>
@@ -147,13 +147,13 @@ export function CSVQuestionUploader({ onImportComplete }: { onImportComplete?: (
       {parsed.length > 0 && (
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold text-ink">
+            <span className="text-xs font-mono font-bold text-slate-900">
               Ready to Import ({parsed.length} Questions)
             </span>
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="px-5 py-2 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               {uploading ? (
                 <>
@@ -167,31 +167,31 @@ export function CSVQuestionUploader({ onImportComplete }: { onImportComplete?: (
 
           <div className="max-h-60 overflow-auto border border-slate-200 rounded-xl text-xs">
             <table className="w-full text-left">
-              <thead className="bg-slate-100 sticky top-0 font-mono text-[10px] text-ink-muted uppercase border-b">
+              <thead className="bg-slate-100 sticky top-0 font-mono text-[10px] text-slate-500 uppercase border-b border-slate-200">
                 <tr>
-                  <th className="p-2">Module</th>
-                  <th className="p-2">Question</th>
-                  <th className="p-2">Answer</th>
-                  <th className="p-2">Explanation</th>
+                  <th className="p-2.5">Module</th>
+                  <th className="p-2.5">Question</th>
+                  <th className="p-2.5">Answer</th>
+                  <th className="p-2.5">Explanation</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {parsed.slice(0, 50).map((q, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50">
-                    <td className="p-2 font-mono font-bold text-[#0E57A4]">{q.moduleCode}</td>
-                    <td className="p-2 max-w-xs truncate">{q.question}</td>
-                    <td className="p-2 font-bold font-mono">
-                      <span className={q.isTrue ? "text-[#4A8B7A]" : "text-clinical-red"}>
+                  <tr key={idx} className="hover:bg-slate-50/80">
+                    <td className="p-2.5 font-mono font-bold text-[#0E57A4]">{q.moduleCode}</td>
+                    <td className="p-2.5 max-w-xs truncate text-slate-800 font-medium">{q.question}</td>
+                    <td className="p-2.5 font-bold font-mono">
+                      <span className={q.isTrue ? "text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 text-[10px]" : "text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 text-[10px]"}>
                         {q.isTrue ? "TRUE" : "FALSE"}
                       </span>
                     </td>
-                    <td className="p-2 text-ink-muted truncate max-w-xs">{q.explanation || "-"}</td>
+                    <td className="p-2.5 text-slate-500 truncate max-w-xs">{q.explanation || "-"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             {parsed.length > 50 && (
-              <div className="p-2 bg-slate-50 text-center text-[10px] font-mono text-ink-muted">
+              <div className="p-2 bg-slate-50 text-center text-[10px] font-mono text-slate-500 border-t border-slate-100">
                 Showing first 50 of {parsed.length} questions...
               </div>
             )}

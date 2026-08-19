@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeString, sanitizeUrl, sanitizeIdentifier } from "@/lib/sanitization";
+import { z } from "zod";
+
+const createAssignmentSchema = z.object({
+  courseId: z.string().min(1, "Course is required").max(100),
+  chapterId: z.string().max(100).optional().nullable(),
+  title: z.string().min(1, "Title is required").max(200, "Title too long"),
+  description: z.string().min(1, "Description is required").max(5000, "Description too long"),
+  attachmentUrl: z.string().max(500).optional().nullable(),
+  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Valid due date required" }),
+  maxMarks: z.number().int().min(1).max(1000).optional().default(100),
+  allowLate: z.boolean().optional().default(true),
+  allowedFileTypes: z.string().max(100).optional().default("PDF,DOCX,ZIP"),
+});
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -40,26 +54,33 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { courseId, chapterId, title, description, attachmentUrl, dueDate, maxMarks, allowLate, allowedFileTypes } = body;
-
-    if (!courseId || !title || !description || !dueDate) {
+    const parsed = createAssignmentSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Course, Title, Description, and Due Date are required" },
+        { error: parsed.error.issues[0]?.message || "Invalid assignment data." },
         { status: 400 }
       );
     }
 
+    const data = parsed.data;
+    const cleanTitle = sanitizeString(data.title, 200);
+    const cleanDescription = sanitizeString(data.description, 5000);
+    const cleanAttachmentUrl = data.attachmentUrl ? sanitizeUrl(data.attachmentUrl) : null;
+    const cleanCourseId = sanitizeIdentifier(data.courseId, 100);
+    const cleanChapterId = data.chapterId ? sanitizeIdentifier(data.chapterId, 100) : null;
+    const parsedDueDate = new Date(data.dueDate);
+
     const assignment = await prisma.assignment.create({
       data: {
-        courseId,
-        chapterId: chapterId || null,
-        title,
-        description,
-        attachmentUrl: attachmentUrl || null,
-        dueDate: new Date(dueDate),
-        maxMarks: Number(maxMarks) || 100,
-        allowLate: Boolean(allowLate),
-        allowedFileTypes: allowedFileTypes || "PDF,DOCX,ZIP",
+        courseId: cleanCourseId,
+        chapterId: cleanChapterId,
+        title: cleanTitle,
+        description: cleanDescription,
+        attachmentUrl: cleanAttachmentUrl,
+        dueDate: parsedDueDate,
+        maxMarks: data.maxMarks,
+        allowLate: data.allowLate,
+        allowedFileTypes: sanitizeString(data.allowedFileTypes, 100),
       },
       include: {
         course: { select: { id: true, title: true } },
@@ -68,7 +89,7 @@ export async function POST(req: Request) {
 
     // Auto-create an official batch announcement for the newly published assignment
     try {
-      const formattedDate = new Date(dueDate).toLocaleDateString("en-GB", {
+      const formattedDate = parsedDueDate.toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -76,16 +97,11 @@ export async function POST(req: Request) {
         minute: "2-digit",
       });
 
-      const cleanAssignmentTitle = title
-        .replace(/\\"/g, '"')
-        .replace(/\\'/g, "'")
-        .replace(/\\/g, "");
-
       await prisma.courseAnnouncement.create({
         data: {
-          courseId,
-          title: `📢 New Coursework Brief: ${cleanAssignmentTitle}`,
-          content: `A new assignment "${cleanAssignmentTitle}" has been published for your course.\n\n📅 Deadline: ${formattedDate}\n💯 Maximum Marks: ${maxMarks} Points\n\nPlease open the "Assignments & Worksheets Hub" in your portal to view full instructions and submit your file.`,
+          courseId: cleanCourseId,
+          title: `📢 New Coursework Brief: ${cleanTitle}`,
+          content: `A new assignment "${cleanTitle}" has been published for your course.\n\n📅 Deadline: ${formattedDate}\n💯 Maximum Marks: ${data.maxMarks} Points\n\nPlease open the "Assignments & Worksheets Hub" in your portal to view full instructions and submit your file.`,
         },
       });
     } catch (announcementErr) {

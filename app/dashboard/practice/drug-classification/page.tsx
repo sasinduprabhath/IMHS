@@ -1,7 +1,8 @@
 import { DrugClassificationActivity } from "@/components/student/practice/DrugClassificationActivity";
+import { DrugClassificationPicker } from "@/components/student/practice/DrugClassificationPicker";
 import { getDrugKnowledgeList, getDrugKnowledgeById } from "@/actions/drug-actions";
-import { DRUGS, DEFAULT_DRUG_ID, getDrugById } from "@/data/drugs";
 import { notFound } from "next/navigation";
+import type { Drug } from "@/types/pharmacology";
 
 export const metadata = {
   title: "Drug Classification Challenge — IMHS Practice Hub",
@@ -14,35 +15,55 @@ interface Props {
 
 export default async function DrugClassificationPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
-  const drugId = params.drug || DEFAULT_DRUG_ID;
+  const drugId = params.drug;
 
-  let dbDrug = await getDrugKnowledgeById(drugId);
-  if (!dbDrug) {
-    const allDb = await getDrugKnowledgeList();
-    const match = allDb.find(
-      (d) => d.id === drugId || d.genericName.toLowerCase() === drugId.toLowerCase()
-    );
-    if (match) dbDrug = match;
+  // 1. Fetch all real DB drugs
+  const allDb = await getDrugKnowledgeList();
+
+  if (!allDb || allDb.length === 0) {
+    notFound();
   }
 
-  const drug = dbDrug
-    ? {
-        id: dbDrug.id,
-        genericName: dbDrug.genericName,
-        drugClass: dbDrug.drugClass,
-        drugClassOptions: (dbDrug.drugClassOptions as string[]) || [dbDrug.drugClass, "ACE Inhibitor", "Beta Blocker", "CCB"],
-        mechanismOfAction: dbDrug.mechanismOfAction,
-        moaOptions: (dbDrug.moaOptions as string[]) || [dbDrug.mechanismOfAction, "Inhibits cell wall synthesis"],
-        commonSideEffects: (dbDrug.sideEffects as string[]) || ["Nausea"],
-        sideEffectOptions: (dbDrug.sideEffectOptions as string[]) || (dbDrug.sideEffects as string[]) || ["Nausea", "Headache"],
-        keyInteractions: (dbDrug.interactions as string[]) || ["CYP3A4 Inhibitors"],
-        interactionOptions: (dbDrug.interactionOptions as string[]) || (dbDrug.interactions as string[]) || ["CYP3A4 Inhibitors", "NSAIDs"],
-        antidote: dbDrug.antidote || "None / Symptomatic Support",
-        antidoteOptions: (dbDrug.antidoteOptions as string[]) || [dbDrug.antidote || "None / Symptomatic Support", "Naloxone"],
-      }
-    : getDrugById(drugId);
+  const formattedAllDrugs: Drug[] = allDb.map((d: any) => {
+    const sideEffects = Array.isArray(d.sideEffects) ? d.sideEffects : (d.sideEffects ? [d.sideEffects] : ["Nausea"]);
+    const interactions = Array.isArray(d.interactions) ? d.interactions : (d.interactions ? [d.interactions] : ["CYP3A4 Inhibitors"]);
 
-  if (!drug) notFound();
+    return {
+      id: d.id,
+      genericName: d.genericName,
+      brandNames: [d.genericName],
+      drugClass: d.drugClass,
+      drugClassOptions: (d.drugClassOptions as string[]) || [d.drugClass, "ACE Inhibitor", "Beta Blocker", "CCB"],
+      mechanismOfAction: d.mechanismOfAction,
+      moaOptions: (d.moaOptions as string[]) || [d.mechanismOfAction, "Inhibits cell wall synthesis"],
+      mainIndications: [d.drugClass],
+      commonStrengths: ["Standard Dose"],
+      dosageForms: ["Oral Tablet / Capsule"],
+      administration: "As directed",
+      commonSideEffects: sideEffects,
+      sideEffectOptions: (d.sideEffectOptions as string[]) || sideEffects,
+      keyInteractions: interactions,
+      interactionOptions: (d.interactionOptions as string[]) || interactions,
+      contraindicationsPrecautions: ["Hypersensitivity"],
+      counsellingPoints: ["Take at prescribed dose only"],
+      antidote: d.antidote || "None / Symptomatic Support",
+      antidoteOptions: (d.antidoteOptions as string[]) || [d.antidote || "None / Symptomatic Support", "Naloxone"],
+    };
+  });
 
-  return <DrugClassificationActivity drug={drug as any} />;
+  // ── If no drug query is specified, show Medicine Selection Lobby ─────────
+  if (!drugId) {
+    return <DrugClassificationPicker drugs={formattedAllDrugs} />;
+  }
+
+  // ── If a drug is selected, load the simulation from real DB data ──────────
+  let targetDrug = formattedAllDrugs.find(
+    (d) => d.id === drugId || d.genericName.toLowerCase() === drugId.toLowerCase()
+  );
+
+  if (!targetDrug) {
+    return <DrugClassificationPicker drugs={formattedAllDrugs} />;
+  }
+
+  return <DrugClassificationActivity drug={targetDrug} />;
 }

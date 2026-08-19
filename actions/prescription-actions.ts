@@ -2,6 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { sanitizeString, sanitizeUrl, sanitizeIdentifier } from "@/lib/sanitization";
 
 export async function getPrescriptionCases() {
   try {
@@ -18,8 +21,9 @@ export async function getPrescriptionCases() {
 export async function getPrescriptionCaseById(id: string) {
   try {
     if (!prisma.prescriptionCase) return null;
+    const cleanId = sanitizeIdentifier(id, 100);
     return await prisma.prescriptionCase.findUnique({
-      where: { id },
+      where: { id: cleanId },
     });
   } catch (error) {
     console.error("Error fetching prescription case:", error);
@@ -41,6 +45,11 @@ export async function createPrescriptionCase(data: {
   isPublished?: boolean;
 }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
     if (!prisma.prescriptionCase) {
       return {
         success: false,
@@ -49,23 +58,22 @@ export async function createPrescriptionCase(data: {
     }
     const created = await prisma.prescriptionCase.create({
       data: {
-        title: data.title,
-        imageUrl: data.imageUrl,
-        patientDetails: data.patientDetails,
-        medicineDetails: data.medicineDetails,
-        hasProblem: data.hasProblem,
-        problemOptions: data.problemOptions,
-        correctProblem: data.correctProblem,
-        shouldDispense: data.shouldDispense,
-        dispenseReason: data.dispenseReason,
-        counsellingPoints: data.counsellingPoints,
-        isPublished: data.isPublished ?? true,
+        title: sanitizeString(data.title, 200),
+        imageUrl: sanitizeUrl(data.imageUrl) || data.imageUrl,
+        patientDetails: data.patientDetails || {},
+        medicineDetails: data.medicineDetails || {},
+        hasProblem: Boolean(data.hasProblem),
+        problemOptions: (data.problemOptions || []).map((s) => sanitizeString(s, 500)),
+        correctProblem: data.correctProblem ? sanitizeString(data.correctProblem, 500) : null,
+        shouldDispense: Boolean(data.shouldDispense),
+        dispenseReason: sanitizeString(data.dispenseReason, 1000),
+        counsellingPoints: (data.counsellingPoints || []).map((s) => sanitizeString(s, 500)),
+        isPublished: Boolean(data.isPublished ?? true),
       },
     });
     revalidatePath("/admin/learning-hub/prescriptions");
-    revalidatePath("/dashboard/learning-hub/prescription-review");
-    revalidatePath("/dashboard/learning-hub");
-    return { success: true, case: created };
+    revalidatePath("/dashboard/learning-hub/prescription-analysis");
+    return { success: true, prescriptionCase: created };
   } catch (error: any) {
     console.error("Error creating prescription case:", error);
     return { success: false, error: error.message || "Failed to create case" };
@@ -89,6 +97,11 @@ export async function updatePrescriptionCase(
   }>
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
     if (!prisma.prescriptionCase) {
       return {
         success: false,
@@ -110,6 +123,11 @@ export async function updatePrescriptionCase(
 
 export async function deletePrescriptionCase(id: string) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
     if (!prisma.prescriptionCase) {
       return {
         success: false,

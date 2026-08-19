@@ -340,47 +340,47 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
       {/* Back Navigation Link */}
       <Link
         href="/admin/students"
-        className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-clinical-teal transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-[#0E57A4] transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Student Directory
       </Link>
 
       {/* ── 1. Profile Header Card ── */}
-      <div className="bg-surface border border-chart-grid p-4 sm:p-6 md:p-8 rounded-card space-y-5 shadow-paper">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-chart-grid pb-5">
+      <div className="bg-white border border-slate-200 p-5 sm:p-7 md:p-8 rounded-2xl space-y-6 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-slate-100 pb-6">
 
-          <div className="space-y-2 max-w-full">
+          <div className="space-y-2.5 max-w-full">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[11px] text-clinical-teal uppercase font-bold tracking-wider">
+              <span className="font-mono text-[10px] text-[#0E57A4] bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full uppercase font-bold tracking-wider">
                 STUDENT PROFILE RECORD
               </span>
 
               {isAccountFrozen ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-chart-red bg-chart-red/10 border border-chart-red/20 px-2 py-0.5 rounded-full font-bold">
-                  <Snowflake className="w-3 h-3" /> ACCOUNT FROZEN
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full font-bold">
+                  <Snowflake className="w-3 h-3 text-rose-600" /> ACCOUNT FROZEN
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full font-bold">
-                  <ShieldCheck className="w-3 h-3 text-green-600" /> ACCOUNT ACTIVE
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" /> ACCOUNT ACTIVE
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink break-words leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 break-words leading-tight">
               {student.name}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs font-mono text-ink-muted">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs font-mono text-slate-500">
               {student.studentId && (
-                <span className="inline-flex items-center gap-1 font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2 py-0.5 rounded">
-                  <IdCard className="w-3.5 h-3.5" /> Reg ID: {student.studentId}
+                <span className="inline-flex items-center gap-1 font-bold text-[#0E57A4] bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-lg">
+                  <IdCard className="w-3.5 h-3.5 text-[#0E57A4]" /> Reg ID: {student.studentId}
                 </span>
               )}
-              <span className="flex items-center gap-1 truncate max-w-full">
-                <Mail className="w-3.5 h-3.5 text-clinical-teal shrink-0" /> {student.email}
+              <span className="flex items-center gap-1 truncate max-w-full text-slate-600">
+                <Mail className="w-3.5 h-3.5 text-[#0E57A4] shrink-0" /> {student.email}
               </span>
-              <span className="flex items-center gap-1 shrink-0">
-                <Phone className="w-3.5 h-3.5 text-clinical-teal shrink-0" /> {student.phone}
+              <span className="flex items-center gap-1 shrink-0 text-slate-600">
+                <Phone className="w-3.5 h-3.5 text-[#0E57A4] shrink-0" /> {student.phone}
               </span>
             </div>
           </div>
@@ -392,9 +392,9 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
               variant={isAccountFrozen ? "default" : "outline"}
               onClick={handleToggleAccountStatus}
               disabled={isTogglingAccountStatus}
-              className={`gap-1.5 text-xs font-semibold h-9 ${isAccountFrozen
-                  ? "bg-green-600 hover:bg-green-700 text-white border-0"
-                  : "border-chart-red/40 text-chart-red hover:bg-chart-red/10"
+              className={`gap-1.5 text-xs font-semibold h-10 rounded-xl ${isAccountFrozen
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+                  : "border-rose-200 text-rose-700 hover:bg-rose-50"
                 }`}
             >
               {isAccountFrozen ? (
@@ -410,7 +410,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
               rel="noopener noreferrer"
               className="w-full sm:w-auto"
             >
-              <Button variant="danger" size="sm" className="w-full gap-1.5 font-semibold text-xs h-9">
+              <Button size="sm" className="w-full gap-1.5 font-semibold text-xs h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
                 <MessageCircle className="w-4 h-4 fill-current" /> WhatsApp Message
               </Button>
             </a>
@@ -423,32 +423,32 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                 setResetWALink(null);
                 setResetModalOpen(true);
               }}
-              className="gap-1.5 text-xs h-9"
+              className="gap-1.5 text-xs h-10 rounded-xl text-slate-700 border-slate-200 hover:bg-slate-50"
             >
-              <KeyRound className="w-4 h-4 text-chart-red" /> Reset Password
+              <KeyRound className="w-4 h-4 text-[#F16726]" /> Reset Password
             </Button>
           </div>
         </div>
 
         {/* ── 2. Assign New Course Section ── */}
-        <div className="bg-linen/50 border border-chart-grid p-4 rounded-card space-y-3">
+        <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 className="text-sm font-display font-semibold text-ink flex items-center gap-1.5">
-                <PlusCircle className="w-4 h-4 text-clinical-teal" /> Assign New Course Program
+              <h3 className="text-sm font-display font-bold text-slate-900 flex items-center gap-1.5">
+                <PlusCircle className="w-4 h-4 text-[#0E57A4]" /> Assign New Course Program
               </h3>
-              <p className="text-[11px] text-sage font-mono">
+              <p className="text-[11px] text-slate-500 font-sans mt-0.5">
                 Grant immediate access to an additional IMHS course program
               </p>
             </div>
 
-            <span className="text-[11px] font-mono text-ink-muted">
+            <span className="text-[11px] font-mono font-semibold text-slate-500">
               {unassignedCourses.length} courses available to assign
             </span>
           </div>
 
           {unassignedCourses.length === 0 ? (
-            <p className="text-xs font-mono text-sage bg-white p-3 rounded border border-chart-grid text-center">
+            <p className="text-xs font-mono text-emerald-700 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center font-bold">
               ✅ Student is already enrolled in all published course programs.
             </p>
           ) : (
@@ -465,7 +465,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                 size="sm"
                 onClick={handleAssignCourse}
                 disabled={!selectedCourseToAssign || isAssigning}
-                className="gap-1.5 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 h-10 sm:h-9 shrink-0"
+                className="gap-1.5 text-xs font-semibold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl border-0 h-10 shrink-0 shadow-xs"
               >
                 <PlusCircle className="w-4 h-4" />
                 {isAssigning ? "Assigning..." : "Assign Course Access"}
@@ -638,179 +638,310 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
         </div>
       </div>
 
-      {/* ── 3. Enrolled Courses & Progress Section ── */}
-      <div className="bg-surface border border-chart-grid p-4 sm:p-6 md:p-8 rounded-card space-y-6 shadow-paper">
-        <div className="border-b border-chart-grid pb-4">
-          <h2 className="text-lg font-display font-semibold text-ink flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-clinical-teal" /> Enrolled Courses & Hold Status ({student.enrollments.length})
-          </h2>
-          <p className="text-xs text-sage font-mono mt-0.5">
-            Manage individual course access holds and monitor student lecture completion
-          </p>
+      {/* ── 3. Enrolled Courses & Hold Status Section ── */}
+      <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-7 md:p-8 space-y-6 shadow-sm">
+        
+        {/* Section Header & Global Status Counters */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#EBF3FA] flex items-center justify-center text-[#0E57A4]">
+                <BookOpen className="w-4.5 h-4.5" />
+              </div>
+              <h2 className="text-base sm:text-lg font-display font-bold text-slate-900 flex items-center gap-2">
+                Enrolled Courses &amp; Hold Status
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  {student.enrollments.length}
+                </span>
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 font-sans pl-10">
+              Manage individual student course access holds, inspect completion progress, and configure granular lesson blocks.
+            </p>
+          </div>
+
+          {/* Quick Stats Ribbon */}
+          {student.enrollments.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap pl-10 md:pl-0">
+              {(() => {
+                const activeCount = student.enrollments.filter(
+                  (e) => e.status !== "FROZEN" && !isAccountFrozen
+                ).length;
+                const frozenCount = student.enrollments.length - activeCount;
+
+                return (
+                  <>
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full shadow-xs">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{activeCount} Active Access</span>
+                    </div>
+
+                    {frozenCount > 0 && (
+                      <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200 px-3 py-1 rounded-full shadow-xs animate-pulse">
+                        <Snowflake className="w-3.5 h-3.5 text-rose-600" />
+                        <span>{frozenCount} on Hold</span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         {student.enrollments.length === 0 ? (
-          <div className="text-center py-10 space-y-2 border border-dashed border-chart-grid rounded-card bg-linen/20">
-            <BookOpen className="w-8 h-8 text-sage/50 mx-auto" />
-            <p className="text-xs font-mono text-sage">
-              This student currently has no assigned courses. Use the section above to enroll them.
-            </p>
+          <div className="text-center py-12 space-y-3 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <div className="space-y-1 max-w-sm mx-auto">
+              <p className="text-sm font-semibold text-slate-700">No Course Enrollments Found</p>
+              <p className="text-xs font-mono text-slate-400">
+                This student currently has no assigned courses. Use the &ldquo;Assign New Course Program&rdquo; form above to grant immediate portal access.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
             {student.enrollments.map((enr) => {
               const course = enr.course;
               const isCourseFrozen = enr.status === "FROZEN";
+              const isEffectivelyFrozen = isCourseFrozen || isAccountFrozen;
               const allLessons = course.chapters.flatMap((ch) => ch.lessons);
               const completedCount = allLessons.filter((l) => completedLessonIds.has(l.id)).length;
               const percent = allLessons.length > 0 ? Math.round((completedCount / allLessons.length) * 100) : 0;
               const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
 
+              // Calculate total blocked items
+              let blockedChs: string[] = [];
+              let blockedLss: string[] = [];
+              try {
+                blockedChs = JSON.parse(enr.blockedChapterIds || "[]");
+              } catch {
+                blockedChs = [];
+              }
+              try {
+                blockedLss = JSON.parse(enr.blockedLessonIds || "[]");
+              } catch {
+                blockedLss = [];
+              }
+              const totalBlockedItems = blockedChs.length + blockedLss.length;
+              const isDrawerOpen = expandedAccessEnrollmentId === enr.id;
+
               return (
                 <div
                   key={course.id}
-                  className={`border rounded-card p-4 sm:p-5 space-y-4 transition-all ${isCourseFrozen || isAccountFrozen
-                      ? "bg-chart-red/5 border-chart-red/30"
-                      : "bg-linen/30 border-chart-grid"
-                    }`}
+                  className={`rounded-2xl border transition-all duration-200 flex flex-col justify-between overflow-hidden ${
+                    isEffectivelyFrozen
+                      ? "bg-gradient-to-br from-white via-rose-50/20 to-rose-50/50 border-rose-200 shadow-sm"
+                      : "bg-white border-slate-200 hover:border-blue-300 hover:shadow-md shadow-xs"
+                  }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1 max-w-[70%]">
-                      <span className="font-mono text-[10px] uppercase font-bold text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-2 py-0.5 rounded inline-block">
-                        {courseCode}
-                      </span>
-                      <h3 className="text-sm font-semibold text-ink font-sans leading-snug break-words">
-                        {course.title}
-                      </h3>
+                  <div className="p-5 sm:p-6 space-y-4">
+                    
+                    {/* Course Header & Status Pill */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1.5 max-w-[72%]">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-[10px] uppercase font-bold text-[#0E57A4] bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
+                            {courseCode}
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400">
+                            {course.chapters.length} Chapters &bull; {allLessons.length} Lessons
+                          </span>
+                        </div>
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 font-sans leading-snug break-words">
+                          {course.title}
+                        </h3>
+                      </div>
+
+                      {/* Prominent Status Indicator */}
+                      <div className="shrink-0">
+                        {isEffectivelyFrozen ? (
+                          <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full shadow-xs">
+                            <Snowflake className="w-3.5 h-3.5 text-rose-600 animate-spin" style={{ animationDuration: "12s" }} />
+                            <span>{isAccountFrozen ? "ACCOUNT FROZEN" : "ACCESS ON HOLD"}</span>
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full shadow-xs">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>ACTIVE ACCESS</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="shrink-0">
-                      {isCourseFrozen || isAccountFrozen ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-chart-red bg-chart-red/10 border border-chart-red/30 px-2 py-0.5 rounded-full font-bold">
-                          <Snowflake className="w-3 h-3" /> FROZEN
+                    {/* Progress Bar & Metrics Card */}
+                    <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-sans font-semibold text-slate-700 flex items-center gap-1.5">
+                          Syllabus Completion
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-green-600" /> ACTIVE
+                        <span className="font-mono font-bold text-[#0E57A4] text-xs">
+                          {percent}%
                         </span>
-                      )}
+                      </div>
+
+                      {/* Custom Smooth Multi-Layer Progress Bar */}
+                      <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden relative">
+                        <div
+                          className="h-full rounded-full transition-all duration-500 shadow-xs"
+                          style={{
+                            width: `${percent}%`,
+                            background: percent === 100
+                              ? "linear-gradient(90deg, #10B981 0%, #059669 100%)"
+                              : "linear-gradient(90deg, #0E57A4 0%, #38BDF8 100%)",
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-0.5">
+                        <span>{completedCount} of {allLessons.length} lessons completed</span>
+                        <span className="text-slate-400">{allLessons.length - completedCount} remaining</span>
+                      </div>
                     </div>
+
+                    {/* Granular Block Summary Chip if any items are blocked */}
+                    {totalBlockedItems > 0 && (
+                      <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono">
+                        <Lock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>
+                          <strong>{totalBlockedItems} granular block{totalBlockedItems > 1 ? "s" : ""} active</strong> ({blockedChs.length} chapter{blockedChs.length !== 1 ? "s" : ""}, {blockedLss.length} lesson{blockedLss.length !== 1 ? "s" : ""})
+                        </span>
+                      </div>
+                    )}
+
                   </div>
 
-                  <div className="space-y-1.5 bg-white p-3 rounded border border-chart-grid/60">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-sage">Syllabus Completion</span>
-                      <span className="font-bold text-clinical-teal">{percent}%</span>
-                    </div>
-                    <VitalLine variant="progress" progress={percent} />
-                    <span className="block text-[10px] font-mono text-sage text-right">
-                      {completedCount} of {allLessons.length} lessons done
-                    </span>
-                  </div>
-
-                  {/* Freeze/Reactivate Course Button & Granular Access Controls */}
-                  <div className="pt-2 border-t border-chart-grid/60 space-y-3">
-                    <div className="flex items-center justify-between gap-2">
+                  {/* ── Card Footer Action Bar ── */}
+                  <div className="bg-slate-50/80 border-t border-slate-200/80 px-5 py-3.5 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      
+                      {/* Toggle Granular Content Drawer */}
                       <button
                         type="button"
                         onClick={() =>
                           setExpandedAccessEnrollmentId(
-                            expandedAccessEnrollmentId === enr.id ? null : enr.id
+                            isDrawerOpen ? null : enr.id
                           )
                         }
-                        className="text-xs font-mono text-clinical-teal font-semibold hover:underline inline-flex items-center gap-1"
+                        className={`text-xs font-mono font-bold inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all ${
+                          isDrawerOpen
+                            ? "bg-[#0E57A4] text-white border-[#0E57A4] shadow-xs"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100"
+                        }`}
                       >
                         <Lock className="w-3.5 h-3.5" />
-                        Granular Content Blocks
-                        {expandedAccessEnrollmentId === enr.id ? (
+                        <span>Granular Locks</span>
+                        {totalBlockedItems > 0 && (
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                            isDrawerOpen ? "bg-white text-[#0E57A4]" : "bg-rose-100 text-rose-700"
+                          }`}>
+                            {totalBlockedItems}
+                          </span>
+                        )}
+                        {isDrawerOpen ? (
                           <ChevronUp className="w-3.5 h-3.5" />
                         ) : (
                           <ChevronDown className="w-3.5 h-3.5" />
                         )}
                       </button>
 
+                      {/* Primary Course Hold / Reactivate Button */}
                       <Button
                         size="sm"
-                        variant="outline"
                         disabled={togglingEnrollmentId === enr.id}
                         onClick={() => handleToggleEnrollmentStatus(enr.id, enr.status)}
-                        className={`text-[11px] h-8 px-3 gap-1.5 font-semibold ${isCourseFrozen
-                            ? "bg-white border-green-600 text-green-700 hover:bg-green-50"
-                            : "bg-white border-chart-red/40 text-chart-red hover:bg-chart-red/10"
-                          }`}
+                        className={`text-xs h-9 px-3.5 gap-1.5 font-semibold transition-all shadow-xs ${
+                          isCourseFrozen
+                            ? "bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+                            : "bg-white hover:bg-rose-50 border border-rose-200 text-rose-700 hover:border-rose-300"
+                        }`}
                       >
-                        {isCourseFrozen ? (
-                          <><RotateCcw className="w-3 h-3" /> Reactivate Access</>
+                        {togglingEnrollmentId === enr.id ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <RotateCcw className="w-3.5 h-3.5 animate-spin" /> Updating...
+                          </span>
+                        ) : isCourseFrozen ? (
+                          <>
+                            <RotateCcw className="w-3.5 h-3.5" /> Release Hold / Reactivate
+                          </>
                         ) : (
-                          <><PauseCircle className="w-3 h-3" /> Freeze Course</>
+                          <>
+                            <PauseCircle className="w-3.5 h-3.5 text-rose-600" /> Put Course on Hold
+                          </>
                         )}
                       </Button>
                     </div>
 
-                    {/* Expanded Granular Block Drawer */}
-                    {expandedAccessEnrollmentId === enr.id && (
-                      <div className="bg-white border border-chart-grid rounded-lg p-3 space-y-3 text-xs animate-in fade-in duration-200">
-                        <div className="flex items-center justify-between border-b border-chart-grid pb-2">
-                          <span className="font-mono text-[10px] uppercase font-bold text-sage">
-                            Block Chapters &amp; Lessons for this Student
-                          </span>
-                          <span className="text-[10px] font-mono text-chart-red font-semibold">
-                            Admin Control
+                    {/* ── Expanded Granular Permission Matrix Drawer ── */}
+                    {isDrawerOpen && (
+                      <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3.5 text-xs animate-in fade-in slide-in-from-top-2 duration-200 shadow-sm">
+                        
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                          <div className="space-y-0.5">
+                            <span className="font-mono text-[11px] uppercase font-bold text-slate-800 flex items-center gap-1.5">
+                              <Layers className="w-3.5 h-3.5 text-[#0E57A4]" /> Content Lock Matrix
+                            </span>
+                            <p className="text-[10px] font-sans text-slate-500">
+                              Select specific chapters or lessons to restrict from student view
+                            </p>
+                          </div>
+
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
+                            {course.chapters.length} Modules Total
                           </span>
                         </div>
 
                         {(() => {
-                          let blockedChs: string[] = [];
-                          let blockedLss: string[] = [];
-                          try {
-                            blockedChs = JSON.parse(enr.blockedChapterIds || "[]");
-                          } catch {
-                            blockedChs = [];
-                          }
-                          try {
-                            blockedLss = JSON.parse(enr.blockedLessonIds || "[]");
-                          } catch {
-                            blockedLss = [];
-                          }
-
                           if (!course.chapters || course.chapters.length === 0) {
                             return (
-                              <p className="text-[11px] font-mono text-sage italic">
-                                No chapters in this course yet.
+                              <p className="text-xs font-mono text-slate-400 italic text-center py-3">
+                                No chapters published in this course yet.
                               </p>
                             );
                           }
 
                           return (
-                            <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                               {course.chapters.map((ch, cIdx) => {
                                 const isChBlocked = blockedChs.includes(ch.id);
 
                                 return (
                                   <div
                                     key={ch.id}
-                                    className="border border-chart-grid/60 rounded p-2.5 bg-linen/20 space-y-2"
+                                    className={`border rounded-xl p-3 transition-colors space-y-2.5 ${
+                                      isChBlocked
+                                        ? "bg-rose-50/40 border-rose-200"
+                                        : "bg-slate-50/50 border-slate-200 hover:border-slate-300"
+                                    }`}
                                   >
-                                    <div className="flex items-center justify-between font-mono font-semibold">
-                                      <span className="text-ink flex items-center gap-1.5 truncate">
-                                        <Layers className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
-                                        CH {cIdx + 1}: {ch.title}
+                                    {/* Chapter Bar */}
+                                    <div className="flex items-center justify-between gap-2 font-mono">
+                                      <span className="text-slate-900 font-bold flex items-center gap-1.5 truncate text-xs">
+                                        <span className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-[#0E57A4] shrink-0">
+                                          {cIdx + 1}
+                                        </span>
+                                        <span className="truncate">{ch.title}</span>
                                       </span>
+
                                       <button
                                         type="button"
                                         disabled={togglingEnrollmentId === enr.id}
                                         onClick={() => handleToggleBlockChapter(enr, ch.id)}
-                                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors ${isChBlocked
-                                            ? "bg-chart-red text-white"
-                                            : "bg-white border border-chart-grid text-ink hover:border-chart-red hover:text-chart-red"
-                                          }`}
+                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all shrink-0 flex items-center gap-1 ${
+                                          isChBlocked
+                                            ? "bg-rose-600 text-white shadow-xs hover:bg-rose-700"
+                                            : "bg-white border border-slate-200 text-slate-700 hover:border-rose-300 hover:text-rose-700"
+                                        }`}
                                       >
-                                        {isChBlocked ? "🔒 Chapter Blocked" : "Block Entire Chapter"}
+                                        <Lock className="w-3 h-3" />
+                                        {isChBlocked ? "Chapter Locked" : "Lock Chapter"}
                                       </button>
                                     </div>
 
-                                    {/* Lessons */}
-                                    <div className="pl-4 space-y-1.5 border-t border-chart-grid/40 pt-1.5">
+                                    {/* Lessons List in Chapter */}
+                                    <div className="pl-6 space-y-1.5 border-t border-slate-200/60 pt-2">
                                       {ch.lessons.map((ls) => {
                                         const isLsBlocked = blockedLss.includes(ls.id);
                                         const effectiveBlocked = isChBlocked || isLsBlocked;
@@ -818,30 +949,35 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                                         return (
                                           <div
                                             key={ls.id}
-                                            className="flex items-center justify-between text-[11px] py-1"
+                                            className="flex items-center justify-between text-xs py-1 px-2 rounded-lg hover:bg-white transition-colors"
                                           >
                                             <span
-                                              className={`truncate max-w-[65%] ${effectiveBlocked ? "text-chart-red line-through" : "text-ink-muted"
-                                                }`}
+                                              className={`truncate max-w-[65%] font-sans ${
+                                                effectiveBlocked
+                                                  ? "text-rose-700 line-through font-medium"
+                                                  : "text-slate-700"
+                                              }`}
                                             >
                                               {ls.title}
                                             </span>
+
                                             <button
                                               type="button"
                                               disabled={togglingEnrollmentId === enr.id || isChBlocked}
                                               onClick={() => handleToggleBlockLesson(enr, ls.id)}
-                                              className={`px-2 py-0.5 rounded text-[9px] font-mono font-semibold ${isChBlocked
-                                                  ? "bg-chart-red/10 text-chart-red opacity-60 cursor-not-allowed"
+                                              className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold transition-all ${
+                                                isChBlocked
+                                                  ? "bg-rose-100 text-rose-600 opacity-60 cursor-not-allowed"
                                                   : isLsBlocked
-                                                    ? "bg-chart-red text-white"
-                                                    : "bg-white border border-chart-grid text-sage hover:border-chart-red hover:text-chart-red"
-                                                }`}
+                                                    ? "bg-rose-600 text-white font-bold"
+                                                    : "bg-white border border-slate-200 text-slate-500 hover:border-rose-300 hover:text-rose-600"
+                                              }`}
                                             >
                                               {isChBlocked
-                                                ? "Blocked (via Ch)"
+                                                ? "Locked (via Ch)"
                                                 : isLsBlocked
-                                                  ? "🔒 Blocked"
-                                                  : "Block Lesson"}
+                                                  ? "🔒 Locked"
+                                                  : "Lock Lesson"}
                                             </button>
                                           </div>
                                         );
@@ -855,7 +991,9 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                         })()}
                       </div>
                     )}
+
                   </div>
+
                 </div>
               );
             })}
@@ -865,23 +1003,25 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
 
       {/* Password Reset Modal */}
       {resetModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-surface border border-chart-grid rounded-card max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 className="text-lg font-display font-semibold text-ink flex items-center gap-2 border-b border-chart-grid pb-2">
-              <KeyRound className="w-5 h-5 text-chart-red" /> Reset Password
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <h3 className="text-lg font-display font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+              <KeyRound className="w-5 h-5 text-[#F16726]" /> Reset Account Password
             </h3>
 
             {resetWALink ? (
               <div className="space-y-4 text-center">
-                <div className="bg-clinical-teal-surface border border-clinical-teal/30 p-4 rounded text-xs space-y-2">
-                  <p className="font-semibold text-clinical-teal">Password Reset Successfully!</p>
-                  <p className="font-mono bg-linen p-2 rounded border border-chart-grid font-bold text-ink">
-                    New Temp Password: {tempPassword}
+                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs space-y-2">
+                  <p className="font-bold text-emerald-800 flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Password Reset Successfully!
+                  </p>
+                  <p className="font-mono bg-white p-2.5 rounded-lg border border-emerald-200 font-bold text-slate-900 text-sm">
+                    New Temp Password: <span className="text-[#F16726]">{tempPassword}</span>
                   </p>
                 </div>
 
                 <a href={resetWALink} target="_blank" rel="noopener noreferrer" className="block w-full">
-                  <Button variant="danger" className="w-full gap-2 font-semibold">
+                  <Button className="w-full gap-2 font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 shadow-xs">
                     <MessageCircle className="w-4 h-4 fill-current" /> Send New Password via WhatsApp
                   </Button>
                 </a>
@@ -890,7 +1030,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                   variant="outline"
                   size="sm"
                   onClick={() => setResetModalOpen(false)}
-                  className="w-full"
+                  className="w-full rounded-xl h-10 border-slate-200"
                 >
                   Close Window
                 </Button>
@@ -898,7 +1038,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
             ) : (
               <form onSubmit={handleResetPassword} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-mono text-ink font-medium mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                     New Temporary Password *
                   </label>
                   <div className="flex gap-2">
@@ -907,14 +1047,14 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                       required
                       value={tempPassword}
                       onChange={(e) => setTempPassword(e.target.value)}
-                      className="flex-1 px-3 py-1.5 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink"
+                      className="flex-1 px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={generateTempPassword}
-                      className="text-[11px]"
+                      className="text-xs rounded-xl border-slate-200 font-mono font-semibold"
                     >
                       Generate
                     </Button>
@@ -927,10 +1067,16 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                     variant="ghost"
                     size="sm"
                     onClick={() => setResetModalOpen(false)}
+                    className="rounded-xl text-slate-600"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isResetting} size="sm" variant="danger">
+                  <Button
+                    type="submit"
+                    disabled={isResetting}
+                    size="sm"
+                    className="bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl font-semibold shadow-xs"
+                  >
                     {isResetting ? "Resetting..." : "Save & Generate WhatsApp Link"}
                   </Button>
                 </div>

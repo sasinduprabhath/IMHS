@@ -78,94 +78,224 @@ export function FloatingMolecules({
 // 2. DNA HELIX
 // Animated SVG double helix on right/left side
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 2. 3D BIOTECH DNA DOUBLE HELIX
+// Ultra-premium animated 3D double helix with dynamic base pairs, glowing bonds & ions
+// ─────────────────────────────────────────────
 export function DNAHelix({
   className,
-  width = 80,
-  height = 400,
+  width = 90,
+  height = 420,
 }: {
   className?: string;
   width?: number;
   height?: number;
 }) {
-  const steps = 18;
+  const steps = 22;
   const half = width / 2;
   const stepH = height / steps;
+  const amplitude = half * 0.78;
+
+  // Base pair types alternating: AT (Blue-Emerald) and CG (Orange-Gold)
+  const basePairs = Array.from({ length: steps }, (_, i) => {
+    const y = i * stepH + stepH / 2;
+    const phase = (i / steps) * Math.PI * 4; // 2 complete revolutions
+    const isMajor = i % 2 === 0;
+    const isATPair = i % 4 < 2;
+
+    return {
+      index: i,
+      y,
+      phase,
+      isMajor,
+      isATPair,
+      colorA: isATPair ? "#0E57A4" : "#F16726",
+      colorB: isATPair ? "#10B981" : "#F59E0B",
+    };
+  });
 
   return (
-    <div className={cn("pointer-events-none", className)}>
+    <div className={cn("pointer-events-none select-none relative", className)}>
       <svg
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        className="overflow-visible"
       >
-        {Array.from({ length: steps }, (_, i) => {
-          const y = i * stepH + stepH / 2;
-          const phase = (i / steps) * Math.PI * 4;
-          const x1 = half + Math.sin(phase) * (half * 0.8);
-          const x2 = half - Math.sin(phase) * (half * 0.8);
-          const crossVisible = i % 2 === 0;
+        <defs>
+          {/* Strand A Gradient (Electric Clinical Blue) */}
+          <linearGradient id="dnaStrandA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0E57A4" />
+            <stop offset="50%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="#0284C7" />
+          </linearGradient>
+
+          {/* Strand B Gradient (Sunset Coral / Amber) */}
+          <linearGradient id="dnaStrandB" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#F16726" />
+            <stop offset="50%" stopColor="#FB923C" />
+            <stop offset="100%" stopColor="#EA580C" />
+          </linearGradient>
+
+          {/* Base Pair Hydrogen Bond Gradients */}
+          <linearGradient id="bondAT" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#0E57A4" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#10B981" stopOpacity="0.8" />
+          </linearGradient>
+
+          <linearGradient id="bondCG" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#F16726" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#FDE047" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.8" />
+          </linearGradient>
+
+          {/* Bioluminescent Bloom Filter */}
+          <filter id="dnaBloom" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        {/* ── Base Pair Hydrogen Bonds & Nodes ── */}
+        {basePairs.map((bp) => {
+          const x1 = half + Math.sin(bp.phase) * amplitude;
+          const x2 = half - Math.sin(bp.phase) * amplitude;
+          const z1 = Math.cos(bp.phase); // 3D depth (-1 to +1)
+          const z2 = -z1;
+
+          // Depth-based sizing & opacity
+          const r1 = z1 > 0 ? 3.6 + z1 * 1.2 : 2.2;
+          const r2 = z2 > 0 ? 3.6 + z2 * 1.2 : 2.2;
+          const op1 = z1 > 0 ? 0.95 : 0.45;
+          const op2 = z2 > 0 ? 0.95 : 0.45;
+
+          const bondGrad = bp.isATPair ? "url(#bondAT)" : "url(#bondCG)";
+
           return (
-            <g key={i}>
-              {/* Cross-bridges */}
-              {crossVisible && (
-                <motion.line
-                  x1={x1} y1={y} x2={x2} y2={y}
-                  stroke="#4A8B7A"
-                  strokeWidth="1.2"
-                  strokeOpacity="0.4"
-                  animate={{ strokeOpacity: [0.2, 0.55, 0.2] }}
-                  transition={{ duration: 2.5, delay: i * 0.1, repeat: Infinity, ease: "easeInOut" }}
-                />
+            <g key={bp.index}>
+              {/* Hydrogen Bond Connector Line */}
+              {bp.isMajor && (
+                <>
+                  {/* Subtle Glow Underlay */}
+                  <motion.line
+                    x1={x1}
+                    y1={bp.y}
+                    x2={x2}
+                    y2={bp.y}
+                    stroke={bondGrad}
+                    strokeWidth="3.5"
+                    strokeOpacity="0.15"
+                    filter="url(#dnaBloom)"
+                    animate={{ strokeOpacity: [0.08, 0.28, 0.08] }}
+                    transition={{ duration: 3, delay: bp.index * 0.12, repeat: Infinity, ease: "easeInOut" }}
+                  />
+
+                  {/* Core Bond Line */}
+                  <motion.line
+                    x1={x1}
+                    y1={bp.y}
+                    x2={x2}
+                    y2={bp.y}
+                    stroke={bondGrad}
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeDasharray="2 1.5"
+                    animate={{ strokeOpacity: [0.35, 0.75, 0.35] }}
+                    transition={{ duration: 2.6, delay: bp.index * 0.1, repeat: Infinity, ease: "easeInOut" }}
+                  />
+
+                  {/* Center Molecular Bond Bead */}
+                  <motion.circle
+                    cx={half}
+                    cy={bp.y}
+                    r="1.5"
+                    fill="#FFFFFF"
+                    fillOpacity="0.75"
+                    animate={{ scale: [1, 1.35, 1], fillOpacity: [0.5, 0.9, 0.5] }}
+                    transition={{ duration: 2, delay: bp.index * 0.08, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </>
               )}
-              {/* Strand 1 node */}
+
+              {/* Strand A Node (Blue Helix) */}
               <motion.circle
-                cx={x1} cy={y} r={crossVisible ? 3 : 2}
-                fill={crossVisible ? "#0E57A4" : "#70889E"}
-                fillOpacity={crossVisible ? "0.6" : "0.3"}
-                animate={{ r: [crossVisible ? 3 : 2, crossVisible ? 4 : 2.5, crossVisible ? 3 : 2] }}
-                transition={{ duration: 2, delay: i * 0.12, repeat: Infinity, ease: "easeInOut" }}
+                cx={x1}
+                cy={bp.y}
+                r={r1}
+                fill={bp.isMajor ? "url(#dnaStrandA)" : "#0E57A4"}
+                fillOpacity={op1}
+                stroke="#FFFFFF"
+                strokeWidth={z1 > 0 ? "0.9" : "0.4"}
+                strokeOpacity={z1 > 0 ? "0.9" : "0.3"}
+                filter={z1 > 0 ? "url(#dnaBloom)" : undefined}
+                animate={{
+                  r: [r1, r1 * 1.15, r1],
+                  fillOpacity: [op1, Math.min(1, op1 + 0.15), op1],
+                }}
+                transition={{ duration: 2.8, delay: bp.index * 0.1, repeat: Infinity, ease: "easeInOut" }}
               />
-              {/* Strand 2 node */}
+
+              {/* Strand B Node (Orange Helix) */}
               <motion.circle
-                cx={x2} cy={y} r={crossVisible ? 3 : 2}
-                fill={crossVisible ? "#F16726" : "#70889E"}
-                fillOpacity={crossVisible ? "0.6" : "0.3"}
-                animate={{ r: [crossVisible ? 3 : 2, crossVisible ? 4 : 2.5, crossVisible ? 3 : 2] }}
-                transition={{ duration: 2, delay: i * 0.12 + 0.3, repeat: Infinity, ease: "easeInOut" }}
+                cx={x2}
+                cy={bp.y}
+                r={r2}
+                fill={bp.isMajor ? "url(#dnaStrandB)" : "#F16726"}
+                fillOpacity={op2}
+                stroke="#FFFFFF"
+                strokeWidth={z2 > 0 ? "0.9" : "0.4"}
+                strokeOpacity={z2 > 0 ? "0.9" : "0.3"}
+                filter={z2 > 0 ? "url(#dnaBloom)" : undefined}
+                animate={{
+                  r: [r2, r2 * 1.15, r2],
+                  fillOpacity: [op2, Math.min(1, op2 + 0.15), op2],
+                }}
+                transition={{ duration: 2.8, delay: bp.index * 0.1 + 0.4, repeat: Infinity, ease: "easeInOut" }}
               />
             </g>
           );
         })}
-        {/* Strand splines */}
+
+        {/* ── Continuous Sugar-Phosphate Backbone Ribbons ── */}
+        {/* Strand 1 Backbone */}
         <motion.path
           d={Array.from({ length: steps }, (_, i) => {
             const y = i * stepH + stepH / 2;
             const phase = (i / steps) * Math.PI * 4;
-            const x = half + Math.sin(phase) * (half * 0.8);
-            return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+            const x = half + Math.sin(phase) * amplitude;
+            return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
           }).join(" ")}
-          stroke="#0E57A4"
-          strokeWidth="1.5"
-          strokeOpacity="0.25"
+          stroke="url(#dnaStrandA)"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
-          animate={{ strokeOpacity: [0.15, 0.35, 0.15] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          strokeOpacity="0.65"
+          filter="url(#dnaBloom)"
+          animate={{ strokeOpacity: [0.45, 0.85, 0.45] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
         />
+
+        {/* Strand 2 Backbone */}
         <motion.path
           d={Array.from({ length: steps }, (_, i) => {
             const y = i * stepH + stepH / 2;
             const phase = (i / steps) * Math.PI * 4;
-            const x = half - Math.sin(phase) * (half * 0.8);
-            return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+            const x = half - Math.sin(phase) * amplitude;
+            return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
           }).join(" ")}
-          stroke="#F16726"
-          strokeWidth="1.5"
-          strokeOpacity="0.25"
+          stroke="url(#dnaStrandB)"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
-          animate={{ strokeOpacity: [0.15, 0.35, 0.15] }}
-          transition={{ duration: 3, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
+          strokeOpacity="0.65"
+          filter="url(#dnaBloom)"
+          animate={{ strokeOpacity: [0.45, 0.85, 0.45] }}
+          transition={{ duration: 3.5, delay: 0.6, repeat: Infinity, ease: "easeInOut" }}
         />
       </svg>
     </div>

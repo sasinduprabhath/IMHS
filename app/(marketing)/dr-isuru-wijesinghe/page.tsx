@@ -25,12 +25,41 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Dr. Isuru Wijesinghe - IMHS",
+  title: "Dr. Isuru Wijesinghe | Executive Director & Senior Clinical Lecturer | IMHS",
   description:
     "Official academic profile of Dr. Isuru Wijesinghe, Executive Director & Senior Lecturer at the Institute of Medicine and Health Sciences (IMHS), Sri Lanka.",
+  alternates: {
+    canonical: "https://imhsedu.com/dr-isuru-wijesinghe",
+  },
+  openGraph: {
+    title: "Dr. Isuru Wijesinghe | Academic Director IMHS",
+    description: "Executive Director & Senior Lecturer in Clinical Pharmacy and Pharmacology at IMHS Sri Lanka.",
+    url: "https://imhsedu.com/dr-isuru-wijesinghe",
+    images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "Dr. Isuru Wijesinghe" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dr. Isuru Wijesinghe | IMHS Director",
+    description: "Senior Lecturer in Clinical Pharmacology & Pharmacy Practice.",
+    images: ["/gallery/faculty-consultation.jpg"],
+  },
 };
 
 export const revalidate = 60;
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Dr. Isuru Wijesinghe",
+  jobTitle: "Executive Director & Senior Lecturer",
+  worksFor: {
+    "@type": "EducationalOrganization",
+    name: "Institute of Medicine and Health Sciences (IMHS)",
+    url: "https://imhsedu.com",
+  },
+  url: "https://imhsedu.com/dr-isuru-wijesinghe",
+  description: "Senior medical practitioner, clinical pharmacy lecturer, and academic director at IMHS Sri Lanka.",
+};
 
 export default async function DrIsuruWijesinghePage() {
   // Fetch courses from DB

@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2, XCircle, RotateCcw, BookOpen, Trophy,
-  ClipboardList, ChevronLeft, ChevronRight, Filter, AlertCircle
+  ClipboardList, ChevronLeft, ChevronRight, Filter, AlertCircle,
+  Sparkles, Check, ArrowRight
 } from "lucide-react";
 import { ActivityShell } from "./ActivityShell";
+import { ConfettiCanvas } from "@/components/ui/ConfettiCanvas";
 import type { QuizQuestion } from "@/types/pharmacology";
+import { submitCourseAssessmentResult } from "@/actions/assessment-actions";
 
 const AUTOSAVE_KEY = "imhs_module_assessment_state";
 
@@ -38,6 +41,7 @@ export function ModuleAssessmentActivity({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [selectedThisQuestion, setSelectedThisQuestion] = useState<boolean | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const total = questions.length;
   const current = questions[currentIndex];
@@ -79,6 +83,7 @@ export function ModuleAssessmentActivity({
     setAnswers({});
     setCurrentIndex(0);
     setSelectedThisQuestion(null);
+    setShowConfetti(false);
     setPhase("test");
   };
 
@@ -87,6 +92,7 @@ export function ModuleAssessmentActivity({
     setAnswers(resumeState.answers);
     setCurrentIndex(resumeState.currentIndex);
     setSelectedThisQuestion(resumeState.answers[questions[resumeState.currentIndex]?.id] ?? null);
+    setShowConfetti(false);
     setPhase("test");
   };
 
@@ -103,6 +109,13 @@ export function ModuleAssessmentActivity({
     } else {
       setPhase("results");
       localStorage.removeItem(`${AUTOSAVE_KEY}_${moduleId}`);
+      const computedCorrect = questions.filter((q) => answers[q.id] === q.answer).length;
+      if (total > 0 && computedCorrect / total >= 0.6) {
+        setShowConfetti(true);
+      }
+      submitCourseAssessmentResult(moduleId, computedCorrect, total).catch((err) => {
+        console.error("Failed to save course assessment result:", err);
+      });
     }
   };
 
@@ -150,7 +163,7 @@ export function ModuleAssessmentActivity({
       <ActivityShell
         title={moduleTitle}
         subtitle={`True / False Clinical Exam Suite · ${total} Questions`}
-        stepLabel="Intro"
+        stepLabel="Exam Intro"
         showNav={false}
         accentColor="#0E57A4"
       >
@@ -162,19 +175,19 @@ export function ModuleAssessmentActivity({
 
             <div className="space-y-2">
               <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] px-3.5 py-1 rounded-full border border-[#0E57A4]/20">
-                End-of-Course Examination
+                Activity 04 · Clinical Board Examination
               </span>
               <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-900">{moduleTitle}</h1>
-              <p className="text-xs text-slate-500 font-mono">True / False Exam Format · Total {total} Clinical Questions</p>
+              <p className="text-xs text-slate-500 font-mono">True / False Clinical Reasoning Format · Total {total} Questions</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               {[
                 { label: "Questions", value: total, color: "#0E57A4" },
                 { label: "Format", value: "T/F", color: "#0E57A4" },
-                { label: "Feedback", value: "At End", color: "#4A8B7A" },
+                { label: "Feedback", value: "Instant Rationale", color: "#059669" },
               ].map(({ label, value, color }) => (
-                <div key={label} className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200 shadow-2xs">
+                <div key={label} className="bg-slate-50 rounded-2xl p-4 border border-slate-200 shadow-2xs">
                   <div className="text-xl font-mono font-extrabold" style={{ color }}>
                     {value}
                   </div>
@@ -185,11 +198,11 @@ export function ModuleAssessmentActivity({
               ))}
             </div>
 
-            <div className="text-xs text-slate-600 bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 flex items-start gap-3 text-left">
+            <div className="text-xs text-slate-600 bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 flex items-start gap-3 text-left shadow-2xs">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div className="space-y-0.5">
-                <p className="font-bold text-amber-900">Auto-save session active</p>
-                <p className="text-[11px] text-amber-800">Your answers are continuously saved. You can close and resume your assessment anytime.</p>
+                <p className="font-bold text-amber-900">Auto-Save Session Active</p>
+                <p className="text-[11px] text-amber-800">Your answers are continuously bookmarked. You can exit and resume anytime without losing progress.</p>
               </div>
             </div>
 
@@ -197,7 +210,7 @@ export function ModuleAssessmentActivity({
               {resumeState && Object.keys(resumeState.answers).length > 0 ? (
                 <>
                   <div className="text-xs text-center text-slate-500 font-mono font-bold">
-                    Saved session found — {Object.keys(resumeState.answers).length} of {total} answered
+                    Saved session found - {Object.keys(resumeState.answers).length} of {total} answered
                   </div>
                   <button
                     onClick={resumeSaved}
@@ -217,7 +230,7 @@ export function ModuleAssessmentActivity({
                   onClick={startFresh}
                   className="w-full py-3.5 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-[1.01]"
                 >
-                  Begin Assessment
+                  Begin Assessment ({total} Questions)
                 </button>
               )}
             </div>
@@ -229,16 +242,23 @@ export function ModuleAssessmentActivity({
 
   // ── Results Screen ─────────────────────────────────────────────────────────
   if (phase === "results") {
-    const grade = pct >= 80 ? "Pass with Distinction 🏆" : pct >= 60 ? "Satisfactory Pass ✅" : "Requires Revision ⚠️";
+    const grade =
+      pct >= 80
+        ? "🌟 Distinction - High Clinical Competence"
+        : pct >= 60
+          ? "🩺 Satisfactory Pass"
+          : "📚 Practice Recommended";
+
     return (
       <ActivityShell
         title={moduleTitle}
-        subtitle="Assessment Completed & Score Rationale"
+        subtitle="Assessment Completed & Clinical Rationales"
         stepLabel="Results"
         showNav={false}
         accentColor="#0E57A4"
       >
         <div className="max-w-3xl mx-auto space-y-6 py-2">
+          <ConfettiCanvas active={showConfetti} />
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -275,8 +295,8 @@ export function ModuleAssessmentActivity({
                 <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-300 bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-500/30">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {correctCount} Correct
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-red-300 bg-red-950/40 px-3 py-1 rounded-full border border-red-500/30">
-                  <XCircle className="w-4 h-4 text-red-400" /> {incorrectCount} Incorrect
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-rose-300 bg-rose-950/40 px-3 py-1 rounded-full border border-rose-500/30">
+                  <XCircle className="w-4 h-4 text-rose-400" /> {incorrectCount} Incorrect
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-300 bg-slate-900/40 px-3 py-1 rounded-full border border-slate-700">
                   <AlertCircle className="w-4 h-4 text-slate-400" /> {unansweredCount} Unanswered
@@ -295,11 +315,10 @@ export function ModuleAssessmentActivity({
                   <button
                     key={f}
                     onClick={() => setReviewFilter(f)}
-                    className={`text-xs font-mono font-bold px-4 py-1.5 rounded-xl border transition-all duration-200 ${
-                      reviewFilter === f
+                    className={`text-xs font-mono font-bold px-4 py-1.5 rounded-xl border transition-all duration-200 ${reviewFilter === f
                         ? "bg-[#0E57A4] text-white border-[#0E57A4] shadow-xs"
                         : "border-slate-200 text-slate-600 hover:bg-white bg-white/70"
-                    }`}
+                      }`}
                   >
                     {f === "all" ? `All (${total})` : f === "incorrect" ? `Incorrect (${incorrectCount})` : `Unanswered (${unansweredCount})`}
                   </button>
@@ -325,13 +344,12 @@ export function ModuleAssessmentActivity({
                       return (
                         <div
                           key={q.id}
-                          className={`rounded-2xl border p-5 space-y-3 transition-all ${
-                            isUnanswered
+                          className={`rounded-2xl border p-5 space-y-3 transition-all ${isUnanswered
                               ? "bg-slate-50 border-slate-200"
                               : isCorrect
-                              ? "bg-emerald-50/50 border-emerald-200/80 shadow-2xs"
-                              : "bg-red-50/50 border-red-200/80 shadow-2xs"
-                          }`}
+                                ? "bg-emerald-50/50 border-emerald-200/80 shadow-2xs"
+                                : "bg-rose-50/50 border-rose-200/80 shadow-2xs"
+                            }`}
                         >
                           <div className="flex items-start gap-3">
                             <div className="shrink-0 mt-0.5">
@@ -340,18 +358,18 @@ export function ModuleAssessmentActivity({
                               ) : isCorrect ? (
                                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                               ) : (
-                                <XCircle className="w-5 h-5 text-red-600" />
+                                <XCircle className="w-5 h-5 text-rose-600" />
                               )}
                             </div>
                             <div className="flex-1 space-y-1">
-                              <p className="text-sm font-display font-extrabold text-slate-900 leading-relaxed">
+                              <p className="text-sm font-display font-bold text-slate-900 leading-relaxed">
                                 {q.statement}
                               </p>
 
                               <div className="flex items-center gap-4 pt-1 font-mono text-xs flex-wrap">
                                 <span>
                                   Your Answer:{" "}
-                                  <strong className={isUnanswered ? "text-slate-400" : isCorrect ? "text-emerald-700" : "text-red-600"}>
+                                  <strong className={isUnanswered ? "text-slate-400" : isCorrect ? "text-emerald-700" : "text-rose-600"}>
                                     {isUnanswered ? "Not Answered" : userAnswer ? "TRUE" : "FALSE"}
                                   </strong>
                                 </span>
@@ -366,7 +384,7 @@ export function ModuleAssessmentActivity({
                           </div>
 
                           {q.explanation && (
-                            <div className="bg-white/90 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-700 font-sans space-y-1 shadow-2xs">
+                            <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-xs text-slate-700 font-sans space-y-1 shadow-2xs">
                               <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] block">Clinical Rationale</span>
                               <p className="leading-relaxed">{q.explanation}</p>
                             </div>
@@ -388,10 +406,10 @@ export function ModuleAssessmentActivity({
                 <RotateCcw className="w-4 h-4 text-slate-500" /> Retake Exam
               </button>
               <button
-                onClick={() => router.push("/dashboard/courses")}
+                onClick={() => router.push("/dashboard/practice")}
                 className="flex-1 py-3 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition flex items-center justify-center gap-2 shadow-md"
               >
-                <BookOpen className="w-4 h-4" /> Return to My Courses
+                <BookOpen className="w-4 h-4" /> Practice Hub
               </button>
             </div>
           </motion.div>
@@ -442,7 +460,7 @@ export function ModuleAssessmentActivity({
             )}
 
             {/* Statement */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-xs">
               <p className="text-base font-display font-semibold text-slate-900 leading-relaxed">
                 {current.statement}
               </p>
@@ -456,16 +474,15 @@ export function ModuleAssessmentActivity({
                   <button
                     key={String(val)}
                     onClick={() => handleAnswer(val)}
-                    className={`py-5 rounded-2xl border-2 text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
-                      isSelected
+                    className={`py-5 rounded-2xl border-2 text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2.5 ${isSelected
                         ? val
-                          ? "border-[#4A8B7A] bg-[#4A8B7A]/12 text-[#2d6655] shadow-sm"
-                          : "border-clinical-red bg-clinical-red-light text-clinical-red shadow-sm"
+                          ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm ring-2 ring-emerald-500/20"
+                          : "border-rose-500 bg-rose-50 text-rose-900 shadow-sm ring-2 ring-rose-500/20"
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
+                      }`}
                     aria-pressed={isSelected}
                   >
-                    {val ? <CheckCircle2 className="w-5 h-5 text-[#4A8B7A]" /> : <XCircle className="w-5 h-5 text-clinical-red" />}
+                    {val ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <XCircle className="w-5 h-5 text-rose-600" />}
                     <span>{val ? "TRUE" : "FALSE"}</span>
                   </button>
                 );
@@ -479,7 +496,7 @@ export function ModuleAssessmentActivity({
           <p className="text-[10px] font-mono font-bold uppercase text-slate-400 tracking-wider mb-2.5">
             Quick Question Navigation
           </p>
-          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+          <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
             {questions.map((q, i) => {
               const a = answers[q.id];
               const isAnswered = a !== null && a !== undefined;
@@ -487,13 +504,12 @@ export function ModuleAssessmentActivity({
                 <button
                   key={q.id}
                   onClick={() => goToQuestion(i)}
-                  className={`w-7 h-7 rounded-lg text-[10px] font-mono font-bold border transition-colors ${
-                    i === currentIndex
-                      ? "bg-[#0E57A4] text-white border-[#0E57A4]"
+                  className={`w-7 h-7 rounded-lg text-[10px] font-mono font-bold border transition-colors ${i === currentIndex
+                      ? "bg-[#0E57A4] text-white border-[#0E57A4] shadow-xs"
                       : isAnswered
-                      ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                      : "bg-white text-slate-500 border-slate-200 hover:bg-slate-100"
-                  }`}
+                        ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                        : "bg-white text-slate-500 border-slate-200 hover:bg-slate-100"
+                    }`}
                   aria-label={`Go to question ${i + 1}`}
                 >
                   {i + 1}
@@ -506,3 +522,5 @@ export function ModuleAssessmentActivity({
     </ActivityShell>
   );
 }
+
+export default ModuleAssessmentActivity;

@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import DOMPurify from "dompurify";
 import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
 import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl } from "@/lib/utils";
@@ -281,7 +282,9 @@ function CoursePlayerContent({
                 {currentLesson.content ? (
                   <div
                     className="prose prose-sm text-slate-800 max-w-none font-sans leading-relaxed space-y-4"
-                    dangerouslySetInnerHTML={{ __html: currentLesson.content }}
+                    dangerouslySetInnerHTML={{
+                      __html: typeof window !== "undefined" ? DOMPurify.sanitize(currentLesson.content) : currentLesson.content,
+                    }}
                   />
                 ) : (
                   <p className="text-xs font-mono text-slate-400">No detailed explanation provided for this practice question.</p>
@@ -393,7 +396,9 @@ function CoursePlayerContent({
                   {hasRemainingHtml ? (
                     <div
                       className="prose prose-sm text-slate-800 max-w-none font-sans leading-relaxed space-y-3"
-                      dangerouslySetInnerHTML={{ __html: cleanedNotes }}
+                      dangerouslySetInnerHTML={{
+                        __html: typeof window !== "undefined" ? DOMPurify.sanitize(cleanedNotes) : cleanedNotes,
+                      }}
                     />
                   ) : (
                     <FormattedText

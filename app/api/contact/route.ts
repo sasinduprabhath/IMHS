@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS, getClientIp } from "@/lib/rate-limit";
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitization";
 
 export const dynamic = "force-dynamic";
@@ -16,13 +16,16 @@ const contactSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    // 1. Rate Limiting: Max 10 contact inquiries per 15 minutes per IP
-    const forwardedFor = req.headers.get("x-forwarded-for");
-    const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
-    const rateLimit = checkRateLimit(`contact:${clientIp}`, 10, 15 * 60 * 1000);
+    // 1. Rate Limiting: Max 5 contact inquiries per 15 minutes per IP
+    const clientIp = getClientIp(req);
+    const rateLimit = checkRateLimit(
+      `contact:${clientIp}`,
+      RATE_LIMITS.CONTACT_INQUIRY.maxAttempts,
+      RATE_LIMITS.CONTACT_INQUIRY.windowMs
+    );
 
     if (!rateLimit.success) {
-      return rateLimitResponse(rateLimit.resetTime);
+      return rateLimitResponse(rateLimit.resetTime, rateLimit.limit, rateLimit.remaining, "Too many contact inquiries submitted. Please wait 15 minutes.");
     }
 
     // 2. Zod Schema Validation

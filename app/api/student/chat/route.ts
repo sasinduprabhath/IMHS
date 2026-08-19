@@ -1,8 +1,19 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest } from "next/server";
+import { checkRateLimit, getClientIp, RATE_LIMITS, rateLimitResponse } from "@/lib/rate-limit";
+import { z } from "zod";
 
 export const runtime = "nodejs";
+
+const chatRequestSchema = z.object({
+  messages: z.array(
+    z.object({
+      role: z.enum(["user", "model"]),
+      content: z.string().min(1, "Message content cannot be empty").max(4000, "Message is too long"),
+    })
+  ).min(1, "At least one message is required").max(50, "Chat history too long"),
+});
 
 const SYSTEM_INSTRUCTION = `You are the official IMHS AI Assistant for the Institute of Medicine and Health Sciences (Sri Lanka).
 
@@ -45,10 +56,26 @@ interface ChatMessage {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limiting on paid AI API: Max 15 messages per 5 minutes per client IP
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(
+    `ai:chat:${clientIp}`,
+    RATE_LIMITS.AI_CHAT.maxAttempts,
+    RATE_LIMITS.AI_CHAT.windowMs
+  );
+  if (!rateLimit.success) {
+    return rateLimitResponse(
+      rateLimit.resetTime,
+      rateLimit.limit,
+      rateLimit.remaining,
+      "Too many AI chat requests. Please wait a few minutes before chatting again."
+    );
+  }
+
   // Session check is optional so visitors/guests can chat without logging in
   const session = await getServerSession(authOptions).catch(() => null);
 
-  const apiKey = process.env.GOOGLE_AI_STUDIO_API_KEY;
+  const apiKey = process.env.GOOGLE_AI_STUDIO_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "your_google_ai_studio_api_key_here") {
     return new Response(
       JSON.stringify({ error: "AI service not configured. Please contact administration." }),
@@ -59,16 +86,16 @@ export async function POST(req: NextRequest) {
   let messages: ChatMessage[] = [];
   try {
     const body = await req.json();
-    messages = body.messages || [];
+    const parsed = chatRequestSchema.safeParse(body);
+    if (!parsed.success) {
+      return new Response(JSON.stringify({ error: parsed.error.issues[0]?.message || "Invalid message format." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    messages = parsed.data.messages;
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid request body" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  if (!messages.length) {
-    return new Response(JSON.stringify({ error: "No messages provided" }), {
+    return new Response(JSON.stringify({ error: "Invalid JSON request body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

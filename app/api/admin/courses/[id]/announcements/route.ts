@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeString, sanitizeIdentifier } from "@/lib/sanitization";
+import { z } from "zod";
+
+const createAnnouncementSchema = z.object({
+  title: z.string().min(1, "Title is required").max(200, "Title too long"),
+  content: z.string().min(1, "Content is required").max(5000, "Content too long"),
+});
 
 export async function POST(
   request: Request,
@@ -13,18 +20,22 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
-    const body = await request.json();
+    const { id: rawId } = await params;
+    const courseId = sanitizeIdentifier(rawId, 100);
 
-    if (!body.title || !body.content) {
-      return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
+    const body = await request.json();
+    const parsed = createAnnouncementSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid announcement data." }, { status: 400 });
     }
+
+    const { title, content } = parsed.data;
 
     const announcement = await prisma.courseAnnouncement.create({
       data: {
-        courseId: id,
-        title: body.title,
-        content: body.content,
+        courseId,
+        title: sanitizeString(title, 200),
+        content: sanitizeString(content, 5000),
       },
     });
 
@@ -46,11 +57,13 @@ export async function DELETE(
     }
 
     const { searchParams } = new URL(request.url);
-    const announcementId = searchParams.get("announcementId");
+    const rawAnnouncementId = searchParams.get("announcementId");
 
-    if (!announcementId) {
+    if (!rawAnnouncementId) {
       return NextResponse.json({ error: "Announcement ID required" }, { status: 400 });
     }
+
+    const announcementId = sanitizeIdentifier(rawAnnouncementId, 100);
 
     await prisma.courseAnnouncement.delete({
       where: { id: announcementId },

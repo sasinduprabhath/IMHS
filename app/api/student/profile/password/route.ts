@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -20,10 +20,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    // Rate Limiting: Max 5 password change attempts per 15 minutes per user
-    const rateLimit = checkRateLimit(`pwd_change:${session.user.id}`, 5, 15 * 60 * 1000);
+    const clientIp = getClientIp(req);
+
+    // Rate Limiting: Max 5 password change attempts per 15 minutes per user / IP
+    const rateLimit = checkRateLimit(
+      `pwd_change:${session.user.id}:${clientIp}`,
+      RATE_LIMITS.PASSWORD_RESET.maxAttempts,
+      RATE_LIMITS.PASSWORD_RESET.windowMs
+    );
     if (!rateLimit.success) {
-      return rateLimitResponse(rateLimit.resetTime);
+      return rateLimitResponse(rateLimit.resetTime, rateLimit.limit, rateLimit.remaining, "Too many password change attempts. Please wait 15 minutes.");
     }
 
     const body = await req.json();

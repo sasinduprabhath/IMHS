@@ -29,7 +29,7 @@ const ACHIEVEMENTS_VIDEOS: VideoItem[] = [
   {
     id: '2',
     youtubeId: 'rGxAPjR18zY',
-    title: 'IMHS Modern Pharmacy Course — Day 01 Introduction Session',
+    title: 'IMHS Modern Pharmacy Course - Day 01 Introduction Session',
     category: 'Lecture Series',
     duration: '1h 56m',
     views: '1.5K+ views',
@@ -38,7 +38,7 @@ const ACHIEVEMENTS_VIDEOS: VideoItem[] = [
   {
     id: '3',
     youtubeId: '05ne6S6vHJE',
-    title: 'Fast Track Working Plan — External Pharmacist Examination by Dr. Isuru Wijesinghe',
+    title: 'Fast Track Working Plan - External Pharmacist Examination by Dr. Isuru Wijesinghe',
     category: 'Exam Guide',
     duration: '6m 12s',
     views: '3.5K+ views',
@@ -47,7 +47,7 @@ const ACHIEVEMENTS_VIDEOS: VideoItem[] = [
   {
     id: '4',
     youtubeId: 'qoIr3ZneT6Y',
-    title: 'Modern Pharmacy Education — Hypoglycemic Medications Lecture',
+    title: 'Modern Pharmacy Education - Hypoglycemic Medications Lecture',
     category: 'Pharmacology',
     duration: '1h 58m',
     views: '800+ views',
@@ -91,7 +91,7 @@ export function AchievementsSection() {
 
         {/* Video Player Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Main Cinema Player (Left 7/12) - Dictates Section Height */}
           <RevealOnScroll className="lg:col-span-7">
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl shadow-blue-950/50 group">
@@ -127,11 +127,10 @@ export function AchievementsSection() {
                       onClick={() => setActiveVideo(video)}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`relative flex items-center gap-2.5 p-1.5 rounded-xl transition text-left group flex-1 min-h-0 ${
-                        isActive
+                      className={`relative flex items-center gap-2.5 p-1.5 rounded-xl transition text-left group flex-1 min-h-0 ${isActive
                           ? 'bg-blue-900/40 border border-blue-500/40 shadow-md'
                           : 'hover:bg-slate-800/60 border border-transparent'
-                      }`}
+                        }`}
                     >
                       {/* Thumbnail Container */}
                       <div className="relative w-20 sm:w-24 aspect-video rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-white/10">
@@ -146,9 +145,8 @@ export function AchievementsSection() {
 
                         {/* Play Icon Overlay */}
                         <div
-                          className={`absolute inset-0 flex items-center justify-center bg-black/40 transition ${
-                            isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                          }`}
+                          className={`absolute inset-0 flex items-center justify-center bg-black/40 transition ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                            }`}
                         >
                           <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg">
                             <Play className="w-3 h-3 fill-white ml-0.5" />
@@ -163,9 +161,8 @@ export function AchievementsSection() {
                           <span>{video.category}</span>
                         </div>
                         <h5
-                          className={`text-xs font-semibold line-clamp-2 leading-tight ${
-                            isActive ? 'text-white font-bold' : 'text-slate-300 group-hover:text-white'
-                          }`}
+                          className={`text-xs font-semibold line-clamp-2 leading-tight ${isActive ? 'text-white font-bold' : 'text-slate-300 group-hover:text-white'
+                            }`}
                         >
                           {video.title}
                         </h5>

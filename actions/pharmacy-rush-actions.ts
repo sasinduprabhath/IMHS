@@ -2,6 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { sanitizeString, sanitizeIdentifier } from "@/lib/sanitization";
 
 export async function getActivePharmacyRushConfig() {
   try {
@@ -48,6 +51,13 @@ export async function createPharmacyRushConfig(data: {
   }[];
 }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
+    const cleanMedicineName = sanitizeString(data.medicineName, 150);
+
     if (data.isActive) {
       // Deactivate all others first
       await prisma.pharmacyRushConfig.updateMany({
@@ -57,17 +67,17 @@ export async function createPharmacyRushConfig(data: {
 
     const created = await prisma.pharmacyRushConfig.create({
       data: {
-        medicineName: data.medicineName,
-        timePerRoundSec: data.timePerRoundSec ?? 15,
+        medicineName: cleanMedicineName,
+        timePerRoundSec: Math.min(120, Math.max(5, Number(data.timePerRoundSec) || 15)),
         isActive: data.isActive ?? true,
         rounds: {
-          create: data.rounds.map((r) => ({
-            roundNumber: r.roundNumber,
-            challengeType: r.challengeType,
-            questionText: r.questionText,
-            options: r.options,
-            correctOption: r.correctOption,
-            pointsValue: r.pointsValue ?? 10,
+          create: (data.rounds || []).map((r) => ({
+            roundNumber: Number(r.roundNumber) || 1,
+            challengeType: sanitizeString(r.challengeType, 50),
+            questionText: sanitizeString(r.questionText, 500),
+            options: (r.options || []).map((o) => sanitizeString(o, 200)),
+            correctOption: sanitizeString(r.correctOption, 200),
+            pointsValue: Math.min(100, Math.max(1, Number(r.pointsValue) || 10)),
           })),
         },
       },
@@ -85,11 +95,18 @@ export async function createPharmacyRushConfig(data: {
 
 export async function setActivePharmacyRushConfig(id: string) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
+    const cleanId = sanitizeIdentifier(id, 100);
+
     await prisma.pharmacyRushConfig.updateMany({
       data: { isActive: false },
     });
     const updated = await prisma.pharmacyRushConfig.update({
-      where: { id },
+      where: { id: cleanId },
       data: { isActive: true },
     });
     revalidatePath("/admin/learning-hub/pharmacy-rush");
@@ -102,28 +119,37 @@ export async function setActivePharmacyRushConfig(id: string) {
 }
 
 export async function submitPharmacyRushScore(data: {
-  studentId: string;
   medicineName: string;
   score: number;
   timeTakenSec: number;
 }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized: Active session required." };
+    }
+
+    const studentId = session.user.id;
+    const cleanMedicineName = sanitizeString(data.medicineName, 150);
+    const score = Math.min(10000, Math.max(0, Number(data.score) || 0));
+    const timeTakenSec = Math.min(86400, Math.max(0, Number(data.timeTakenSec) || 0));
+
     const log = await prisma.pharmacyRushLeaderboard.create({
       data: {
-        studentId: data.studentId,
-        medicineName: data.medicineName,
-        score: data.score,
-        timeTakenSec: data.timeTakenSec,
+        studentId,
+        medicineName: cleanMedicineName,
+        score,
+        timeTakenSec,
       },
     });
 
     // Also write to StudentActivityLog
     await prisma.studentActivityLog.create({
       data: {
-        studentId: data.studentId,
+        studentId,
         activityType: "PHARMACY_RUSH",
-        referenceId: data.medicineName,
-        score: data.score,
+        referenceId: cleanMedicineName,
+        score,
         maxScore: 100,
       },
     });
@@ -158,6 +184,11 @@ export async function getPharmacyRushLeaderboard(medicineName?: string) {
 
 export async function getStudentAnalyticsLogs() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return [];
+    }
+
     if (!prisma.studentActivityLog) return [];
     return (await prisma.studentActivityLog.findMany({
       include: {

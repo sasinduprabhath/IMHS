@@ -4,9 +4,28 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/about", "/faculty", "/courses", "/contact"],
-      disallow: ["/admin/", "/dashboard/", "/login", "/api/"],
+      allow: [
+        "/",
+        "/about",
+        "/faculty",
+        "/dr-isuru-wijesinghe",
+        "/courses",
+        "/courses/*",
+        "/consultation",
+        "/gallery",
+        "/contact",
+        "/privacy-policy",
+      ],
+      disallow: [
+        "/admin",
+        "/admin/*",
+        "/dashboard",
+        "/dashboard/*",
+        "/login",
+        "/verify-otp",
+        "/api/*",
+      ],
     },
-    sitemap: "https://imhs.edu.lk/sitemap.xml",
+    sitemap: "https://imhsedu.com/sitemap.xml",
   };
 }

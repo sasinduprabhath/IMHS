@@ -15,8 +15,24 @@ import {
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 
 export const metadata = {
-  title: "Course Catalog - IMHS Clinical Education Programs",
-  description: "Browse accredited pharmaceutical, clinical pathology, and healthcare education courses at IMHS, Sri Lanka.",
+  title: "Course Catalog | Accredited Pharmacy & Healthcare Programs",
+  description:
+    "Explore SLMC-aligned pharmacy courses, clinical modules, fast-track revision, and practical dispensary certifications at IMHS Sri Lanka.",
+  alternates: {
+    canonical: "https://imhsedu.com/courses",
+  },
+  openGraph: {
+    title: "Course Catalog | IMHS Healthcare Education",
+    description: "Browse accredited pharmaceutical and clinical healthcare programs in Sri Lanka.",
+    url: "https://imhsedu.com/courses",
+    images: [{ url: "/gallery/pharmacy-practical.jpg", width: 1200, height: 630, alt: "IMHS Course Catalog" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Course Catalog | IMHS Healthcare Education",
+    description: "Browse accredited pharmacy practice courses and SLMC exam revisions.",
+    images: ["/gallery/pharmacy-practical.jpg"],
+  },
 };
 
 export const revalidate = 60;
@@ -49,7 +65,7 @@ export default async function CoursesCatalogPage() {
     <div className="overflow-x-hidden bg-surface">
 
       {/* ── HERO (LIGHT MODE) ── */}
-      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
+      <section id="top" className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={450} className="-top-24 -left-24 opacity-15" />
         {/* DNA Helix left accent */}
@@ -94,7 +110,7 @@ export default async function CoursesCatalogPage() {
       </section>
 
       {/* ── SEARCH & COURSES ── */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-6 sm:space-y-10">
+      <section id="catalog" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-6 sm:space-y-10">
         {/* Pill orbs subtle decoration */}
         <PillCapsuleOrbs count={5} className="opacity-40" />
         {/* Blister-cell rhythm at top of grid */}

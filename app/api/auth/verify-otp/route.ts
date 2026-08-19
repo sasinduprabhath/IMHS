@@ -5,25 +5,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyOtp } from "@/lib/otp";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 import { encode } from "next-auth/jwt";
+import { logger } from "@/lib/logger";
+import { z } from "zod";
 
-const MAX_OTP_ATTEMPTS = 5;
+const verifyOtpSchema = z.object({
+  pendingUserId: z.string().min(1, "User ID is required").max(50, "User ID too long"),
+  otp: z.string().regex(/^\d{6}$/, "Verification code must be exactly 6 digits"),
+  trustDevice: z.boolean().optional().default(false),
+  deviceSignature: z.string().max(100).optional().default(""),
+});
 
 export async function POST(req: NextRequest) {
+  const clientIp = getClientIp(req);
   try {
     const body = await req.json();
-    const pendingUserId = (body.pendingUserId as string) || "";
-    const otpInput = (body.otp as string) || "";
+    const parsed = verifyOtpSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({
+        status: "ERROR",
+        message: parsed.error.issues[0]?.message || "Invalid verification request format.",
+      }, { status: 400 });
+    }
 
-    if (!pendingUserId || !otpInput || otpInput.length !== 6) {
-      return NextResponse.json({ status: "ERROR", message: "Invalid request." }, { status: 400 });
+    const { pendingUserId, otp: otpInput, trustDevice, deviceSignature } = parsed.data;
+
+    // IP-level OTP rate limiting
+    const ipLimit = checkRateLimit(`auth:otp:ip:${clientIp}`, 15, RATE_LIMITS.OTP_VERIFY.windowMs);
+    if (!ipLimit.success) {
+      logger.security("RATE_LIMIT_EXCEEDED", `IP OTP rate limit exceeded`, { ip: clientIp, path: "/api/auth/verify-otp" });
+      return NextResponse.json({
+        status: "ERROR",
+        message: "Too many verification attempts from your network. Please wait 10 minutes.",
+      }, { status: 429 });
     }
 
     // Per-user OTP rate limit: max 5 attempts per 10 minutes
-    const rateKey = `auth:otp:${pendingUserId}`;
-    const rateLimit = checkRateLimit(rateKey, MAX_OTP_ATTEMPTS, 10 * 60 * 1000);
-    if (!rateLimit.success) {
+    const userLimit = checkRateLimit(`auth:otp:usr:${pendingUserId}`, RATE_LIMITS.OTP_VERIFY.maxAttempts, RATE_LIMITS.OTP_VERIFY.windowMs);
+    if (!userLimit.success) {
+      logger.security("RATE_LIMIT_EXCEEDED", `User OTP attempts rate limit exceeded`, { userId: pendingUserId, ip: clientIp, path: "/api/auth/verify-otp" });
       return NextResponse.json({
         status: "ERROR",
         message: "Too many incorrect attempts. Please log in again to receive a new code.",
@@ -56,13 +77,22 @@ export async function POST(req: NextRequest) {
 
     if (!isValid) {
       const attempts = (user.otpAttempts || 0) + 1;
-      const remaining = MAX_OTP_ATTEMPTS - attempts;
+      const remaining = RATE_LIMITS.OTP_VERIFY.maxAttempts - attempts;
       await prisma.user.update({
         where: { id: user.id },
         data: { otpAttempts: attempts },
       });
 
+      logger.security("AUTH_OTP_FAILED", `Incorrect OTP attempt for user ${user.email} (${remaining} remaining)`, {
+        userId: user.id,
+        ip: clientIp,
+      });
+
       if (remaining <= 0) {
+        logger.security("AUTH_ACCOUNT_LOCKED", `Max OTP attempts reached for user ${user.email}, code invalidated`, {
+          userId: user.id,
+          ip: clientIp,
+        });
         await prisma.user.update({
           where: { id: user.id },
           data: { otpCode: null, otpExpiry: null, otpAttempts: 0 },
@@ -86,11 +116,16 @@ export async function POST(req: NextRequest) {
       data: { otpCode: null, otpExpiry: null, otpAttempts: 0 },
     });
 
-    const trustDevice = body.trustDevice ?? true;
-    const deviceSignature = (body.deviceSignature as string) || "";
+    logger.security("AUTH_OTP_VERIFIED", `2FA OTP successfully verified for user ${user.email}`, {
+      userId: user.id,
+      ip: clientIp,
+    });
 
     // Build a signed JWT that the login page can use with NextAuth signIn
-    const secret = process.env.NEXTAUTH_SECRET || "imhs_default_secret_32_characters_long";
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret) {
+      throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
+    }
     const verifiedToken = await encode({
       token: {
         id: user.id,

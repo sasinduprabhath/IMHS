@@ -1,4 +1,4 @@
-// ─── IMHS Interactive Learning Hub — Core Types ─────────────────────────────
+// ─── IMHS Interactive Learning Hub - Core Types ─────────────────────────────
 // §3.2 Shared data model from the IMHS_Interactive_Learning_Hub spec.
 
 // ─── Drug ────────────────────────────────────────────────────────────────────
@@ -17,6 +17,11 @@ export interface Drug {
   contraindicationsPrecautions: string[];
   counsellingPoints: string[];
   antidote?: string;           // omit if none applicable
+  drugClassOptions?: string[];
+  moaOptions?: string[];
+  sideEffectOptions?: string[];
+  interactionOptions?: string[];
+  antidoteOptions?: string[];
   quickDecisionScenario?: {
     scenario: string;
     options: string[];

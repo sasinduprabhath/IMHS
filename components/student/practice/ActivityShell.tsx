@@ -70,7 +70,7 @@ export function ActivityShell({
           {onExit && (
             <button
               onClick={handleExitClick}
-              className="shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:text-[#C1443A] hover:bg-red-50 hover:border-red-200 transition-all duration-200 shadow-2xs"
+              className="shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-200 shadow-2xs"
               aria-label="Exit activity"
             >
               <X className="w-4 h-4" />
@@ -185,7 +185,7 @@ export function ActivityShell({
                   setShowExitConfirm(false);
                   onExit?.();
                 }}
-                className="flex-1 text-xs font-bold text-white py-2.5 rounded-xl bg-[#C1443A] hover:bg-[#a6362d] transition-colors"
+                className="flex-1 text-xs font-bold text-white py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs"
               >
                 Exit
               </button>

@@ -1,26 +1,26 @@
 import type { RoundTopic } from "@/types/pharmacology";
 import type { Drug } from "@/types/pharmacology";
 
-// ─── Pharmacy Rush — Round Topic Order ───────────────────────────────────────
+// ─── Pharmacy Rush - Round Topic Order ───────────────────────────────────────
 // Verified against the fully-worked Amlodipine example from the source PDF.
-// "Administration" (Round 06) replaces "Interaction" — confirmed visually from spec.
+// "Administration" (Round 06) replaces "Interaction" - confirmed visually from spec.
 // Update this list if the academic team provides a revised 10-round spec.
 
 export const ROUND_TOPICS: { topic: RoundTopic; label: string }[] = [
-  { topic: "drugClass",           label: "Drug Class" },
-  { topic: "mainIndication",      label: "Main Indication" },
-  { topic: "mechanismOfAction",   label: "Mechanism of Action" },
-  { topic: "availableStrength",   label: "Available Strength" },
-  { topic: "dosageForm",          label: "Dosage Form" },
-  { topic: "administration",      label: "Administration" },
-  { topic: "commonSideEffect",    label: "Common Side Effect" },
-  { topic: "contraindication",    label: "Contraindication / Precaution" },
-  { topic: "counsellingPoint",    label: "Patient Counselling Point" },
-  { topic: "quickDecision",       label: "Pharmacist Quick Decision" },
+  { topic: "drugClass", label: "Drug Class" },
+  { topic: "mainIndication", label: "Main Indication" },
+  { topic: "mechanismOfAction", label: "Mechanism of Action" },
+  { topic: "availableStrength", label: "Available Strength" },
+  { topic: "dosageForm", label: "Dosage Form" },
+  { topic: "administration", label: "Administration" },
+  { topic: "commonSideEffect", label: "Common Side Effect" },
+  { topic: "contraindication", label: "Contraindication / Precaution" },
+  { topic: "counsellingPoint", label: "Patient Counselling Point" },
+  { topic: "quickDecision", label: "Pharmacist Quick Decision" },
 ];
 
 // ─── Generate Rush Rounds from a Drug record ─────────────────────────────────
-// Pure function — no randomness, consistent and testable.
+// Pure function - no randomness, consistent and testable.
 // All 10 rounds pre-generated at game start (no per-round network requests).
 
 export function generateRushRounds(drug: Drug) {
@@ -39,7 +39,7 @@ export function generateRushRounds(drug: Drug) {
 
     // Shuffle: put correct at index A (0)
     const opts = [correct, ...wrongPool.slice(0, 3)];
-    // Rotate so correct isn't always first — fixed rotation to stay deterministic
+    // Rotate so correct isn't always first - fixed rotation to stay deterministic
     const rotation = drug.id.length % 4;
     const rotated = [...opts.slice(rotation), ...opts.slice(0, rotation)];
     const correctIndex = rotated.indexOf(correct);

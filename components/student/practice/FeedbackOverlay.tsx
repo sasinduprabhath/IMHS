@@ -29,21 +29,21 @@ export function FeedbackOverlay({
           exit={{ opacity: 0, y: -4, scale: 0.97 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
           className={cn(
-            "rounded-xl border p-4 flex items-start gap-3",
+            "rounded-2xl border p-4 flex items-start gap-3 shadow-xs",
             isCorrect
-              ? "bg-[#4A8B7A]/10 border-[#4A8B7A]/30"
-              : "bg-clinical-red-light border-clinical-red/30",
+              ? "bg-emerald-50/90 border-emerald-200"
+              : "bg-rose-50/90 border-rose-200",
             className
           )}
           role="status"
           aria-live="polite"
         >
-          {/* Icon — never color alone */}
+          {/* Icon - never color alone */}
           <div className="shrink-0 mt-0.5">
             {isCorrect ? (
-              <CheckCircle2 className="w-5 h-5 text-[#4A8B7A]" aria-hidden="true" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" aria-hidden="true" />
             ) : (
-              <XCircle className="w-5 h-5 text-clinical-red" aria-hidden="true" />
+              <XCircle className="w-5 h-5 text-rose-600" aria-hidden="true" />
             )}
           </div>
 
@@ -52,7 +52,7 @@ export function FeedbackOverlay({
             <p
               className={cn(
                 "text-sm font-bold font-display",
-                isCorrect ? "text-[#3a7060]" : "text-clinical-red"
+                isCorrect ? "text-emerald-900" : "text-rose-900"
               )}
             >
               {isCorrect ? "Correct!" : "Incorrect"}
@@ -60,15 +60,15 @@ export function FeedbackOverlay({
 
             {/* Correct answer reveal (only when wrong) */}
             {!isCorrect && correctAnswer && (
-              <p className="text-xs text-ink-muted">
-                <span className="font-semibold text-ink">Correct answer: </span>
+              <p className="text-xs text-slate-700">
+                <span className="font-semibold text-slate-900">Correct answer: </span>
                 {correctAnswer}
               </p>
             )}
 
             {/* Explanation */}
             {explanation && (
-              <p className="text-xs text-ink-muted leading-relaxed">{explanation}</p>
+              <p className="text-xs text-slate-600 leading-relaxed font-sans">{explanation}</p>
             )}
           </div>
         </motion.div>

@@ -2,8 +2,18 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeString, sanitizeEmail, sanitizePhone, sanitizeIdentifier } from "@/lib/sanitization";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
+
+const updateStudentSchema = z.object({
+  status: z.enum(["ACTIVE", "FROZEN"]).optional(),
+  name: z.string().min(1, "Name cannot be empty").max(100, "Name too long").optional(),
+  email: z.string().email("Valid email required").max(150, "Email too long").optional(),
+  phone: z.string().max(30, "Phone too long").optional(),
+  studentId: z.string().max(50, "Student ID too long").optional(),
+});
 
 // GET student details
 export async function GET(
@@ -16,7 +26,9 @@ export async function GET(
       return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const id = sanitizeIdentifier(rawId, 100);
+
     const student = await prisma.user.findUnique({
       where: { id },
       include: {
@@ -49,16 +61,22 @@ export async function PATCH(
       return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = await params;
-    const body = await req.json();
-    const { status, name, email, phone, studentId } = body;
+    const { id: rawId } = await params;
+    const id = sanitizeIdentifier(rawId, 100);
 
+    const body = await req.json();
+    const parsed = updateStudentSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, message: parsed.error.issues[0]?.message || "Invalid update data." }, { status: 400 });
+    }
+
+    const data = parsed.data;
     const updateData: any = {};
-    if (status !== undefined) updateData.status = status; // "ACTIVE" | "FROZEN"
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
-    if (phone) updateData.phone = phone;
-    if (studentId !== undefined) updateData.studentId = studentId;
+    if (data.status !== undefined) updateData.status = data.status; // "ACTIVE" | "FROZEN"
+    if (data.name) updateData.name = sanitizeString(data.name, 100);
+    if (data.email) updateData.email = sanitizeEmail(data.email);
+    if (data.phone) updateData.phone = sanitizePhone(data.phone);
+    if (data.studentId !== undefined) updateData.studentId = sanitizeIdentifier(data.studentId, 50);
 
     const updatedStudent = await prisma.user.update({
       where: { id },

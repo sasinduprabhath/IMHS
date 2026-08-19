@@ -6,8 +6,22 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
-  BookOpen, Plus, Edit3, Eye, CheckCircle2, XCircle,
-  Users, Layers, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink, ClipboardList
+  BookOpen,
+  Plus,
+  Edit3,
+  Eye,
+  CheckCircle2,
+  XCircle,
+  Users,
+  Layers,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ClipboardList,
+  Sparkles,
+  GraduationCap,
 } from "lucide-react";
 
 interface CourseItem {
@@ -16,7 +30,7 @@ interface CourseItem {
   slug: string;
   price: number;
   published: boolean;
-  chapters: { lessons: { id: string }[] }[];
+  chapters: { lessons: { id: string; type?: string; title?: string }[] }[];
   _count: { enrollments: number };
 }
 
@@ -26,13 +40,21 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
   const router = useRouter();
   const [courses, setCourses] = useState<CourseItem[]>(initialCourses);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredCourses = courses.filter(
-    (c) =>
+  const filteredCourses = courses.filter((c) => {
+    const matchesSearch =
       c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.slug.toLowerCase().includes(search.toLowerCase())
-  );
+      c.slug.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "ALL" ||
+      (statusFilter === "PUBLISHED" && c.published) ||
+      (statusFilter === "DRAFT" && !c.published);
+
+    return matchesSearch && matchesStatus;
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredCourses.length / ITEMS_PER_PAGE));
   const validPage = Math.min(currentPage, totalPages);
@@ -49,176 +71,189 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
     0
   );
 
+  const totalEnrollments = courses.reduce((acc, c) => acc + (c._count?.enrollments || 0), 0);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#E2E8F0]">
-        <div>
-          <span className="font-mono text-[10px] text-[#F16726] uppercase font-bold tracking-widest">
-            CURRICULUM MANAGEMENT
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+        <div className="space-y-1">
+          <span className="font-mono text-[10px] text-[#F16726] bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full uppercase font-bold tracking-widest inline-block">
+            Curriculum Management
           </span>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-ink mt-0.5">
-            Course Manager &amp; Syllabus Builder
+          <h1 className="text-xl sm:text-3xl font-display font-bold text-slate-900 leading-tight">
+            Course Programs &amp; Syllabus Manager
           </h1>
-          <p className="text-xs text-ink-muted mt-1 font-sans">
-            Manage course publishing status, video module links, PDF downloads, and pricing.
+          <p className="text-xs text-slate-500 font-sans leading-relaxed">
+            Manage course publishing states, video lecture streaming, module structure, and pricing.
           </p>
         </div>
 
-        <Link href="/admin/courses/new">
-          <button className="inline-flex items-center gap-2 font-semibold text-xs text-white px-4 py-2.5 rounded-xl transition-all hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)", boxShadow: "0 4px 12px rgba(241,103,38,.25)" }}>
-            <Plus className="w-4 h-4" /> Create New Course
+        <Link href="/admin/courses/new" className="shrink-0">
+          <button
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-semibold text-xs text-white px-5 py-2.5 rounded-xl transition-all shadow-md hover:opacity-95 min-h-[42px]"
+            style={{
+              background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)",
+              boxShadow: "0 4px 14px rgba(241,103,38,.28)",
+            }}
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create New Course</span>
           </button>
         </Link>
       </div>
 
-      {/* ── Overview Metrics ── */}
+      {/* ── Overview Metrics Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-surface border border-chart-grid rounded-card p-4 flex items-center gap-3 shadow-paper">
-          <div className="w-9 h-9 bg-clinical-teal/10 border border-clinical-teal/20 rounded flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-clinical-teal" />
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4.5 sm:p-5 flex items-center gap-3.5 shadow-xs hover:shadow-md transition-all">
+          <div className="w-11 h-11 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-center shrink-0">
+            <BookOpen className="w-5 h-5 text-[#0E57A4]" />
           </div>
           <div>
-            <div className="text-xl font-mono font-bold text-ink">{courses.length}</div>
-            <div className="text-[10px] font-mono text-sage uppercase">Total Courses</div>
+            <div className="text-xl sm:text-2xl font-mono font-bold text-slate-900">{courses.length}</div>
+            <div className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Total Programs</div>
           </div>
         </div>
 
-        <div className="bg-surface border border-chart-grid rounded-card p-4 flex items-center gap-3 shadow-paper">
-          <div className="w-9 h-9 bg-clinical-teal/10 border border-clinical-teal/20 rounded flex items-center justify-center">
-            <Layers className="w-4 h-4 text-clinical-teal" />
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4.5 sm:p-5 flex items-center gap-3.5 shadow-xs hover:shadow-md transition-all">
+          <div className="w-11 h-11 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center shrink-0">
+            <Layers className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <div className="text-xl font-mono font-bold text-ink">{totalLessons}</div>
-            <div className="text-[10px] font-mono text-sage uppercase">Video & Case Lessons</div>
+            <div className="text-xl sm:text-2xl font-mono font-bold text-slate-900">{totalLessons}</div>
+            <div className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Curriculum Lessons</div>
           </div>
         </div>
 
-        <div className="bg-surface border border-chart-grid rounded-card p-4 flex items-center gap-3 shadow-paper">
-          <div className="w-9 h-9 bg-clinical-teal/10 border border-clinical-teal/20 rounded flex items-center justify-center">
-            <Users className="w-4 h-4 text-clinical-teal" />
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4.5 sm:p-5 flex items-center gap-3.5 shadow-xs hover:shadow-md transition-all">
+          <div className="w-11 h-11 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 text-[#F16726]" />
           </div>
           <div>
-            <div className="text-xl font-mono font-bold text-ink">
-              {courses.reduce((acc, c) => acc + c._count.enrollments, 0)}
-            </div>
-            <div className="text-[10px] font-mono text-sage uppercase">Total Active Enrollments</div>
+            <div className="text-xl sm:text-2xl font-mono font-bold text-slate-900">{totalEnrollments}</div>
+            <div className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Total Active Students</div>
           </div>
         </div>
       </div>
 
-      {/* ── Search & Filter Bar ── */}
-      <div className="bg-surface border border-chart-grid rounded-card p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-paper">
+      {/* ── Search & Filter Ribbon ── */}
+      <div className="bg-slate-50 border border-slate-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
         <div className="relative max-w-md w-full">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-sage" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by course title or program code..."
+            placeholder="Search by title, code, or topic..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all font-sans"
+            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4] min-h-[40px] font-sans"
           />
         </div>
 
-        <span className="text-xs font-mono text-sage">
-          Total <strong className="text-ink">{filteredCourses.length}</strong> courses
-        </span>
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+          {[
+            { id: "ALL", label: `All (${courses.length})` },
+            { id: "PUBLISHED", label: `Live (${courses.filter((c) => c.published).length})` },
+            { id: "DRAFT", label: `Draft (${courses.filter((c) => !c.published).length})` },
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => {
+                setStatusFilter(f.id as any);
+                setCurrentPage(1);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all shrink-0 whitespace-nowrap min-h-[36px] ${
+                statusFilter === f.id
+                  ? "bg-[#0E57A4] text-white shadow-xs"
+                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Courses Container ── */}
-      <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         
         {/* 📱 Mobile Card View (screens < md) */}
-        <div className="block md:hidden divide-y divide-chart-grid/60">
+        <div className="block md:hidden divide-y divide-slate-100">
           {paginatedCourses.length === 0 ? (
-            <div className="p-8 text-center text-sage font-mono space-y-2">
-              <BookOpen className="w-8 h-8 mx-auto text-sage/50" />
-              <div>No courses matched &ldquo;{search}&rdquo;.</div>
+            <div className="p-10 text-center text-slate-400 font-mono space-y-2">
+              <BookOpen className="w-8 h-8 mx-auto text-slate-300" />
+              <div className="text-xs">No courses matched &ldquo;{search}&rdquo;.</div>
             </div>
           ) : (
             paginatedCourses.map((course) => {
-              const lessonsCount = course.chapters.reduce(
-                (acc, ch) => acc + ch.lessons.length,
-                0
-              );
               const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
+              const allItems = course.chapters.flatMap((ch) => ch.lessons);
+              const qCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+              const lCount = allItems.length - qCount;
 
               return (
                 <div
                   key={course.id}
-                  onClick={(e) => {
-                    if ((e.target as HTMLElement).closest('a, button')) return;
-                    router.push(`/admin/courses/${course.id}/edit`);
-                  }}
-                  className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal cursor-pointer"
+                  className="p-4 sm:p-5 space-y-3 hover:bg-slate-50/60 transition-all duration-200 group"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold inline-block">
+                      <span className="font-mono text-[10px] bg-blue-50 text-[#0E57A4] border border-blue-200 px-2.5 py-0.5 rounded-full font-bold inline-block">
                         {courseCode}
                       </span>
-                      <h3 className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                      <h3 className="font-bold text-slate-900 text-sm leading-snug">
                         {course.title}
                       </h3>
                     </div>
 
                     <div className="shrink-0">
                       {course.published ? (
-                        <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-green-600" /> Live
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Live
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-chart-red/10 text-chart-red border border-chart-red/20 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                          <XCircle className="w-3 h-3 text-chart-red" /> Draft
+                        <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                          <XCircle className="w-3 h-3 text-rose-600" /> Draft
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between bg-linen/50 p-2.5 rounded border border-chart-grid/50 font-mono text-xs">
+                  <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200/70 font-mono text-xs">
                     <div>
-                      <span className="text-sage text-[10px] block uppercase">Fee:</span>
-                      <span className="font-bold text-clinical-teal">{formatCurrency(course.price)}</span>
+                      <span className="text-slate-400 text-[10px] block uppercase font-semibold">Tuition Fee</span>
+                      <span className="font-bold text-[#0E57A4]">{formatCurrency(course.price)}</span>
                     </div>
 
                     <div>
-                      <span className="text-sage text-[10px] block uppercase">Structure:</span>
-                      {(() => {
-                        const allItems = course.chapters.flatMap((ch) => ch.lessons);
-                        const qCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
-                        const lCount = allItems.length - qCount;
-
-                        return (
-                          <span className="font-bold text-ink">
-                            {course.chapters.length} ch · {lCount} les {qCount > 0 ? `· ${qCount} q` : ""}
-                          </span>
-                        );
-                      })()}
+                      <span className="text-slate-400 text-[10px] block uppercase font-semibold">Syllabus</span>
+                      <span className="font-bold text-slate-800">
+                        {course.chapters.length} ch &bull; {lCount} les
+                      </span>
                     </div>
 
                     <div>
-                      <span className="text-sage text-[10px] block uppercase">Students:</span>
-                      <span className="font-bold text-ink">{course._count.enrollments}</span>
+                      <span className="text-slate-400 text-[10px] block uppercase font-semibold">Enrollments</span>
+                      <span className="font-bold text-slate-800">{course._count.enrollments}</span>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-chart-grid/40">
-                    <Link href={`/admin/courses/${course.id}/edit`}>
-                      <Button size="sm" className="h-8 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 flex-wrap">
+                    <Link href={`/admin/courses/${course.id}/edit`} className="flex-1 sm:flex-initial">
+                      <Button size="sm" className="w-full h-8 text-[11px] gap-1 font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0 shadow-xs">
                         <Edit3 className="w-3 h-3" /> Syllabus Builder
                       </Button>
                     </Link>
 
                     <Link href={`/admin/courses/${course.id}/assessments`}>
-                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 text-[#0E57A4] border-[#0E57A4]/30 hover:bg-[#EBF3FA] font-semibold">
-                        <ClipboardList className="w-3 h-3" /> Questions
+                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 text-[#0E57A4] border-blue-200 hover:bg-blue-50 font-semibold shadow-xs">
+                        <ClipboardList className="w-3 h-3" /> Exam Qs
                       </Button>
                     </Link>
 
                     <Link href={`/courses/${course.slug}`} target="_blank">
-                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 text-sage">
+                      <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 text-slate-600 shadow-xs">
                         <Eye className="w-3 h-3" /> Preview
                       </Button>
                     </Link>
@@ -233,46 +268,41 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs font-sans">
             <thead>
-              <tr className="border-b border-chart-grid bg-linen/50 text-sage uppercase font-mono text-[10px]">
-                <th className="p-4">Course Program & Code</th>
+              <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 uppercase font-mono text-[10px]">
+                <th className="p-4 pl-6">Course Program &amp; Code</th>
                 <th className="p-4">Publishing Status</th>
-                <th className="p-4">Enrollment Fee</th>
+                <th className="p-4">Tuition Fee</th>
                 <th className="p-4">Syllabus Structure</th>
                 <th className="p-4">Enrolled Students</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-chart-grid/60">
+            <tbody className="divide-y divide-slate-100">
               {paginatedCourses.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-sage font-mono space-y-2">
-                    <BookOpen className="w-8 h-8 mx-auto text-sage/50" />
+                  <td colSpan={6} className="p-12 text-center text-slate-400 font-mono space-y-2">
+                    <BookOpen className="w-8 h-8 mx-auto text-slate-300" />
                     <div>No courses matched &ldquo;{search}&rdquo;.</div>
                   </td>
                 </tr>
               ) : (
                 paginatedCourses.map((course) => {
-                  const lessonsCount = course.chapters.reduce(
-                    (acc, ch) => acc + ch.lessons.length,
-                    0
-                  );
                   const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
+                  const allItems = course.chapters.flatMap((ch) => ch.lessons);
+                  const questionsCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
+                  const lessonsCount = allItems.length - questionsCount;
 
                   return (
                     <tr
                       key={course.id}
-                      onClick={(e) => {
-                        if ((e.target as HTMLElement).closest('a, button')) return;
-                        router.push(`/admin/courses/${course.id}/edit`);
-                      }}
-                      className="hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal cursor-pointer"
+                      className="hover:bg-slate-50/70 transition-all duration-150 group"
                     >
-                      <td className="p-4 font-semibold text-ink">
+                      <td className="p-4 pl-6 font-semibold text-slate-900">
                         <div className="flex items-center gap-2.5">
-                          <span className="font-mono text-[10px] bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-bold group-hover:bg-clinical-teal group-hover:text-white transition-colors shrink-0">
+                          <span className="font-mono text-[10px] bg-blue-50 text-[#0E57A4] border border-blue-200 px-2.5 py-0.5 rounded-full font-bold shrink-0">
                             {courseCode}
                           </span>
-                          <span className="text-sm group-hover:text-clinical-teal transition-colors font-sans">
+                          <span className="text-sm font-sans font-bold group-hover:text-[#0E57A4] transition-colors">
                             {course.title}
                           </span>
                         </div>
@@ -280,63 +310,55 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
 
                       <td className="p-4">
                         {course.published ? (
-                          <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
-                            <CheckCircle2 className="w-3 h-3 text-green-600" /> Published Live
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Published Live
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 bg-chart-red/10 text-chart-red border border-chart-red/20 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
-                            <XCircle className="w-3 h-3 text-chart-red" /> Draft Mode
+                          <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                            <XCircle className="w-3 h-3 text-rose-600" /> Draft Mode
                           </span>
                         )}
                       </td>
 
-                      <td className="p-4 font-mono font-bold text-clinical-teal text-sm">
+                      <td className="p-4 font-mono font-bold text-[#0E57A4] text-sm">
                         {formatCurrency(course.price)}
                       </td>
 
-                      <td className="p-4 font-mono text-ink-muted">
-                        {(() => {
-                          const allItems = course.chapters.flatMap((ch) => ch.lessons);
-                          const questionsCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
-                          const lessonsCount = allItems.length - questionsCount;
-
-                          return (
-                            <div>
-                              <span className="font-bold text-ink">{course.chapters.length}</span> chapters ·{" "}
-                              <span className="font-bold text-ink">{lessonsCount}</span> lessons
-                              {questionsCount > 0 && (
-                                <span className="font-bold text-clinical-teal text-[11px] block">
-                                  + {questionsCount} practice questions
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })()}
+                      <td className="p-4 font-mono text-slate-600">
+                        <div>
+                          <span className="font-bold text-slate-900">{course.chapters.length}</span> chapters &bull;{" "}
+                          <span className="font-bold text-slate-900">{lessonsCount}</span> lessons
+                          {questionsCount > 0 && (
+                            <span className="font-bold text-[#0E57A4] text-[11px] block mt-0.5">
+                              + {questionsCount} practice questions
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="p-4 font-mono">
-                        <div className="flex items-center gap-1.5 text-ink font-bold">
-                          <Users className="w-3.5 h-3.5 text-sage" />
+                        <div className="flex items-center gap-1.5 text-slate-900 font-bold">
+                          <Users className="w-3.5 h-3.5 text-slate-400" />
                           <span>{course._count.enrollments}</span>
                         </div>
                       </td>
 
-                      <td className="p-4 text-right">
+                      <td className="p-4 pr-6 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/admin/courses/${course.id}/edit`}>
-                            <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1 font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0 shadow-xs">
+                            <Button size="sm" className="h-8 px-3 text-[11px] gap-1 font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0 shadow-xs">
                               <Edit3 className="w-3 h-3" /> Syllabus
                             </Button>
                           </Link>
 
                           <Link href={`/admin/courses/${course.id}/assessments`}>
-                            <Button size="sm" variant="outline" className="h-7 px-2.5 text-[11px] gap-1 text-[#0E57A4] border-[#0E57A4]/30 hover:bg-[#EBF3FA] font-semibold shadow-xs">
-                              <ClipboardList className="w-3 h-3" /> Questions
+                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 text-[#0E57A4] border-blue-200 hover:bg-blue-50 font-semibold shadow-xs">
+                              <ClipboardList className="w-3 h-3" /> Exam Qs
                             </Button>
                           </Link>
 
                           <Link href={`/courses/${course.slug}`} target="_blank">
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] gap-1 text-sage shadow-xs">
+                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 text-slate-600 shadow-xs">
                               <Eye className="w-3 h-3" /> Preview
                             </Button>
                           </Link>
@@ -352,13 +374,13 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
 
         {/* ── Pagination Controls ── */}
         {filteredCourses.length > 0 && (
-          <div className="p-4 border-t border-chart-grid bg-linen/30 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
-            <div className="text-sage text-[11px]">
-              Showing <strong className="text-ink">{startIndex + 1}</strong> to{" "}
-              <strong className="text-ink">
+          <div className="p-4 border-t border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
+            <div className="text-slate-500 text-[11px]">
+              Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{" "}
+              <strong className="text-slate-900">
                 {Math.min(startIndex + ITEMS_PER_PAGE, filteredCourses.length)}
               </strong>{" "}
-              of <strong className="text-ink">{filteredCourses.length}</strong> courses
+              of <strong className="text-slate-900">{filteredCourses.length}</strong> programs
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -383,7 +405,7 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                 <ChevronLeft className="w-4 h-4" />
               </Button>
 
-              <span className="px-3 py-1 bg-white border border-chart-grid rounded text-ink font-semibold">
+              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold text-xs shadow-2xs">
                 Page {validPage} of {totalPages}
               </span>
 

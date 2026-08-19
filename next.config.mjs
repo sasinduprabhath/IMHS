@@ -33,23 +33,47 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "*.googleusercontent.com",
+      },
+      {
+        protocol: "https",
         hostname: "docs.google.com",
       },
       {
         protocol: "https",
+        hostname: "www.google.com",
+      },
+      {
+        protocol: "https",
+        hostname: "maps.google.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.google.com",
+      },
+      {
+        protocol: "https",
         hostname: "imhsedu.com",
       },
       {
-        protocol: "http",
-        hostname: "imhsedu.com",
+        protocol: "https",
+        hostname: "*.imhsedu.com",
       },
       {
         protocol: "https",
         hostname: "imhs.edu.lk",
       },
       {
-        protocol: "http",
-        hostname: "imhs.edu.lk",
+        protocol: "https",
+        hostname: "*.imhs.edu.lk",
+      },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
       },
     ],
   },
@@ -58,6 +82,20 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://player.vimeo.com https://www.youtube.com https://s.ytimg.com https://www.google.com https://maps.googleapis.com https://*.google.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              "img-src 'self' data: blob: https://images.unsplash.com https://i.vimeocdn.com https://drive.google.com https://*.googleusercontent.com https://lh3.googleusercontent.com https://docs.google.com https://www.google.com https://maps.google.com https://*.google.com https://imhsedu.com https://*.imhsedu.com https://imhs.edu.lk https://*.imhs.edu.lk https://img.youtube.com https://i.ytimg.com",
+              "frame-src 'self' https://player.vimeo.com https://*.vimeo.com https://drive.google.com https://docs.google.com https://www.google.com https://maps.google.com https://*.google.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com",
+              "connect-src 'self' https://generativelanguage.googleapis.com https://vimeo.com https://*.vimeo.com https://drive.google.com https://*.google.com https://*.googleapis.com https://www.youtube.com https://imhsedu.com https://*.imhsedu.com https://imhs.edu.lk https://*.imhs.edu.lk",
+              "media-src 'self' blob: data: https://*.vimeocdn.com https://player.vimeo.com https://*.vimeo.com https://imhsedu.com https://*.imhsedu.com https://imhs.edu.lk https://*.imhs.edu.lk https://www.youtube.com https://*.googlevideo.com",
+              "upgrade-insecure-requests",
+            ].join("; "),
+          },
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
@@ -81,6 +119,36 @@ const nextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+      {
+        source: "/uploads/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; sandbox",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Content-Disposition",
+            value: "inline",
+          },
+        ],
+      },
+      {
+        source: "/practice/prescriptions/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; img-src 'self'",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
         ],
       },

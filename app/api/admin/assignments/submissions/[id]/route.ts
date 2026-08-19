@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeString, sanitizeIdentifier } from "@/lib/sanitization";
+import { z } from "zod";
+
+const gradeSubmissionSchema = z.object({
+  score: z.number().int().min(0, "Score cannot be negative").max(1000, "Score exceeds maximum range"),
+  feedback: z.string().max(2000, "Feedback too long").optional().nullable(),
+});
 
 export async function PATCH(
   req: Request,
@@ -13,21 +20,22 @@ export async function PATCH(
   }
 
   try {
-    const { id } = await params;
-    const body = await req.json();
-    const { score, feedback } = body;
+    const { id: rawId } = await params;
+    const id = sanitizeIdentifier(rawId, 100);
 
-    if (score === undefined || score === null || isNaN(Number(score))) {
-      return NextResponse.json({ error: "Valid numeric score is required" }, { status: 400 });
+    const body = await req.json();
+    const parsed = gradeSubmissionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Valid score is required" }, { status: 400 });
     }
 
-    const numericScore = Number(score);
+    const { score, feedback } = parsed.data;
 
     const submission = await prisma.assignmentSubmission.update({
       where: { id },
       data: {
-        score: numericScore,
-        feedback: feedback || null,
+        score,
+        feedback: feedback ? sanitizeString(feedback, 2000) : null,
         status: "GRADED",
         gradedAt: new Date(),
         gradedBy: session.user.name || "Lecturer",

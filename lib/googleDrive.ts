@@ -2,6 +2,7 @@ import { google } from "googleapis";
 import { Readable } from "stream";
 import fs from "fs";
 import path from "path";
+import { generateSafeFileName } from "@/lib/fileValidation";
 
 /**
  * Uploads a file directly to Google Drive.
@@ -70,11 +71,13 @@ export async function uploadToGoogleDrive({
       const webViewLink = response.data.webViewLink;
 
       if (fileId) {
-        // Set public reader permission
-        await drive.permissions.create({
-          fileId: fileId,
-          requestBody: { role: "reader", type: "anyone" },
-        }).catch(() => {});
+        // Only set public reader permission for public coursework briefs, keep submissions private
+        if (folderName === "briefs") {
+          await drive.permissions.create({
+            fileId: fileId,
+            requestBody: { role: "reader", type: "anyone" },
+          }).catch(() => {});
+        }
 
         const driveUrl = webViewLink || `https://drive.google.com/file/d/${fileId}/view`;
         console.log(`✅ File uploaded to Google Drive via OAuth2: ${driveUrl}`);
@@ -126,11 +129,13 @@ export async function uploadToGoogleDrive({
       const webViewLink = response.data.webViewLink;
 
       if (fileId) {
-        await drive.permissions.create({
-          fileId: fileId,
-          requestBody: { role: "reader", type: "anyone" },
-          supportsAllDrives: true,
-        }).catch(() => {});
+        if (folderName === "briefs") {
+          await drive.permissions.create({
+            fileId: fileId,
+            requestBody: { role: "reader", type: "anyone" },
+            supportsAllDrives: true,
+          }).catch(() => {});
+        }
 
         const driveUrl = webViewLink || `https://drive.google.com/file/d/${fileId}/view`;
         console.log(`✅ File uploaded to Google Drive via Service Account: ${driveUrl}`);
@@ -153,13 +158,13 @@ export async function uploadToGoogleDrive({
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const cleanOriginalName = fileName.replace(/[^a-zA-Z0-9_.-]/g, "_");
-  const uniqueFileName = `${Date.now()}_${cleanOriginalName}`;
-  const fullPath = path.join(uploadDir, uniqueFileName);
+  const ext = path.extname(fileName) || ".bin";
+  const { safeFileName } = generateSafeFileName(fileName, ext);
+  const fullPath = path.join(uploadDir, safeFileName);
 
   fs.writeFileSync(fullPath, buffer);
 
-  const localUrl = `/uploads/${targetFolder}/${uniqueFileName}`;
+  const localUrl = `/uploads/${targetFolder}/${safeFileName}`;
   console.log(`📁 File saved to local storage fallback: ${localUrl}`);
 
   return {

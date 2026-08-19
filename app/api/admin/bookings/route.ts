@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { decryptField } from "@/lib/encryption";
 
 export async function GET(req: Request) {
   try {
@@ -14,7 +15,14 @@ export async function GET(req: Request) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ bookings });
+    const decryptedBookings = bookings.map((b: any) => ({
+      ...b,
+      topicNotes: decryptField(b.topicNotes),
+      adminNotes: decryptField(b.adminNotes),
+      meetingLink: decryptField(b.meetingLink),
+    }));
+
+    return NextResponse.json({ bookings: decryptedBookings });
   } catch (error: any) {
     console.error("Error fetching consultation bookings:", error);
     return NextResponse.json(

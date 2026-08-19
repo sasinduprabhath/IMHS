@@ -2,6 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { sanitizeString, sanitizeIdentifier } from "@/lib/sanitization";
 
 export async function getDrugKnowledgeList() {
   try {
@@ -18,7 +21,8 @@ export async function getDrugKnowledgeList() {
 export async function getDrugKnowledgeById(id: string) {
   try {
     if (!prisma.drugKnowledge) return null;
-    return await prisma.drugKnowledge.findUnique({ where: { id } });
+    const cleanId = sanitizeIdentifier(id, 100);
+    return await prisma.drugKnowledge.findUnique({ where: { id: cleanId } });
   } catch (error) {
     console.error("Error fetching drug knowledge by id:", error);
     return null;
@@ -40,20 +44,25 @@ export async function createDrugKnowledge(data: {
   isPublished?: boolean;
 }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
     const created = await prisma.drugKnowledge.create({
       data: {
-        genericName: data.genericName,
-        drugClass: data.drugClass,
-        drugClassOptions: data.drugClassOptions,
-        mechanismOfAction: data.mechanismOfAction,
-        moaOptions: data.moaOptions,
-        sideEffects: data.sideEffects,
-        sideEffectOptions: data.sideEffectOptions,
-        interactions: data.interactions,
-        interactionOptions: data.interactionOptions,
-        antidote: data.antidote || null,
-        antidoteOptions: data.antidoteOptions || [],
-        isPublished: data.isPublished ?? true,
+        genericName: sanitizeString(data.genericName, 150),
+        drugClass: sanitizeString(data.drugClass, 150),
+        drugClassOptions: (data.drugClassOptions || []).map((s) => sanitizeString(s, 150)),
+        mechanismOfAction: sanitizeString(data.mechanismOfAction, 1000),
+        moaOptions: (data.moaOptions || []).map((s) => sanitizeString(s, 500)),
+        sideEffects: (data.sideEffects || []).map((s) => sanitizeString(s, 200)),
+        sideEffectOptions: (data.sideEffectOptions || []).map((s) => sanitizeString(s, 200)),
+        interactions: (data.interactions || []).map((s) => sanitizeString(s, 200)),
+        interactionOptions: (data.interactionOptions || []).map((s) => sanitizeString(s, 200)),
+        antidote: data.antidote ? sanitizeString(data.antidote, 150) : null,
+        antidoteOptions: (data.antidoteOptions || []).map((s) => sanitizeString(s, 150)),
+        isPublished: Boolean(data.isPublished ?? true),
       },
     });
     revalidatePath("/admin/learning-hub/drugs");
@@ -83,6 +92,11 @@ export async function updateDrugKnowledge(
   }>
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
     const updated = await prisma.drugKnowledge.update({
       where: { id },
       data,
@@ -98,6 +112,11 @@ export async function updateDrugKnowledge(
 
 export async function deleteDrugKnowledge(id: string) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any)?.role !== "ADMIN") {
+      return { success: false, error: "Unauthorized: Admin access required." };
+    }
+
     await prisma.drugKnowledge.delete({ where: { id } });
     revalidatePath("/admin/learning-hub/drugs");
     revalidatePath("/dashboard/learning-hub/drug-classification");

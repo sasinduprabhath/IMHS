@@ -446,7 +446,7 @@ export function AISupportChat({ triggerClassName }: { triggerClassName?: string 
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Panel Container — Stop Wheel & Touch Propagation to Background */}
+            {/* Panel Container - Stop Wheel & Touch Propagation to Background */}
             <motion.div
               key="panel"
               initial={{ opacity: 0, y: 20, scale: 0.96 }}

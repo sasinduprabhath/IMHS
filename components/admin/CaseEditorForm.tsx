@@ -2,17 +2,47 @@
 
 import React, { useState } from "react";
 import { createPrescriptionCase, updatePrescriptionCase } from "@/actions/prescription-actions";
-import { Plus, Trash2, Save, Eye, FileText, CheckCircle2, AlertTriangle, Upload } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  FileText,
+  CheckCircle2,
+  AlertTriangle,
+  Upload,
+  Sparkles,
+  User,
+  Pill,
+  MessageSquare,
+  Image as ImageIcon,
+  Check,
+  X,
+  ShieldCheck,
+} from "lucide-react";
 
 interface CaseEditorFormProps {
   initialCase?: any;
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) {
+const AI_PRESETS = [
+  { label: "Amlodipine Overdose", scenario: "Hypertension patient prescribed Amlodipine 10mg BD exceeding 10mg/day maximum" },
+  { label: "Warfarin Interaction", scenario: "Atrial fibrillation patient on Warfarin co-prescribed High-Dose Aspirin creating major bleed risk" },
+  { label: "Asthma Contraindication", scenario: "Asthma patient with hypertension prescribed Propranolol non-selective beta blocker" },
+  { label: "Metformin in CKD", scenario: "Type 2 Diabetic patient with severe renal impairment prescribed high-dose Metformin risk of lactic acidosis" },
+  { label: "Clean Valid Rx", scenario: "Clean safe prescription of Amoxicillin 500mg TDS for 5 days with Paracetamol for dental infection" },
+];
+
+export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorFormProps) {
   const isEditing = !!initialCase;
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
+  const [activeTab, setActiveTab] = useState<"details" | "medicines" | "rules" | "counselling" | "image">("details");
+
+  // AI Generation State
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiSuccessMsg, setAiSuccessMsg] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState(initialCase?.title || "Prescription Case Review #1");
@@ -42,10 +72,10 @@ export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) 
   const [problemOptions, setProblemOptions] = useState<string[]>(
     initialCase?.problemOptions || [
       "Wrong/excessive dose",
-      "Drug interaction",
-      "Contraindication",
-      "Incomplete prescription info",
-      "Illegible writing",
+      "Severe drug-drug interaction",
+      "Contraindication with patient condition",
+      "Incomplete prescription details",
+      "Illegible handwriting / ambiguous frequency",
     ]
   );
   const [correctProblem, setCorrectProblem] = useState(
@@ -63,8 +93,8 @@ export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) 
   const [counsellingPoints, setCounsellingPoints] = useState<string[]>(
     initialCase?.counsellingPoints || [
       "Take at prescribed dose only",
-      "Take Metformin with meals",
-      "Report ankle swelling to doctor",
+      "Take Metformin with meals to reduce GI irritation",
+      "Report ankle swelling or dizziness to your doctor",
     ]
   );
 
@@ -72,6 +102,44 @@ export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) 
   const [newProblemOpt, setNewProblemOpt] = useState("");
   const [newCounsellingOpt, setNewCounsellingOpt] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // ── AI Generator Handler ─────────────────────────────────────────
+  const handleAIGenerate = async (customScenario?: string) => {
+    const scenarioToUse = customScenario || aiPrompt;
+    setIsGeneratingAI(true);
+    setAiSuccessMsg(null);
+
+    try {
+      const res = await fetch("/api/admin/generate-prescription-case", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scenario: scenarioToUse }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.caseData) {
+        const c = data.caseData;
+        if (c.title) setTitle(c.title);
+        if (c.patientDetails) setPatient(c.patientDetails);
+        if (Array.isArray(c.medicineDetails) && c.medicineDetails.length > 0) setMedicines(c.medicineDetails);
+        if (typeof c.hasProblem === "boolean") setHasProblem(c.hasProblem);
+        if (Array.isArray(c.problemOptions) && c.problemOptions.length > 0) setProblemOptions(c.problemOptions);
+        if (c.correctProblem !== undefined) setCorrectProblem(c.correctProblem);
+        if (typeof c.shouldDispense === "boolean") setShouldDispense(c.shouldDispense);
+        if (c.dispenseReason) setDispenseReason(c.dispenseReason);
+        if (Array.isArray(c.counsellingPoints) && c.counsellingPoints.length > 0) setCounsellingPoints(c.counsellingPoints);
+
+        setAiSuccessMsg(`✨ AI Case successfully generated: "${c.title}"`);
+        setAiPrompt("");
+      } else {
+        alert(data.error || "Failed to generate case with Gemini AI.");
+      }
+    } catch (err: any) {
+      alert("AI Generation error: " + err.message);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
 
   const handleFileUpload = async (file: File) => {
     setUploadingImage(true);
@@ -105,8 +173,17 @@ export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) 
 
   const addProblemOption = () => {
     if (newProblemOpt.trim()) {
-      setProblemOptions([...problemOptions, newProblemOpt.trim()]);
+      if (!problemOptions.includes(newProblemOpt.trim())) {
+        setProblemOptions([...problemOptions, newProblemOpt.trim()]);
+      }
       setNewProblemOpt("");
+    }
+  };
+
+  const removeProblemOption = (opt: string) => {
+    setProblemOptions(problemOptions.filter((o) => o !== opt));
+    if (correctProblem === opt) {
+      setCorrectProblem(problemOptions[0] || "");
     }
   };
 
@@ -115,6 +192,10 @@ export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) 
       setCounsellingPoints([...counsellingPoints, newCounsellingOpt.trim()]);
       setNewCounsellingOpt("");
     }
+  };
+
+  const removeCounsellingPoint = (index: number) => {
+    setCounsellingPoints(counsellingPoints.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,364 +224,691 @@ export function CaseEditorForm({ initialCase, onSuccess }: CaseEditorFormProps) 
       }
 
       if (res.success) {
-        alert(isEditing ? "Case updated successfully!" : "Case created successfully!");
+        alert(isEditing ? "Prescription case updated successfully!" : "Prescription case created successfully!");
         onSuccess?.();
+        if (!isEditing) {
+          window.location.reload();
+        }
       } else {
         alert(res.error || "Failed to save prescription case");
       }
     } catch (err: any) {
-      alert("An unexpected error occurred: " + err.message);
+      alert("Error saving case: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-      {/* Header Tabs */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
-        <h2 className="text-lg font-display font-bold text-ink flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#0E57A4]" />
-          {isEditing ? "Edit Prescription Case" : "Create New Prescription Case"}
-        </h2>
-        <div className="flex items-center gap-2 bg-white rounded-xl border border-slate-200 p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab("edit")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              activeTab === "edit" ? "bg-[#0E57A4] text-white" : "text-ink-muted hover:text-ink"
-            }`}
-          >
-            Form Editor
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("preview")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              activeTab === "preview" ? "bg-[#0E57A4] text-white" : "text-ink-muted hover:text-ink"
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5" /> Student Preview
-          </button>
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden max-w-full">
+      
+      {/* ── AI Auto-Generate Header Banner ─────────────────────────────────── */}
+      <div className="bg-gradient-to-r from-[#0B192C] via-[#0E57A4] to-[#1E3A8A] text-white p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-amber-300 shrink-0 mt-0.5 sm:mt-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-display font-bold text-white leading-tight">
+                {isEditing ? `Edit Case: ${initialCase.title}` : "Create Clinical Prescription Case"}
+              </h3>
+              <p className="text-[11px] sm:text-xs text-blue-100/80 font-sans mt-0.5">
+                Type a clinical scenario or pick a preset to auto-populate all pharmacology fields with Gemini AI.
+              </p>
+            </div>
+          </div>
+
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="self-end sm:self-center text-xs font-mono px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+
+        {/* AI Input & Quick Preset Buttons */}
+        <div className="space-y-2.5 pt-1">
+          <div className="flex flex-col sm:flex-row items-stretch gap-2">
+            <input
+              type="text"
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              placeholder="e.g. Elderly patient on Ciprofloxacin prescribed Antacid chelation..."
+              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs font-sans text-white placeholder:text-white/40 focus:outline-hidden focus:ring-2 focus:ring-amber-300/60 focus:bg-white/15 min-h-[42px]"
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAIGenerate())}
+            />
+            <button
+              type="button"
+              onClick={() => handleAIGenerate()}
+              disabled={isGeneratingAI}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all shadow-md shrink-0 disabled:opacity-50 min-h-[42px]"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${isGeneratingAI ? "animate-spin" : ""}`} />
+              <span>{isGeneratingAI ? "Generating Case..." : "✨ AI Auto-Generate Case"}</span>
+            </button>
+          </div>
+
+          {/* Quick Preset Chips - Mobile Friendly Smooth Swipe */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] font-mono text-white/90 no-scrollbar">
+            <span className="text-white/50 text-[10px] shrink-0">Quick Presets:</span>
+            {AI_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => handleAIGenerate(p.scenario)}
+                disabled={isGeneratingAI}
+                className="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/25 border border-white/15 text-blue-100 transition-colors shrink-0 whitespace-nowrap"
+              >
+                + {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* AI Success Message */}
+          {aiSuccessMsg && (
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-mono">
+              <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+              <span className="truncate">{aiSuccessMsg}</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {activeTab === "edit" ? (
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* General Metadata */}
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-mono font-bold uppercase text-ink-muted">Case Title</label>
+      {/* ── Navigation Tabs Bar (Scrollable on Small Screens) ───────────────── */}
+      <div className="flex items-center gap-1 px-3 sm:px-5 border-b border-slate-200 bg-slate-50/60 overflow-x-auto no-scrollbar scroll-smooth">
+        {[
+          { id: "details", label: "Patient & Case", icon: User },
+          { id: "medicines", label: `Medicines (${medicines.length})`, icon: Pill },
+          { id: "rules", label: "Problem & Decision", icon: AlertTriangle },
+          { id: "counselling", label: `Counselling (${counsellingPoints.length})`, icon: MessageSquare },
+          { id: "image", label: "Prescription Slip", icon: ImageIcon },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-1.5 py-2.5 sm:py-3 px-3 sm:px-3.5 text-xs font-mono font-bold border-b-2 whitespace-nowrap shrink-0 transition-all ${
+                isActive
+                  ? "border-[#0E57A4] text-[#0E57A4] bg-white shadow-xs"
+                  : "border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-100/60"
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5 shrink-0" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Form Body ──────────────────────────────────────────────────────── */}
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-7 space-y-5 sm:space-y-6">
+
+        {/* ── TAB 1: Patient & Case Info ───────────────────────────────────── */}
+        {activeTab === "details" && (
+          <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-150">
+            <div className="space-y-1">
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase">
+                Case Title *
+              </label>
               <input
                 type="text"
                 required
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#0E57A4]"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Hypertension Review: Excessive Amlodipine Dosing"
+                className="w-full text-xs font-sans p-2.5 sm:p-3 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4] min-h-[42px]"
               />
             </div>
 
-            {/* Prescription Image Upload & URL */}
-            <div className="space-y-2">
-              <label className="text-xs font-mono font-bold uppercase text-ink-muted flex items-center justify-between">
-                <span>Prescription Document Image</span>
-                <span className="text-[10px] text-slate-400 font-normal">Upload PNG/JPG or enter image URL</span>
-              </label>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 sm:p-4 space-y-3.5 sm:space-y-4">
+              <h4 className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-[#0E57A4]" /> Patient Demographics &amp; Diagnosis
+              </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Drag and drop file upload */}
-                <div className="relative border-2 border-dashed border-slate-200 hover:border-[#0E57A4]/50 rounded-xl p-4 text-center transition-colors bg-slate-50 flex flex-col items-center justify-center min-h-[110px]">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={uploadingImage}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handleFileUpload(file);
-                      }
-                    }}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  />
-                  <Upload className={`w-6 h-6 text-[#0E57A4] mb-1 ${uploadingImage ? "animate-bounce" : ""}`} />
-                  <p className="text-xs font-bold text-ink">
-                    {uploadingImage ? "Uploading file to /public/practice/prescriptions/..." : "Upload Image File from Device"}
-                  </p>
-                  <p className="text-[10px] text-ink-muted font-mono">Saves to public/practice/prescriptions/</p>
-                </div>
-
-                {/* URL input + Image preview */}
-                <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Patient Name *</label>
                   <input
                     type="text"
                     required
-                    placeholder="or paste image URL / Data URL..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-[#0E57A4]"
+                    value={patient.name || ""}
+                    onChange={(e) => setPatient({ ...patient, name: e.target.value })}
+                    className="w-full text-xs font-sans p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Age (Years) *</label>
+                  <input
+                    type="number"
+                    required
+                    value={patient.age || ""}
+                    onChange={(e) => setPatient({ ...patient, age: Number(e.target.value) })}
+                    className="w-full text-xs font-mono p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Sex *</label>
+                  <select
+                    value={patient.sex || "Female"}
+                    onChange={(e) => setPatient({ ...patient, sex: e.target.value })}
+                    className="w-full text-xs font-sans p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                  >
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Prescription Date</label>
+                  <input
+                    type="date"
+                    value={patient.date || "2024-01-15"}
+                    onChange={(e) => setPatient({ ...patient, date: e.target.value })}
+                    className="w-full text-xs font-mono p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono text-slate-500 mb-1">Clinical Diagnosis *</label>
+                <input
+                  type="text"
+                  required
+                  value={patient.diagnosis || ""}
+                  onChange={(e) => setPatient({ ...patient, diagnosis: e.target.value })}
+                  placeholder="e.g. Essential Hypertension & Type 2 Diabetes Mellitus"
+                  className="w-full text-xs font-sans p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#0E57A4] shrink-0" />
+                <span className="text-xs font-mono font-bold text-slate-800">Publish in Student Hub</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isPublished}
+                  onChange={(e) => setIsPublished(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0E57A4]"></div>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 2: Medicines List ───────────────────────────────────────── */}
+        {activeTab === "medicines" && (
+          <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h4 className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                  <Pill className="w-3.5 h-3.5 text-[#0E57A4]" /> Prescribed Medicines Table
+                </h4>
+                <p className="text-[11px] text-slate-500 font-sans">
+                  List the medicines prescribed on this prescription slip
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addMedicine}
+                className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-[#EBF3FA] hover:bg-[#BFDBFE] text-[#0E57A4] text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-colors min-h-[40px]"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Drug Row
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {medicines.map((m, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3 relative group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-[#0E57A4] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                      Item #{idx + 1}
+                    </span>
+                    {medicines.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeMedicine(idx)}
+                        className="text-rose-600 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 text-xs transition-colors"
+                        title="Remove medicine"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Responsive grid: On mobile 2 cols, on large 5 cols */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+                    <div className="sm:col-span-2 lg:col-span-1">
+                      <label className="block text-[10px] font-mono text-slate-500 mb-1">Drug Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={m.name}
+                        onChange={(e) => {
+                          const next = [...medicines];
+                          next[idx].name = e.target.value;
+                          setMedicines(next);
+                        }}
+                        placeholder="e.g. Amlodipine"
+                        className="w-full text-xs font-sans p-2 rounded-lg border border-slate-200 bg-white min-h-[38px]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-mono text-slate-500 mb-1">Strength *</label>
+                      <input
+                        type="text"
+                        required
+                        value={m.strength}
+                        onChange={(e) => {
+                          const next = [...medicines];
+                          next[idx].strength = e.target.value;
+                          setMedicines(next);
+                        }}
+                        placeholder="e.g. 10 mg"
+                        className="w-full text-xs font-mono p-2 rounded-lg border border-slate-200 bg-white min-h-[38px]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-mono text-slate-500 mb-1">Dose *</label>
+                      <input
+                        type="text"
+                        required
+                        value={m.dose}
+                        onChange={(e) => {
+                          const next = [...medicines];
+                          next[idx].dose = e.target.value;
+                          setMedicines(next);
+                        }}
+                        placeholder="e.g. 1 tablet"
+                        className="w-full text-xs font-sans p-2 rounded-lg border border-slate-200 bg-white min-h-[38px]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-mono text-slate-500 mb-1">Frequency *</label>
+                      <input
+                        type="text"
+                        required
+                        value={m.frequency}
+                        onChange={(e) => {
+                          const next = [...medicines];
+                          next[idx].frequency = e.target.value;
+                          setMedicines(next);
+                        }}
+                        placeholder="e.g. Twice daily"
+                        className="w-full text-xs font-sans p-2 rounded-lg border border-slate-200 bg-white min-h-[38px]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-mono text-slate-500 mb-1">Duration *</label>
+                      <input
+                        type="text"
+                        required
+                        value={m.duration}
+                        onChange={(e) => {
+                          const next = [...medicines];
+                          next[idx].duration = e.target.value;
+                          setMedicines(next);
+                        }}
+                        placeholder="e.g. 30 days"
+                        className="w-full text-xs font-mono p-2 rounded-lg border border-slate-200 bg-white min-h-[38px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 3: Problem Logic & Decision Rules ────────────────────────── */}
+        {activeTab === "rules" && (
+          <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-150">
+            {/* Has Problem Toggle */}
+            <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div>
+                  <h4 className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Prescription Error Status
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-sans">
+                    Does this prescription contain a dosing error, contraindication, or drug interaction?
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHasProblem(true);
+                      setShouldDispense(false);
+                    }}
+                    className={`px-3 py-2 rounded-lg text-xs font-mono font-bold text-center transition-all ${
+                      hasProblem
+                        ? "bg-rose-600 text-white shadow-xs"
+                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    ⚠️ Has Error
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHasProblem(false);
+                      setShouldDispense(true);
+                      setCorrectProblem("");
+                    }}
+                    className={`px-3 py-2 rounded-lg text-xs font-mono font-bold text-center transition-all ${
+                      !hasProblem
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    ✓ Clean / Safe
+                  </button>
+                </div>
+              </div>
+
+              {hasProblem && (
+                <div className="pt-3 border-t border-slate-200 space-y-2.5">
+                  <label className="block text-xs font-mono font-bold text-slate-700">
+                    Correct Clinical Error (Ground Truth Answer) *
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {problemOptions.map((opt) => (
+                      <label
+                        key={opt}
+                        className={`flex items-center justify-between p-3 rounded-xl border text-xs font-sans cursor-pointer transition-all ${
+                          correctProblem === opt
+                            ? "bg-rose-50 border-rose-400 text-rose-900 font-bold"
+                            : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 pr-2">
+                          <input
+                            type="radio"
+                            name="correctProblem"
+                            checked={correctProblem === opt}
+                            onChange={() => setCorrectProblem(opt)}
+                            className="text-rose-600 focus:ring-rose-500 shrink-0"
+                          />
+                          <span className="truncate">{opt}</span>
+                        </div>
+
+                        {problemOptions.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeProblemOption(opt);
+                            }}
+                            className="text-slate-400 hover:text-rose-600 p-1 shrink-0"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Add Custom Problem Option */}
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                    <input
+                      type="text"
+                      value={newProblemOpt}
+                      onChange={(e) => setNewProblemOpt(e.target.value)}
+                      placeholder="Add custom problem distractor option..."
+                      className="flex-1 text-xs font-sans p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addProblemOption())}
+                    />
+                    <button
+                      type="button"
+                      onClick={addProblemOption}
+                      className="w-full sm:w-auto px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-mono font-bold rounded-lg min-h-[40px] shrink-0"
+                    >
+                      + Add Option
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Pharmacist Dispensing Decision */}
+            <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div>
+                  <h4 className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#0E57A4]" /> Expected Action: Should Dispense?
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-sans">
+                    Action expected from the student
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setShouldDispense(false)}
+                    className={`px-3 py-2 rounded-lg text-xs font-mono font-bold text-center transition-all ${
+                      !shouldDispense
+                        ? "bg-rose-600 text-white shadow-xs"
+                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    DO NOT DISPENSE
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShouldDispense(true)}
+                    className={`px-3 py-2 rounded-lg text-xs font-mono font-bold text-center transition-all ${
+                      shouldDispense
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    DISPENSE
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 mb-1">
+                  Detailed Dispensing Rationale (Shown after student submits) *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={dispenseReason}
+                  onChange={(e) => setDispenseReason(e.target.value)}
+                  placeholder="e.g. Amlodipine 10 mg BD exceeds maximum recommended daily dose (10 mg/day). Contact prescriber to adjust."
+                  className="w-full text-xs font-sans p-2.5 sm:p-3 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4] bg-white leading-relaxed min-h-[85px]"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 4: Patient Counselling Points ────────────────────────────── */}
+        {activeTab === "counselling" && (
+          <div className="space-y-4 animate-in fade-in duration-150">
+            <div>
+              <h4 className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-[#0E57A4]" /> Patient Counselling Guidance
+              </h4>
+              <p className="text-[11px] text-slate-500 font-sans">
+                Key verbal counselling points the student must know for this patient case
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {counsellingPoints.map((pt, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-sans gap-2"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-5 h-5 rounded-full bg-[#EBF3FA] text-[#0E57A4] font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                      {idx + 1}
+                    </span>
+                    <span className="leading-snug">{pt}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeCounsellingPoint(idx)}
+                    className="text-slate-400 hover:text-rose-600 p-1.5 rounded-md hover:bg-rose-50 shrink-0"
+                    title="Remove point"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Counselling Point Input */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+              <input
+                type="text"
+                value={newCounsellingOpt}
+                onChange={(e) => setNewCounsellingOpt(e.target.value)}
+                placeholder="Type additional counselling point (e.g. Take with meals)..."
+                className="flex-1 text-xs font-sans p-2.5 rounded-lg border border-slate-200 bg-white min-h-[40px]"
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCounsellingPoint())}
+              />
+              <button
+                type="button"
+                onClick={addCounsellingPoint}
+                className="w-full sm:w-auto px-4 py-2.5 bg-[#0E57A4] hover:bg-[#0A4685] text-white text-xs font-mono font-bold rounded-lg shrink-0 min-h-[40px]"
+              >
+                + Add Point
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 5: Prescription Slip Image ───────────────────────────────── */}
+        {activeTab === "image" && (
+          <div className="space-y-4 animate-in fade-in duration-150">
+            <div>
+              <h4 className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-[#0E57A4]" /> Prescription Slip Image
+              </h4>
+              <p className="text-[11px] text-slate-500 font-sans">
+                Upload a scanned prescription, high-res photo, or provide a direct image URL
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-start">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Image URL *</label>
+                  <input
+                    type="text"
+                    required
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="/practice/prescriptions/case-01.png or https://..."
+                    className="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-300 bg-white min-h-[40px]"
                   />
-                  {imageUrl && (
-                    <div className="relative h-20 bg-slate-100 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl} alt="Prescription preview" className="h-full object-contain" />
-                    </div>
+                </div>
+
+                {/* Upload Dropzone */}
+                <div className="border-2 border-dashed border-slate-300 hover:border-[#0E57A4] rounded-2xl p-5 text-center space-y-2 bg-slate-50 transition-colors">
+                  <Upload className="w-6 h-6 text-slate-400 mx-auto" />
+                  <div className="text-xs font-sans text-slate-600">
+                    <label className="font-bold text-[#0E57A4] hover:underline cursor-pointer">
+                      Click to upload new image file
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(file);
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-[10px] font-mono text-slate-400">PNG, JPG, WEBP up to 5MB</p>
+                  {uploadingImage && (
+                    <p className="text-xs font-mono text-[#0E57A4] animate-pulse">Uploading image to server...</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Image Preview Card */}
+              <div className="border border-slate-200 rounded-2xl p-3 bg-slate-100 text-center space-y-2">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Image Preview</span>
+                <div className="relative h-48 sm:h-60 w-full rounded-xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center p-2">
+                  {imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageUrl}
+                      alt="Prescription Preview"
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs font-mono text-slate-400">No Image Specified</span>
                   )}
                 </div>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Patient Details Json */}
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0E57A4]">
-              Patient Information
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div>
-                <label className="text-[10px] font-mono text-ink-muted uppercase">Name</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white"
-                  value={patient.name}
-                  onChange={(e) => setPatient({ ...patient, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] font-mono text-ink-muted uppercase">Age</label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white"
-                  value={patient.age}
-                  onChange={(e) => setPatient({ ...patient, age: Number(e.target.value) })}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] font-mono text-ink-muted uppercase">Sex</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white"
-                  value={patient.sex}
-                  onChange={(e) => setPatient({ ...patient, sex: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] font-mono text-ink-muted uppercase">Date</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white"
-                  value={patient.date}
-                  onChange={(e) => setPatient({ ...patient, date: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
+        {/* ── Form Actions Bottom Bar ──────────────────────────────────────── */}
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200">
+          <span className="text-xs font-mono text-slate-400 text-center sm:text-left">
+            {isEditing ? "Editing existing case record" : "New prescription case draft"}
+          </span>
 
-          {/* Prescribed Medicines */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0E57A4]">
-                Prescribed Medicines ({medicines.length})
-              </h3>
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            {onCancel && (
               <button
                 type="button"
-                onClick={addMedicine}
-                className="text-xs font-semibold text-[#0E57A4] hover:underline flex items-center gap-1"
+                onClick={onCancel}
+                className="flex-1 sm:flex-initial px-4 py-2.5 text-xs font-mono text-slate-600 hover:bg-slate-100 rounded-xl transition-colors min-h-[42px]"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Medicine
+                Cancel
               </button>
-            </div>
+            )}
 
-            {medicines.map((med, index) => (
-              <div key={index} className="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <input
-                  type="text"
-                  placeholder="Medicine Name"
-                  className="flex-2 px-2.5 py-1.5 rounded-lg border text-xs bg-white"
-                  value={med.name}
-                  onChange={(e) => {
-                    const next = [...medicines];
-                    next[index].name = e.target.value;
-                    setMedicines(next);
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Strength (e.g. 10mg)"
-                  className="flex-1 px-2.5 py-1.5 rounded-lg border text-xs bg-white"
-                  value={med.strength}
-                  onChange={(e) => {
-                    const next = [...medicines];
-                    next[index].strength = e.target.value;
-                    setMedicines(next);
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Dose"
-                  className="flex-1 px-2.5 py-1.5 rounded-lg border text-xs bg-white"
-                  value={med.dose}
-                  onChange={(e) => {
-                    const next = [...medicines];
-                    next[index].dose = e.target.value;
-                    setMedicines(next);
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Frequency"
-                  className="flex-1 px-2.5 py-1.5 rounded-lg border text-xs bg-white"
-                  value={med.frequency}
-                  onChange={(e) => {
-                    const next = [...medicines];
-                    next[index].frequency = e.target.value;
-                    setMedicines(next);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeMedicine(index)}
-                  className="p-1.5 text-clinical-red hover:bg-clinical-red/10 rounded-lg"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Problem & Action Rules */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t">
-            <div className="space-y-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hasProblem}
-                  onChange={(e) => setHasProblem(e.target.checked)}
-                  className="w-4 h-4 text-[#0E57A4] rounded"
-                />
-                <span className="text-sm font-bold text-ink">Prescription Has Problem/Error</span>
-              </label>
-
-              {hasProblem && (
-                <div className="space-y-2 pl-6">
-                  <label className="text-xs font-mono font-bold text-ink-muted uppercase">Correct Problem Reason</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-1.5 rounded-lg border text-xs"
-                    value={correctProblem}
-                    onChange={(e) => setCorrectProblem(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={shouldDispense}
-                  onChange={(e) => setShouldDispense(e.target.checked)}
-                  className="w-4 h-4 text-[#0E57A4] rounded"
-                />
-                <span className="text-sm font-bold text-ink">Pharmacist Should Dispense</span>
-              </label>
-
-              <div className="space-y-1">
-                <label className="text-xs font-mono font-bold text-ink-muted uppercase">Action Feedback Explanation</label>
-                <textarea
-                  rows={2}
-                  className="w-full px-3 py-1.5 rounded-lg border text-xs font-sans"
-                  value={dispenseReason}
-                  onChange={(e) => setDispenseReason(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Counselling Points List */}
-          <div className="space-y-2 pt-2 border-t">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#0E57A4]">
-              Expected Counselling Points ({counsellingPoints.length})
-            </h3>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Add counselling advice point..."
-                className="flex-1 px-3 py-1.5 rounded-lg border text-xs"
-                value={newCounsellingOpt}
-                onChange={(e) => setNewCounsellingOpt(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={addCounsellingPoint}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 text-xs font-semibold hover:bg-slate-200"
-              >
-                Add Point
-              </button>
-            </div>
-            <ul className="space-y-1 pt-1">
-              {counsellingPoints.map((pt, i) => (
-                <li key={i} className="flex items-center justify-between text-xs bg-slate-50 px-3 py-1.5 rounded-lg border">
-                  <span>{pt}</span>
-                  <button
-                    type="button"
-                    onClick={() => setCounsellingPoints(counsellingPoints.filter((_, idx) => idx !== i))}
-                    className="text-slate-400 hover:text-clinical-red"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Submit */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t">
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 rounded-xl bg-[#0E57A4] text-white font-bold text-sm hover:bg-[#0A4482] flex items-center gap-2 shadow-sm disabled:opacity-50"
+              className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0A4685] text-white text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 min-h-[42px]"
             >
-              <Save className="w-4 h-4" /> {loading ? "Saving..." : isEditing ? "Update Case" : "Create Case"}
+              <Save className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+              <span>{loading ? "Saving..." : isEditing ? "Update Case" : "Save & Publish"}</span>
             </button>
           </div>
-        </form>
-      ) : (
-        /* Student Mode Live Preview */
-        <div className="p-8 space-y-6 max-w-xl mx-auto">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            Live Preview of how this case will render for students during Activity 01.
-          </div>
-
-          <div className="border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm bg-white">
-            <h3 className="font-display font-bold text-ink text-base">{title}</h3>
-
-            <div className="bg-slate-100 rounded-xl p-4 font-mono text-xs space-y-1">
-              <div><strong className="text-ink">Patient:</strong> {patient.name} ({patient.age}y / {patient.sex})</div>
-              <div><strong className="text-ink">Date:</strong> {patient.date}</div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-mono font-bold uppercase text-ink-muted">Prescribed Medicines:</p>
-              {medicines.map((m, i) => (
-                <div key={i} className="text-xs font-sans bg-slate-50 p-2.5 rounded-lg border">
-                  <strong>{m.name}</strong> {m.strength} — {m.dose} ({m.frequency} x {m.duration})
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-2 border-t space-y-2">
-              <div className="text-xs font-mono font-bold">
-                Has Problem? <span className={hasProblem ? "text-clinical-red" : "text-[#4A8B7A]"}>{hasProblem ? "YES" : "NO"}</span>
-              </div>
-              <div className="text-xs font-mono font-bold">
-                Should Dispense? <span className={shouldDispense ? "text-[#4A8B7A]" : "text-clinical-red"}>{shouldDispense ? "DISPENSE" : "DO NOT DISPENSE"}</span>
-              </div>
-              <p className="text-xs text-ink-muted italic">{dispenseReason}</p>
-            </div>
-          </div>
         </div>
-      )}
+
+      </form>
     </div>
   );
 }

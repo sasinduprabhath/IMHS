@@ -4,7 +4,7 @@ import { DrugKnowledgeEditor } from "@/components/admin/DrugKnowledgeEditor";
 import { DRUGS } from "@/data/drugs";
 
 export const metadata = {
-  title: "Drug Knowledge Base Manager — Admin CMS",
+  title: "Drug Knowledge Base Manager - Admin CMS",
 };
 
 export default async function AdminDrugsPage() {

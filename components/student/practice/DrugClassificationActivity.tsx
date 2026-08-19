@@ -4,11 +4,15 @@ import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FlaskConical, ChevronRight, CheckCircle2, RotateCcw, Trophy, Pill, Zap, AlertCircle, ArrowRight, BookOpen, ChevronLeft
+  FlaskConical, ChevronRight, CheckCircle2, RotateCcw, Trophy, Pill, Zap,
+  AlertCircle, ArrowRight, BookOpen, ChevronLeft, Sparkles, Check, Stethoscope,
+  ShieldCheck, Info
 } from "lucide-react";
 import { ActivityShell } from "./ActivityShell";
 import { FeedbackOverlay } from "./FeedbackOverlay";
 import { OptionButton } from "./OptionButton";
+import { ConfettiCanvas } from "@/components/ui/ConfettiCanvas";
+import { DRUGS } from "@/data/drugs";
 import type { Drug, OptionState } from "@/types/pharmacology";
 
 const STEPS = [
@@ -60,8 +64,12 @@ function MultiSelectStep({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-500 uppercase">
-        <span>Select all applicable {label}:</span>
-        <span className="text-[#0E57A4]">{selected.length} selected</span>
+        <span className="flex items-center gap-1.5">
+          <Info className="w-3.5 h-3.5 text-[#0E57A4]" /> Select all applicable {label}:
+        </span>
+        <span className="text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20 font-bold">
+          {selected.length} selected
+        </span>
       </div>
 
       <div className="space-y-2.5">
@@ -100,12 +108,12 @@ function MultiSelectStep({
       )}
 
       {submitted && (
-        <div className="mt-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1">
-          <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+        <div className="mt-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1 shadow-2xs">
+          <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             Verified Clinical Answer:
           </div>
-          <p className="text-xs text-emerald-700 font-mono pl-5">
+          <p className="text-xs text-emerald-800 font-mono pl-5 font-semibold">
             {correct.join(", ")}
           </p>
         </div>
@@ -124,6 +132,7 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
   const [step3Submitted, setStep3Submitted] = useState(false);
   const [step4Submitted, setStep4Submitted] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const totalScore = scores.reduce((sum, s) => sum + s.correct, 0);
   const maxScore =
@@ -153,6 +162,17 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
       setStepDone(false);
     } else {
       setCompleted(true);
+      setShowConfetti(true);
+      fetch("/api/learning-hub/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          activityType: "DRUG_CLASS",
+          referenceId: drug.genericName,
+          score: totalScore,
+          maxScore: maxScore,
+        }),
+      }).catch((err) => console.error("Failed to save score:", err));
     }
   };
 
@@ -163,53 +183,72 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
     setFeedback(null);
     setStepDone(false);
     setCompleted(false);
+    setShowConfetti(false);
   };
 
-  const handleExit = () => router.push("/dashboard/practice");
+  const handleExit = () => router.push("/dashboard/practice/drug-classification");
 
   // ── Results screen ────────────────────────────────────────────────────────
   if (completed) {
     const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
-    const grade = pct >= 80 ? "Excellent Mastery" : pct >= 60 ? "Good Understanding" : "Keep Practising";
+    const grade =
+      pct >= 80
+        ? "Distinction - Outstanding Clinical Accuracy"
+        : pct >= 60
+          ? "Satisfactory Pass - Solid Knowledge"
+          : "Needs Revision - Practice Recommended";
+
     return (
-      <div className="min-h-[500px] flex items-center justify-center p-4">
+      <div className="max-w-xl mx-auto space-y-6 py-4">
+        <ConfettiCanvas active={showConfetti} />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-8 max-w-md w-full space-y-6 text-center"
+          className="bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-6 shadow-sm"
         >
-          <div className="w-16 h-16 rounded-2xl bg-[#0E57A4]/10 border border-[#0E57A4]/20 flex items-center justify-center mx-auto">
-            <Trophy className="w-8 h-8 text-[#0E57A4]" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-display font-bold text-slate-900">Activity Complete!</h2>
-            <p className="text-xs font-mono text-slate-500 mt-1">{drug.genericName} — Drug Classification</p>
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center mx-auto shadow-xs">
+            <Trophy className="w-8 h-8 text-amber-600" />
           </div>
 
-          <div className="bg-gradient-to-br from-[#EBF3FA] to-white rounded-2xl border border-[#0E57A4]/20 p-5 space-y-1">
-            <div className="text-5xl font-mono font-bold text-[#0E57A4]">
-              {totalScore}<span className="text-xl text-slate-400">/{maxScore}</span>
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] px-3.5 py-1 rounded-full border border-[#0E57A4]/20">
+              Challenge Completed
+            </span>
+            <h2 className="text-2xl font-display font-extrabold text-slate-900">{drug.genericName}</h2>
+            <p className="text-xs text-slate-500 font-mono">5-Step Pharmacological Classification Challenge</p>
+          </div>
+
+          <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-1">
+            <div className="text-4xl font-mono font-extrabold text-[#0E57A4]">
+              {totalScore} <span className="text-lg text-slate-400">/ {maxScore}</span>
             </div>
-            <div className="text-xs font-mono font-semibold text-slate-600">{pct}% · {grade}</div>
+            <div className="text-xs font-semibold text-slate-600 font-mono">
+              {pct}% Accuracy · {grade}
+            </div>
           </div>
 
+          {/* Breakdown per step */}
           <div className="space-y-2 text-left">
-            {STEPS.slice(1).map((step, i) => {
-              const s = scores[i];
-              if (!s) return null;
+            {STEPS.slice(1).map((s, i) => {
+              const score = scores[i];
+              if (!score) return null;
+              const allCorrect = score.correct === score.total;
               return (
-                <div key={step} className="flex items-center justify-between text-xs p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-slate-800 font-bold">{step}</span>
-                  <span className={s.correct === s.total ? "text-[#4A8B7A] font-bold font-mono" : "text-[#C1443A] font-bold font-mono"}>
-                    {s.correct}/{s.total}
+                <div
+                  key={s}
+                  className={`flex items-center justify-between p-3 rounded-xl border text-xs ${allCorrect ? "bg-emerald-50 border-emerald-200 text-emerald-900" : "bg-rose-50 border-rose-200 text-rose-900"
+                    }`}
+                >
+                  <span className="font-bold">{s}</span>
+                  <span className="font-mono font-bold">
+                    {score.correct}/{score.total} pts
                   </span>
                 </div>
               );
             })}
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={handleRestart}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition"
@@ -217,8 +256,14 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
               <RotateCcw className="w-4 h-4" /> Try Again
             </button>
             <button
-              onClick={handleExit}
+              onClick={() => router.push("/dashboard/practice/drug-classification")}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition shadow-sm"
+            >
+              <FlaskConical className="w-4 h-4" /> Other Medicines
+            </button>
+            <button
+              onClick={() => router.push("/dashboard/practice")}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition"
             >
               <BookOpen className="w-4 h-4" /> Practice Hub
             </button>
@@ -247,11 +292,11 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
 
               <div className="bg-gradient-to-br from-[#EBF3FA] via-white to-[#F8FAFC] rounded-3xl border-2 border-[#0E57A4]/20 shadow-xl p-8 space-y-3">
                 <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">Generic Medicine Name</p>
-                <h1 className="text-4xl font-display font-bold text-slate-900">{drug.genericName}</h1>
+                <h1 className="text-4xl font-display font-extrabold text-slate-900">{drug.genericName}</h1>
                 {drug.brandNames && drug.brandNames.length > 0 && (
                   <div className="flex items-center justify-center gap-1.5 flex-wrap pt-2">
                     {drug.brandNames.map((brand, i) => (
-                      <span key={i} className="text-xs font-mono font-semibold text-[#0E57A4] bg-white border border-[#0E57A4]/20 px-2.5 py-0.5 rounded-md shadow-xs">
+                      <span key={i} className="text-xs font-mono font-semibold text-[#0E57A4] bg-white border border-[#0E57A4]/20 px-2.5 py-0.5 rounded-full shadow-2xs">
                         {brand}
                       </span>
                     ))}
@@ -259,8 +304,8 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
                 )}
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
-                Inspect the drug above. You will be asked to identify its pharmacological class, MOA, side effects, interactions, and antidote across 5 interactive steps.
+              <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto font-sans">
+                Inspect the medicine above. You will be tested on its pharmacological class, MOA, side effects, interactions, and antidote across 5 interactive steps.
               </p>
             </motion.div>
           </div>
@@ -268,22 +313,24 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
 
       // ─ Step 1: Drug Class ──────────────────────────────────────────────
       case 1: {
-        const options = [
-          drug.drugClass,
-          "ACE Inhibitor",
-          "Beta Blocker (β-blocker)",
-          "Biguanide Antidiabetic",
-        ].sort(() => 0);
+        const options = (drug.drugClassOptions && drug.drugClassOptions.length > 0)
+          ? drug.drugClassOptions
+          : [
+            drug.drugClass,
+            "ACE Inhibitor",
+            "Beta Blocker (β-blocker)",
+            "Biguanide Antidiabetic",
+          ];
         const correctIndex = options.indexOf(drug.drugClass);
         return (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#EBF3FA]/70 via-white to-[#F8FAFC] border border-[#0E57A4]/20 shadow-xs space-y-1">
               <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20">Step 01</span>
               <h2 className="text-lg font-display font-extrabold text-slate-900 mt-1">Pharmacological Class</h2>
-              <p className="text-xs text-slate-600">Which pharmacological class does <strong className="text-slate-900">{drug.genericName}</strong> belong to?</p>
+              <p className="text-xs text-slate-600 font-sans">Which pharmacological class does <strong className="text-slate-900">{drug.genericName}</strong> belong to?</p>
             </div>
             <div className="space-y-3">
-              {options.map((opt, i) => (
+              {options.map((opt: string, i: number) => (
                 <OptionButton
                   key={opt}
                   index={i}
@@ -292,8 +339,8 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
                     singleAnswer === null
                       ? "idle"
                       : singleAnswer === i
-                      ? i === correctIndex ? "correct" : "incorrect"
-                      : i === correctIndex && singleAnswer !== null ? "revealed" : "idle"
+                        ? i === correctIndex ? "correct" : "incorrect"
+                        : i === correctIndex && singleAnswer !== null ? "revealed" : "idle"
                   }
                   onClick={() => handleSingleSelect(i, options, correctIndex)}
                   disabled={stepDone}
@@ -314,22 +361,24 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
       // ─ Step 2: Mechanism of Action ─────────────────────────────────────
       case 2: {
         const moa = drug.mechanismOfAction;
-        const options = [
-          moa,
-          "Blocks ACE (Angiotensin-Converting Enzyme), reducing angiotensin II",
-          "Stimulates β₂ adrenergic receptors, causing bronchodilation",
-          "Inhibits COX-1 and COX-2, reducing prostaglandin synthesis",
-        ];
-        const correctIndex = 0;
+        const options = (drug.moaOptions && drug.moaOptions.length > 0)
+          ? drug.moaOptions
+          : [
+            moa,
+            "Blocks ACE (Angiotensin-Converting Enzyme), reducing angiotensin II",
+            "Stimulates β₂ adrenergic receptors, causing bronchodilation",
+            "Inhibits COX-1 and COX-2, reducing prostaglandin synthesis",
+          ];
+        const correctIndex = options.indexOf(moa) >= 0 ? options.indexOf(moa) : 0;
         return (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#EBF3FA]/70 via-white to-[#F8FAFC] border border-[#0E57A4]/20 shadow-xs space-y-1">
               <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20">Step 02</span>
               <h2 className="text-lg font-display font-extrabold text-slate-900 mt-1">Mechanism of Action (MOA)</h2>
-              <p className="text-xs text-slate-600">How does <strong className="text-slate-900">{drug.genericName}</strong> produce its clinical effect?</p>
+              <p className="text-xs text-slate-600 font-sans">How does <strong className="text-slate-900">{drug.genericName}</strong> produce its therapeutic clinical effect?</p>
             </div>
             <div className="space-y-3">
-              {options.map((opt, i) => (
+              {options.map((opt: string, i: number) => (
                 <OptionButton
                   key={opt}
                   index={i}
@@ -338,8 +387,8 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
                     singleAnswer === null
                       ? "idle"
                       : singleAnswer === i
-                      ? i === correctIndex ? "correct" : "incorrect"
-                      : i === correctIndex && singleAnswer !== null ? "revealed" : "idle"
+                        ? i === correctIndex ? "correct" : "incorrect"
+                        : i === correctIndex && singleAnswer !== null ? "revealed" : "idle"
                   }
                   onClick={() => handleSingleSelect(i, options, correctIndex)}
                   disabled={stepDone}
@@ -355,23 +404,26 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
 
       // ─ Step 3: Side Effects (multi-select) ─────────────────────────────
       case 3: {
-        const allOpts = [
-          ...drug.commonSideEffects.slice(0, 4),
-          "Severe hypertension",
-          "Hearing loss",
-          "Visual disturbance",
-          "Anaemia",
-        ].slice(0, 6);
+        const sideEffects = Array.isArray(drug.commonSideEffects) ? drug.commonSideEffects : [drug.commonSideEffects];
+        const sideOpts = (drug.sideEffectOptions && drug.sideEffectOptions.length > 0)
+          ? drug.sideEffectOptions
+          : [
+            ...sideEffects.slice(0, 4),
+            "Severe hypertension",
+            "Hearing loss",
+            "Visual disturbance",
+            "Anaemia",
+          ].slice(0, 6);
         return (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#EBF3FA]/70 via-white to-[#F8FAFC] border border-[#0E57A4]/20 shadow-xs space-y-1">
               <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20">Step 03</span>
               <h2 className="text-lg font-display font-extrabold text-slate-900 mt-1">Common Side Effects</h2>
-              <p className="text-xs text-slate-600">Select all known adverse effects of <strong className="text-slate-900">{drug.genericName}</strong>.</p>
+              <p className="text-xs text-slate-600 font-sans">Select all recognized adverse effects of <strong className="text-slate-900">{drug.genericName}</strong>.</p>
             </div>
             <MultiSelectStep
-              options={allOpts}
-              correct={drug.commonSideEffects.slice(0, 4)}
+              options={sideOpts}
+              correct={sideEffects.slice(0, 4)}
               label="side effects"
               onScore={(s) => {
                 setScores((prev) => [...prev, s]);
@@ -384,22 +436,25 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
 
       // ─ Step 4: Drug Interactions (multi-select) ─────────────────────────
       case 4: {
-        const interactionOpts = [
-          ...drug.keyInteractions.slice(0, 3),
-          "Vitamin C (ascorbic acid)",
-          "Normal saline 0.9%",
-          "Paracetamol 500 mg",
-        ].slice(0, 6);
+        const interactions = Array.isArray(drug.keyInteractions) ? drug.keyInteractions : [drug.keyInteractions];
+        const interactionOpts = (drug.interactionOptions && drug.interactionOptions.length > 0)
+          ? drug.interactionOptions
+          : [
+            ...interactions.slice(0, 3),
+            "Vitamin C (ascorbic acid)",
+            "Normal saline 0.9%",
+            "Paracetamol 500 mg",
+          ].slice(0, 6);
         return (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#EBF3FA]/70 via-white to-[#F8FAFC] border border-[#0E57A4]/20 shadow-xs space-y-1">
               <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20">Step 04</span>
               <h2 className="text-lg font-display font-extrabold text-slate-900 mt-1">Drug Interactions</h2>
-              <p className="text-xs text-slate-600">Select all clinically significant interactions with <strong className="text-slate-900">{drug.genericName}</strong>.</p>
+              <p className="text-xs text-slate-600 font-sans">Select all clinically significant interactions with <strong className="text-slate-900">{drug.genericName}</strong>.</p>
             </div>
             <MultiSelectStep
               options={interactionOpts}
-              correct={drug.keyInteractions.slice(0, 3)}
+              correct={interactions.slice(0, 3)}
               label="interactions"
               onScore={(s) => {
                 setScores((prev) => [...prev, s]);
@@ -412,26 +467,28 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
 
       // ─ Step 5: Antidote / Reversal Agent ────────────────────────────────
       case 5: {
-        const hasAntidote = !!drug.antidote;
-        const options = hasAntidote
-          ? [drug.antidote!, "No specific antidote available", "Atropine", "Naloxone"]
-          : ["No specific antidote available", "Atropine", "Naloxone", "Flumazenil"];
-        const correctIndex = 0;
+        const hasAntidote = !!drug.antidote && drug.antidote !== "None / Symptomatic Support";
+        const options = (drug.antidoteOptions && drug.antidoteOptions.length > 0)
+          ? drug.antidoteOptions
+          : hasAntidote
+            ? [drug.antidote!, "No specific antidote available", "Atropine", "Naloxone"]
+            : ["No specific antidote available", "Atropine", "Naloxone", "Flumazenil"];
+        const correctIndex = hasAntidote ? options.indexOf(drug.antidote!) : options.indexOf("No specific antidote available") >= 0 ? options.indexOf("No specific antidote available") : 0;
         return (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#EBF3FA]/70 via-white to-[#F8FAFC] border border-[#0E57A4]/20 shadow-xs space-y-1">
               <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20">Step 05</span>
               <h2 className="text-lg font-display font-extrabold text-slate-900 mt-1">Antidote / Reversal Agent</h2>
-              <p className="text-xs text-slate-600">What is the antidote or reversal agent for <strong className="text-slate-900">{drug.genericName}</strong>?</p>
+              <p className="text-xs text-slate-600 font-sans">What is the antidote or reversal agent for <strong className="text-slate-900">{drug.genericName}</strong>?</p>
               {!hasAntidote && (
                 <div className="flex items-center justify-center gap-1.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2 mt-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
-                  This drug has no specific antidote — selecting &quot;No specific antidote available&quot; is correct.
+                  This drug has no specific antidote - selecting &quot;No specific antidote available&quot; is correct.
                 </div>
               )}
             </div>
             <div className="space-y-3">
-              {options.map((opt, i) => (
+              {options.map((opt: string, i: number) => (
                 <OptionButton
                   key={opt}
                   index={i}
@@ -440,8 +497,8 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
                     singleAnswer === null
                       ? "idle"
                       : singleAnswer === i
-                      ? i === correctIndex ? "correct" : "incorrect"
-                      : i === correctIndex && singleAnswer !== null ? "revealed" : "idle"
+                        ? i === correctIndex ? "correct" : "incorrect"
+                        : i === correctIndex && singleAnswer !== null ? "revealed" : "idle"
                   }
                   onClick={() => handleSingleSelect(i, options, correctIndex)}
                   disabled={stepDone}
@@ -495,3 +552,5 @@ export function DrugClassificationActivity({ drug }: DrugClassificationActivityP
     </ActivityShell>
   );
 }
+
+export default DrugClassificationActivity;

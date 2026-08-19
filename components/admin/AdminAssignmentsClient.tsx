@@ -367,124 +367,204 @@ export function AdminAssignmentsClient({ courses }: { courses: Course[] }) {
             </div>
           </div>
 
-          {/* Submissions Table */}
+          {/* Submissions Table & Mobile Cards */}
           {loading ? (
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-12 text-center text-slate-400">
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 shadow-xs">
               <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#0E57A4] mb-3" />
-              Loading student submissions...
+              <p className="text-xs font-mono">Loading student coursework submissions...</p>
             </div>
           ) : filteredSubmissions.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-12 text-center space-y-3">
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3 shadow-xs">
               <FileText className="w-10 h-10 text-slate-300 mx-auto" />
               <p className="text-sm font-semibold text-slate-700">No submissions found</p>
               <p className="text-xs text-slate-400">No student submissions match your current filter selection.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-mono uppercase text-slate-500 tracking-wider">
-                      <th className="py-3.5 px-4 font-bold">Student</th>
-                      <th className="py-3.5 px-4 font-bold">Assignment & Course</th>
-                      <th className="py-3.5 px-4 font-bold">Submitted Date</th>
-                      <th className="py-3.5 px-4 font-bold">Status</th>
-                      <th className="py-3.5 px-4 font-bold">Score</th>
-                      <th className="py-3.5 px-4 font-bold">File</th>
-                      <th className="py-3.5 px-4 text-right font-bold">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F0] text-xs">
-                    {filteredSubmissions.map((s) => (
-                      <tr key={s.id} className="hover:bg-[#F8FAFC]/80 transition-colors">
-                        {/* Student Info */}
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-[#0E57A4]/10 text-[#0E57A4] font-bold flex items-center justify-center shrink-0">
-                              {s.user.name.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-slate-900 leading-tight">{s.user.name}</p>
-                              <p className="text-[10px] font-mono text-slate-400">
-                                {s.user.studentId || s.user.email}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Assignment Info */}
-                        <td className="py-4 px-4">
-                          <div>
-                            <p className="font-semibold text-slate-800 leading-tight">{s.assignment.title}</p>
-                            <p className="text-[10px] font-mono text-[#0E57A4]">{s.assignment.course.title}</p>
-                          </div>
-                        </td>
-
-                        {/* Submitted Date */}
-                        <td className="py-4 px-4 font-mono text-[11px] text-slate-600">
-                          {new Date(s.submittedAt).toLocaleString(undefined, {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                          })}
-                        </td>
-
-                        {/* Status Badge */}
-                        <td className="py-4 px-4">
-                          {s.status === "GRADED" ? (
-                            <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Graded
-                            </span>
-                          ) : s.status === "LATE" ? (
-                            <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                              <AlertCircle className="w-3 h-3 text-amber-600" /> Late
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-                              <Clock className="w-3 h-3 text-blue-600" /> Submitted
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Score */}
-                        <td className="py-4 px-4 font-mono">
-                          {s.score !== null ? (
-                            <span className="font-bold text-slate-900 text-xs">
-                              {s.score} / {s.assignment.maxMarks}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 text-[11px]">Unassigned</span>
-                          )}
-                        </td>
-
-                        {/* File Link */}
-                        <td className="py-4 px-4">
-                          <a
-                            href={s.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0E57A4] hover:text-[#F16726] bg-[#0E57A4]/8 hover:bg-[#0E57A4]/15 border border-[#0E57A4]/20 px-3 py-1.5 rounded-xl transition-all shadow-2xs"
-                            title={`Open ${s.fileName}`}
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                            <span>Open File</span>
-                          </a>
-                        </td>
-
-                        {/* Grade Button */}
-                        <td className="py-4 px-4 text-right">
-                          <Button
-                            onClick={() => openGradeModal(s)}
-                            size="sm"
-                            className="bg-[#0E57A4] hover:bg-[#0c4a8e] text-white font-semibold rounded-lg text-xs gap-1.5"
-                          >
-                            <Award className="w-3.5 h-3.5" />
-                            {s.status === "GRADED" ? "Edit Grade" : "Grade Submission"}
-                          </Button>
-                        </td>
+            <div className="space-y-4">
+              {/* Desktop Table View */}
+              <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-mono uppercase text-slate-500 tracking-wider">
+                        <th className="py-3.5 px-4 font-bold">Student</th>
+                        <th className="py-3.5 px-4 font-bold">Assignment & Course</th>
+                        <th className="py-3.5 px-4 font-bold">Submitted Date</th>
+                        <th className="py-3.5 px-4 font-bold">Status</th>
+                        <th className="py-3.5 px-4 font-bold">Score</th>
+                        <th className="py-3.5 px-4 font-bold">File</th>
+                        <th className="py-3.5 px-4 text-right font-bold">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-xs">
+                      {filteredSubmissions.map((s) => (
+                        <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                          {/* Student Info */}
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-[#0E57A4]/10 text-[#0E57A4] font-bold flex items-center justify-center shrink-0 text-xs">
+                                {s.user.name.charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-slate-900 leading-tight">{s.user.name}</p>
+                                <p className="text-[10px] font-mono text-slate-400">
+                                  {s.user.studentId || s.user.email}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Assignment Info */}
+                          <td className="py-4 px-4">
+                            <div>
+                              <p className="font-semibold text-slate-800 leading-tight">{s.assignment.title}</p>
+                              <p className="text-[10px] font-mono text-[#0E57A4]">{s.assignment.course.title}</p>
+                            </div>
+                          </td>
+
+                          {/* Submitted Date */}
+                          <td className="py-4 px-4 font-mono text-[11px] text-slate-600">
+                            {new Date(s.submittedAt).toLocaleString(undefined, {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
+                          </td>
+
+                          {/* Status Badge */}
+                          <td className="py-4 px-4">
+                            {s.status === "GRADED" ? (
+                              <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Graded
+                              </span>
+                            ) : s.status === "LATE" ? (
+                              <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                <AlertCircle className="w-3 h-3 text-amber-600" /> Late
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                                <Clock className="w-3 h-3 text-blue-600" /> Submitted
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Score */}
+                          <td className="py-4 px-4 font-mono">
+                            {s.score !== null ? (
+                              <span className="font-bold text-slate-900 text-xs">
+                                {s.score} / {s.assignment.maxMarks}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-[11px]">Unassigned</span>
+                            )}
+                          </td>
+
+                          {/* File Link */}
+                          <td className="py-4 px-4">
+                            <a
+                              href={s.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0E57A4] hover:text-[#F16726] bg-[#0E57A4]/8 hover:bg-[#0E57A4]/15 border border-[#0E57A4]/20 px-3 py-1.5 rounded-xl transition-all shadow-xs"
+                              title={`Open ${s.fileName}`}
+                            >
+                              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                              <span>Open File</span>
+                            </a>
+                          </td>
+
+                          {/* Grade Button */}
+                          <td className="py-4 px-4 text-right">
+                            <Button
+                              onClick={() => openGradeModal(s)}
+                              size="sm"
+                              className="bg-[#0E57A4] hover:bg-[#0c4a8e] text-white font-semibold rounded-xl text-xs gap-1.5 shadow-xs"
+                            >
+                              <Award className="w-3.5 h-3.5" />
+                              {s.status === "GRADED" ? "Edit Grade" : "Grade Submission"}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Mobile Cards View */}
+              <div className="block md:hidden space-y-3">
+                {filteredSubmissions.map((s) => (
+                  <div
+                    key={s.id}
+                    className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#0E57A4]/10 text-[#0E57A4] font-bold flex items-center justify-center text-xs shrink-0">
+                          {s.user.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 text-sm leading-tight">{s.user.name}</p>
+                          <p className="text-[10px] font-mono text-slate-400">
+                            {s.user.studentId || s.user.email}
+                          </p>
+                        </div>
+                      </div>
+
+                      {s.status === "GRADED" ? (
+                        <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                          Graded
+                        </span>
+                      ) : s.status === "LATE" ? (
+                        <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                          Late
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                          Submitted
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1.5 text-xs">
+                      <div>
+                        <span className="text-slate-500">Assignment: </span>
+                        <span className="font-semibold text-slate-800">{s.assignment.title}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Course: </span>
+                        <span className="font-mono text-[#0E57A4] font-bold">{s.assignment.course.title}</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-1 font-mono text-[11px] text-slate-500">
+                        <span>Submitted: {new Date(s.submittedAt).toLocaleDateString()}</span>
+                        <span>
+                          Score:{" "}
+                          <strong className="text-slate-900">
+                            {s.score !== null ? `${s.score}/${s.assignment.maxMarks}` : "Pending"}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <a
+                        href={s.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[#0E57A4] hover:bg-[#0E57A4]/10 bg-[#0E57A4]/5 border border-[#0E57A4]/20 py-2 rounded-xl transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> File
+                      </a>
+                      <Button
+                        onClick={() => openGradeModal(s)}
+                        size="sm"
+                        className="flex-1 bg-[#0E57A4] hover:bg-[#0c4a8e] text-white font-semibold rounded-xl text-xs gap-1 py-2"
+                      >
+                        <Award className="w-3.5 h-3.5" />
+                        {s.status === "GRADED" ? "Edit Grade" : "Grade"}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

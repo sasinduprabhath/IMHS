@@ -21,9 +21,24 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Privacy Policy - Institute of Medicine and Health Sciences (IMHS)",
+  title: "Privacy Policy | Institute of Medicine and Health Sciences (IMHS)",
   description:
-    "Official LMS and Web Portal Privacy Policy for IMHS Sri Lanka. Learn how we collect, protect, and manage student data and payment security.",
+    "Official LMS and Web Portal Privacy Policy for IMHS Sri Lanka. Learn how we collect, protect, and manage student data, field-level encryption, and payment security.",
+  alternates: {
+    canonical: "https://imhsedu.com/privacy-policy",
+  },
+  openGraph: {
+    title: "Privacy Policy | IMHS Education",
+    description: "Learn how we protect student privacy and secure data at rest.",
+    url: "https://imhsedu.com/privacy-policy",
+    images: [{ url: "/gallery/imhs-campus.jpg", width: 1200, height: 630, alt: "IMHS Privacy Policy" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy | IMHS Education",
+    description: "Student data protection and privacy policy.",
+    images: ["/gallery/imhs-campus.jpg"],
+  },
 };
 
 export default function PrivacyPolicyPage() {

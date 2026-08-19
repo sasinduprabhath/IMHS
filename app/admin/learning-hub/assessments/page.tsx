@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Module Assessment Question Bank — IMHS Admin",
+  title: "Module Assessment Question Bank - IMHS Admin",
 };
 
 export const revalidate = 0;
@@ -20,20 +20,29 @@ export default async function AdminLearningHubAssessmentsPage() {
     redirect("/login");
   }
 
-  // Fetch all courses
-  const courses: any[] = await prisma.$queryRaw`
-    SELECT id, title, slug, category, published FROM Course ORDER BY createdAt DESC
-  `;
-
-  // Count assigned questions per course
-  const countsRaw: any[] = await prisma.$queryRaw`
-    SELECT courseId, COUNT(*) as questionCount FROM ModuleAssessmentQuestion WHERE courseId IS NOT NULL GROUP BY courseId
-  `;
+  // Fetch all courses with their assessment questions count using safe parameterized Prisma ORM
+  const coursesData = await prisma.course.findMany({
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      category: true,
+      published: true,
+      _count: {
+        select: {
+          assessmentQuestions: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   const countMap = new Map<string, number>();
-  (countsRaw || []).forEach((row: any) => {
-    countMap.set(row.courseId, Number(row.questionCount || 0));
+  coursesData.forEach((course) => {
+    countMap.set(course.id, course._count.assessmentQuestions || 0);
   });
+
+  const courses = coursesData;
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8 pb-12">
@@ -104,11 +113,10 @@ export default async function AdminLearningHubAssessmentsPage() {
                     <span className="text-slate-500 flex items-center gap-1.5">
                       <HelpCircle className="w-4 h-4 text-[#0E57A4]" /> Assessment Pool:
                     </span>
-                    <span className={`font-bold px-2.5 py-1 rounded-xl border ${
-                      qCount > 0
+                    <span className={`font-bold px-2.5 py-1 rounded-xl border ${qCount > 0
                         ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                         : "bg-amber-50 text-amber-800 border-amber-200"
-                    }`}>
+                      }`}>
                       {qCount} / 100 Questions Assigned
                     </span>
                   </div>

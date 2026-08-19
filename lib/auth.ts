@@ -5,7 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { decode } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { sanitizeEmail, sanitizeString } from "@/lib/sanitization";
 
 if (!process.env.NEXTAUTH_SECRET) {
@@ -81,9 +81,8 @@ export const authOptions: NextAuthOptions = {
         const email = sanitizeEmail(rawEmail);
         const password = sanitizeString(rawPassword, 100);
 
-        const forwardedFor = "127.0.0.1";
-        const rateLimitKey = `auth:login:${forwardedFor}:${email}`;
-        const rateLimit = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+        const rateLimitKey = `auth:login:${email}`;
+        const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.AUTH_ACCOUNT.maxAttempts, RATE_LIMITS.AUTH_ACCOUNT.windowMs);
         if (!rateLimit.success) {
           throw new Error("Too many failed login attempts. Account temporarily locked. Try again in 15 minutes.");
         }

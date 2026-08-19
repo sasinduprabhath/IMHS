@@ -76,58 +76,58 @@ function Step1({
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           Student Full Name *
         </label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             required
             placeholder="e.g. Dr. Kavindu Perera"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal focus:ring-1 focus:ring-clinical-teal/20"
+            className="w-full pl-10 pr-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           Email Address *
         </label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="email"
             required
             placeholder="student@example.com"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal focus:ring-1 focus:ring-clinical-teal/20"
+            className="w-full pl-10 pr-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
           />
         </div>
-        <p className="text-[10px] font-mono text-sage mt-1.5">
-          This will be the student's login username.
+        <p className="text-[10px] font-mono text-slate-500 mt-1.5">
+          This will be the student&apos;s login username.
         </p>
       </div>
 
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           WhatsApp Phone Number *
         </label>
         <div className="relative">
-          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             required
             placeholder="+94 77 123 4567"
             value={form.phone}
             onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm text-ink focus:outline-none focus:border-clinical-teal focus:ring-1 focus:ring-clinical-teal/20"
+            className="w-full pl-10 pr-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
           />
         </div>
-        <p className="text-[10px] font-mono text-sage mt-1.5">
+        <p className="text-[10px] font-mono text-slate-500 mt-1.5">
           Used to send credentials via WhatsApp deep-link.
         </p>
       </div>
@@ -191,18 +191,18 @@ function Step2({
     <div className="space-y-6">
       {/* Temporary Password */}
       <div>
-        <label className="block text-xs font-mono text-ink font-semibold mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           Temporary Password *
         </label>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+            <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               required
               value={form.tempPassword}
               onChange={(e) => setForm((f) => ({ ...f, tempPassword: e.target.value }))}
-              className="w-full pl-9 pr-3.5 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-sm font-mono text-ink focus:outline-none focus:border-clinical-teal"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
             />
           </div>
           <Button
@@ -210,13 +210,13 @@ function Step2({
             variant="outline"
             size="sm"
             onClick={handleRegen}
-            className="gap-1.5 text-xs shrink-0 font-mono"
+            className="gap-1.5 text-xs shrink-0 font-mono font-semibold rounded-xl text-slate-700 border-slate-200 hover:bg-slate-50"
           >
             <RefreshCcw className="w-3.5 h-3.5" /> Regenerate
           </Button>
         </div>
-        <p className="text-[10px] font-mono text-sage mt-1.5">
-          Student must change this on first login.
+        <p className="text-[10px] font-mono text-slate-500 mt-1.5">
+          Student must change this upon first login to the portal.
         </p>
       </div>
 
@@ -224,11 +224,11 @@ function Step2({
       <div className="space-y-3 pt-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-clinical-teal" />
-            <label className="text-xs font-mono text-ink font-bold uppercase tracking-wider">
+            <BookOpen className="w-4 h-4 text-[#0E57A4]" />
+            <label className="text-xs font-mono text-slate-900 font-bold uppercase tracking-wider">
               Course Enrollments
             </label>
-            <span className="bg-clinical-teal/10 text-clinical-teal text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-blue-50 text-[#0E57A4] border border-blue-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
               {form.selectedCourseIds.length} / {courses.length}
             </span>
           </div>
@@ -238,15 +238,15 @@ function Step2({
               <button
                 type="button"
                 onClick={selectAll}
-                className="text-clinical-teal hover:underline font-semibold"
+                className="text-[#0E57A4] hover:underline font-bold"
               >
                 Select All
               </button>
-              <span className="text-sage">•</span>
+              <span className="text-slate-300">•</span>
               <button
                 type="button"
                 onClick={clearAll}
-                className="text-sage hover:text-ink hover:underline"
+                className="text-slate-500 hover:text-slate-800 hover:underline"
               >
                 Clear
               </button>
@@ -256,13 +256,13 @@ function Step2({
 
         {/* Selected Courses Summary Box */}
         {selectedCoursesList.length > 0 && (
-          <div className="p-3 bg-clinical-teal-surface/70 border border-clinical-teal/25 rounded-xl space-y-2">
+          <div className="p-3.5 bg-blue-50/50 border border-blue-200 rounded-2xl space-y-2">
             <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-ink font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal" />
-                Active Enrollment Summary
+              <span className="text-slate-800 font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#0E57A4]" />
+                Selected Courses ({selectedCoursesList.length})
               </span>
-              <span className="text-clinical-teal font-bold">
+              <span className="text-[#0E57A4] font-bold">
                 LKR {totalPrice.toLocaleString()} Total
               </span>
             </div>
@@ -270,7 +270,7 @@ function Step2({
               {selectedCoursesList.map((c) => (
                 <span
                   key={c.id}
-                  className="inline-flex items-center gap-1.5 bg-white border border-clinical-teal/30 text-ink text-xs font-medium px-2.5 py-1 rounded-lg shadow-xs"
+                  className="inline-flex items-center gap-1.5 bg-white border border-blue-200 text-slate-800 text-xs font-medium px-2.5 py-1 rounded-xl shadow-xs"
                 >
                   <span className="truncate max-w-[200px]">{c.title}</span>
                   <button
@@ -279,7 +279,7 @@ function Step2({
                       e.stopPropagation();
                       toggleCourse(c.id);
                     }}
-                    className="text-sage hover:text-red-500 font-bold ml-1 text-xs"
+                    className="text-slate-400 hover:text-rose-600 font-bold ml-1 text-xs"
                     title="Remove course"
                   >
                     ×
@@ -293,34 +293,34 @@ function Step2({
         {/* Search Bar & Filter Toggle */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search by course title or code..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 bg-linen/40 border border-chart-grid rounded-lg text-xs text-ink focus:outline-none focus:border-clinical-teal"
+              className="w-full pl-10 pr-8 py-2 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={() => setSearchTerm("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sage hover:text-ink text-xs font-bold"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
               >
                 ✕
               </button>
             )}
           </div>
 
-          <div className="flex border border-chart-grid rounded-lg p-0.5 bg-linen/40 text-[11px] font-mono shrink-0">
+          <div className="flex border border-slate-200 rounded-xl p-0.5 bg-slate-100 text-[11px] font-mono shrink-0">
             <button
               type="button"
               onClick={() => setFilterMode("all")}
               className={cn(
-                "px-2.5 py-1 rounded-md transition-all",
+                "px-2.5 py-1 rounded-lg transition-all",
                 filterMode === "all"
-                  ? "bg-white text-ink font-bold shadow-xs"
-                  : "text-sage hover:text-ink"
+                  ? "bg-white text-slate-900 font-bold shadow-xs"
+                  : "text-slate-500 hover:text-slate-800"
               )}
             >
               All ({courses.length})
@@ -329,10 +329,10 @@ function Step2({
               type="button"
               onClick={() => setFilterMode("selected")}
               className={cn(
-                "px-2.5 py-1 rounded-md transition-all",
+                "px-2.5 py-1 rounded-lg transition-all",
                 filterMode === "selected"
-                  ? "bg-white text-ink font-bold shadow-xs"
-                  : "text-sage hover:text-ink"
+                  ? "bg-white text-slate-900 font-bold shadow-xs"
+                  : "text-slate-500 hover:text-slate-800"
               )}
             >
               Selected ({form.selectedCourseIds.length})
@@ -342,11 +342,11 @@ function Step2({
 
         {/* Course Cards List */}
         {loadingCourses ? (
-          <div className="text-xs font-mono text-sage py-8 text-center bg-linen/30 rounded-xl border border-chart-grid border-dashed">
+          <div className="text-xs font-mono text-slate-400 py-8 text-center bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
             Loading course catalog...
           </div>
         ) : filteredCourses.length === 0 ? (
-          <div className="text-xs font-mono text-sage py-8 text-center bg-linen/30 rounded-xl border border-chart-grid border-dashed">
+          <div className="text-xs font-mono text-slate-400 py-8 text-center bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
             {searchTerm
               ? `No courses matching "${searchTerm}"`
               : filterMode === "selected"
@@ -371,22 +371,22 @@ function Step2({
                   key={course.id}
                   onClick={() => toggleCourse(course.id)}
                   className={cn(
-                    "p-3.5 rounded-xl border text-xs cursor-pointer flex items-center justify-between transition-all group",
+                    "p-3.5 rounded-2xl border text-xs cursor-pointer flex items-center justify-between transition-all group",
                     checked
-                      ? "bg-clinical-teal-surface border-clinical-teal shadow-xs ring-1 ring-clinical-teal/30"
-                      : "bg-surface border-chart-grid hover:bg-linen/60 hover:border-chart-grid/80"
+                      ? "bg-blue-50/60 border-[#0E57A4] shadow-xs ring-1 ring-[#0E57A4]/20"
+                      : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
                   )}
                 >
                   <div className="min-w-0 pr-3">
-                    <p className={cn("font-medium text-ink text-sm leading-snug", checked && "font-semibold text-clinical-teal")}>
+                    <p className={cn("font-semibold text-slate-900 text-sm leading-snug", checked && "text-[#0E57A4]")}>
                       {course.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="font-mono text-[10px] text-sage font-medium">
+                      <span className="font-mono text-[10px] text-slate-500 font-medium">
                         LKR {course.price.toLocaleString()}
                       </span>
-                      <span className="text-sage">•</span>
-                      <span className="font-mono text-[10px] bg-linen border border-chart-grid px-1.5 py-0.2 rounded text-sage uppercase">
+                      <span className="text-slate-300">•</span>
+                      <span className="font-mono text-[10px] bg-slate-100 border border-slate-200 px-1.5 py-0.2 rounded text-slate-600 uppercase">
                         {course.slug}
                       </span>
                     </div>
@@ -397,8 +397,8 @@ function Step2({
                     className={cn(
                       "w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-all",
                       checked
-                        ? "bg-clinical-teal text-white shadow-xs"
-                        : "border border-chart-grid bg-white group-hover:border-clinical-teal/50"
+                        ? "bg-[#0E57A4] text-white shadow-xs"
+                        : "border border-slate-300 bg-white group-hover:border-[#0E57A4]"
                     )}
                   >
                     {checked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -436,59 +436,59 @@ function Step3Confirm({
   return (
     <div className="space-y-5">
       {/* Success banner */}
-      <div className="bg-clinical-teal-surface border border-clinical-teal/30 p-5 rounded-card text-center space-y-2">
-        <div className="w-12 h-12 rounded-full bg-clinical-teal/20 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-7 h-7 text-clinical-teal" />
+      <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-2">
+        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto text-emerald-600">
+          <CheckCircle2 className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-display font-semibold text-ink">
-          Student Provisioned!
+        <h2 className="text-xl font-display font-bold text-slate-900">
+          Student Provisioned Successfully!
         </h2>
-        <p className="text-xs text-ink-muted">
+        <p className="text-xs text-slate-600">
           Account created for{" "}
-          <span className="font-semibold text-ink">{confirmed.name}</span>
+          <span className="font-bold text-slate-900">{confirmed.name}</span>
         </p>
       </div>
 
       {/* Credentials card */}
-      <div className="bg-linen border border-chart-grid rounded-card p-4 space-y-3 font-mono text-xs text-ink">
-        <div className="flex items-center justify-between border-b border-chart-grid pb-2">
-          <span className="text-[9px] font-mono uppercase text-sage font-bold tracking-wider">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 font-mono text-xs text-slate-900 shadow-xs">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+          <span className="text-[10px] font-mono uppercase text-slate-500 font-bold tracking-wider">
             Generated Credentials
           </span>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 text-[11px] text-clinical-teal hover:text-clinical-teal/70 transition-colors"
+            className="flex items-center gap-1 text-[11px] font-bold text-[#0E57A4] hover:underline transition-colors cursor-pointer"
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "Copied!" : "Copy"}
           </button>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {confirmed.studentId && (
             <div className="flex gap-2">
-              <span className="text-sage w-24 shrink-0">Reg. ID</span>
-              <span className="font-bold text-clinical-teal">{confirmed.studentId}</span>
+              <span className="text-slate-500 w-24 shrink-0">Reg. ID</span>
+              <span className="font-bold text-[#0E57A4]">{confirmed.studentId}</span>
             </div>
           )}
           <div className="flex gap-2">
-            <span className="text-sage w-24 shrink-0">Email</span>
-            <span className="break-all">{confirmed.email}</span>
+            <span className="text-slate-500 w-24 shrink-0">Email</span>
+            <span className="break-all font-semibold">{confirmed.email}</span>
           </div>
           <div className="flex gap-2">
-            <span className="text-sage w-24 shrink-0">Phone</span>
+            <span className="text-slate-500 w-24 shrink-0">Phone</span>
             <span>{confirmed.phone}</span>
           </div>
           <div className="flex gap-2">
-            <span className="text-sage w-24 shrink-0">Temp Pass</span>
-            <span className="font-bold text-chart-red">{confirmed.tempPass}</span>
+            <span className="text-slate-500 w-24 shrink-0">Temp Pass</span>
+            <span className="font-bold text-[#F16726]">{confirmed.tempPass}</span>
           </div>
           {confirmed.courseTitles.length > 0 && (
             <div className="flex gap-2 pt-1">
-              <span className="text-sage w-24 shrink-0 pt-0.5">Courses</span>
+              <span className="text-slate-500 w-24 shrink-0 pt-0.5">Courses</span>
               <ul className="space-y-0.5">
                 {confirmed.courseTitles.map((t, i) => (
-                  <li key={i} className="text-ink font-sans">
+                  <li key={i} className="text-slate-800 font-sans font-medium">
                     • {t}
                   </li>
                 ))}
@@ -506,20 +506,19 @@ function Step3Confirm({
         className="block"
       >
         <Button
-          variant="danger"
           size="lg"
-          className="w-full gap-2.5 font-semibold text-sm"
+          className="w-full gap-2.5 font-bold text-sm h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
         >
           <MessageCircle className="w-5 h-5 fill-current" />
-          Open WhatsApp &amp; Send Login Details
+          Open WhatsApp &amp; Send Login Credentials
         </Button>
       </a>
 
       <div className="flex gap-3">
-        <Button variant="outline" onClick={onAddAnother} className="flex-1 text-xs">
+        <Button variant="outline" onClick={onAddAnother} className="flex-1 text-xs rounded-xl h-10 border-slate-200">
           Add Another Student
         </Button>
-        <Button variant="ghost" onClick={onGoToDirectory} className="flex-1 text-xs">
+        <Button variant="ghost" onClick={onGoToDirectory} className="flex-1 text-xs rounded-xl h-10">
           Student Directory
         </Button>
       </div>
@@ -632,18 +631,18 @@ export default function AddStudentWizardPage() {
       <div>
         <Link
           href="/admin/students"
-          className="inline-flex items-center gap-1.5 text-xs font-mono text-ink-muted hover:text-clinical-teal mb-3"
+          className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-500 hover:text-[#0E57A4] mb-3 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Student Directory
         </Link>
-        <span className="block font-mono text-xs text-chart-red uppercase font-semibold">
+        <span className="block font-mono text-[10px] text-[#F16726] uppercase font-bold tracking-wider">
           ADMINISTRATIVE ONBOARDING
         </span>
-        <h1 className="text-3xl font-display font-semibold text-ink">
+        <h1 className="text-3xl font-display font-bold text-slate-900">
           Onboard New Student
         </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
-          Create a student account after receiving payment verification.
+        <p className="text-xs text-slate-500 mt-1">
+          Create a student account and dispatch portal access credentials via WhatsApp.
         </p>
       </div>
 
@@ -658,29 +657,29 @@ export default function AddStudentWizardPage() {
               <div className={cn("flex flex-col items-center gap-1 flex-1 transition-all", active ? "opacity-100" : done ? "opacity-80" : "opacity-40")}>
                 <div
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                    "w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-xs",
                     active
-                      ? "bg-chart-red text-white shadow-md"
+                      ? "bg-[#0E57A4] text-white shadow-md"
                       : done
-                        ? "bg-chart-red/20 text-chart-red border border-chart-red/30"
-                        : "bg-linen border border-chart-grid text-ink-muted"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-slate-100 border border-slate-200 text-slate-400"
                   )}
                 >
                   {done && step !== s.id ? (
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   ) : (
                     <Icon className="w-4 h-4" />
                   )}
                 </div>
-                <span className="hidden sm:block text-[10px] font-mono text-center leading-tight">
+                <span className="hidden sm:block text-[10px] font-mono font-semibold text-center leading-tight">
                   {s.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
                 <div
                   className={cn(
-                    "h-px flex-1 max-w-[40px] transition-colors mt-[-16px]",
-                    step > s.id ? "bg-chart-red" : "bg-chart-grid"
+                    "h-0.5 flex-1 max-w-[40px] transition-colors mt-[-16px]",
+                    step > s.id ? "bg-emerald-500" : "bg-slate-200"
                   )}
                 />
               )}
@@ -690,13 +689,13 @@ export default function AddStudentWizardPage() {
       </div>
 
       {/* Step Card */}
-      <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         {/* Step Title Bar */}
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-chart-grid bg-linen/40">
-          {React.createElement(STEPS[step - 1].icon, { className: "w-4 h-4 text-chart-red" })}
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+          {React.createElement(STEPS[step - 1].icon, { className: "w-4 h-4 text-[#0E57A4]" })}
           <div>
-            <p className="text-[10px] font-mono text-sage uppercase">Step {step} of {STEPS.length}</p>
-            <p className="text-sm font-semibold text-ink leading-snug mt-0.5">
+            <p className="text-[10px] font-mono font-bold text-slate-500 uppercase">Step {step} of {STEPS.length}</p>
+            <p className="text-sm font-bold text-slate-900 leading-snug mt-0.5">
               {step === 1 && "Personal Details"}
               {step === 2 && "Access Setup"}
               {step === 3 && (confirmed ? "Account Created Successfully" : "Review & Confirm")}
@@ -707,7 +706,7 @@ export default function AddStudentWizardPage() {
         {/* Step Body */}
         <div className="px-6 py-6">
           {errorMsg && (
-            <div className="mb-4 bg-chart-red/8 border border-chart-red/30 p-3 rounded text-xs text-chart-red font-mono">
+            <div className="mb-4 bg-rose-50 border border-rose-200 p-3.5 rounded-xl text-xs text-rose-700 font-mono font-bold">
               ⚠️ {errorMsg}
             </div>
           )}
@@ -732,7 +731,7 @@ export default function AddStudentWizardPage() {
           {/* Review summary for step 3 before submit */}
           {step === 3 && !confirmed && (
             <div className="space-y-4">
-              <div className="bg-linen/50 border border-chart-grid rounded-card divide-y divide-chart-grid overflow-hidden">
+              <div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 overflow-hidden shadow-xs">
                 {[
                   { label: "Name", value: form.name },
                   { label: "Email", value: form.email },
@@ -746,11 +745,11 @@ export default function AddStudentWizardPage() {
                         : "None selected",
                   },
                 ].map(({ label, value }) => (
-                  <div key={label} className="flex gap-4 px-4 py-3">
-                    <span className="text-[10px] font-mono text-sage font-bold uppercase shrink-0 w-20 pt-0.5">
+                  <div key={label} className="flex gap-4 px-5 py-3.5">
+                    <span className="text-[10px] font-mono text-slate-500 font-bold uppercase shrink-0 w-24 pt-0.5">
                       {label}
                     </span>
-                    <span className="text-sm text-ink break-all">{value}</span>
+                    <span className="text-sm font-semibold text-slate-900 break-all">{value}</span>
                   </div>
                 ))}
               </div>
@@ -760,13 +759,13 @@ export default function AddStudentWizardPage() {
 
         {/* Navigation Footer - hidden on step 3 confirmed */}
         {!(step === 3 && confirmed) && (
-          <div className="px-6 py-4 border-t border-chart-grid flex items-center justify-between bg-linen/20">
+          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
             <Button
               type="button"
               variant="ghost"
               onClick={() => setStep((s) => s - 1)}
               disabled={step === 1}
-              className="gap-1.5 text-xs font-mono"
+              className="gap-1.5 text-xs font-mono font-semibold text-slate-600 rounded-xl"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </Button>
@@ -774,20 +773,18 @@ export default function AddStudentWizardPage() {
             {step < 3 ? (
               <Button
                 type="button"
-                variant="danger"
                 onClick={() => setStep((s) => s + 1)}
                 disabled={!canAdvance()}
-                className="gap-1.5 text-xs font-semibold"
+                className="gap-1.5 text-xs font-semibold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shadow-xs"
               >
                 Continue <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             ) : (
               <Button
                 type="button"
-                variant="danger"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="gap-2 font-semibold"
+                className="gap-2 font-semibold bg-[#0E57A4] hover:bg-[#0c4a8e] text-white rounded-xl shadow-xs"
               >
                 <UserPlus className="w-4 h-4" />
                 {isSubmitting ? "Provisioning…" : "Create Account"}

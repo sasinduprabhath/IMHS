@@ -29,7 +29,7 @@ export default async function StudentLayout({
         </div>
       </main>
 
-      {/* AI Support Chatbot — floats over entire dashboard */}
+      {/* AI Support Chatbot - floats over entire dashboard */}
       <AISupportChat />
     </div>
   );

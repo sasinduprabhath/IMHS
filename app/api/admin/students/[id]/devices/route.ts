@@ -1,10 +1,14 @@
-// app/api/admin/students/[id]/devices/route.ts
-// Admin API to list, approve, or block registered/attempted student devices
-
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeIdentifier } from "@/lib/sanitization";
+import { z } from "zod";
+
+const deviceActionSchema = z.object({
+  deviceId: z.string().min(1, "Device ID required").max(100),
+  action: z.enum(["APPROVE", "MAKE_PRIMARY", "BLOCK"]),
+});
 
 export async function GET(
   _req: NextRequest,
@@ -15,7 +19,9 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = sanitizeIdentifier(rawId, 100);
+
   const devices = await prisma.studentDevice.findMany({
     where: { userId: id },
     orderBy: { lastAttemptAt: "desc" },
@@ -33,13 +39,17 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const body = await req.json();
-  const { deviceId, action } = body as { deviceId?: string; action?: "APPROVE" | "MAKE_PRIMARY" | "BLOCK" };
+  const { id: rawId } = await params;
+  const id = sanitizeIdentifier(rawId, 100);
 
-  if (!deviceId || !action) {
-    return NextResponse.json({ error: "Missing deviceId or action" }, { status: 400 });
+  const body = await req.json();
+  const parsed = deviceActionSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid device action parameters" }, { status: 400 });
   }
+
+  const { deviceId: rawDeviceId, action } = parsed.data;
+  const deviceId = sanitizeIdentifier(rawDeviceId, 100);
 
   const device = await prisma.studentDevice.findUnique({ where: { id: deviceId } });
   if (!device || device.userId !== id) {

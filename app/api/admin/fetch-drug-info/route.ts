@@ -1,8 +1,15 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS, getClientIp } from "@/lib/rate-limit";
+import { sanitizeString } from "@/lib/sanitization";
+import { z } from "zod";
 
 export const runtime = "nodejs";
+
+const fetchDrugInfoSchema = z.object({
+  genericName: z.string().min(1, "Generic medicine name is required").max(150, "Medicine name too long"),
+});
 
 export async function POST(req: Request) {
   try {
@@ -11,10 +18,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
-    const { genericName } = await req.json();
-    if (!genericName || typeof genericName !== "string" || !genericName.trim()) {
-      return NextResponse.json({ error: "Generic medicine name is required." }, { status: 400 });
+    const clientIp = getClientIp(req);
+    const rateLimit = checkRateLimit(
+      `ai:drug_info:${session.user.id || clientIp}`,
+      RATE_LIMITS.AI_DRUG_INFO.maxAttempts,
+      RATE_LIMITS.AI_DRUG_INFO.windowMs
+    );
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.resetTime, rateLimit.limit, rateLimit.remaining, "AI drug lookup rate limit exceeded. Please wait a moment.");
     }
+
+    const body = await req.json();
+    const parsed = fetchDrugInfoSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Generic medicine name is required." }, { status: 400 });
+    }
+
+    const genericName = sanitizeString(parsed.data.genericName, 150);
 
     const apiKey =
       process.env.GOOGLE_AI_STUDIO_API_KEY ||

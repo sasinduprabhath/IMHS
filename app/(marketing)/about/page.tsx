@@ -12,8 +12,25 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "About IMHS - Institute of Medicine and Health Sciences",
-  description: "Learn about IMHS, established in 2019 - Sri Lanka's standard-setting pharmaceutical and clinical healthcare education institute.",
+  title: "About Us | Institute of Medicine and Health Sciences",
+  description:
+    "Learn about IMHS, established in 2019 - Sri Lanka's standard-setting pharmaceutical and clinical healthcare education institute led by Dr. Isuru Wijesinghe.",
+  alternates: {
+    canonical: "https://imhsedu.com/about",
+  },
+  openGraph: {
+    title: "About IMHS | Leading Medical & Pharmacy Institute Sri Lanka",
+    description:
+      "Sri Lanka's premier healthcare and pharmacy practice academy. Empowering hundreds of certified pharmacists and medical practitioners.",
+    url: "https://imhsedu.com/about",
+    images: [{ url: "/gallery/imhs-campus.jpg", width: 1200, height: 630, alt: "About IMHS" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Us | IMHS Education",
+    description: "Sri Lanka's standard-setting pharmaceutical and clinical healthcare institute.",
+    images: ["/gallery/imhs-campus.jpg"],
+  },
 };
 
 const LEVELS = [
@@ -59,7 +76,7 @@ export default function AboutPage() {
     <div className="overflow-x-hidden">
 
       {/* ── HERO ── */}
-      <section className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
+      <section id="top" className="relative bg-linen/40 border-b border-chart-grid overflow-hidden pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
         <AnimatedGrid className="text-chart-grid/40" />
         <GlowOrb color="#0E57A4" size={500} className="-top-24 -right-24 opacity-15" />
         {/* DNA Helix right side decoration */}
@@ -100,7 +117,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── DIRECTOR SPOTLIGHT ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section id="story" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid md:grid-cols-2 gap-14 items-center">
           <RevealOnScroll direction="left" className="space-y-6">
             <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">
@@ -165,7 +182,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CORE VALUES ── */}
-      <section className="relative bg-linen/50 py-20 overflow-hidden">
+      <section id="values" className="relative bg-linen/50 py-20 overflow-hidden">
         {/* Atomic orbit accent corner */}
         <AtomicOrbit size={140} color="#4A8B7A" className="absolute -right-6 top-8 opacity-20" />
         <BenzeneRing size={100} color="#F16726" className="absolute -left-4 bottom-4 opacity-15" />
@@ -192,7 +209,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── LEARNING LEVELS ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-12">
+      <section id="pathways" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-12">
         <RevealOnScroll className="text-center space-y-2">
           <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">STRUCTURED CURRICULUM PATHWAYS</span>
           <h2 className="text-3xl md:text-4xl font-display font-semibold text-ink">Choose Your Learning Level</h2>

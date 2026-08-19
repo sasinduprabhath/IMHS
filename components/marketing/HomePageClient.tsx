@@ -127,7 +127,7 @@ const ACHIEVEMENT_VIDEOS = [
     youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "Ceylon Pharma College - A Journey of Excellence",
     subtitle: "Certificate Course in Pharmacy Practice 1st Day - Batch 18",
-    videoUrl: "https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4",
+    videoUrl: "/gallery/convocation-video.mp4",
     thumbnail: "/gallery/convocation-2024.webp",
     tag: "BATCH 18 CONVOCATION",
     duration: "03:45",
@@ -175,7 +175,7 @@ const ACHIEVEMENT_VIDEOS = [
     youtubeUrl: "https://www.youtube.com/@imhs-instituteofmedicinean6349",
     title: "A Message from Our Chairman",
     subtitle: "Visionary Healthcare Education & Leadership",
-    videoUrl: "https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4",
+    videoUrl: "/gallery/convocation-video.mp4",
     thumbnail: "/gallery/faculty-consultation.jpg",
     tag: "FACULTY DIRECTORY",
     duration: "03:10",
@@ -219,7 +219,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
     setSelectedVideo(video);
     if (achievementVideoRef.current) {
       achievementVideoRef.current.load();
-      achievementVideoRef.current.play().catch(() => {});
+      achievementVideoRef.current.play().catch(() => { });
     }
   };
 
@@ -278,7 +278,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
         >
           <source
-            src="https://imhsedu.com/wp-content/uploads/2026/03/WhatsApp-Video-2026-02-16-at-23.03.31.mp4"
+            src="/gallery/convocation-video.mp4"
             type="video/mp4"
           />
         </video>
@@ -445,70 +445,70 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           >
             {courses.length === 0
               ? [1, 2, 3, 4].map((i) => (
-                  <div key={i} className="snap-start shrink-0 w-[285px] sm:w-[340px]">
-                    <CourseCardSkeleton />
-                  </div>
-                ))
+                <div key={i} className="snap-start shrink-0 w-[285px] sm:w-[340px]">
+                  <CourseCardSkeleton />
+                </div>
+              ))
               : courses.map((course) => (
-                  <div
-                    key={course.id}
-                    className="snap-start shrink-0 w-[285px] sm:w-[340px] md:w-[360px] flex flex-col"
-                  >
-                    <HoverCard className="h-full">
-                      <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/60 hover:shadow-xl transition-all duration-300 group">
-                        {/* Cover Image */}
-                        <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
-                          {course.coverImage ? (
-                            <Image
-                              src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
-                              alt={course.title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Microscope className="w-16 h-16 text-[#0E57A4]/20" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent" />
-                          <div className="absolute bottom-3 left-3 bg-[#0A121E]/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded-lg">
-                            {formatCurrency(course.price)}
+                <div
+                  key={course.id}
+                  className="snap-start shrink-0 w-[285px] sm:w-[340px] md:w-[360px] flex flex-col"
+                >
+                  <HoverCard className="h-full">
+                    <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/60 hover:shadow-xl transition-all duration-300 group">
+                      {/* Cover Image */}
+                      <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#0E57A4]/10 to-[#F16726]/10 overflow-hidden">
+                        {course.coverImage ? (
+                          <Image
+                            src={formatGoogleDriveImageUrl(course.coverImage) || course.coverImage}
+                            alt={course.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Microscope className="w-16 h-16 text-[#0E57A4]/20" />
                           </div>
-                        </div>
-
-                        <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <span className="font-mono text-[10px] uppercase tracking-wider text-[#F16726] font-semibold">
-                              {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
-                            </span>
-                            <h3 className="text-base font-bold font-sans text-ink line-clamp-2 leading-snug group-hover:text-[#0E57A4] transition-colors">
-                              {course.title}
-                            </h3>
-                            <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
-                              {course.description}
-                            </p>
-                          </div>
-
-                          <div className="pt-3 sm:pt-4 border-t border-chart-grid/60 flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((s) => (
-                                <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />
-                              ))}
-                            </div>
-                            <Link
-                              href={createCourseInquiryWALink(course.title)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs font-semibold text-[#0E57A4] font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform hover:underline"
-                            >
-                              Enroll Now <ChevronRight className="w-3.5 h-3.5" />
-                            </Link>
-                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent" />
+                        <div className="absolute bottom-3 left-3 bg-[#0A121E]/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3 py-1 rounded-lg">
+                          {formatCurrency(course.price)}
                         </div>
                       </div>
-                    </HoverCard>
-                  </div>
-                ))}
+
+                      <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-[#F16726] font-semibold">
+                            {course.slug.split("-").slice(0, 2).join("-").toUpperCase()}
+                          </span>
+                          <h3 className="text-base font-bold font-sans text-ink line-clamp-2 leading-snug group-hover:text-[#0E57A4] transition-colors">
+                            {course.title}
+                          </h3>
+                          <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                            {course.description}
+                          </p>
+                        </div>
+
+                        <div className="pt-3 sm:pt-4 border-t border-chart-grid/60 flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star key={s} className="w-3.5 h-3.5 fill-[#F16726] text-[#F16726]" />
+                            ))}
+                          </div>
+                          <Link
+                            href={createCourseInquiryWALink(course.title)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-semibold text-[#0E57A4] font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform hover:underline"
+                          >
+                            Enroll Now <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </HoverCard>
+                </div>
+              ))}
           </div>
         </div>
       </section>

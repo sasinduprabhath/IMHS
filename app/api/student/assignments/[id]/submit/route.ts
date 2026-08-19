@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, rateLimitResponse, RATE_LIMITS, getClientIp } from "@/lib/rate-limit";
+import { sanitizeString, sanitizeUrl, sanitizeIdentifier } from "@/lib/sanitization";
+import { z } from "zod";
+
+const assignmentSubmitSchema = z.object({
+  fileUrl: z.string().min(1, "File URL is required").max(500, "File URL too long"),
+  fileName: z.string().min(1, "File Name is required").max(255, "File Name too long"),
+  fileSize: z.number().int().positive().max(52428800).optional().default(0),
+  deviceFingerprint: z.string().max(100).optional().default(""),
+});
 
 export async function POST(
   req: Request,
@@ -12,14 +22,33 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    const { id: assignmentId } = await params;
-    const body = await req.json();
-    const { fileUrl, fileName, fileSize, deviceFingerprint } = body;
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(
+    `assignment_sub:${session.user.id}:${clientIp}`,
+    RATE_LIMITS.ASSIGNMENT_SUBMIT.maxAttempts,
+    RATE_LIMITS.ASSIGNMENT_SUBMIT.windowMs
+  );
+  if (!rateLimit.success) {
+    return rateLimitResponse(rateLimit.resetTime, rateLimit.limit, rateLimit.remaining, "Assignment submission rate limit reached. Please wait a few minutes.");
+  }
 
-    if (!fileUrl || !fileName) {
-      return NextResponse.json({ error: "File URL and File Name are required" }, { status: 400 });
+  try {
+    const { id: rawAssignmentId } = await params;
+    const assignmentId = sanitizeIdentifier(rawAssignmentId, 50);
+
+    const body = await req.json();
+    const parsed = assignmentSubmitSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid submission data." }, { status: 400 });
     }
+
+    const { fileUrl: rawFileUrl, fileName: rawFileName, fileSize, deviceFingerprint } = parsed.data;
+
+    const fileUrl = sanitizeUrl(rawFileUrl);
+    if (!fileUrl) {
+      return NextResponse.json({ error: "Invalid or dangerous file URL protocol provided." }, { status: 400 });
+    }
+    const fileName = sanitizeString(rawFileName, 255);
 
     // 1. Fetch Assignment & Check Enrollment
     const assignment = await prisma.assignment.findUnique({
@@ -51,18 +80,7 @@ export async function POST(
       );
     }
 
-    // 2. Register/Update Device Signature (Allowed device tracking)
-    if (deviceFingerprint) {
-      await prisma.user.update({
-        where: { id: session.user.id },
-        data: {
-          deviceSignature: deviceFingerprint,
-          deviceLockedAt: new Date(),
-        },
-      }).catch(() => {}); // non-blocking update
-    }
-
-    // 3. Deadline Auto-Lock Check
+    // 2. Deadline Auto-Lock Check
     const now = new Date();
     const isPastDue = now > new Date(assignment.dueDate);
 

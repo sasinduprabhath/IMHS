@@ -7,9 +7,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { createPasswordResetWALink } from "@/lib/whatsapp";
 import {
-  Search, UserPlus, MessageCircle, KeyRound, Edit3,
-  Users, CheckCircle2, Copy, Check, RefreshCw, X, Save,
-  ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink, IdCard
+  Search,
+  UserPlus,
+  MessageCircle,
+  KeyRound,
+  Edit3,
+  Users,
+  CheckCircle2,
+  Copy,
+  Check,
+  RefreshCw,
+  X,
+  Save,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ExternalLink,
+  IdCard,
+  ShieldCheck,
+  Phone,
+  Mail,
+  GraduationCap,
 } from "lucide-react";
 
 interface StudentItem {
@@ -162,33 +181,31 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
-  const searchContainerClass = "bg-white border border-[#E2E8F0] rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4";
-  const inputClass = "w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-xs text-ink placeholder:text-sage/60 focus:outline-none focus:border-[#0E57A4] focus:bg-white transition-all font-sans";
 
-  // Helper: show max 1 course badge + "+N more"
+  // Helper: render enrollment badges
   const renderEnrollmentBadges = (enrollments: StudentItem["enrollments"]) => {
     if (enrollments.length === 0) {
       return (
-        <span className="text-[10px] font-mono text-sage bg-[#F5F7FA] px-2 py-0.5 rounded border border-[#E2E8F0] inline-block">
+        <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 inline-block">
           No active courses
         </span>
       );
     }
     const first = enrollments[0];
     const rest = enrollments.slice(1);
-    const restTitles = rest.map(e => e.course.title).join(" | ");
+    const restTitles = rest.map((e) => e.course.title).join(" | ");
     return (
       <div className="flex flex-wrap items-center gap-1.5">
         <span
           title={first.course.title}
-          className="text-[10px] font-mono bg-[#EBF3FA] text-[#0E57A4] border border-[#BFDBFE] px-2 py-0.5 rounded font-semibold max-w-[200px] truncate"
+          className="text-[10px] font-mono bg-blue-50 text-[#0E57A4] border border-blue-200 px-2 py-0.5 rounded-md font-semibold max-w-[200px] truncate"
         >
           {first.course.title}
         </span>
         {rest.length > 0 && (
           <span
             title={restTitles}
-            className="text-[10px] font-mono bg-[#F1F5F9] text-slate-500 border border-slate-200 px-2 py-0.5 rounded font-semibold cursor-help hover:bg-slate-200 transition-colors"
+            className="text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-md font-semibold cursor-help hover:bg-slate-200 transition-colors"
           >
             +{rest.length} more
           </span>
@@ -198,80 +215,80 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 max-w-full">
       {/* ── Search + Action Bar ── */}
-      <div className={searchContainerClass} style={{ boxShadow: "0 2px 8px rgba(10,18,30,.04)" }}>
+      <div className="bg-slate-50 border border-slate-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
         <div className="relative flex-1 max-w-lg">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-sage" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search by name, Reg ID (e.g. IWPH4131), email, or phone..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className={inputClass}
+            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4] min-h-[40px] font-sans"
           />
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs font-mono text-sage">
-            Total <strong className="text-ink">{filteredStudents.length}</strong> students
+        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+          <span className="text-xs font-mono text-slate-500">
+            Total <strong className="text-slate-900">{filteredStudents.length}</strong> students
           </span>
           <Link href="/admin/students/new">
             <button
-              className="inline-flex items-center gap-2 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all hover:opacity-90"
+              className="inline-flex items-center gap-2 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-md hover:opacity-90 min-h-[40px]"
               style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)", boxShadow: "0 4px 12px rgba(241,103,38,.25)" }}
             >
               <UserPlus className="w-3.5 h-3.5" />
-              Onboard Student
+              <span>Onboard Student</span>
             </button>
           </Link>
         </div>
       </div>
 
       {/* Directory Content Container */}
-      <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         
         {/* 📱 Mobile Card View (screens < md) */}
-        <div className="block md:hidden divide-y divide-chart-grid/60">
+        <div className="block md:hidden divide-y divide-slate-100">
           {paginatedStudents.length === 0 ? (
-            <div className="p-8 text-center text-sage font-mono space-y-2">
-              <Users className="w-8 h-8 mx-auto text-sage/50" />
-              <div>No student accounts matched your query &ldquo;{search}&rdquo;.</div>
+            <div className="p-10 text-center text-slate-400 font-mono space-y-2">
+              <Users className="w-8 h-8 mx-auto text-slate-300" />
+              <div className="text-xs">No student accounts matched your query &ldquo;{search}&rdquo;.</div>
             </div>
           ) : (
             paginatedStudents.map((st) => (
               <div
                 key={st.id}
                 onClick={() => router.push(`/admin/students/${st.id}`)}
-                className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 active:bg-linen cursor-pointer group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                className="p-4 sm:p-5 space-y-3 hover:bg-slate-50/60 transition-all duration-200 cursor-pointer group"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-sm shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center font-bold text-[#0E57A4] text-sm shrink-0">
                       {st.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                      <div className="font-bold text-slate-900 text-sm group-hover:text-[#0E57A4] transition-colors">
                         {st.name}
                       </div>
-                      <span className="inline-flex items-center gap-1.5 mt-1 text-[10px] font-mono text-[#0E57A4] font-bold bg-[#EBF3FA] border border-[#BFDBFE] px-2 py-0.5 rounded-md whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5 mt-0.5 text-[10px] font-mono text-[#0E57A4] font-bold bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full whitespace-nowrap">
                         <IdCard className="w-3 h-3 text-[#0E57A4] shrink-0" />
-                        <span>Reg ID: {st.studentId}</span>
+                        <span>Reg ID: {st.studentId || "PENDING"}</span>
                       </span>
                     </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-sage group-hover:text-clinical-teal shrink-0 mt-1" />
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-[#0E57A4] shrink-0 mt-1" />
                 </div>
 
-                <div className="text-xs font-mono text-ink-muted space-y-1 bg-linen/50 p-2.5 rounded border border-chart-grid/50">
-                  <div className="truncate text-ink font-sans font-medium">{st.email}</div>
-                  <div className="text-clinical-teal text-[11px]">{st.phone}</div>
+                <div className="text-xs font-mono space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200/70">
+                  <div className="truncate text-slate-800 font-sans font-medium">{st.email}</div>
+                  <div className="text-[#0E57A4] font-bold text-[11px]">{st.phone}</div>
                 </div>
 
                 {/* Course Badges */}
                 <div className="space-y-1">
-                  <div className="text-[10px] font-mono text-sage uppercase">Enrolled Courses:</div>
+                  <div className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Enrolled Programs:</div>
                   {st.enrollments.length === 0 ? (
-                    <span className="text-[10px] font-mono text-sage bg-linen px-2 py-0.5 rounded border border-chart-grid inline-block">
+                    <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 inline-block">
                       No active courses
                     </span>
                   ) : (
@@ -279,7 +296,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                       {st.enrollments.map((e) => (
                         <span
                           key={e.course.id}
-                          className="text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-2 py-0.5 rounded font-semibold whitespace-normal leading-normal"
+                          className="text-[10px] font-mono bg-blue-50 text-[#0E57A4] border border-blue-200 px-2 py-0.5 rounded-full font-semibold"
                         >
                           {e.course.title}
                         </span>
@@ -289,34 +306,34 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                 </div>
 
                 {/* Card Actions Footer */}
-                <div className="flex items-center justify-between pt-2 border-t border-chart-grid/40 text-xs">
-                  <div className="flex items-center gap-1 font-mono text-[11px] text-ink">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal" />
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                  <div className="flex items-center gap-1 font-mono text-[11px] text-slate-700">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     <span className="font-bold">{st.progress.length}</span>
-                    <span className="text-sage text-[10px]">done</span>
+                    <span className="text-slate-400 text-[10px]">lessons done</span>
                   </div>
 
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-7 px-2 text-[11px] gap-1 border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10"
+                      className="h-7 px-2.5 text-[11px] gap-1 border-blue-200 text-[#0E57A4] hover:bg-blue-50 font-semibold"
                       onClick={() => openEditModal(st)}
                     >
-                      <Edit3 className="w-3 h-3 text-clinical-teal" /> Edit
+                      <Edit3 className="w-3 h-3" /> Edit
                     </Button>
 
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-7 px-2 text-[11px] gap-1"
+                      className="h-7 px-2 text-[11px] gap-1 text-rose-700 border-rose-200 hover:bg-rose-50"
                       onClick={() => {
                         setResetModalStudent(st);
                         setNewTempPassword("");
                         setResetSuccessLink(null);
                       }}
                     >
-                      <KeyRound className="w-3 h-3 text-chart-red" /> Reset
+                      <KeyRound className="w-3 h-3 text-rose-600" /> Reset
                     </Button>
                   </div>
                 </div>
@@ -329,19 +346,19 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs font-sans">
             <thead>
-              <tr className="border-b border-chart-grid bg-linen/50 text-sage uppercase font-mono text-[10px]">
-                <th className="p-4">Student Profile & Reg ID</th>
-                <th className="p-4">WhatsApp & Email</th>
-                <th className="p-4">Active Course Enrollments</th>
+              <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 uppercase font-mono text-[10px]">
+                <th className="p-4 pl-6">Student Profile &amp; Reg ID</th>
+                <th className="p-4">WhatsApp &amp; Email</th>
+                <th className="p-4">Active Program Enrollments</th>
                 <th className="p-4">Completed Lessons</th>
-                <th className="p-4 text-right">Admin Actions</th>
+                <th className="p-4 pr-6 text-right">Admin Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-chart-grid/60">
+            <tbody className="divide-y divide-slate-100">
               {paginatedStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-12 text-center text-sage font-mono space-y-2">
-                    <Users className="w-8 h-8 mx-auto text-sage/50" />
+                  <td colSpan={5} className="p-12 text-center text-slate-400 font-mono space-y-2">
+                    <Users className="w-8 h-8 mx-auto text-slate-300" />
                     <div>No student accounts matched your query &ldquo;{search}&rdquo;.</div>
                   </td>
                 </tr>
@@ -350,68 +367,68 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                   <tr
                     key={st.id}
                     onClick={() => router.push(`/admin/students/${st.id}`)}
-                    className="hover:bg-clinical-teal/5 transition-all duration-200 group cursor-pointer border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                    className="hover:bg-slate-50/70 transition-all duration-150 group cursor-pointer"
                     title="Click row to view full student profile"
                   >
-                    <td className="p-4">
+                    <td className="p-4 pl-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-clinical-teal/15 border border-clinical-teal/30 flex items-center justify-center font-bold text-clinical-teal text-xs group-hover:scale-105 transition-transform">
+                        <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center font-bold text-[#0E57A4] text-xs shrink-0 group-hover:scale-105 transition-transform">
                           {st.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                          <div className="font-bold text-slate-900 text-sm group-hover:text-[#0E57A4] transition-colors">
                             {st.name}
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="inline-flex items-center gap-1.5 mt-0.5 text-[10px] font-mono text-[#0E57A4] font-bold bg-[#EBF3FA] border border-[#BFDBFE] px-2 py-0.5 rounded-md whitespace-nowrap shadow-xs">
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#0E57A4] font-bold bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full whitespace-nowrap shadow-2xs">
                               <IdCard className="w-3 h-3 text-[#0E57A4] shrink-0" />
-                              <span>Reg ID: {st.studentId}</span>
+                              <span>Reg ID: {st.studentId || "PENDING"}</span>
                             </span>
                           </div>
                         </div>
                       </div>
                     </td>
 
-                    <td className="p-4 font-mono text-ink-muted">
-                      <div className="text-xs text-ink font-sans font-medium">{st.email}</div>
-                      <div className="text-[11px] text-clinical-teal font-mono">{st.phone}</div>
+                    <td className="p-4 font-mono">
+                      <div className="text-xs text-slate-800 font-sans font-medium">{st.email}</div>
+                      <div className="text-[11px] text-[#0E57A4] font-bold font-mono">{st.phone}</div>
                     </td>
 
                     <td className="p-3 max-w-[280px]">
                       {renderEnrollmentBadges(st.enrollments)}
                     </td>
 
-                    <td className="p-4 font-mono text-ink">
+                    <td className="p-4 font-mono text-slate-900">
                       <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-clinical-teal" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                         <span className="font-bold">{st.progress.length}</span>
-                        <span className="text-[10px] text-sage">lessons done</span>
+                        <span className="text-[10px] text-slate-400">lessons done</span>
                       </div>
                     </td>
 
-                    <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                    <td className="p-4 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2.5 text-[11px] gap-1 font-semibold border-clinical-teal/30 text-clinical-teal hover:bg-clinical-teal/10 shadow-xs"
+                          className="h-8 px-2.5 text-[11px] gap-1 font-semibold border-blue-200 text-[#0E57A4] hover:bg-blue-50 shadow-xs"
                           onClick={() => openEditModal(st)}
                         >
-                          <Edit3 className="w-3 h-3 text-clinical-teal" />
+                          <Edit3 className="w-3 h-3" />
                           <span>Edit Details</span>
                         </Button>
 
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2 text-[11px] gap-1 shadow-xs"
+                          className="h-8 px-2 text-[11px] gap-1 border-rose-200 text-rose-700 hover:bg-rose-50 shadow-xs"
                           onClick={() => {
                             setResetModalStudent(st);
                             setNewTempPassword("");
                             setResetSuccessLink(null);
                           }}
                         >
-                          <KeyRound className="w-3 h-3 text-chart-red" />
+                          <KeyRound className="w-3 h-3 text-rose-600" />
                           <span>Reset Pass</span>
                         </Button>
                       </div>
@@ -425,13 +442,13 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
 
         {/* ── Pagination Controls ── */}
         {filteredStudents.length > 0 && (
-          <div className="p-4 border-t border-chart-grid bg-linen/30 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
-            <div className="text-sage text-[11px]">
-              Showing <strong className="text-ink">{startIndex + 1}</strong> to{" "}
-              <strong className="text-ink">
+          <div className="p-4 border-t border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
+            <div className="text-slate-500 text-[11px]">
+              Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{" "}
+              <strong className="text-slate-900">
                 {Math.min(startIndex + ITEMS_PER_PAGE, filteredStudents.length)}
               </strong>{" "}
-              of <strong className="text-ink">{filteredStudents.length}</strong> students
+              of <strong className="text-slate-900">{filteredStudents.length}</strong> students
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -456,7 +473,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                 <ChevronLeft className="w-4 h-4" />
               </Button>
 
-              <span className="px-3 py-1 bg-white border border-chart-grid rounded text-ink font-semibold">
+              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold text-xs shadow-2xs">
                 Page {validPage} of {totalPages}
               </span>
 
@@ -488,23 +505,23 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
       {/* Edit Student Details Modal */}
       <AnimatePresence>
         {editModalStudent && (
-          <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-surface border border-chart-grid rounded-card shadow-2xl max-w-md w-full p-6 space-y-5"
+              className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5"
             >
-              <div className="flex items-center justify-between border-b border-chart-grid pb-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-clinical-teal" />
-                  <h3 className="text-base font-display font-semibold text-ink">
+                  <Edit3 className="w-5 h-5 text-[#0E57A4]" />
+                  <h3 className="text-base font-display font-bold text-slate-900">
                     Edit Student Details
                   </h3>
                 </div>
                 <button
                   onClick={() => setEditModalStudent(null)}
-                  className="text-sage hover:text-ink p-1"
+                  className="text-slate-400 hover:text-slate-600 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -512,7 +529,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
 
               <form onSubmit={handleSaveEditStudent} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-ink font-medium">
+                  <label className="block text-xs font-mono text-slate-700 font-bold">
                     Student Full Name *
                   </label>
                   <input
@@ -520,12 +537,12 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                     required
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-sans text-ink focus:outline-none focus:border-clinical-teal"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-sans text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-ink font-medium">
+                  <label className="block text-xs font-mono text-slate-700 font-bold">
                     Student Reg ID *
                   </label>
                   <input
@@ -534,12 +551,12 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                     value={editStudentId}
                     onChange={(e) => setEditStudentId(e.target.value)}
                     placeholder="e.g. IWPH4131"
-                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-ink font-medium">
+                  <label className="block text-xs font-mono text-slate-700 font-bold">
                     Email Address *
                   </label>
                   <input
@@ -547,12 +564,12 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                     required
                     value={editEmail}
                     onChange={(e) => setEditEmail(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-mono text-ink font-medium">
+                  <label className="block text-xs font-mono text-slate-700 font-bold">
                     WhatsApp Phone Number *
                   </label>
                   <input
@@ -560,11 +577,11 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                     required
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4]"
                   />
                 </div>
 
-                <div className="flex gap-3 pt-3 border-t border-chart-grid">
+                <div className="flex gap-3 pt-3 border-t border-slate-100">
                   <Button
                     type="button"
                     variant="ghost"
@@ -576,7 +593,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                   <Button
                     type="submit"
                     disabled={isSavingEdit}
-                    className="w-full gap-1.5 text-xs font-semibold bg-clinical-teal hover:bg-clinical-teal-hover text-white border-0"
+                    className="w-full gap-1.5 text-xs font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0"
                   >
                     <Save className="w-3.5 h-3.5" />
                     {isSavingEdit ? "Saving..." : "Save Changes"}
@@ -591,23 +608,23 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
       {/* Password Reset Modal */}
       <AnimatePresence>
         {resetModalStudent && (
-          <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-surface border border-chart-grid rounded-card shadow-2xl max-w-md w-full p-6 space-y-5"
+              className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5"
             >
-              <div className="flex items-center justify-between border-b border-chart-grid pb-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <KeyRound className="w-5 h-5 text-chart-red" />
-                  <h3 className="text-base font-display font-semibold text-ink">
+                  <KeyRound className="w-5 h-5 text-rose-600" />
+                  <h3 className="text-base font-display font-bold text-slate-900">
                     Reset Password: {resetModalStudent.name}
                   </h3>
                 </div>
                 <button
                   onClick={() => setResetModalStudent(null)}
-                  className="text-sage hover:text-ink p-1"
+                  className="text-slate-400 hover:text-slate-600 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -615,23 +632,23 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
 
               {resetSuccessLink ? (
                 <div className="space-y-4">
-                  <div className="bg-green-50 border border-green-200 p-4 rounded text-xs space-y-2">
-                    <div className="flex items-center gap-2 text-green-700 font-bold font-mono">
+                  <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-700 font-bold font-mono">
                       <CheckCircle2 className="w-4 h-4" /> Password Updated Successfully
                     </div>
-                    <p className="text-ink-muted">
-                      New Password: <strong className="font-mono text-ink text-sm bg-white px-2 py-0.5 rounded border border-chart-grid">{newTempPassword}</strong>
+                    <p className="text-slate-600">
+                      New Password: <strong className="font-mono text-slate-900 text-sm bg-white px-2 py-0.5 rounded border border-slate-200">{newTempPassword}</strong>
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-mono text-sage">WhatsApp Dispatch Link:</label>
+                    <label className="block text-[11px] font-mono text-slate-500 font-bold">WhatsApp Dispatch Link:</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         readOnly
                         value={resetSuccessLink}
-                        className="w-full text-xs font-mono bg-linen border border-chart-grid px-3 py-1.5 rounded truncate"
+                        className="w-full text-xs font-mono bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl truncate"
                       />
                       <Button
                         size="sm"
@@ -639,26 +656,26 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                         onClick={() => copyToClipboard(resetSuccessLink)}
                         className="shrink-0 gap-1 text-xs"
                       >
-                        {copiedLink ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                         {copiedLink ? "Copied" : "Copy"}
                       </Button>
                     </div>
                   </div>
 
                   <a href={resetSuccessLink} target="_blank" rel="noopener noreferrer" className="block">
-                    <Button className="w-full gap-2 bg-chart-red text-white border-0 font-semibold">
-                      <MessageCircle className="w-4 h-4" /> Open WhatsApp & Send Credentials
+                    <Button className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0 font-semibold h-10 shadow-xs">
+                      <MessageCircle className="w-4 h-4" /> Open WhatsApp &amp; Send Credentials
                     </Button>
                   </a>
                 </div>
               ) : (
                 <form onSubmit={handleResetPassword} className="space-y-4">
-                  <p className="text-xs text-ink-muted leading-relaxed">
-                    Generate or type a new password for <strong className="text-ink">{resetModalStudent.email}</strong>.
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Generate or type a new password for <strong className="text-slate-900">{resetModalStudent.email}</strong>.
                   </p>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-mono text-ink font-medium">New Temporary Password *</label>
+                    <label className="block text-xs font-mono text-slate-700 font-bold">New Temporary Password *</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -666,7 +683,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                         value={newTempPassword}
                         onChange={(e) => setNewTempPassword(e.target.value)}
                         placeholder="e.g. IMHS-882910"
-                        className="w-full px-3.5 py-2 bg-linen/50 border border-chart-grid rounded-input text-xs font-mono text-ink focus:outline-none focus:border-clinical-teal"
+                        className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4]"
                       />
                       <Button
                         type="button"
@@ -691,7 +708,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                     <Button
                       type="submit"
                       disabled={isResetting || !newTempPassword}
-                      className="w-full gap-1.5 text-xs font-semibold bg-chart-red text-white border-0"
+                      className="w-full gap-1.5 text-xs font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0"
                     >
                       {isResetting ? "Updating..." : "Confirm & Generate Link"}
                     </Button>

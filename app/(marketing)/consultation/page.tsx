@@ -18,9 +18,24 @@ import {
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 
 export const metadata = {
-  title: "Book 1-on-1 Mentorship & Clinical Consultation - IMHS",
+  title: "Book 1-on-1 Mentorship & Clinical Consultation | IMHS",
   description:
     "Schedule 1-on-1 academic mentorship, SLMC exam prep, clinical career consultation, or mock viva interview coaching with Dr. Isuru Wijesinghe at IMHS Sri Lanka.",
+  alternates: {
+    canonical: "https://imhsedu.com/consultation",
+  },
+  openGraph: {
+    title: "1-on-1 Clinical Mentorship & Consultation | IMHS",
+    description: "Personalized SLMC exam prep and career coaching with Dr. Isuru Wijesinghe.",
+    url: "https://imhsedu.com/consultation",
+    images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "IMHS Clinical Consultation" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Book Clinical Consultation | IMHS Education",
+    description: "1-on-1 pharmacy mentorship and career guidance.",
+    images: ["/gallery/faculty-consultation.jpg"],
+  },
 };
 
 export default function ConsultationPage() {

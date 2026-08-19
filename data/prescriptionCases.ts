@@ -3,7 +3,7 @@ import type { PrescriptionCase } from "@/types/pharmacology";
 // ─── IMHS Prescription Cases ─────────────────────────────────────────────────
 // Activity 01: Prescription Review Challenge content.
 // Real clinical cases + images to be authored by clinical staff.
-// The UI is data-driven — replace these with real cases when available.
+// The UI is data-driven - replace these with real cases when available.
 
 export const PRESCRIPTION_CASES: PrescriptionCase[] = [
   {
@@ -42,11 +42,11 @@ export const PRESCRIPTION_CASES: PrescriptionCase[] = [
       { id: "other", label: "Other concern" },
     ],
     correctProblemIds: ["wrong-dose"],
-    // Amlodipine 10 mg twice daily = 20 mg/day — exceeds maximum recommended dose (10 mg/day)
+    // Amlodipine 10 mg twice daily = 20 mg/day - exceeds maximum recommended dose (10 mg/day)
     expectedAction: "do_not_dispense",
     dispensingReason: "Amlodipine is prescribed at 10 mg TWICE daily (20 mg/day total), which exceeds the maximum recommended dose of 10 mg/day. Pharmacist should contact the prescriber for clarification before dispensing.",
     expectedCounsellingPoints: [
-      "Take Amlodipine at the correct prescribed dose — do not take more than instructed",
+      "Take Amlodipine at the correct prescribed dose - do not take more than instructed",
       "Take Metformin with meals to reduce stomach upset",
       "Monitor blood pressure and blood glucose regularly",
       "Report ankle swelling or muscle cramping to your healthcare provider",
@@ -74,11 +74,11 @@ export const PRESCRIPTION_CASES: PrescriptionCase[] = [
     ],
     hasProblem: false,
     expectedAction: "dispense",
-    dispensingReason: "Prescription is complete, dose is within normal range (500 mg TDS for 7 days — standard for many bacterial infections). Safe to dispense.",
+    dispensingReason: "Prescription is complete, dose is within normal range (500 mg TDS for 7 days - standard for many bacterial infections). Safe to dispense.",
     expectedCounsellingPoints: [
       "Complete the full 7-day course even if you feel better",
       "Take with or without food",
-      "Report any rash, difficulty breathing or swelling immediately — these could indicate an allergic reaction",
+      "Report any rash, difficulty breathing or swelling immediately - these could indicate an allergic reaction",
       "Do not share this medicine with others",
       "Store at room temperature away from moisture",
       "If you experience severe diarrhoea, contact your doctor",

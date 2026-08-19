@@ -4,9 +4,22 @@ import React, { useState } from "react";
 import { formatPhoneForWhatsApp } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 import {
-  MessageSquare, Search, MessageCircle, CheckCircle2,
-  Clock, Check, X, Filter, ChevronLeft, ChevronRight,
-  ChevronsLeft, ChevronsRight, Mail, Phone, User
+  MessageSquare,
+  Search,
+  MessageCircle,
+  CheckCircle2,
+  Clock,
+  Check,
+  X,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Mail,
+  Phone,
+  User,
+  Sparkles,
 } from "lucide-react";
 
 interface InquiryItem {
@@ -84,131 +97,124 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
   const resolvedCount = inquiries.filter((i) => i.resolved).length;
 
   return (
-    <div className="space-y-6">
-      {/* ── Page Title ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-chart-grid pb-5">
-        <div>
-          <span className="font-mono text-xs text-chart-red uppercase font-semibold tracking-wider">
-            STUDENT ADMISSIONS & LEADS
+    <div className="space-y-6 max-w-full">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div className="space-y-1">
+          <span className="font-mono text-[10px] text-[#F16726] bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full uppercase font-bold tracking-widest inline-block">
+            Student Admissions &amp; Leads
           </span>
-          <h1 className="text-2xl sm:text-3xl font-display font-semibold text-ink mt-0.5">
-            Contact Form Submissions & Inquiries ({inquiries.length})
+          <h1 className="text-xl sm:text-3xl font-display font-bold text-slate-900 leading-tight">
+            Contact Form Submissions &amp; Inquiries
           </h1>
-          <p className="text-xs text-ink-muted mt-1 font-sans">
-            Review student inquiry submissions from website contact forms and dispatch instant WhatsApp messages.
+          <p className="text-xs text-slate-500 font-sans leading-relaxed">
+            Review prospective student inquiry submissions, manage follow-up status, and dispatch instant WhatsApp messages.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-xs shrink-0">
-          <span className="bg-chart-red/10 text-chart-red border border-chart-red/20 px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" /> {pendingCount} Pending Action
+        <div className="flex items-center gap-2 font-mono text-xs shrink-0 flex-wrap">
+          <span className="bg-rose-50 text-rose-700 border border-rose-200 px-3.5 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-rose-600" /> {pendingCount} Pending Action
           </span>
-          <span className="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> {resolvedCount} Resolved
+          <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-2xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> {resolvedCount} Resolved
           </span>
         </div>
       </div>
 
       {/* ── Search & Filter Toolbar ── */}
-      <div className="bg-surface border border-chart-grid rounded-card p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-paper">
+      <div className="bg-slate-50 border border-slate-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
         <div className="relative max-w-md w-full">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-sage" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by student name, phone, email, or message content..."
+            placeholder="Search by student name, phone, email, or message..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-linen/50 border border-chart-grid rounded-input text-xs text-ink focus:outline-none focus:border-clinical-teal focus:bg-white transition-all font-sans"
+            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-[#0E57A4] min-h-[40px] font-sans"
           />
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-2">
-          <span className="text-xs font-mono text-sage hidden sm:inline">Status:</span>
-          <div className="flex items-center gap-1 bg-linen p-1 rounded-card border border-chart-grid">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+          {[
+            { id: "ALL", label: `All (${filtered.length})` },
+            { id: "PENDING", label: `Pending (${pendingCount})` },
+            { id: "RESOLVED", label: `Resolved (${resolvedCount})` },
+          ].map((f) => (
             <button
-              onClick={() => { setStatusFilter("ALL"); setCurrentPage(1); }}
-              className={`px-3 py-1 text-xs font-mono rounded font-semibold transition-all ${
-                statusFilter === "ALL" ? "bg-clinical-teal text-white shadow-xs" : "text-ink hover:text-clinical-teal"
+              key={f.id}
+              onClick={() => {
+                setStatusFilter(f.id as any);
+                setCurrentPage(1);
+              }}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all shrink-0 whitespace-nowrap min-h-[36px] ${
+                statusFilter === f.id
+                  ? "bg-[#0E57A4] text-white shadow-xs"
+                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
               }`}
             >
-              All ({filtered.length})
+              {f.label}
             </button>
-            <button
-              onClick={() => { setStatusFilter("PENDING"); setCurrentPage(1); }}
-              className={`px-3 py-1 text-xs font-mono rounded font-semibold transition-all ${
-                statusFilter === "PENDING" ? "bg-chart-red text-white shadow-xs" : "text-ink hover:text-chart-red"
-              }`}
-            >
-              Pending ({pendingCount})
-            </button>
-            <button
-              onClick={() => { setStatusFilter("RESOLVED"); setCurrentPage(1); }}
-              className={`px-3 py-1 text-xs font-mono rounded font-semibold transition-all ${
-                statusFilter === "RESOLVED" ? "bg-green-600 text-white shadow-xs" : "text-ink hover:text-green-700"
-              }`}
-            >
-              Resolved ({resolvedCount})
-            </button>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* ── Inquiries List Container ── */}
-      <div className="bg-surface border border-chart-grid rounded-card shadow-paper overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         
         {/* 📱 Mobile Card View (< md) */}
-        <div className="block md:hidden divide-y divide-chart-grid/60">
+        <div className="block md:hidden divide-y divide-slate-100">
           {paginatedInquiries.length === 0 ? (
-            <div className="p-8 text-center text-sage font-mono space-y-2">
-              <MessageSquare className="w-8 h-8 mx-auto text-sage/50" />
-              <div>No contact inquiries matched your filter query.</div>
+            <div className="p-10 text-center text-slate-400 font-mono space-y-2">
+              <MessageSquare className="w-8 h-8 mx-auto text-slate-300" />
+              <div className="text-xs">No contact inquiries matched your filter query.</div>
             </div>
           ) : (
             paginatedInquiries.map((inq) => (
               <div
                 key={inq.id}
-                className="p-4 space-y-3 hover:bg-clinical-teal/5 transition-all duration-200 border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                className="p-4 sm:p-5 space-y-3 hover:bg-slate-50/60 transition-all duration-200"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-ink text-sm flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-clinical-teal shrink-0" />
+                    <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-[#0E57A4] shrink-0" />
                       {inq.name}
                     </h3>
-                    <span className="text-[10px] font-mono text-sage block mt-0.5">
+                    <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
                       Received: {new Date(inq.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
 
                   <div>
                     {inq.resolved ? (
-                      <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                        <CheckCircle2 className="w-3 h-3 text-green-600" /> Resolved
+                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Resolved
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 bg-chart-red/10 text-chart-red border border-chart-red/20 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                        <Clock className="w-3 h-3 text-chart-red" /> Action Needed
+                      <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                        <Clock className="w-3 h-3 text-rose-600" /> Action Needed
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="bg-linen/50 p-2.5 rounded border border-chart-grid/50 space-y-1 text-xs font-mono text-ink-muted">
-                  {inq.email && <div className="truncate text-ink font-sans font-medium">{inq.email}</div>}
-                  <div className="text-clinical-teal text-[11px]">{inq.phone}</div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/70 space-y-1 text-xs font-mono">
+                  {inq.email && <div className="truncate text-slate-800 font-sans font-medium">{inq.email}</div>}
+                  <div className="text-[#0E57A4] font-bold">{inq.phone}</div>
                   {inq.courseInterest && (
-                    <div className="text-[11px] text-sage font-bold uppercase pt-1 border-t border-chart-grid/40">
+                    <div className="text-[11px] text-slate-500 font-bold uppercase pt-1 border-t border-slate-200/60">
                       Interest: {inq.courseInterest}
                     </div>
                   )}
                 </div>
 
-                <p className="text-xs text-ink bg-white p-3 rounded border border-chart-grid/60 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-slate-200 leading-relaxed font-sans shadow-2xs">
                   &ldquo;{inq.message}&rdquo;
                 </p>
 
                 {/* Card Action Buttons */}
-                <div className="flex items-center justify-between pt-2 border-t border-chart-grid/40">
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 gap-2 flex-wrap">
                   <Button
                     size="sm"
                     variant="outline"
@@ -216,8 +222,8 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                     onClick={() => handleToggleResolved(inq.id, inq.resolved)}
                     className={`h-8 px-3 text-[11px] gap-1 font-semibold ${
                       inq.resolved
-                        ? "bg-white border-chart-grid text-ink-muted hover:bg-linen"
-                        : "bg-white border-green-600 text-green-700 hover:bg-green-50"
+                        ? "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                        : "bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50"
                     }`}
                   >
                     {inq.resolved ? "Mark Pending" : "Mark Resolved"}
@@ -228,8 +234,8 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button size="sm" variant="danger" className="h-8 px-3 text-[11px] gap-1 font-semibold">
-                      <MessageCircle className="w-3.5 h-3.5 fill-current" /> Reply via WhatsApp
+                    <Button size="sm" className="h-8 px-3 text-[11px] gap-1 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-xs">
+                      <MessageCircle className="w-3.5 h-3.5 fill-current" /> WhatsApp Reply
                     </Button>
                   </a>
                 </div>
@@ -242,19 +248,19 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs font-sans">
             <thead>
-              <tr className="border-b border-chart-grid bg-linen/50 text-sage uppercase font-mono text-[10px]">
-                <th className="p-4">Candidate & Date</th>
-                <th className="p-4">Contact & Course Interest</th>
+              <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 uppercase font-mono text-[10px]">
+                <th className="p-4 pl-6">Candidate &amp; Received Date</th>
+                <th className="p-4">Contact Info &amp; Interest</th>
                 <th className="p-4">Inquiry Message</th>
                 <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-chart-grid/60">
+            <tbody className="divide-y divide-slate-100">
               {paginatedInquiries.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-12 text-center text-sage font-mono space-y-2">
-                    <MessageSquare className="w-8 h-8 mx-auto text-sage/50" />
+                  <td colSpan={5} className="p-12 text-center text-slate-400 font-mono space-y-2">
+                    <MessageSquare className="w-8 h-8 mx-auto text-slate-300" />
                     <div>No contact inquiries matched your filter query.</div>
                   </td>
                 </tr>
@@ -262,56 +268,57 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                 paginatedInquiries.map((inq) => (
                   <tr
                     key={inq.id}
-                    className="hover:bg-clinical-teal/5 transition-all duration-200 group border-l-4 border-l-transparent hover:border-l-clinical-teal"
+                    className="hover:bg-slate-50/70 transition-all duration-150 group"
                   >
-                    <td className="p-4">
-                      <div className="font-semibold text-ink text-sm group-hover:text-clinical-teal transition-colors">
+                    <td className="p-4 pl-6">
+                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-[#0E57A4] shrink-0" />
                         {inq.name}
                       </div>
-                      <span className="text-[10px] font-mono text-sage block mt-0.5">
+                      <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
                         {new Date(inq.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </td>
 
                     <td className="p-4 font-mono">
-                      {inq.email && <div className="text-xs text-ink font-sans font-medium">{inq.email}</div>}
-                      <div className="text-[11px] text-clinical-teal">{inq.phone}</div>
+                      {inq.email && <div className="text-slate-800 font-sans font-medium text-xs truncate max-w-[200px]">{inq.email}</div>}
+                      <div className="text-[#0E57A4] font-bold text-xs">{inq.phone}</div>
                       {inq.courseInterest && (
-                        <span className="inline-block mt-1 text-[10px] font-mono bg-clinical-teal/10 text-clinical-teal border border-clinical-teal/20 px-1.5 py-0.2 rounded font-semibold truncate max-w-[200px]">
+                        <span className="inline-block mt-1 text-[10px] font-mono font-bold bg-blue-50 text-[#0E57A4] border border-blue-200 px-2 py-0.5 rounded-full">
                           {inq.courseInterest}
                         </span>
                       )}
                     </td>
 
-                    <td className="p-4 max-w-md">
-                      <p className="text-xs text-ink line-clamp-3 leading-relaxed">
+                    <td className="p-4 max-w-xs">
+                      <p className="text-xs text-slate-700 line-clamp-3 leading-relaxed font-sans">
                         &ldquo;{inq.message}&rdquo;
                       </p>
                     </td>
 
                     <td className="p-4">
                       {inq.resolved ? (
-                        <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-green-600" /> Resolved
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Resolved
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-chart-red/10 text-chart-red border border-chart-red/20 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
-                          <Clock className="w-3 h-3 text-chart-red" /> Pending
+                        <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                          <Clock className="w-3 h-3 text-rose-600" /> Action Needed
                         </span>
                       )}
                     </td>
 
-                    <td className="p-4 text-right">
+                    <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
                           variant="outline"
                           disabled={togglingId === inq.id}
                           onClick={() => handleToggleResolved(inq.id, inq.resolved)}
-                          className={`h-7 px-2.5 text-[11px] font-semibold ${
+                          className={`h-7 px-2.5 text-[11px] gap-1 font-semibold ${
                             inq.resolved
-                              ? "bg-white border-chart-grid text-ink-muted hover:bg-linen"
-                              : "bg-white border-green-600 text-green-700 hover:bg-green-50"
+                              ? "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                              : "bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50"
                           }`}
                         >
                           {inq.resolved ? "Mark Pending" : "Mark Resolved"}
@@ -322,8 +329,8 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <Button size="sm" variant="danger" className="h-7 px-2.5 text-[11px] gap-1 font-semibold">
-                            <MessageCircle className="w-3 h-3 fill-current" /> WhatsApp Reply
+                          <Button size="sm" className="h-7 px-2.5 text-[11px] gap-1 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-xs">
+                            <MessageCircle className="w-3 h-3 fill-current" /> WhatsApp
                           </Button>
                         </a>
                       </div>
@@ -337,13 +344,13 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
 
         {/* ── Pagination Controls ── */}
         {filtered.length > 0 && (
-          <div className="p-4 border-t border-chart-grid bg-linen/30 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
-            <div className="text-sage text-[11px]">
-              Showing <strong className="text-ink">{startIndex + 1}</strong> to{" "}
-              <strong className="text-ink">
+          <div className="p-4 border-t border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
+            <div className="text-slate-500 text-[11px]">
+              Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{" "}
+              <strong className="text-slate-900">
                 {Math.min(startIndex + ITEMS_PER_PAGE, filtered.length)}
               </strong>{" "}
-              of <strong className="text-ink">{filtered.length}</strong> inquiries
+              of <strong className="text-slate-900">{filtered.length}</strong> inquiries
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -368,7 +375,7 @@ export function AdminInquiriesClient({ initialInquiries }: { initialInquiries: I
                 <ChevronLeft className="w-4 h-4" />
               </Button>
 
-              <span className="px-3 py-1 bg-white border border-chart-grid rounded text-ink font-semibold">
+              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold text-xs shadow-2xs">
                 Page {validPage} of {totalPages}
               </span>
 
