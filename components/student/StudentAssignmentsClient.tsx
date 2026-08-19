@@ -55,6 +55,7 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
   // Upload Form State
   const [fileUrl, setFileUrl] = useState("");
   const [fileName, setFileName] = useState("");
+  const [fileSize, setFileSize] = useState<number | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
@@ -85,6 +86,7 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
     setActiveSubmitAssignment(a);
     setFileUrl(a.submission?.fileUrl || "");
     setFileName(a.submission?.fileName || "");
+    setFileSize(a.submission?.fileSize || undefined);
     setSubmitError("");
     setSubmitSuccess("");
   };
@@ -114,6 +116,7 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
         body: JSON.stringify({
           fileUrl,
           fileName,
+          fileSize: fileSize || 0,
           deviceFingerprint,
         }),
       });
@@ -451,6 +454,7 @@ export function StudentAssignmentsClient({ courseId }: { courseId?: string }) {
                           if (res.ok && data.url) {
                             setFileUrl(data.url);
                             setFileName(data.fileName);
+                            setFileSize(selectedFile.size);
                           } else {
                             setSubmitError(data.error || "Failed to upload file.");
                           }

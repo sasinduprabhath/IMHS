@@ -9,7 +9,7 @@ import { z } from "zod";
 const assignmentSubmitSchema = z.object({
   fileUrl: z.string().min(1, "File URL is required").max(500, "File URL too long"),
   fileName: z.string().min(1, "File Name is required").max(255, "File Name too long"),
-  fileSize: z.number().int().positive().max(52428800).optional().default(0),
+  fileSize: z.number().int().nonnegative("File size must be positive").max(52428800).nullable().optional(),
   deviceFingerprint: z.string().max(100).optional().default(""),
 });
 
