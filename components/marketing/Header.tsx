@@ -103,22 +103,30 @@ export function Header() {
           <Link href="/contact">
             <Button
               size="sm"
-              className="gap-1.5 font-semibold text-xs rounded-btn h-9 px-4 text-white border-0 shadow-sm btn-glow"
-              style={{ background: "var(--gradient-brand)" }}
+              className={cn(
+                "gap-1.5 font-semibold text-xs rounded-xl h-9 px-4 text-white border-0 shadow-sm transition-all duration-200 hover:scale-[1.02] active:scale-95",
+                scrolled || !isHomePage
+                  ? "bg-gradient-to-r from-[#0E57A4] to-[#1A6FC4] hover:shadow-md hover:brightness-105"
+                  : "bg-gradient-to-r from-[#F16726] to-[#E05315] hover:shadow-lg hover:shadow-orange-500/25 hover:brightness-110"
+              )}
             >
               <Sparkles className="w-3.5 h-3.5" />
               Enroll Now
             </Button>
           </Link>
           <Link href="/login">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 font-semibold text-xs border-[#E2E8F0] text-ink hover:border-clinical-teal/40 hover:bg-clinical-teal/5 hover:text-clinical-teal transition-all rounded-btn h-9 px-4 bg-white shadow-xs"
+            <button
+              type="button"
+              className={cn(
+                "inline-flex items-center justify-center gap-1.5 font-semibold text-xs rounded-xl h-9 px-4 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer select-none",
+                scrolled || !isHomePage
+                  ? "bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0E57A4] border border-slate-200 hover:border-[#0E57A4]/40 shadow-xs"
+                  : "bg-white/10 hover:bg-white/20 text-white border border-white/25 hover:border-white/40 shadow-sm backdrop-blur-md"
+              )}
             >
-              <LogIn className="w-3.5 h-3.5" />
+              <LogIn className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
               Portal Login
-            </Button>
+            </button>
           </Link>
         </div>
 
@@ -180,24 +188,22 @@ export function Header() {
 
               <div className="pt-4 border-t border-[#E2E8F0] flex gap-2.5 mt-2">
                 <Link href="/contact" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                  <Button
-                    size="sm"
-                    className="w-full gap-1.5 text-white border-0 font-semibold rounded-btn"
-                    style={{ background: "var(--gradient-brand)" }}
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-center gap-1.5 h-10 text-white font-semibold text-sm rounded-xl bg-gradient-to-r from-[#0E57A4] to-[#1A6FC4] hover:brightness-105 active:scale-95 shadow-sm transition-all"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Sparkles className="w-4 h-4" />
                     Enroll Now
-                  </Button>
+                  </button>
                 </Link>
                 <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-1.5 border-[#E2E8F0] text-ink rounded-btn font-semibold"
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-center gap-1.5 h-10 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0E57A4] font-semibold text-sm rounded-xl active:scale-95 shadow-xs transition-all"
                   >
-                    <LogIn className="w-3.5 h-3.5" />
-                    Login
-                  </Button>
+                    <LogIn className="w-4 h-4" />
+                    Portal Login
+                  </button>
                 </Link>
               </div>
             </div>
