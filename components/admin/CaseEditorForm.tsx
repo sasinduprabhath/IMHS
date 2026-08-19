@@ -48,7 +48,7 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
 
   // Form State
   const [title, setTitle] = useState(initialCase?.title || "Prescription Case Review #1");
-  const [imageUrl, setImageUrl] = useState(initialCase?.imageUrl || "/practice/prescriptions/case-01.png");
+  const [imageUrl, setImageUrl] = useState(initialCase?.imageUrl || "");
   const [imgError, setImgError] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -56,7 +56,7 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
   useEffect(() => {
     if (initialCase) {
       setTitle(initialCase.title || "Prescription Case Review #1");
-      setImageUrl(initialCase.imageUrl || "/practice/prescriptions/case-01.png");
+      setImageUrl(initialCase.imageUrl || "");
       setPatient(
         initialCase.patientDetails || {
           name: "Kumari Perera",
@@ -864,7 +864,7 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-start">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Image URL / Path *</label>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Image URL / Local File Path *</label>
                   <input
                     type="text"
                     required
@@ -873,38 +873,9 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
                       setImgError(false);
                       setImageUrl(e.target.value);
                     }}
-                    placeholder="/practice/prescriptions/case-01.png or https://..."
+                    placeholder="/practice/prescriptions/upload_...png or https://..."
                     className="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-300 bg-white min-h-[40px] focus:outline-none focus:border-[#0E57A4]"
                   />
-                </div>
-
-                {/* Quick Presets */}
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Quick Presets:</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { label: "Case 01", path: "/practice/prescriptions/case-01.png" },
-                      { label: "Case 02", path: "/practice/prescriptions/case-02.png" },
-                      { label: "Case 03", path: "/practice/prescriptions/case-03.png" },
-                      { label: "Case 04", path: "/practice/prescriptions/case-04.png" },
-                    ].map((preset) => (
-                      <button
-                        key={preset.path}
-                        type="button"
-                        onClick={() => {
-                          setImgError(false);
-                          setImageUrl(preset.path);
-                        }}
-                        className={`text-[10px] font-mono px-2 py-1 rounded-lg border transition-all cursor-pointer ${
-                          imageUrl === preset.path
-                            ? "bg-[#0E57A4] text-white border-[#0E57A4] font-bold"
-                            : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
-                        }`}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Upload Dropzone */}
