@@ -104,7 +104,7 @@ export default function AboutPage() {
           <div className="flex flex-wrap gap-3 justify-center pt-2">
             {[
               { icon: Award, label: "3,500+ Alumni" },
-              { icon: GraduationCap, label: "Est. Maharagama, 2019" },
+              { icon: GraduationCap, label: "Established 2019" },
               { icon: ShieldCheck, label: "Certified Programs" },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-4 py-1.5 text-ink text-xs font-mono shadow-paper">

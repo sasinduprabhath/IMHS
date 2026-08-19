@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us | Admissions & Campus Inquiries",
+  title: "Contact Us | Admissions & Inquiries",
   description:
-    "Get in touch with the IMHS admissions team, book an on-campus consultation in Maharagama, or send an inquiry for our pharmacy programs.",
+    "Get in touch with the IMHS admissions team, book a consultation, or send an inquiry for our pharmacy programs in Sri Lanka.",
   alternates: {
     canonical: "https://imhsedu.com/contact",
   },

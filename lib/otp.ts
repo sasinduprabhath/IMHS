@@ -115,7 +115,7 @@ export function buildOtpEmail(opts: {
                 WhatsApp Support →
               </a>
               <p style="margin:16px 0 0;font-size:11px;color:#CBD5E1;">
-                © ${new Date().getFullYear()} IMHS · Maharagama, Sri Lanka · info.imhsedu@gmail.com
+                © ${new Date().getFullYear()} IMHS · Sri Lanka · info.imhsedu@gmail.com
               </p>
             </td>
           </tr>

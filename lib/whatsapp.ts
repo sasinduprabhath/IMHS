@@ -53,7 +53,7 @@ Please log in to your portal and update your password under your *Profile Settin
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • IMHS Help Desk: +94 77 802 5050
-• Maharagama Campus, Sri Lanka`;
+• Sri Lanka`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -68,7 +68,7 @@ export function createPasswordResetWALink(
   tempPass: string
 ): string {
   const cleanPhone = formatPhoneForWhatsApp(studentPhone);
-  const portalUrl = "https://imhs.edu.lk/login";
+  const portalUrl = "https://imhsedu.com/login";
 
   const message = `INSTITUTE OF MEDICINE AND HEALTH SCIENCES (IMHS)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -88,7 +88,7 @@ Please log in to your portal and update your password under your *Profile Settin
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • IMHS Help Desk: +94 77 802 5050
-• Maharagama Campus, Sri Lanka`;
+• Sri Lanka`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }

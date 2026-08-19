@@ -246,7 +246,7 @@ export default function PrivacyPolicyPage() {
                 </div>
                 <div className="flex items-center gap-2 sm:col-span-2">
                   <MapPin className="w-4 h-4 text-clinical-teal shrink-0" />
-                  <span>210/2/1, High Level Road, Maharagama, Sri Lanka</span>
+                  <span>Sri Lanka</span>
                 </div>
               </div>
             </section>

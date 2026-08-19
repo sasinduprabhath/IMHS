@@ -20,7 +20,7 @@
 
 ## 1. Overview & Security Architecture
 
-The **IMHS Admin Control Panel** is an executive-level administration portal designed for academic coordinators, faculty managers, and system administrators at the Institute of Medicine & Health Sciences Maharagama Campus.
+The **IMHS Admin Control Panel** is an executive-level administration portal designed for academic coordinators, faculty managers, and system administrators at the Institute of Medicine & Health Sciences.
 
 ### Key Security & Access Enforcement:
 - **Role-Based Access Control (RBAC)**: Enforced via `NextAuth.js` and Next.js `middleware.ts`. Only users with `role: "ADMIN"` can access any `/admin/*` routes or `/api/admin/*` REST endpoints.
@@ -228,4 +228,4 @@ Administrators can post official course announcements that appear directly in th
 
 > **Document Version**: 2.5 (Production Ready)  
 > **Target Framework**: Next.js 16 (App Router) + Prisma ORM + NextAuth.js  
-> **Institute**: Institute of Medicine & Health Sciences (IMHS), Maharagama, Sri Lanka.
+> **Institute**: Institute of Medicine & Health Sciences (IMHS), Sri Lanka.

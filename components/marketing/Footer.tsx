@@ -36,7 +36,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-white/45 text-xs leading-relaxed font-sans max-w-xs">
-              IMHS (Institute of Medicine &amp; Health Sciences) - established 2019, Maharagama, Sri Lanka.
+              IMHS (Institute of Medicine &amp; Health Sciences) - established 2019, Sri Lanka.
               Facilitating professional healthcare education with 3,500+ successful graduates.
             </p>
             {/* Divider dot line */}
@@ -82,7 +82,7 @@ export function Footer() {
                 <div className="w-7 h-7 rounded-lg bg-[#F16726]/15 border border-[#F16726]/20 flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin className="w-3.5 h-3.5 text-[#FB923C]" />
                 </div>
-                <span className="text-white/50 leading-relaxed">210/2/1, High Level Road,<br />Maharagama, Sri Lanka</span>
+                <span className="text-white/50 leading-relaxed">Sri Lanka<br />Island-wide &amp; Online Education</span>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-lg bg-[#0E57A4]/15 border border-[#0E57A4]/20 flex items-center justify-center shrink-0">

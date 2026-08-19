@@ -88,7 +88,7 @@ interface HomePageClientProps {
 // ─── Static Data ──────────────────────────────────────────────────────────────
 const STAT_ITEMS = [
   { value: "3,500+", label: "Alumni Graduates", icon: GraduationCap },
-  { value: "2019", label: "Est. Maharagama, LK", icon: Award },
+  { value: "2019", label: "Founded in Sri Lanka", icon: Award },
   { value: "6", label: "Senior Consultants", icon: Stethoscope },
   { value: "4+", label: "Active Programs", icon: BookOpen },
 ];

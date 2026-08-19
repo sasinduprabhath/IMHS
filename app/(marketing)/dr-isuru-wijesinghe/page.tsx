@@ -182,7 +182,7 @@ export default async function DrIsuruWijesinghePage() {
               <div className="space-y-4 text-sm sm:text-base text-ink-muted leading-relaxed font-sans">
                 <p>
                   <strong>Dr. Isuru Wijesinghe</strong> serves as the Executive Director and Senior Lecturer at the
-                  <strong> Institute of Medicine and Health Sciences (IMHS)</strong>, Maharagama, Sri Lanka. With over
+                  <strong> Institute of Medicine and Health Sciences (IMHS)</strong>, Sri Lanka. With over
                   fifteen years of distinguished academic lecturing and clinical pharmacy research leadership, he has
                   been at the forefront of modernizing healthcare education across Sri Lanka.
                 </p>
@@ -279,7 +279,7 @@ export default async function DrIsuruWijesinghePage() {
                 </div>
                 <div className="flex items-start justify-between border-b border-chart-grid/60 pb-2">
                   <span className="text-sage">Location</span>
-                  <span className="font-semibold text-ink text-right">Maharagama, Sri Lanka</span>
+                  <span className="font-semibold text-ink text-right">Sri Lanka</span>
                 </div>
                 <div className="flex items-start justify-between pb-1">
                   <span className="text-sage">Helpline Desk</span>
