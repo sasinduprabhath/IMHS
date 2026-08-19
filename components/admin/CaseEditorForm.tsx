@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPrescriptionCase, updatePrescriptionCase } from "@/actions/prescription-actions";
 import {
   Plus,
@@ -18,6 +18,8 @@ import {
   Check,
   X,
   ShieldCheck,
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
 
 interface CaseEditorFormProps {
@@ -47,6 +49,39 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
   // Form State
   const [title, setTitle] = useState(initialCase?.title || "Prescription Case Review #1");
   const [imageUrl, setImageUrl] = useState(initialCase?.imageUrl || "/practice/prescriptions/case-01.png");
+  const [imgError, setImgError] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  // Sync state whenever initialCase changes
+  useEffect(() => {
+    if (initialCase) {
+      setTitle(initialCase.title || "Prescription Case Review #1");
+      setImageUrl(initialCase.imageUrl || "/practice/prescriptions/case-01.png");
+      setPatient(
+        initialCase.patientDetails || {
+          name: "Kumari Perera",
+          age: 58,
+          sex: "Female",
+          date: "2024-01-15",
+          diagnosis: "Essential Hypertension",
+        }
+      );
+      setMedicines(
+        initialCase.medicineDetails || [
+          { name: "Amlodipine", strength: "10 mg", dose: "1 tablet", frequency: "Twice daily", duration: "30 days" },
+        ]
+      );
+      setHasProblem(initialCase.hasProblem ?? true);
+      setProblemOptions(initialCase.problemOptions || ["Wrong/excessive dose"]);
+      setCorrectProblem(initialCase.correctProblem || "Wrong/excessive dose");
+      setShouldDispense(initialCase.shouldDispense ?? false);
+      setDispenseReason(initialCase.dispenseReason || "");
+      setCounsellingPoints(initialCase.counsellingPoints || []);
+      setIsPublished(initialCase.isPublished ?? true);
+      setImgError(false);
+      setUploadError("");
+    }
+  }, [initialCase]);
 
   // Patient Details
   const [patient, setPatient] = useState(
@@ -142,10 +177,13 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
   };
 
   const handleFileUpload = async (file: File) => {
+    if (!file) return;
     setUploadingImage(true);
+    setUploadError("");
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("folder", "prescriptions");
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -153,11 +191,12 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
       const data = await res.json();
       if (res.ok && data.url) {
         setImageUrl(data.url);
+        setImgError(false);
       } else {
-        alert(data.error || "Failed to upload image file");
+        setUploadError(data.error || "Failed to upload image file");
       }
     } catch (err: any) {
-      alert("Upload error: " + err.message);
+      setUploadError("Upload error: " + err.message);
     } finally {
       setUploadingImage(false);
     }
@@ -825,56 +864,126 @@ export function CaseEditorForm({ initialCase, onSuccess, onCancel }: CaseEditorF
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-start">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Image URL *</label>
+                  <label className="block text-[11px] font-mono text-slate-500 mb-1">Image URL / Path *</label>
                   <input
                     type="text"
                     required
                     value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
+                    onChange={(e) => {
+                      setImgError(false);
+                      setImageUrl(e.target.value);
+                    }}
                     placeholder="/practice/prescriptions/case-01.png or https://..."
-                    className="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-300 bg-white min-h-[40px]"
+                    className="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-300 bg-white min-h-[40px] focus:outline-none focus:border-[#0E57A4]"
                   />
                 </div>
 
-                {/* Upload Dropzone */}
-                <div className="border-2 border-dashed border-slate-300 hover:border-[#0E57A4] rounded-2xl p-5 text-center space-y-2 bg-slate-50 transition-colors">
-                  <Upload className="w-6 h-6 text-slate-400 mx-auto" />
-                  <div className="text-xs font-sans text-slate-600">
-                    <label className="font-bold text-[#0E57A4] hover:underline cursor-pointer">
-                      Click to upload new image file
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="sr-only"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleFileUpload(file);
+                {/* Quick Presets */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Quick Presets:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: "Case 01", path: "/practice/prescriptions/case-01.png" },
+                      { label: "Case 02", path: "/practice/prescriptions/case-02.png" },
+                      { label: "Case 03", path: "/practice/prescriptions/case-03.png" },
+                      { label: "Case 04", path: "/practice/prescriptions/case-04.png" },
+                    ].map((preset) => (
+                      <button
+                        key={preset.path}
+                        type="button"
+                        onClick={() => {
+                          setImgError(false);
+                          setImageUrl(preset.path);
                         }}
-                      />
-                    </label>
+                        className={`text-[10px] font-mono px-2 py-1 rounded-lg border transition-all cursor-pointer ${
+                          imageUrl === preset.path
+                            ? "bg-[#0E57A4] text-white border-[#0E57A4] font-bold"
+                            : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Upload Dropzone */}
+                <div className="border-2 border-dashed border-slate-300 hover:border-[#0E57A4] rounded-2xl p-5 text-center space-y-2 bg-slate-50 hover:bg-blue-50/20 transition-colors cursor-pointer relative group">
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    disabled={uploadingImage}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file);
+                    }}
+                  />
+                  <div className="w-10 h-10 rounded-xl bg-[#0E57A4]/10 text-[#0E57A4] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                  </div>
+                  <div className="text-xs font-sans text-slate-600">
+                    <p className="font-bold text-[#0E57A4]">
+                      {uploadingImage ? "Uploading new slip to server..." : "Click or drag & drop to upload new image file"}
+                    </p>
                   </div>
                   <p className="text-[10px] font-mono text-slate-400">PNG, JPG, WEBP up to 5MB</p>
-                  {uploadingImage && (
-                    <p className="text-xs font-mono text-[#0E57A4] animate-pulse">Uploading image to server...</p>
-                  )}
                 </div>
+
+                {uploadError && (
+                  <p className="text-xs text-rose-600 font-mono flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" /> {uploadError}
+                  </p>
+                )}
               </div>
 
               {/* Image Preview Card */}
-              <div className="border border-slate-200 rounded-2xl p-3 bg-slate-100 text-center space-y-2">
-                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Image Preview</span>
-                <div className="relative h-48 sm:h-60 w-full rounded-xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center p-2">
-                  {imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={imageUrl}
-                      alt="Prescription Preview"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-xs font-mono text-slate-400">No Image Specified</span>
+              <div className="border border-slate-200 rounded-2xl p-3.5 bg-slate-50 text-center space-y-2.5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase font-bold">Live Slip Preview</span>
+                  {imageUrl && !imgError && (
+                    <a
+                      href={imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-mono text-[#0E57A4] hover:underline font-bold inline-flex items-center gap-1"
+                    >
+                      Open Full Size <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
                   )}
                 </div>
+
+                <div className="relative h-48 sm:h-64 w-full rounded-xl overflow-hidden bg-white border border-slate-200 flex items-center justify-center p-2 shadow-inner">
+                  {imageUrl && !imgError ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={imageUrl}
+                      src={imageUrl}
+                      alt="Prescription Slip Preview"
+                      onError={() => setImgError(true)}
+                      onLoad={() => setImgError(false)}
+                      className="max-h-full max-w-full object-contain rounded-lg transition-opacity duration-200"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-slate-400 space-y-1 p-4">
+                      <ImageIcon className="w-8 h-8 text-slate-300" />
+                      <span className="text-xs font-mono text-slate-500">
+                        {imgError ? "⚠ Failed to load image from URL" : "No Image Specified"}
+                      </span>
+                      {imgError && (
+                        <p className="text-[10px] text-rose-500 font-mono">
+                          Check the URL or upload a new file
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {imageUrl && (
+                  <p className="text-[10px] font-mono text-slate-400 truncate max-w-full" title={imageUrl}>
+                    Source: {imageUrl}
+                  </p>
+                )}
               </div>
             </div>
           </div>

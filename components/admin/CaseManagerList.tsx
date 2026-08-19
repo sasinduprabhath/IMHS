@@ -275,6 +275,7 @@ export function CaseManagerList({ cases }: CaseManagerListProps) {
 
             <div className="overflow-y-auto p-1 flex-1">
               <CaseEditorForm
+                key={editingCase.id}
                 initialCase={editingCase}
                 onSuccess={() => {
                   setEditingCase(null);
