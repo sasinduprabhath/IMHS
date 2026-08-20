@@ -19,7 +19,8 @@ This guide provides an end-to-end, step-by-step procedure to deploy, configure, 
 11. [Step 9: Process Management & Auto-Start (PM2)](#step-9-process-management--auto-start-pm2)
 12. [Step 10: One-Click Update Script (deploy.sh)](#step-10-one-click-update-script-deploysh)
 13. [Step 11: Verification & Testing](#step-11-verification--testing)
-14. [Troubleshooting & Common Issues](#14-troubleshooting--common-issues)
+14. [Troubleshooting & Common Issues](#troubleshooting--common-issues)
+15. [Maintenance & Backups](#maintenance--backups)
 
 ---
 
@@ -468,29 +469,39 @@ Paste the following bash script:
 #!/bin/bash
 set -e
 
-echo "🚀 Starting IMHS Production Deployment..."
-cd /home/imhsedu.com/public_html
+echo "================================================================================"
+echo " 🚀 IMHS PRODUCTION ZERO-DOWNTIME DEPLOYMENT"
+echo "================================================================================"
 
-echo "📥 Pulling latest changes from Git..."
+# 1. Pull latest code
+echo "📥 [1/6] Pulling latest updates from Git repository..."
+cd /home/imhsedu.com/public_html
 git pull origin main
 
-echo "📦 Installing dependencies..."
+# 2. Install dependencies
+echo "📦 [2/6] Installing dependencies..."
 npm ci
 
-echo "🗄️ Syncing Prisma Database Schema..."
+# 3. Prisma generate & db push
+echo "🗄️ [3/6] Synchronizing Prisma schema with MySQL database..."
 npx prisma generate
 npx prisma db push
 
-echo "🏗️ Building Next.js application..."
-npm run build
+# 4. Production Next.js build
+echo "🏗️ [4/6] Compiling production Next.js build..."
+NODE_OPTIONS="--max-old-space-size=2048" npm run build
 
-echo "🔄 Reloading PM2 Cluster with Zero Downtime..."
+# 5. Reload PM2 cluster
+echo "🔄 [5/6] Gracefully reloading PM2 cluster..."
 pm2 reload ecosystem.config.js --update-env
 
-echo "🧪 Running Automated Health & Security Test Suites..."
+# 6. Run automated test suite
+echo "🧪 [6/6] Executing automated security and system test suites..."
 npx tsx scripts/run-all-tests.ts
 
-echo "✅ IMHS Deployment Successfully Completed!"
+echo "================================================================================"
+echo " ✅ DEPLOYMENT COMPLETED SUCCESSFULLY AT $(date)"
+echo "================================================================================"
 ```
 
 Make the script executable:
@@ -531,7 +542,7 @@ Verify that all systems and security features are working properly:
 
 ---
 
-## 14. Troubleshooting & Common Issues
+## Troubleshooting & Common Issues
 
 ### Issue 1: "502 Bad Gateway" or "503 Service Unavailable"
 - **Cause**: Next.js is not running or crashed on startup.
