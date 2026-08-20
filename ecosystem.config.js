@@ -3,13 +3,13 @@ module.exports = {
     {
       name: "imhs-portal",
       script: "node_modules/next/dist/bin/next",
-      args: "start",
+      args: "start -p 3020",
       instances: "max", // Uses all available CPU cores (cluster mode) or set to 1/2 for smaller VPS
       exec_mode: "cluster",
-      cwd: "/home/imhsedu.com/public_html", // Update to match your CyberPanel website path
+      cwd: "/home/imhsedu.com/public_html", // Update to match your server website path
       env: {
         NODE_ENV: "production",
-        PORT: 3000,
+        PORT: 3020,
       },
       max_memory_restart: "1G",
       restart_delay: 3000,

@@ -39,7 +39,7 @@ This guide provides an end-to-end, step-by-step procedure to deploy, configure, 
                           │   - Reverse Proxy           │
                           │   - HTTP/3 & Gzip/Brotli    │
                           └──────────────┬──────────────┘
-                                         │ Proxy (127.0.0.1:3000)
+                                         │ Proxy (127.0.0.1:3020)
                                          ▼
                           ┌─────────────────────────────┐
                           │   Next.js 15 Server (PM2)   │
@@ -214,7 +214,7 @@ GOOGLE_REFRESH_TOKEN="<YOUR_GOOGLE_REFRESH_TOKEN>"
 
 # 8. RUNTIME SETTINGS
 NODE_ENV="production"
-PORT=3000
+PORT=3020
 ```
 
 Press `CTRL + O`, then `Enter` to save, and `CTRL + X` to exit `nano`.
@@ -263,21 +263,21 @@ npm run build
 
 ---
 
-## Step 8: Configure OpenLiteSpeed Reverse Proxy
+## Step 8: Configure Reverse Proxy (Port 3020)
 
-OpenLiteSpeed will act as the high-performance front-facing web server, handling SSL termination, HTTP/2/3, and proxying requests to our Next.js server on port 3000.
+The front-facing web server handles SSL termination (HTTPS/HTTP2/HTTP3), static header caching, and routes all traffic to Next.js running on `127.0.0.1:3020`.
 
-### Method 1: Via CyberPanel vHost Configuration (Recommended)
+### Option A: OpenLiteSpeed / CyberPanel vHost (Recommended for CyberPanel)
 1. In CyberPanel, navigate to **Websites** -> **List Websites**.
 2. Click **Manage** on `imhsedu.com`.
 3. Scroll down and click **vHost Conf**.
 4. Append the following reverse proxy and rewrite configuration to the bottom of the vHost config file:
 
 ```apache
-# ── OpenLiteSpeed Reverse Proxy to Next.js (Port 3000) ──
+# ── OpenLiteSpeed Reverse Proxy to Next.js (Port 3020) ──
 extprocessor imhs_node {
   type                    proxy
-  address                 127.0.0.1:3000
+  address                 127.0.0.1:3020
   maxConns                1000
   pcKeepAliveTimeout      60
   initTimeout             60
@@ -294,7 +294,7 @@ context / {
 
 5. Click **Save** to apply changes and restart OpenLiteSpeed.
 
-### Method 2: Via `.htaccess` (Alternative)
+#### Alternative: Via `.htaccess`
 Alternatively, navigate to **File Manager** -> `/home/imhsedu.com/public_html/.htaccess` and add:
 
 ```apache
@@ -302,8 +302,61 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+RewriteRule ^(.*)$ http://127.0.0.1:3020/$1 [P,L]
 RequestHeader set X-Forwarded-Proto "https"
+```
+
+---
+
+### Option B: NGINX Reverse Proxy (For Ubuntu / Debian VPS)
+If your VPS uses standard NGINX, configure `/etc/nginx/sites-available/imhsedu.com`:
+
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name imhsedu.com www.imhsedu.com;
+    return 301 https://imhsedu.com$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name www.imhsedu.com;
+    
+    # SSL Certificates (Let's Encrypt / Certbot)
+    ssl_certificate /etc/letsencrypt/live/imhsedu.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/imhsedu.com/privkey.pem;
+    
+    return 301 https://imhsedu.com$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name imhsedu.com;
+
+    # SSL Certificates
+    ssl_certificate /etc/letsencrypt/live/imhsedu.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/imhsedu.com/privkey.pem;
+
+    # Max upload size (PDF coursework & student submissions)
+    client_max_body_size 50M;
+
+    # Everything proxied to Next.js on port 3020
+    location / {
+        proxy_pass http://127.0.0.1:3020;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 120s;
+    }
+}
 ```
 
 ---
