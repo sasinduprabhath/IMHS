@@ -413,14 +413,25 @@ function Step3({
           <div className="relative h-48 w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-xs">
             {!imgError ? (
               <>
-                <Image
-                  src={previewUrl}
-                  alt="Cover preview"
-                  fill
-                  className="object-cover"
-                  onError={() => setImgError(true)}
-                  unoptimized
-                />
+                {previewUrl.startsWith("http") ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={previewUrl}
+                    alt="Cover preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={() => setImgError(true)}
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <Image
+                    src={previewUrl}
+                    alt="Cover preview"
+                    fill
+                    className="object-cover"
+                    onError={() => setImgError(true)}
+                    unoptimized
+                  />
+                )}
                 <div className="absolute top-2.5 right-2.5 flex items-center gap-2">
                   <button
                     type="button"

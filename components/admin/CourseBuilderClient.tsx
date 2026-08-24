@@ -509,14 +509,29 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
             <div className="flex items-start gap-4">
               <div className="relative group shrink-0 w-24 h-16 sm:w-28 sm:h-18 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-xs">
                 {coverImage && !imgError ? (
-                  <Image
-                    src={formatGoogleDriveImageUrl(coverImage) || coverImage}
-                    alt={course.title}
-                    fill
-                    className="object-cover transition-transform duration-200 group-hover:scale-105"
-                    unoptimized
-                    onError={() => setImgError(true)}
-                  />
+                  (() => {
+                    const resolvedSrc = formatGoogleDriveImageUrl(coverImage) || coverImage;
+                    const isExternal = resolvedSrc.startsWith("http");
+                    return isExternal ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={resolvedSrc}
+                        alt={course.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        onError={() => setImgError(true)}
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <Image
+                        src={resolvedSrc}
+                        alt={course.title}
+                        fill
+                        className="object-cover transition-transform duration-200 group-hover:scale-105"
+                        unoptimized
+                        onError={() => setImgError(true)}
+                      />
+                    );
+                  })()
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-[10px] font-mono">
                     <ImageIcon className="w-5 h-5 mb-0.5" />
@@ -872,14 +887,29 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               <div className="relative h-48 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-xs">
                 {!imgError ? (
                   <>
-                    <Image
-                      src={formatGoogleDriveImageUrl(coverImage) || coverImage}
-                      alt="Cover preview"
-                      fill
-                      className="object-cover"
-                      onError={() => setImgError(true)}
-                      unoptimized
-                    />
+                    {(() => {
+                      const resolvedSrc = formatGoogleDriveImageUrl(coverImage) || coverImage;
+                      const isExternal = resolvedSrc.startsWith("http");
+                      return isExternal ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={resolvedSrc}
+                          alt="Cover preview"
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={() => setImgError(true)}
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <Image
+                          src={resolvedSrc}
+                          alt="Cover preview"
+                          fill
+                          className="object-cover"
+                          onError={() => setImgError(true)}
+                          unoptimized
+                        />
+                      );
+                    })()}
                     <div className="absolute top-2.5 right-2.5 flex items-center gap-2">
                       <button
                         type="button"
@@ -933,14 +963,29 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
             <div className="flex items-center gap-4 min-w-0">
               <div className="relative w-28 h-20 sm:w-36 sm:h-22 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs group">
                 {coverImage && !imgError ? (
-                  <Image
-                    src={formatGoogleDriveImageUrl(coverImage) || coverImage}
-                    alt="Course cover"
-                    fill
-                    className="object-cover transition-transform duration-200 group-hover:scale-105"
-                    unoptimized
-                    onError={() => setImgError(true)}
-                  />
+                  (() => {
+                    const resolvedSrc = formatGoogleDriveImageUrl(coverImage) || coverImage;
+                    const isExternal = resolvedSrc.startsWith("http");
+                    return isExternal ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={resolvedSrc}
+                        alt="Course cover"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        onError={() => setImgError(true)}
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <Image
+                        src={resolvedSrc}
+                        alt="Course cover"
+                        fill
+                        className="object-cover transition-transform duration-200 group-hover:scale-105"
+                        unoptimized
+                        onError={() => setImgError(true)}
+                      />
+                    );
+                  })()
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
                     <ImageIcon className="w-6 h-6 mb-1" />
