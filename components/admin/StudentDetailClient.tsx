@@ -569,9 +569,9 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {devices.map((dev) => {
-                    const isPrimary = dev.status === "PRIMARY" || dev.deviceSignature === student.deviceSignature;
+                    const isPrimary = dev.status === "PRIMARY";
                     const isAllowed = dev.status === "ALLOWED";
-                    const isBlocked = dev.status === "BLOCKED" && !isPrimary;
+                    const isBlocked = dev.status === "BLOCKED";
 
                     return (
                       <tr key={dev.id} className="hover:bg-slate-50/60 transition-colors">

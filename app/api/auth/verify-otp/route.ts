@@ -60,6 +60,19 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    // Confirm device is not blocked
+    if (deviceSignature) {
+      const blockedDevice = await prisma.studentDevice.findFirst({
+        where: { userId: user.id, deviceSignature, status: "BLOCKED" },
+      });
+      if (blockedDevice) {
+        return NextResponse.json({
+          status: "ERROR",
+          message: "Access Denied: This device has been locked by administration.",
+        }, { status: 403 });
+      }
+    }
+
     // Check expiry
     if (new Date() > user.otpExpiry) {
       await prisma.user.update({

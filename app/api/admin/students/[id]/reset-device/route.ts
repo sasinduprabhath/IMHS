@@ -30,6 +30,11 @@ export async function POST(
     },
   });
 
+  // Clear registered student devices so next login registers the new primary device
+  await prisma.studentDevice.deleteMany({
+    where: { userId: id },
+  });
+
   return NextResponse.json({
     success: true,
     message: `Device lock cleared for ${user.name}. Their next login will register their new device.`,

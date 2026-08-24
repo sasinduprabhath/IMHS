@@ -99,6 +99,150 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "ADMIN_BYPASS" });
     }
 
+    // ── Device Authorization & Lock Enforcement ───────────────────────
+    const studentDevices = await prisma.studentDevice.findMany({
+      where: { userId: user.id },
+    });
+
+    const currentDeviceRecord = studentDevices.find(
+      (d) => d.deviceSignature === deviceSignature
+    );
+
+    // 1. HARD BLOCK: If this specific device is marked as BLOCKED, reject immediately
+    if (currentDeviceRecord && currentDeviceRecord.status === "BLOCKED") {
+      await prisma.studentDevice.update({
+        where: { id: currentDeviceRecord.id },
+        data: {
+          lastAttemptAt: new Date(),
+          ipAddress: clientIp,
+          deviceInfo: deviceInfo || currentDeviceRecord.deviceInfo,
+        },
+      });
+
+      const waMessage =
+        `Hello IMHS Support,\n\n` +
+        `*Device Unlock Request*\n` +
+        `• Student Name: ${user.name}\n` +
+        `• Email: ${user.email}\n` +
+        `• Reg ID: ${user.studentId || "N/A"}\n` +
+        `• Device Details: ${deviceInfo || "Unknown Device"}\n` +
+        `• Problem: My device has been locked by administration. Please approve my device in the admin panel so I can access my courses.`;
+
+      const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
+
+      logger.security("AUTH_DEVICE_LOCKED", `Blocked device attempted login for ${user.email}`, {
+        userId: user.id,
+        ip: clientIp,
+        details: { deviceInfo },
+      });
+
+      return NextResponse.json(
+        {
+          status: "DEVICE_LOCKED",
+          message:
+            `Access Denied: This device has been locked by administration. ` +
+            `Please click below to send a pre-filled message to IMHS Support on WhatsApp requesting approval for this device (${deviceInfo || "Device"}).`,
+          waLink,
+          studentInfo: {
+            name: user.name,
+            email: user.email,
+            regId: user.studentId,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    // 2. Check if student already has other registered primary/allowed devices
+    const hasAnyRegisteredDevices = studentDevices.length > 0;
+    const isCurrentDeviceApproved =
+      currentDeviceRecord &&
+      (currentDeviceRecord.status === "ALLOWED" || currentDeviceRecord.status === "PRIMARY");
+    const isUserSignatureMatch =
+      user.deviceSignature &&
+      deviceSignature === user.deviceSignature &&
+      (!currentDeviceRecord || currentDeviceRecord.status !== "BLOCKED");
+
+    // 3. If student has registered devices, but THIS device is NOT approved -> Block & Record
+    if ((hasAnyRegisteredDevices || user.deviceSignature) && !isCurrentDeviceApproved && !isUserSignatureMatch) {
+      if (!currentDeviceRecord && deviceSignature) {
+        await prisma.studentDevice.create({
+          data: {
+            userId: user.id,
+            deviceSignature,
+            deviceInfo,
+            status: "BLOCKED",
+            ipAddress: clientIp,
+            lastAttemptAt: new Date(),
+          },
+        });
+      }
+
+      const waMessage =
+        `Hello IMHS Support,\n\n` +
+        `*Device Unlock Request*\n` +
+        `• Student Name: ${user.name}\n` +
+        `• Email: ${user.email}\n` +
+        `• Reg ID: ${user.studentId || "N/A"}\n` +
+        `• Device Details: ${deviceInfo || "Unknown Device"}\n` +
+        `• Problem: My account is locked to my primary device. I am attempting to log in from a new device. Please approve my device in the admin panel so I can access my courses.`;
+
+      const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
+
+      logger.security("AUTH_DEVICE_LOCKED", `Device mismatch for user ${user.email}`, {
+        userId: user.id,
+        ip: clientIp,
+        details: { deviceInfo },
+      });
+
+      return NextResponse.json(
+        {
+          status: "DEVICE_LOCKED",
+          message:
+            `Access Denied: Your account is locked to your primary registered device. ` +
+            `Please click below to send a pre-filled message to IMHS Support on WhatsApp requesting approval for this device (${deviceInfo || "Device"}).`,
+          waLink,
+          studentInfo: {
+            name: user.name,
+            email: user.email,
+            regId: user.studentId,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    // 4. First login for this student: register this incoming device as PRIMARY
+    if (!hasAnyRegisteredDevices && !user.deviceSignature && deviceSignature) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          deviceSignature,
+          deviceLockedAt: new Date(),
+        },
+      });
+
+      await prisma.studentDevice.create({
+        data: {
+          userId: user.id,
+          deviceSignature,
+          deviceInfo,
+          status: "PRIMARY",
+          ipAddress: clientIp,
+          lastAttemptAt: new Date(),
+        },
+      });
+    }
+
+    // 5. Update last attempt on the approved device
+    if (currentDeviceRecord) {
+      await prisma.studentDevice.update({
+        where: { id: currentDeviceRecord.id },
+        data: { lastAttemptAt: new Date(), ipAddress: clientIp },
+      });
+    }
+
+    // 6. Check 30-day trusted cookie ONLY AFTER confirming device is authorized
     const trustedCookie = req.cookies.get(TRUSTED_DEVICE_COOKIE_NAME)?.value;
     if (trustedCookie) {
       const isTrusted = await verifyTrustedDeviceToken(trustedCookie, user.id, deviceSignature);
@@ -127,102 +271,6 @@ export async function POST(req: NextRequest) {
           verifiedToken,
         });
       }
-    }
-
-    // ── Device Binding & Device List Check ─────────────────────────────
-    let isDeviceAuthorized = false;
-
-    if (user.deviceSignature) {
-      if (deviceSignature === user.deviceSignature) {
-        isDeviceAuthorized = true;
-      } else {
-        // Check if device signature is in StudentDevice table with status ALLOWED or PRIMARY
-        const existingDevice = await prisma.studentDevice.findFirst({
-          where: { userId: user.id, deviceSignature },
-        });
-
-        if (existingDevice && (existingDevice.status === "ALLOWED" || existingDevice.status === "PRIMARY")) {
-          isDeviceAuthorized = true;
-          // Update last attempt
-          await prisma.studentDevice.update({
-            where: { id: existingDevice.id },
-            data: { lastAttemptAt: new Date(), ipAddress: clientIp },
-          });
-        } else {
-          // Record or update this blocked attempt in StudentDevice database
-          if (existingDevice) {
-            await prisma.studentDevice.update({
-              where: { id: existingDevice.id },
-              data: { lastAttemptAt: new Date(), ipAddress: clientIp, deviceInfo },
-            });
-          } else if (deviceSignature) {
-            await prisma.studentDevice.create({
-              data: {
-                userId: user.id,
-                deviceSignature,
-                deviceInfo,
-                status: "BLOCKED",
-                ipAddress: clientIp,
-                lastAttemptAt: new Date(),
-              },
-            });
-          }
-
-          // Build a detailed pre-filled WhatsApp message with student name, ID, email, and device info
-          const waMessage = 
-            `Hello IMHS Support,\n\n` +
-            `*Device Unlock Request*\n` +
-            `• Student Name: ${user.name}\n` +
-            `• Email: ${user.email}\n` +
-            `• Reg ID: ${user.studentId || "N/A"}\n` +
-            `• Device Details: ${deviceInfo}\n` +
-            `• Problem: My account is locked to my primary device. I am attempting to log in from a new device. Please approve my device in the admin panel so I can access my courses.`;
-
-          const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
-
-          logger.security("AUTH_DEVICE_LOCKED", `Device mismatch for user ${user.email}`, {
-            userId: user.id,
-            ip: clientIp,
-            details: { deviceInfo },
-          });
-
-          return NextResponse.json({
-            status: "DEVICE_LOCKED",
-            message:
-              `Access Denied: Your account is locked to your primary device. ` +
-              `Please click below to send a pre-filled message to IMHS Support on WhatsApp requesting approval for this device (${deviceInfo}).`,
-            waLink,
-            studentInfo: {
-              name: user.name,
-              email: user.email,
-              regId: user.studentId,
-            },
-          }, { status: 403 });
-        }
-      }
-    } else {
-      // First login: register primary device
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          deviceSignature,
-          deviceLockedAt: new Date(),
-        },
-      });
-
-      if (deviceSignature) {
-        await prisma.studentDevice.create({
-          data: {
-            userId: user.id,
-            deviceSignature,
-            deviceInfo,
-            status: "PRIMARY",
-            ipAddress: clientIp,
-            lastAttemptAt: new Date(),
-          },
-        });
-      }
-      isDeviceAuthorized = true;
     }
 
     // ── Generate & send OTP ────────────────────────────────────────────
