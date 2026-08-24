@@ -503,16 +503,16 @@ export function CourseAssessmentEditor({
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-2 cursor-pointer"
               >
                 <FileUp className="w-4 h-4" /> Import CSV / Excel File
               </button>
 
               <button
                 onClick={addQuestion}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
+                className="px-5 py-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-white text-xs font-bold transition shadow-sm flex items-center gap-2 cursor-pointer"
               >
-                Add First Question
+                <Plus className="w-4 h-4" /> Add First Question
               </button>
             </div>
           </div>

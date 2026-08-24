@@ -15,7 +15,7 @@ export interface CourseQuestionInput {
 
 /**
  * Fetch questions assigned to a specific course.
- * If 0 questions assigned in DB, returns default seed question pool.
+ * If 0 questions assigned in DB, returns empty array ([]).
  */
 export async function getCourseAssessmentQuestions(courseId: string) {
   try {
@@ -37,18 +37,11 @@ export async function getCourseAssessmentQuestions(courseId: string) {
       }));
     }
 
-    // Fallback to default questions if course has no custom DB questions
-    return MODULE_QUESTIONS.map((q) => ({
-      id: q.id,
-      moduleId: cleanCourseId,
-      statement: q.statement,
-      answer: q.answer,
-      explanation: q.explanation,
-      topic: q.topic || "General Pharmacology",
-    }));
+    // No questions configured in DB for this course
+    return [];
   } catch (error) {
     console.error("Error fetching course assessment questions:", error);
-    return MODULE_QUESTIONS;
+    return [];
   }
 }
 

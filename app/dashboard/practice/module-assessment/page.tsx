@@ -16,7 +16,14 @@ export default async function ModuleAssessmentPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
   const moduleId = params.moduleId || DEFAULT_MODULE_ID;
 
-  let questions = await getCourseAssessmentQuestions(moduleId);
+  let questions: Array<{
+    id: string;
+    moduleId: string;
+    statement: string;
+    answer: boolean;
+    explanation?: string;
+    topic?: string;
+  }> = await getCourseAssessmentQuestions(moduleId);
   if (!questions || questions.length === 0) {
     questions = getQuestionsByModule(moduleId);
   }
