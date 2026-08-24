@@ -903,7 +903,11 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                           }
 
                           return (
-                            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                            <div
+                              data-lenis-prevent="true"
+                              onWheel={(e) => e.stopPropagation()}
+                              className="space-y-3 max-h-72 overflow-y-auto pr-1 overscroll-contain touch-pan-y"
+                            >
                               {course.chapters.map((ch, cIdx) => {
                                 const isChBlocked = blockedChs.includes(ch.id);
 
