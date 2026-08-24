@@ -32,9 +32,34 @@ export const revalidate = 60;
 export default async function FacultyPage() {
   let faculty: any[] = [];
   try {
-    faculty = await prisma.facultyMember.findMany({ orderBy: { order: "asc" } });
+    faculty = await prisma.facultyMember.findMany({
+      where: { name: { contains: "Isuru" } },
+      orderBy: { order: "asc" },
+    });
+    if (faculty.length === 0) {
+      faculty = [
+        {
+          id: "dr-isuru-wijesinghe",
+          name: "Dr. Isuru Wijesinghe",
+          title: "Senior Lecturer & Executive Director",
+          bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
+          photoUrl: "/lecturer.jpeg",
+          order: 1,
+        },
+      ];
+    }
   } catch (error) {
     console.error("Faculty page DB connection error (MySQL):", error);
+    faculty = [
+      {
+        id: "dr-isuru-wijesinghe",
+        name: "Dr. Isuru Wijesinghe",
+        title: "Senior Lecturer & Executive Director",
+        bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
+        photoUrl: "/lecturer.jpeg",
+        order: 1,
+      },
+    ];
   }
 
   return (
