@@ -207,7 +207,9 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
 
   const scrollCoursesCatalog = (direction: "left" | "right") => {
     if (!coursesCatalogRef.current) return;
-    const scrollAmount = direction === "left" ? -340 : 340;
+    const card = coursesCatalogRef.current.firstElementChild as HTMLElement | null;
+    const cardWidth = card ? card.offsetWidth + 24 : 380;
+    const scrollAmount = direction === "left" ? -cardWidth : cardWidth;
     coursesCatalogRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
@@ -445,14 +447,14 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
           >
             {courses.length === 0
               ? [1, 2, 3, 4].map((i) => (
-                <div key={i} className="snap-start shrink-0 w-[285px] sm:w-[340px]">
+                <div key={i} className="snap-start shrink-0 w-[285px] sm:w-[340px] lg:w-[calc((100%-3rem)/3)]">
                   <CourseCardSkeleton />
                 </div>
               ))
               : courses.map((course) => (
                 <div
                   key={course.id}
-                  className="snap-start shrink-0 w-[285px] sm:w-[340px] md:w-[360px] flex flex-col"
+                  className="snap-start shrink-0 w-[285px] sm:w-[340px] lg:w-[calc((100%-3rem)/3)] flex flex-col"
                 >
                   <HoverCard className="h-full">
                     <div className="bg-surface border border-chart-grid rounded-2xl overflow-hidden h-full flex flex-col hover:border-[#0E57A4]/60 hover:shadow-xl transition-all duration-300 group">
