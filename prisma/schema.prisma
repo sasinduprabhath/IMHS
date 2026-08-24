@@ -36,6 +36,8 @@ model User {
   activityLogs     StudentActivityLog[]
   gameLeaderboards PharmacyRushLeaderboard[]
   courseAssessmentResults CourseAssessmentResult[]
+  sentMessages     DirectMessage[] @relation("SentDirectMessages")
+  receivedMessages DirectMessage[] @relation("ReceivedDirectMessages")
 }
 
 model StudentDevice {
@@ -383,6 +385,26 @@ model PharmacyRushLeaderboard {
 
   @@index([studentId])
   @@index([score])
+}
+
+model DirectMessage {
+  id             String   @id @default(cuid())
+  senderId       String
+  sender         User     @relation("SentDirectMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId     String
+  receiver       User     @relation("ReceivedDirectMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  studentId      String   // The student ID whose conversation thread this message belongs to
+  content        String   @db.Text
+  attachmentUrl  String?  @db.Text
+  attachmentName String?
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
 }
 
 

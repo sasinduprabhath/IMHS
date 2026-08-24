@@ -30,7 +30,11 @@ const NAV_LINKS = [
     label: "My Courses",
     icon: GraduationCap,
     exact: false,
-    match: (p: string) => p.startsWith("/dashboard") && !p.startsWith("/dashboard/profile") && !p.startsWith("/dashboard/practice"),
+    match: (p: string) =>
+      p.startsWith("/dashboard") &&
+      !p.startsWith("/dashboard/profile") &&
+      !p.startsWith("/dashboard/practice") &&
+      !p.startsWith("/dashboard/messages"),
   },
   {
     href: "/dashboard/practice",
@@ -38,6 +42,13 @@ const NAV_LINKS = [
     icon: FlaskConical,
     exact: false,
     match: (p: string) => p.startsWith("/dashboard/practice"),
+  },
+  {
+    href: "/dashboard/messages",
+    label: "Admin Desk & Chat",
+    icon: MessageCircle,
+    exact: false,
+    match: (p: string) => p.startsWith("/dashboard/messages"),
   },
   {
     href: "/dashboard/profile",
@@ -53,6 +64,22 @@ export function StudentSidebar({ user }: { user: any }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch("/api/chat/unread-count");
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadChatCount(data.unreadCount || 0);
+        }
+      } catch (e) { }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
@@ -134,6 +161,7 @@ export function StudentSidebar({ user }: { user: any }) {
 
         {NAV_LINKS.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);
+          const hasBadge = href === "/dashboard/messages" && unreadChatCount > 0;
           return (
             <Link
               key={href}
@@ -150,15 +178,28 @@ export function StudentSidebar({ user }: { user: any }) {
                   : "text-white/55 hover:text-white hover:bg-white/8"
               )}
             >
-              <Icon
-                className={cn(
-                  "shrink-0 transition-all",
-                  collapsed && !isMobile ? "w-5 h-5" : "w-4 h-4",
-                  active ? "text-[#60A5FA]" : "text-white/55 group-hover:text-white"
+              <div className="relative shrink-0">
+                <Icon
+                  className={cn(
+                    "transition-all",
+                    collapsed && !isMobile ? "w-5 h-5" : "w-4 h-4",
+                    active ? "text-[#60A5FA]" : "text-white/55 group-hover:text-white"
+                  )}
+                />
+                {collapsed && !isMobile && hasBadge && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#F16726] ring-2 ring-[#0A1628] animate-pulse" />
                 )}
-              />
+              </div>
+
               {(!collapsed || isMobile) && (
-                <span className="text-sm font-sans font-medium leading-normal py-0.5">{label}</span>
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <span className="text-sm font-sans font-medium leading-normal py-0.5 truncate">{label}</span>
+                  {hasBadge && (
+                    <span className="ml-auto text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F16726] text-white shadow-xs shrink-0 animate-pulse">
+                      {unreadChatCount}
+                    </span>
+                  )}
+                </div>
               )}
               {/* Active indicator bar */}
               {active && collapsed && !isMobile && (

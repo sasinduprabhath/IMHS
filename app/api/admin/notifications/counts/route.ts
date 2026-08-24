@@ -27,15 +27,24 @@ export async function GET() {
       },
     });
 
+    // Unread Student Direct Messages count
+    const unreadChatCount = await prisma.directMessage.count({
+      where: {
+        isRead: false,
+        sender: { role: "STUDENT" },
+      },
+    });
+
     return NextResponse.json({
       unresolvedInquiriesCount,
       pendingBookingsCount,
       pendingAssignmentsCount,
+      unreadChatCount,
     });
   } catch (error: any) {
     console.error("Error fetching notification counts:", error);
     return NextResponse.json(
-      { unresolvedInquiriesCount: 0, pendingBookingsCount: 0, pendingAssignmentsCount: 0 },
+      { unresolvedInquiriesCount: 0, pendingBookingsCount: 0, pendingAssignmentsCount: 0, unreadChatCount: 0 },
       { status: 500 }
     );
   }

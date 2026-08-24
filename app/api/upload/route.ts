@@ -54,10 +54,10 @@ export async function POST(req: Request) {
 
     const userRole = (session.user as any)?.role;
 
-    // ── 1. ASSIGNMENT SUBMISSION UPLOADS (Student or Admin) ───────────────
-    if (folder === "submissions") {
+    // ── 1. ASSIGNMENT SUBMISSION & CHAT ATTACHMENTS (Student or Admin) ───
+    if (folder === "submissions" || folder === "chat") {
       if (file.size > MAX_DOC_SIZE) {
-        logger.security("FILE_UPLOAD_BLOCKED", `Submission file exceeded size limit: ${file.size} bytes`, { userId: session.user.id, ip: clientIp });
+        logger.security("FILE_UPLOAD_BLOCKED", `File exceeded size limit: ${file.size} bytes`, { userId: session.user.id, ip: clientIp });
         return NextResponse.json({ error: "File exceeds 50MB maximum size limit." }, { status: 400 });
       }
 

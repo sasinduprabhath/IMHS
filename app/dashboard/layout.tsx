@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { StudentSidebar } from "@/components/student/StudentSidebar";
 import { AISupportChat } from "@/components/student/AISupportChat";
+import { StudentChatWidget } from "@/components/student/StudentChatWidget";
 
 export default async function StudentLayout({
   children,
@@ -28,6 +29,9 @@ export default async function StudentLayout({
           {children}
         </div>
       </main>
+
+      {/* Student Direct Live Chat Desk Widget */}
+      <StudentChatWidget user={session.user} />
 
       {/* AI Support Chatbot - floats over entire dashboard */}
       <AISupportChat />

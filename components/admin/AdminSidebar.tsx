@@ -29,6 +29,7 @@ import {
 
 const NAV_LINKS = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/admin/chat", label: "Student Chat", icon: MessageSquare, exact: false },
   { href: "/admin/students", label: "Students", icon: Users, exact: false },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, exact: false },
   { href: "/admin/learning-hub", label: "Learning Hub CMS", icon: FlaskConical, exact: false },
@@ -48,10 +49,12 @@ export function AdminSidebar({ user }: { user: any }) {
     unresolvedInquiriesCount: number;
     pendingBookingsCount: number;
     pendingAssignmentsCount: number;
+    unreadChatCount: number;
   }>({
     unresolvedInquiriesCount: 0,
     pendingBookingsCount: 0,
     pendingAssignmentsCount: 0,
+    unreadChatCount: 0,
   });
 
   useEffect(() => {
@@ -144,7 +147,8 @@ export function AdminSidebar({ user }: { user: any }) {
           const active = isActive(href, exact);
 
           let badgeCount = 0;
-          if (href === "/admin/assignments") badgeCount = counts.pendingAssignmentsCount;
+          if (href === "/admin/chat") badgeCount = counts.unreadChatCount;
+          else if (href === "/admin/assignments") badgeCount = counts.pendingAssignmentsCount;
           else if (href === "/admin/inquiries") badgeCount = counts.unresolvedInquiriesCount;
           else if (href === "/admin/bookings") badgeCount = counts.pendingBookingsCount;
 

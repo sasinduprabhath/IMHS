@@ -15,6 +15,7 @@ import {
   PlusCircle,
   KeyRound,
   MessageCircle,
+  MessageSquare,
   ArrowLeft,
   CheckCircle2,
   Snowflake,
@@ -387,6 +388,12 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
 
           {/* Quick Action Buttons */}
           <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
+            <Link href={`/admin/chat?studentId=${student.id}`} className="w-full sm:w-auto">
+              <Button size="sm" className="w-full gap-1.5 font-semibold text-xs h-10 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-white shadow-xs">
+                <MessageSquare className="w-4 h-4" /> Direct Chat
+              </Button>
+            </Link>
+
             <Button
               size="sm"
               variant={isAccountFrozen ? "default" : "outline"}
@@ -411,7 +418,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
               className="w-full sm:w-auto"
             >
               <Button size="sm" className="w-full gap-1.5 font-semibold text-xs h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
-                <MessageCircle className="w-4 h-4 fill-current" /> WhatsApp Message
+                <MessageCircle className="w-4 h-4 fill-current" /> WhatsApp
               </Button>
             </a>
 
