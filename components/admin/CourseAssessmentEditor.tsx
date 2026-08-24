@@ -8,7 +8,6 @@ import {
   Layers, CheckCircle2, XCircle
 } from "lucide-react";
 import { saveCourseAssessmentQuestions, type CourseQuestionInput } from "@/actions/assessment-actions";
-import { MODULE_QUESTIONS } from "@/data/moduleQuestions";
 
 interface CourseAssessmentEditorProps {
   courseId: string;
@@ -90,15 +89,7 @@ export function CourseAssessmentEditor({
     });
   };
 
-  const populateSeedQuestions = () => {
-    const seeds: CourseQuestionInput[] = MODULE_QUESTIONS.slice(0, MAX_QUESTIONS).map((q) => ({
-      question: q.statement,
-      isTrue: q.answer,
-      explanation: q.explanation || "",
-    }));
-    setQuestions(seeds);
-    setCurrentPage(1);
-  };
+
 
   const clearAllQuestions = () => {
     if (confirm("Are you sure you want to clear all questions for this course?")) {
@@ -365,14 +356,7 @@ export function CourseAssessmentEditor({
               <FileUp className="w-4 h-4" /> Import CSV / Excel
             </button>
 
-            {questions.length === 0 && (
-              <button
-                onClick={populateSeedQuestions}
-                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
-              >
-                <Sparkles className="w-4 h-4" /> Auto-Load Seed Pool
-              </button>
-            )}
+
 
             <button
               onClick={addQuestion}
@@ -523,12 +507,7 @@ export function CourseAssessmentEditor({
               >
                 <FileUp className="w-4 h-4" /> Import CSV / Excel File
               </button>
-              <button
-                onClick={populateSeedQuestions}
-                className="px-5 py-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-white text-xs font-bold transition shadow-sm flex items-center gap-2"
-              >
-                <Sparkles className="w-4 h-4" /> Load Default Question Pool
-              </button>
+
               <button
                 onClick={addQuestion}
                 className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
