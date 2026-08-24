@@ -79,7 +79,6 @@ const nextConfig = {
   },
   async headers() {
     const isProd = process.env.NODE_ENV === "production";
-
     const cspDirectives = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://player.vimeo.com https://www.youtube.com https://s.ytimg.com https://www.google.com https://maps.googleapis.com https://*.google.com",
@@ -92,7 +91,7 @@ const nextConfig = {
       ...(isProd ? ["upgrade-insecure-requests"] : []),
     ];
 
-    const generalHeaders = [
+    const securityHeaders = [
       {
         key: "Content-Security-Policy",
         value: cspDirectives.join("; "),
@@ -130,7 +129,7 @@ const nextConfig = {
     return [
       {
         source: "/:path*",
-        headers: generalHeaders,
+        headers: securityHeaders,
       },
       {
         source: "/uploads/:path*",
