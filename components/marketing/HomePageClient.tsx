@@ -535,42 +535,46 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       </section>
 
       {/* ── 5. ASYMMETRIC BENTO GRID FEATURES SECTION ─────────────────────── */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <RevealOnScroll className="text-center mb-12 space-y-2">
-          <span className="font-mono text-xs text-[#F16726] uppercase tracking-wider font-semibold">
-            WHY CHOOSE IMHS
-          </span>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-ink">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
+        {/* Section Header */}
+        <RevealOnScroll className="text-center mb-12 sm:mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F16726]/10 border border-[#F16726]/20">
+            <span className="w-2 h-2 rounded-full bg-[#F16726] animate-pulse" />
+            <span className="font-mono text-[11px] font-bold text-[#F16726] uppercase tracking-wider">
+              Why Choose IMHS
+            </span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-ink tracking-tight">
             Built for Serious Healthcare Education
           </h2>
-          <p className="text-base text-ink-muted max-w-lg mx-auto">
-            Combining hospital-grade clinical precision with 24/7 student support and state-of-the-art resources.
+          <p className="text-base sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed">
+            Combining hospital-grade clinical precision with 24/7 dedicated coordinator support and high-yield learning resources.
           </p>
         </RevealOnScroll>
 
-        {/* 2x2 Asymmetric Bento Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Clean 4-Pillar Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
 
-          {/* Card 1 (Large - Clinical Precision & SLMC Alignment) */}
+          {/* Card 1: Clinical Precision & SLMC Alignment */}
           <motion.div
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.2 }}
-            className="lg:col-span-7 bg-surface border border-chart-grid hover:border-[#0E57A4]/50 rounded-3xl p-7 sm:p-9 shadow-paper flex flex-col justify-between relative overflow-hidden group"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white border border-slate-200/90 hover:border-[#0E57A4]/50 rounded-3xl p-7 sm:p-9 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#0E57A4]/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#0E57A4]/5 rounded-full blur-2xl pointer-events-none" />
 
             <div className="space-y-5 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="w-12 h-12 bg-[#0E57A4]/10 rounded-2xl border border-[#0E57A4]/20 flex items-center justify-center">
-                  <HeartPulse className="w-6 h-6 text-[#0E57A4]" />
+                <div className="w-12 h-12 bg-[#0E57A4]/10 rounded-2xl border border-[#0E57A4]/20 flex items-center justify-center text-[#0E57A4] shadow-xs group-hover:scale-105 transition-transform">
+                  <HeartPulse className="w-6 h-6" />
                 </div>
                 <span className="font-mono text-[10px] font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3 py-1 rounded-full uppercase tracking-wider">
-                  SLMC ALIGNED
+                  SLMC Aligned
                 </span>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl sm:text-2xl font-display font-bold text-ink">
+                <h3 className="text-xl sm:text-2xl font-display font-bold text-ink group-hover:text-[#0E57A4] transition-colors">
                   Clinical Precision Curriculum
                 </h3>
                 <p className="text-sm text-ink-muted leading-relaxed">
@@ -578,145 +582,172 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
                 </p>
               </div>
 
-              {/* Live ECG trace simulation */}
-              <div className="pt-3">
-                <div className="bg-[#0A121E] border border-slate-800 p-4 rounded-xl space-y-2">
+              {/* Live ECG Telemetry Simulation */}
+              <div className="pt-2">
+                <div className="bg-[#0A121E] border border-slate-800 p-3.5 sm:p-4 rounded-2xl space-y-2 shadow-inner">
                   <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5 font-bold">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                       LIVE ECG MONITOR: 72 BPM
                     </span>
-                    <span>NORMAL SINUS RHYTHM</span>
+                    <span className="text-slate-400">NORMAL SINUS RHYTHM</span>
                   </div>
                   <VitalLine variant="hero" animated={true} />
                 </div>
               </div>
             </div>
 
-            <div className="pt-6 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono text-sage relative z-10 mt-6">
-              <span>Updated for 2024 Exam Syllabus</span>
+            <div className="pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-500 relative z-10 mt-6">
+              <span className="font-semibold">Updated for 2024 Exam Syllabus</span>
               <CheckCircle2 className="w-4 h-4 text-[#0E57A4]" />
             </div>
           </motion.div>
 
-          {/* Card 2 (24/7 WhatsApp Support) */}
+          {/* Card 2: 24/7 WhatsApp Coordinator Desk */}
           <motion.div
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.2 }}
-            className="lg:col-span-5 bg-gradient-to-br from-white to-[#F8FAFC] border border-chart-grid hover:border-[#0E57A4]/50 rounded-3xl p-7 sm:p-8 shadow-paper flex flex-col justify-between relative overflow-hidden group"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white border border-slate-200/90 hover:border-emerald-500/50 rounded-3xl p-7 sm:p-9 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group"
           >
-            <div className="space-y-4">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="space-y-5 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-emerald-600" />
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center text-emerald-600 shadow-xs group-hover:scale-105 transition-transform">
+                  <Users className="w-6 h-6" />
                 </div>
-                <span className="font-mono text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Online - Avg 2 min response
+                  Online · Avg 2 min response
                 </span>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl font-display font-bold text-ink">
+                <h3 className="text-xl sm:text-2xl font-display font-bold text-ink group-hover:text-emerald-700 transition-colors">
                   WhatsApp-First Student Support
                 </h3>
                 <p className="text-sm text-ink-muted leading-relaxed">
-                  24/7 coordinator access, instant enrollment verification, and direct faculty Q&amp;A desk directly via WhatsApp.
+                  24/7 dedicated desk coordinators for instant enrollment verification, timetable updates, and direct faculty Q&amp;A escalation directly via WhatsApp.
                 </p>
               </div>
 
-              {/* Chat preview bubble */}
-              <div className="bg-linen/80 border border-chart-grid p-3.5 rounded-xl space-y-1.5 text-xs">
-                <div className="flex items-center justify-between text-[10px] font-mono text-sage">
-                  <span>IMHS Desk Coordinator</span>
-                  <span>Just now</span>
+              {/* Chat Preview Bubble */}
+              <div className="pt-2">
+                <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl space-y-1.5 text-xs shadow-xs">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                    <span className="font-bold text-slate-700 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      IMHS Desk Coordinator
+                    </span>
+                    <span>Just now</span>
+                  </div>
+                  <p className="text-slate-700 font-sans font-medium text-xs leading-relaxed">
+                    &ldquo;Hello! Your course enrollment is confirmed. Portal credentials have been sent to your WhatsApp.&rdquo;
+                  </p>
                 </div>
-                <p className="text-ink font-sans font-medium text-xs">
-                  &ldquo;Hello! Your course enrollment is confirmed. Portal credentials sent to your WhatsApp!&rdquo;
-                </p>
               </div>
             </div>
 
-            <div className="pt-5 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono text-emerald-600 font-semibold mt-4">
+            <div className="pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-emerald-700 font-semibold relative z-10 mt-6">
               <span>Instant Desk Assistance</span>
-              <MessageSquare className="w-4 h-4" />
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
             </div>
           </motion.div>
 
-          {/* Card 3 (Vimeo HD Modules) */}
+          {/* Card 3: On-Demand HD Video Modules */}
           <motion.div
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.2 }}
-            className="lg:col-span-5 bg-surface border border-chart-grid hover:border-[#0E57A4]/50 rounded-3xl p-7 sm:p-8 shadow-paper flex flex-col justify-between relative overflow-hidden group"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white border border-slate-200/90 hover:border-[#0E57A4]/50 rounded-3xl p-7 sm:p-9 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group"
           >
-            <div className="space-y-4">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#0E57A4]/5 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="space-y-5 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="w-12 h-12 bg-[#0E57A4]/10 rounded-2xl border border-[#0E57A4]/20 flex items-center justify-center">
-                  <Play className="w-6 h-6 text-[#0E57A4] fill-[#0E57A4]" />
+                <div className="w-12 h-12 bg-[#0E57A4]/10 rounded-2xl border border-[#0E57A4]/20 flex items-center justify-center text-[#0E57A4] shadow-xs group-hover:scale-105 transition-transform">
+                  <Play className="w-6 h-6 fill-[#0E57A4]" />
                 </div>
-                <span className="font-mono text-[10px] font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3 py-1 rounded-full flex items-center gap-1">
-                  <Lock className="w-3 h-3" /> Domain Locked HD
+                <span className="font-mono text-[10px] font-bold text-[#0E57A4] bg-[#0E57A4]/10 border border-[#0E57A4]/20 px-3 py-1 rounded-full flex items-center gap-1 uppercase tracking-wider">
+                  <Lock className="w-3 h-3" /> Domain-Locked HD
                 </span>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl font-display font-bold text-ink">
+                <h3 className="text-xl sm:text-2xl font-display font-bold text-ink group-hover:text-[#0E57A4] transition-colors">
                   On-Demand Video Modules
                 </h3>
                 <p className="text-sm text-ink-muted leading-relaxed">
-                  Vimeo-hosted HD lectures you can pause, rewind, and re-watch at clinical depth without limits.
+                  Vimeo-hosted crystal clear HD lectures you can pause, rewind, adjust playback speed, and re-watch at clinical depth without restrictions.
                 </p>
+              </div>
+
+              {/* Stream Quality Feature Chips */}
+              <div className="pt-2 grid grid-cols-3 gap-2">
+                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-center">
+                  <span className="block text-[11px] font-bold font-mono text-[#0E57A4]">1080p</span>
+                  <span className="block text-[9px] text-slate-400 font-mono">Full HD CDN</span>
+                </div>
+                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-center">
+                  <span className="block text-[11px] font-bold font-mono text-[#0E57A4]">0.5x - 2x</span>
+                  <span className="block text-[9px] text-slate-400 font-mono">Speed Control</span>
+                </div>
+                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-center">
+                  <span className="block text-[11px] font-bold font-mono text-[#0E57A4]">Auto-Resume</span>
+                  <span className="block text-[9px] text-slate-400 font-mono">Across Devices</span>
+                </div>
               </div>
             </div>
 
-            <div className="pt-5 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono text-sage mt-4">
-              <span>Unlimited Portal Re-runs</span>
+            <div className="pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-500 relative z-10 mt-6">
+              <span className="font-semibold">Unlimited Lifetime Portal Re-runs</span>
               <CheckCircle2 className="w-4 h-4 text-[#0E57A4]" />
             </div>
           </motion.div>
 
-          {/* Card 4 (Downloadable Resources) */}
+          {/* Card 4: Downloadable Ward Resources */}
           <motion.div
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.2 }}
-            className="lg:col-span-7 bg-surface border border-chart-grid hover:border-[#0E57A4]/50 rounded-3xl p-7 sm:p-8 shadow-paper flex flex-col justify-between relative overflow-hidden group"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white border border-slate-200/90 hover:border-[#F16726]/50 rounded-3xl p-7 sm:p-9 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group"
           >
-            <div className="space-y-4">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#F16726]/5 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="space-y-5 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="w-12 h-12 bg-[#F16726]/10 rounded-2xl border border-[#F16726]/20 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-[#F16726]" />
+                <div className="w-12 h-12 bg-[#F16726]/10 rounded-2xl border border-[#F16726]/20 flex items-center justify-center text-[#F16726] shadow-xs group-hover:scale-105 transition-transform">
+                  <FileText className="w-6 h-6" />
                 </div>
-                <span className="font-mono text-[10px] font-bold text-[#F16726] bg-[#F16726]/10 border border-[#F16726]/20 px-3 py-1 rounded-full flex items-center gap-1">
+                <span className="font-mono text-[10px] font-bold text-[#F16726] bg-[#F16726]/10 border border-[#F16726]/20 px-3 py-1 rounded-full flex items-center gap-1 uppercase tracking-wider">
                   <Download className="w-3 h-3" /> PDF Case Bank
                 </span>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl font-display font-bold text-ink">
-                  Downloadable Case Resources
+                <h3 className="text-xl sm:text-2xl font-display font-bold text-ink group-hover:text-[#F16726] transition-colors">
+                  Downloadable Clinical Resources
                 </h3>
                 <p className="text-sm text-ink-muted leading-relaxed">
-                  ECG trace libraries, pathology slide banks, and downloadable PDF checklists ready for ward reference and examination preparation.
+                  ECG trace libraries, pathology slide banks, and downloadable PDF checklists ready for ward reference, clinical rounds, and examination prep.
                 </p>
               </div>
 
-              {/* Resource file item badges */}
+              {/* Resource File Badges */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
                 {[
-                  "ECG Masterclass Trace PDF",
+                  "ECG Masterclass Traces",
                   "Clinical Pathology Slides",
-                  "Drug Dosage Calculation Sheets",
+                  "Drug Dosage Formula Sheets",
                   "SLMC Past SEQ Checklist",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-2 p-2.5 bg-linen/60 border border-chart-grid rounded-xl text-xs font-mono text-ink">
-                    <FileCheck className="w-4 h-4 text-[#F16726] shrink-0" />
-                    <span className="truncate">{item}</span>
+                  <div key={item} className="flex items-center gap-2 p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs font-mono text-slate-700">
+                    <FileCheck className="w-3.5 h-3.5 text-[#F16726] shrink-0" />
+                    <span className="truncate text-[11px] font-medium">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-5 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono text-sage mt-4">
+            <div className="pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-[#F16726] font-semibold relative z-10 mt-6">
               <span>Full Ward Reference Library</span>
               <ShieldCheck className="w-4 h-4 text-[#F16726]" />
             </div>
