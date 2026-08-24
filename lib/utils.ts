@@ -14,18 +14,32 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
- * Convert Google Drive share URL into direct image URL
- * e.g. https://drive.google.com/file/d/1_E.../view?usp=sharing -> https://lh3.googleusercontent.com/d/1_E...
+ * Convert Google Drive share URL into direct high-speed image URL
+ * e.g. https://drive.google.com/file/d/1vVul.../view?usp=drive_link -> https://lh3.googleusercontent.com/d/1vVul...
  */
 export function formatGoogleDriveImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.includes("drive.google.com/file/d/")) {
-    const match = url.match(/\/file\/d\/([^\/]+)/);
-    if (match && match[1]) {
-      return `https://lh3.googleusercontent.com/d/${match[1]}`;
-    }
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  // 1. Match /file/d/<id> or /d/<id>
+  const fileDMatch = trimmed.match(/\/(?:file\/)?d\/([a-zA-Z0-9_-]+)/);
+  if (fileDMatch && fileDMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
   }
-  return url;
+
+  // 2. Match id=<id> or open?id=<id> or uc?id=<id>
+  const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idParamMatch && idParamMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idParamMatch[1]}`;
+  }
+
+  // 3. Match Google Drive raw alphanumeric ID (25-50 characters)
+  if (!trimmed.startsWith("http") && !trimmed.startsWith("/") && /^[a-zA-Z0-9_-]{25,50}$/.test(trimmed)) {
+    return `https://lh3.googleusercontent.com/d/${trimmed}`;
+  }
+
+  return trimmed;
 }
 
 /**

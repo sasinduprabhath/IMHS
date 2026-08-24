@@ -873,7 +873,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                 {!imgError ? (
                   <>
                     <Image
-                      src={coverImage}
+                      src={formatGoogleDriveImageUrl(coverImage) || coverImage}
                       alt="Cover preview"
                       fill
                       className="object-cover"
