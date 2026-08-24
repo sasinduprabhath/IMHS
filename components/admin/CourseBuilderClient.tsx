@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { FormattedText } from "@/components/ui/formatted-text";
-import { cn } from "@/lib/utils";
+import { cn, formatGoogleDriveImageUrl } from "@/lib/utils";
 import {
   ArrowLeft,
   Save,
