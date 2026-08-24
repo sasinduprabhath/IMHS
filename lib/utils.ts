@@ -15,27 +15,28 @@ export function formatCurrency(amount: number): string {
 
 /**
  * Convert Google Drive share URL into direct high-speed image URL
- * e.g. https://drive.google.com/file/d/1vVu.../view?usp=sharing -> /api/image-proxy?url=...
+ * e.g. https://drive.google.com/file/d/1vVul.../view?usp=drive_link -> https://lh3.googleusercontent.com/d/1vVul...
  */
 export function formatGoogleDriveImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   const trimmed = url.trim();
   if (!trimmed) return null;
 
-  // If already proxied or a relative local path, return as is
-  if (trimmed.startsWith("/courses/") || trimmed.startsWith("/uploads/") || trimmed.startsWith("/api/image-proxy")) {
-    return trimmed;
+  // 1. Match /file/d/<id> or /d/<id>
+  const fileDMatch = trimmed.match(/\/(?:file\/)?d\/([a-zA-Z0-9_-]+)/);
+  if (fileDMatch && fileDMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
   }
 
-  // If it's a Google Drive link or ID, route through the image proxy
-  const isDriveLink =
-    trimmed.includes("drive.google.com") ||
-    trimmed.includes("docs.google.com") ||
-    trimmed.includes("googleusercontent.com") ||
-    (!trimmed.startsWith("http") && !trimmed.startsWith("/") && /^[a-zA-Z0-9_-]{25,50}$/.test(trimmed));
+  // 2. Match id=<id> or open?id=<id> or uc?id=<id>
+  const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idParamMatch && idParamMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idParamMatch[1]}`;
+  }
 
-  if (isDriveLink) {
-    return `/api/image-proxy?url=${encodeURIComponent(trimmed)}`;
+  // 3. Match Google Drive raw alphanumeric ID (25-50 characters)
+  if (!trimmed.startsWith("http") && !trimmed.startsWith("/") && /^[a-zA-Z0-9_-]{25,50}$/.test(trimmed)) {
+    return `https://lh3.googleusercontent.com/d/${trimmed}`;
   }
 
   return trimmed;

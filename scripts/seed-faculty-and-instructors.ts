@@ -11,25 +11,15 @@ async function seedFacultyAndInstructors() {
     const f1 = await prisma.facultyMember.create({
       data: {
         name: "Dr. Isuru Wijesinghe",
-        title: "Senior Clinical Pharmacology Lecturer & SLMC Advisor",
-        bio: "Specialist in hospital pharmacy practice, clinical therapeutics, and SLMC licensing examination prep.",
+        title: "Senior Clinical Pharmacology Lecturer & Executive Director",
+        bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
         photoUrl: "/lecturer.jpeg",
         order: 1,
       }
     });
 
-    const f2 = await prisma.facultyMember.create({
-      data: {
-        name: "Pharm. Anura Dissanayake",
-        title: "Chief Community Pharmacist & Dispensing Specialist",
-        bio: "Expert in retail pharmacy management, prescription validation, and controlled substance protocols.",
-        photoUrl: "/lecturer.jpeg",
-        order: 2,
-      }
-    });
-
-    facultyList = [f1, f2];
-    console.log("Created 2 default Faculty Members.");
+    facultyList = [f1];
+    console.log("Created Dr. Isuru Wijesinghe as Faculty Member.");
   }
 
   // 2. Assign faculty to active courses

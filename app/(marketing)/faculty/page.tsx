@@ -69,7 +69,7 @@ export default async function FacultyPage() {
           <div className="flex flex-wrap gap-2.5 sm:gap-3 justify-center pt-1 sm:pt-2">
             <div className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-3.5 sm:px-4 py-1.5 text-ink text-xs font-mono shadow-paper">
               <Users className="w-3.5 h-3.5 text-clinical-teal" />
-              {faculty.length} Faculty Members
+              {faculty.length} {faculty.length === 1 ? "Senior Lecturer" : "Faculty Members"}
             </div>
             <div className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-3.5 sm:px-4 py-1.5 text-ink text-xs font-mono shadow-paper">
               <Stethoscope className="w-3.5 h-3.5 text-clinical-teal" />

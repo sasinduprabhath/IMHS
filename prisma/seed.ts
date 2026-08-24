@@ -61,22 +61,8 @@ async function main() {
         name: "Dr. Isuru Wijesinghe",
         title: "Senior Lecturer & Executive Director",
         bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
-        photoUrl: "/isuru.png",
+        photoUrl: "/lecturer.jpeg",
         order: 1,
-      },
-      {
-        name: "Prof. Chaminda Silva",
-        title: "Consultant Clinical Pathologist",
-        bio: "MBBS, MD (Pathology). Senior consultant at Teaching Hospital Colombo with expertise in diagnostic hematology and clinical biochemistry.",
-        photoUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&auto=format&fit=crop&q=80",
-        order: 2,
-      },
-      {
-        name: "Dr. Anusha De Silva",
-        title: "Senior Pharmaceutical Manufacturing Director",
-        bio: "B.Pharm, M.Phil, Specialist in Good Manufacturing Practice (GMP), Cleanroom Validation, and Industrial Quality Assurance.",
-        photoUrl: "https://images.unsplash.com/photo-1594824813566-88855ce78907?w=400&auto=format&fit=crop&q=80",
-        order: 3,
       },
     ],
   });

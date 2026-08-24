@@ -26,7 +26,7 @@ export function FacultyClientModal({ faculty }: { faculty: FacultyMember[] }) {
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className={`grid grid-cols-1 ${faculty.length === 1 ? "max-w-md mx-auto" : "md:grid-cols-3"} gap-8`}>
         {faculty.map((member) => {
           const profileHref = getProfileLink(member);
           const photoSrc = member.photoUrl || "/faculty/avatar-placeholder.svg";
