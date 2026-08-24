@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Download, Search, Trophy, Clock, User, Filter, CheckCircle2, Award, Zap, FileSpreadsheet } from "lucide-react";
 
 interface LogEntry {
@@ -144,11 +145,26 @@ export function AnalyticsTable({ logs, leaderboard = [] }: AnalyticsTableProps) 
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="font-mono text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0E57A4] border border-blue-200">
-                        {log.activityType}
+                      <span
+                        className={cn(
+                          "font-mono text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border",
+                          log.activityType === "COURSE_ASSESSMENT"
+                            ? "bg-purple-50 text-purple-700 border-purple-200"
+                            : log.activityType === "PHARMACY_RUSH"
+                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                              : log.activityType.includes("PRESCRIPTION")
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : "bg-blue-50 text-[#0E57A4] border-blue-200"
+                        )}
+                      >
+                        {log.activityType.replace(/_/g, " ")}
                       </span>
                     </td>
-                    <td className="p-4 font-mono text-xs text-slate-600">{log.referenceId || "-"}</td>
+                    <td className="p-4">
+                      <span className="text-xs font-semibold text-slate-800 break-words line-clamp-2 max-w-xs">
+                        {log.referenceId || "General Practice"}
+                      </span>
+                    </td>
                     <td className="p-4 font-mono font-bold text-slate-900">
                       {log.score} / {log.maxScore}
                     </td>

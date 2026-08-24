@@ -190,7 +190,7 @@ export async function getStudentAnalyticsLogs() {
     }
 
     if (!prisma.studentActivityLog) return [];
-    return (await prisma.studentActivityLog.findMany({
+    const logs = (await prisma.studentActivityLog.findMany({
       include: {
         student: {
           select: { name: true, email: true, studentId: true },
@@ -199,6 +199,32 @@ export async function getStudentAnalyticsLogs() {
       orderBy: { completedAt: "desc" },
       take: 200,
     })) ?? [];
+
+    // Batch resolve course titles for any courseId referenceIds
+    const courseIds = Array.from(
+      new Set(
+        logs
+          .filter((l) => l.activityType === "COURSE_ASSESSMENT" && l.referenceId && !l.referenceId.includes(" "))
+          .map((l) => l.referenceId as string)
+      )
+    );
+
+    let courseMap = new Map<string, string>();
+    if (courseIds.length > 0) {
+      const courses = await prisma.course.findMany({
+        where: { id: { in: courseIds } },
+        select: { id: true, title: true },
+      });
+      courses.forEach((c) => courseMap.set(c.id, c.title));
+    }
+
+    return logs.map((log) => ({
+      ...log,
+      referenceId:
+        log.activityType === "COURSE_ASSESSMENT" && log.referenceId && courseMap.has(log.referenceId)
+          ? courseMap.get(log.referenceId)!
+          : log.referenceId,
+    }));
   } catch (error) {
     console.error("Error fetching student analytics logs:", error);
     return [];

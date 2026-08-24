@@ -222,11 +222,16 @@ export async function submitCourseAssessmentResult(
     });
 
     // Also log activity in StudentActivityLog
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { title: true },
+    });
+
     await prisma.studentActivityLog.create({
       data: {
         studentId: userId,
         activityType: "COURSE_ASSESSMENT",
-        referenceId: courseId,
+        referenceId: course?.title || courseId,
         score: Math.round(percentage),
         maxScore: 100,
       },
