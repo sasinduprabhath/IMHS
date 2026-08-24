@@ -241,19 +241,19 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                   {/* Actions */}
                   <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 flex-wrap">
                     <Link href={`/admin/courses/${course.id}/edit`} className="flex-1 sm:flex-initial">
-                      <Button size="sm" className="w-full h-8 text-[11px] gap-1 font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0 shadow-xs">
+                      <Button size="sm" className="w-full h-8 text-[11px] gap-1 font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0 shadow-xs active:scale-[0.98] transition-all">
                         <Edit3 className="w-3 h-3" /> Syllabus Builder
                       </Button>
                     </Link>
 
                     <Link href={`/admin/courses/${course.id}/assessments`}>
-                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 text-[#0E57A4] border-blue-200 hover:bg-blue-50 font-semibold shadow-xs">
+                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 bg-blue-50 text-[#0E57A4] border-blue-200 hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] font-semibold shadow-xs active:scale-[0.98] transition-all">
                         <ClipboardList className="w-3 h-3" /> Exam Qs
                       </Button>
                     </Link>
 
                     <Link href={`/courses/${course.slug}`} target="_blank">
-                      <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 text-slate-600 shadow-xs">
+                      <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300 shadow-xs active:scale-[0.98] transition-all">
                         <Eye className="w-3 h-3" /> Preview
                       </Button>
                     </Link>
@@ -346,19 +346,19 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                       <td className="p-4 pr-6 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link href={`/admin/courses/${course.id}/edit`}>
-                            <Button size="sm" className="h-8 px-3 text-[11px] gap-1 font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0 shadow-xs">
+                            <Button size="sm" className="h-8 px-3 text-[11px] gap-1 font-semibold bg-[#0E57A4] hover:bg-[#0A4482] text-white border-0 shadow-xs active:scale-[0.98] transition-all">
                               <Edit3 className="w-3 h-3" /> Syllabus
                             </Button>
                           </Link>
 
                           <Link href={`/admin/courses/${course.id}/assessments`}>
-                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 text-[#0E57A4] border-blue-200 hover:bg-blue-50 font-semibold shadow-xs">
+                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 bg-blue-50 text-[#0E57A4] border-blue-200 hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] font-semibold shadow-xs active:scale-[0.98] transition-all">
                               <ClipboardList className="w-3 h-3" /> Exam Qs
                             </Button>
                           </Link>
 
                           <Link href={`/courses/${course.slug}`} target="_blank">
-                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 text-slate-600 shadow-xs">
+                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300 shadow-xs active:scale-[0.98] transition-all">
                               <Eye className="w-3 h-3" /> Preview
                             </Button>
                           </Link>

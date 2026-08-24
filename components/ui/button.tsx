@@ -10,7 +10,7 @@ const buttonVariants = cva(
         default:
           "bg-clinical-teal text-white hover:bg-clinical-teal-hover shadow-paper transition-all duration-200",
         outline:
-          "border border-clinical-teal text-clinical-teal bg-transparent hover:bg-clinical-teal hover:text-white transition-all duration-200",
+          "border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 shadow-2xs transition-all duration-150",
         secondary:
           "bg-sage-light text-ink hover:bg-sage transition-all duration-200",
         danger:
