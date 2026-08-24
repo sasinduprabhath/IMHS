@@ -510,7 +510,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               <div className="relative group shrink-0 w-24 h-16 sm:w-28 sm:h-18 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-xs">
                 {coverImage && !imgError ? (
                   <Image
-                    src={coverImage}
+                    src={formatGoogleDriveImageUrl(coverImage) || coverImage}
                     alt={course.title}
                     fill
                     className="object-cover transition-transform duration-200 group-hover:scale-105"
@@ -934,7 +934,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               <div className="relative w-28 h-20 sm:w-36 sm:h-22 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs group">
                 {coverImage && !imgError ? (
                   <Image
-                    src={coverImage}
+                    src={formatGoogleDriveImageUrl(coverImage) || coverImage}
                     alt="Course cover"
                     fill
                     className="object-cover transition-transform duration-200 group-hover:scale-105"

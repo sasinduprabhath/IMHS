@@ -795,7 +795,7 @@ export default function NewCoursePage() {
           category: form.category,
           level: form.level,
           published: form.published,
-          coverImage: form.coverImage || null,
+          coverImage: form.coverImage ? (formatGoogleDriveImageUrl(form.coverImage) || form.coverImage) : null,
           chapters: form.chapters.map((ch) => ({
             title: ch.title,
             lessons: ch.lessons.map((l) => ({
