@@ -16,25 +16,40 @@ import {
   RxCredentialBadge,
   MedicalScannerBeam,
 } from "@/components/marketing/PharmacyAnimations";
+import { cn } from "@/lib/utils";
 import {
   X,
   Maximize2,
   Calendar,
   Video,
   Play,
+  Image as ImageIcon,
 } from "lucide-react";
 
 export interface GalleryItem {
   id: string;
   type: "image" | "video";
   title: string;
+  category?: string;
   src: string;
+  thumbnailUrl?: string | null;
   description: string;
+  tag?: string | null;
   date: string;
 }
 
 export function GalleryClient({ items }: { items: GalleryItem[] }) {
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
+  const [filter, setFilter] = useState<string>("ALL");
+
+  const categories = Array.from(new Set(items.map((i) => i.category).filter(Boolean))) as string[];
+
+  const filteredItems = items.filter((item) => {
+    if (filter === "ALL") return true;
+    if (filter === "PHOTO") return item.type === "image";
+    if (filter === "VIDEO") return item.type === "video";
+    return item.category === filter;
+  });
 
   return (
     <div className="overflow-x-hidden bg-surface">
@@ -49,15 +64,15 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
         <MedicalCross size={22} color="#F16726" className="absolute top-20 left-1/4 opacity-30" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-5">
-          <RxCredentialBadge label="INSTITUTIONAL VIDEO GALLERY" />
+          <RxCredentialBadge label="CAMPUS & CONVOCATION GALLERY" />
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-ink leading-tight">
-            IMHS Event &amp;{" "}
-            <span className="text-clinical-teal">Workshop Video Gallery</span>
+            IMHS Event, Lab &amp;{" "}
+            <span className="text-clinical-teal">Campus Gallery</span>
           </h1>
 
           <p className="text-base sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            Watch official video recordings from IMHS convocations, laboratory practicals, clinical seminars, and campus workshops in Sri Lanka.
+            Explore official video recordings, annual convocations, pharmaceutical laboratory practicals, and clinical seminars in Sri Lanka.
           </p>
 
           <div className="max-w-md mx-auto pt-2">
@@ -66,17 +81,75 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
         </div>
       </section>
 
-      {/* ── GALLERY VIDEO GRID SECTION ── */}
+      {/* ── GALLERY MEDIA GRID SECTION ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10 relative">
         <PillCapsuleOrbs count={6} className="opacity-40" />
 
-        {/* Video Grid */}
+        {/* Category & Type Filter Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+          <button
+            type="button"
+            onClick={() => setFilter("ALL")}
+            className={cn(
+              "px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer",
+              filter === "ALL"
+                ? "bg-clinical-teal text-white shadow-paper"
+                : "bg-surface border border-chart-grid text-ink hover:border-clinical-teal"
+            )}
+          >
+            All Media ({items.length})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilter("PHOTO")}
+            className={cn(
+              "px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer",
+              filter === "PHOTO"
+                ? "bg-clinical-teal text-white shadow-paper"
+                : "bg-surface border border-chart-grid text-ink hover:border-clinical-teal"
+            )}
+          >
+            📷 Photos ({items.filter((i) => i.type === "image").length})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilter("VIDEO")}
+            className={cn(
+              "px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer",
+              filter === "VIDEO"
+                ? "bg-clinical-teal text-white shadow-paper"
+                : "bg-surface border border-chart-grid text-ink hover:border-clinical-teal"
+            )}
+          >
+            🎬 Videos ({items.filter((i) => i.type === "video").length})
+          </button>
+
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setFilter(cat)}
+              className={cn(
+                "px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer",
+                filter === cat
+                  ? "bg-clinical-teal text-white shadow-paper"
+                  : "bg-surface border border-chart-grid text-ink hover:border-clinical-teal"
+              )}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Media Grid */}
         <motion.div
           layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start"
         >
           <AnimatePresence>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <motion.div
                 key={item.id}
                 layout
@@ -86,31 +159,55 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                 transition={{ duration: 0.3 }}
                 className="group bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper hover:border-clinical-teal hover:shadow-paper-stack transition-all duration-300 flex flex-col justify-between"
               >
-                {/* Auto Playing Reel Video Container seamlessly filling card without black strips */}
+                {/* Media Container */}
                 <div
                   onClick={() => setActiveItem(item)}
-                  className="relative w-full h-[460px] sm:h-[480px] bg-ink cursor-pointer overflow-hidden group"
+                  className="relative w-full h-[360px] sm:h-[420px] bg-ink cursor-pointer overflow-hidden group"
                 >
                   <MedicalScannerBeam />
-                  <video
-                    src={item.src}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-
-                  {/* Play Overlay */}
-                  <div className="absolute inset-0 bg-ink/20 group-hover:bg-ink/40 transition-colors flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-chart-red/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      <Play className="w-5 h-5 fill-white ml-0.5" />
-                    </div>
-                  </div>
+                  {item.type === "image" ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.src}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <>
+                      <video
+                        src={item.src}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {/* Play Overlay */}
+                      <div className="absolute inset-0 bg-ink/20 group-hover:bg-ink/40 transition-colors flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-chart-red/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          <Play className="w-5 h-5 fill-white ml-0.5" />
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-white bg-chart-red/90 px-2.5 py-1 rounded-full shadow-sm z-10">
-                    <Video className="w-3 h-3" /> OFFICIAL VIDEO
+                    {item.type === "video" ? (
+                      <>
+                        <Video className="w-3 h-3" /> OFFICIAL VIDEO
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-3 h-3" /> PHOTO
+                      </>
+                    )}
                   </span>
+
+                  {item.tag && (
+                    <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 text-[10px] font-mono font-bold text-white bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-full shadow-sm z-10">
+                      {item.tag}
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-5 space-y-2.5">
@@ -120,9 +217,9 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                     </span>
                     <button
                       onClick={() => setActiveItem(item)}
-                      className="text-xs font-mono font-bold text-clinical-teal hover:underline flex items-center gap-1"
+                      className="text-xs font-mono font-bold text-clinical-teal hover:underline flex items-center gap-1 cursor-pointer"
                     >
-                      <Maximize2 className="w-3.5 h-3.5" /> Fullscreen
+                      <Maximize2 className="w-3.5 h-3.5" /> {item.type === "video" ? "Watch Video" : "Enlarge Photo"}
                     </button>
                   </div>
 
@@ -130,9 +227,11 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                     {item.title}
                   </h3>
 
-                  <p className="text-xs text-ink-muted leading-relaxed">
-                    {item.description}
-                  </p>
+                  {item.description && (
+                    <p className="text-xs text-ink-muted leading-relaxed">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -140,7 +239,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
         </motion.div>
       </section>
 
-      {/* ── LIGHTBOX MODAL (ENLARGED VIDEO PLAYER WITH SOUND) ── */}
+      {/* ── LIGHTBOX MODAL (ENLARGED PHOTO / VIDEO PLAYER) ── */}
       <AnimatePresence>
         {activeItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -152,29 +251,38 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
             >
               <button
                 onClick={() => setActiveItem(null)}
-                className="absolute top-4 right-4 p-2 text-white bg-ink/70 rounded-full hover:bg-chart-red transition-colors z-30 shadow-md"
-                aria-label="Close video player"
+                className="absolute top-4 right-4 p-2 text-white bg-ink/70 rounded-full hover:bg-chart-red transition-colors z-30 shadow-md cursor-pointer"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="relative w-full h-[70vh] bg-ink flex items-center justify-center overflow-hidden">
-                {/* Ambient Blurred Backdrop Video */}
-                <video
-                  src={activeItem.src}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110 pointer-events-none"
-                />
-                {/* Foreground Video */}
-                <video
-                  src={activeItem.src}
-                  controls
-                  autoPlay
-                  className="relative z-10 max-w-full max-h-[70vh] h-full object-contain shadow-2xl"
-                />
+              <div className="relative w-full h-[65vh] bg-ink flex items-center justify-center overflow-hidden">
+                {activeItem.type === "image" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={activeItem.src}
+                    alt={activeItem.title}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                ) : (
+                  <>
+                    <video
+                      src={activeItem.src}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110 pointer-events-none"
+                    />
+                    <video
+                      src={activeItem.src}
+                      controls
+                      autoPlay
+                      className="relative z-10 max-w-full max-h-[65vh] h-full object-contain shadow-2xl"
+                    />
+                  </>
+                )}
               </div>
 
               <div className="p-6 space-y-3 bg-surface">
@@ -183,7 +291,8 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                     <Calendar className="w-3.5 h-3.5" /> IMHS Archive · {activeItem.date}
                   </span>
                   <span className="text-xs font-mono text-chart-red font-bold flex items-center gap-1">
-                    <Video className="w-3.5 h-3.5" /> Event Recording
+                    {activeItem.type === "video" ? <Video className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                    {activeItem.type === "video" ? "Event Recording" : "Campus Photo"}
                   </span>
                 </div>
 
@@ -191,9 +300,11 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                   {activeItem.title}
                 </h3>
 
-                <p className="text-sm text-ink-muted leading-relaxed">
-                  {activeItem.description}
-                </p>
+                {activeItem.description && (
+                  <p className="text-sm text-ink-muted leading-relaxed">
+                    {activeItem.description}
+                  </p>
+                )}
 
                 <div className="pt-2 flex justify-end">
                   <Button
@@ -202,7 +313,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                     onClick={() => setActiveItem(null)}
                     className="rounded-full text-xs font-mono"
                   >
-                    Close Player
+                    Close
                   </Button>
                 </div>
               </div>

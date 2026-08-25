@@ -83,6 +83,8 @@ interface HomePageClientProps {
   courses: Course[];
   faculty: FacultyMember[];
   testimonials: Testimonial[];
+  achievements?: any[];
+  galleryItems?: any[];
 }
 
 // ─── Static Data ──────────────────────────────────────────────────────────────
@@ -201,7 +203,7 @@ interface ContactForm {
   message: string;
 }
 
-export function HomePageClient({ courses, faculty, testimonials }: HomePageClientProps) {
+export function HomePageClient({ courses, faculty, testimonials, achievements, galleryItems }: HomePageClientProps) {
   const galleryRef = useRef<HTMLDivElement>(null);
   const coursesCatalogRef = useRef<HTMLDivElement>(null);
 
@@ -832,7 +834,7 @@ export function HomePageClient({ courses, faculty, testimonials }: HomePageClien
       <EnrollmentProcessSection />
 
       {/* ── 8. OUR ACHIEVEMENTS & HIGHLIGHTS ─────────────────────────────────────── */}
-      <AchievementsSection />
+      <AchievementsSection videos={achievements} />
 
       {/* ── 9. STUDENT VOICES & TESTIMONIALS ───────────────────────────────── */}
       {testimonials.length > 0 && (

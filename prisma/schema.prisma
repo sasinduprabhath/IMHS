@@ -407,4 +407,42 @@ model DirectMessage {
   @@index([createdAt])
 }
 
+model AchievementHighlight {
+  id           String   @id @default(cuid())
+  youtubeId    String   // YouTube Video ID (e.g., "TM1nTXW2Ogs")
+  title        String
+  category     String   @default("Convocation")
+  duration     String?  // e.g. "12m 08s"
+  views        String?  // e.g. "1.9K+ views"
+  thumbnailUrl String?  @db.Text
+  description  String?  @db.Text
+  order        Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([order])
+  @@index([isPublished])
+}
+
+model GalleryItem {
+  id           String   @id @default(cuid())
+  type         String   @default("PHOTO") // "PHOTO" | "VIDEO"
+  title        String
+  category     String   @default("Campus Life") // "Convocation" | "Practicals" | "Workshops" | "Labs"
+  mediaUrl     String   @db.Text
+  thumbnailUrl String?  @db.Text
+  description  String?  @db.Text
+  tag          String?  // e.g. "BATCH 18 CONVOCATION"
+  date         String?  // e.g. "2024"
+  order        Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([order])
+  @@index([type])
+  @@index([isPublished])
+}
+
 

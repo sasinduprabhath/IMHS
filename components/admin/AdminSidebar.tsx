@@ -25,6 +25,7 @@ import {
   Calendar,
   FileCheck,
   FlaskConical,
+  Film,
 } from "lucide-react";
 
 const NAV_LINKS = [
@@ -32,6 +33,7 @@ const NAV_LINKS = [
   { href: "/admin/chat", label: "Student Chat", icon: MessageSquare, exact: false },
   { href: "/admin/students", label: "Students", icon: Users, exact: false },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, exact: false },
+  { href: "/admin/media", label: "Media & Gallery", icon: Film, exact: false },
   { href: "/admin/learning-hub", label: "Learning Hub CMS", icon: FlaskConical, exact: false },
   { href: "/admin/assignments", label: "Assignments", icon: FileCheck, exact: false },
   { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare, exact: false },

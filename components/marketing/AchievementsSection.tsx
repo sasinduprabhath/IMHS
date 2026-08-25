@@ -64,8 +64,21 @@ const ACHIEVEMENTS_VIDEOS: VideoItem[] = [
   },
 ];
 
-export function AchievementsSection() {
-  const [activeVideo, setActiveVideo] = useState<VideoItem>(ACHIEVEMENTS_VIDEOS[0]);
+export function AchievementsSection({ videos }: { videos?: any[] }) {
+  const videoList: VideoItem[] =
+    videos && videos.length > 0
+      ? videos.map((v) => ({
+          id: v.id,
+          youtubeId: v.youtubeId,
+          title: v.title,
+          category: v.category || "Highlight",
+          duration: v.duration || "",
+          views: v.views || "",
+          thumbnail: v.thumbnailUrl || `https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg`,
+        }))
+      : ACHIEVEMENTS_VIDEOS;
+
+  const [activeVideo, setActiveVideo] = useState<VideoItem>(videoList[0] || ACHIEVEMENTS_VIDEOS[0]);
 
   return (
     <section id="achievements" className="relative py-20 bg-slate-950 text-white overflow-hidden border-b border-slate-800">
@@ -113,12 +126,12 @@ export function AchievementsSection() {
                   <Sparkles className="w-4 h-4 text-[#F16726]" />
                   <span>Watch Next</span>
                 </h4>
-                <span className="text-[11px] text-slate-400 font-mono">{ACHIEVEMENTS_VIDEOS.length} Videos</span>
+                <span className="text-[11px] text-slate-400 font-mono">{videoList.length} Videos</span>
               </div>
 
               {/* Video List perfectly fitting sidebar height */}
               <div className="flex-1 min-h-0 flex flex-col justify-between gap-1 overflow-hidden">
-                {ACHIEVEMENTS_VIDEOS.map((video) => {
+                {videoList.map((video) => {
                   const isActive = activeVideo.id === video.id;
 
                   return (

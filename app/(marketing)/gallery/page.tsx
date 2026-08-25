@@ -22,33 +22,72 @@ export const metadata = {
   },
 };
 
-const GALLERY_ITEMS = [
-  {
-    id: "v1",
-    type: "video" as const,
-    title: "IMHS Practical & Clinical Training Session",
-    src: "/gallery/gallery-video-1.mp4",
-    description: "Live practical video demonstration of pharmaceutical dispensing and clinical lab techniques.",
-    date: "2024",
-  },
-  {
-    id: "v2",
-    type: "video" as const,
-    title: "Student Convocation & Award Ceremony Highlights",
-    src: "/gallery/gallery-video-2.mp4",
-    description: "Video highlights from the IMHS General Convocation & Distinction Awards distribution.",
-    date: "2024",
-  },
-  {
-    id: "v3",
-    type: "video" as const,
-    title: "Campus Lecture & Interactive Workshop",
-    src: "/gallery/gallery-video-3.mp4",
-    description: "Senior consultant lecture on pharmacology seq preparation and clinical pathology.",
-    date: "2024",
-  },
-];
+import { prisma } from "@/lib/prisma";
 
-export default function GalleryPage() {
-  return <GalleryClient items={GALLERY_ITEMS} />;
+export const revalidate = 60;
+
+export default async function GalleryPage() {
+  let items: any[] = [];
+  try {
+    const dbItems = await prisma.galleryItem.findMany({
+      where: { isPublished: true },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+
+    if (dbItems.length > 0) {
+      items = dbItems.map((item) => ({
+        id: item.id,
+        type: item.type === "PHOTO" ? "image" : "video",
+        title: item.title,
+        category: item.category,
+        src: item.mediaUrl,
+        thumbnailUrl: item.thumbnailUrl,
+        description: item.description || "",
+        tag: item.tag,
+        date: item.date || "2024",
+      }));
+    }
+  } catch (error) {
+    console.error("Gallery page DB connection error:", error);
+  }
+
+  if (items.length === 0) {
+    items = [
+      {
+        id: "v1",
+        type: "video",
+        title: "IMHS Practical & Clinical Training Session",
+        category: "Practicals",
+        src: "/gallery/gallery-video-1.mp4",
+        thumbnailUrl: "/gallery/pharmaceutical-lab.jpg",
+        description: "Live practical video demonstration of pharmaceutical dispensing and clinical lab techniques.",
+        tag: "CLINICAL LABS",
+        date: "2024",
+      },
+      {
+        id: "v2",
+        type: "video",
+        title: "Student Convocation & Award Ceremony Highlights",
+        category: "Convocation",
+        src: "/gallery/gallery-video-2.mp4",
+        thumbnailUrl: "/gallery/graduation-ceremony.webp",
+        description: "Video highlights from the IMHS General Convocation & Distinction Awards distribution.",
+        tag: "CONVOCATION",
+        date: "2024",
+      },
+      {
+        id: "v3",
+        type: "video",
+        title: "Campus Lecture & Interactive Workshop",
+        category: "Workshops",
+        src: "/gallery/gallery-video-3.mp4",
+        thumbnailUrl: "/gallery/pharmacy-practical.jpg",
+        description: "Senior consultant lecture on pharmacology SEQ preparation and clinical pathology.",
+        tag: "WORKSHOPS",
+        date: "2024",
+      },
+    ];
+  }
+
+  return <GalleryClient items={items} />;
 }
