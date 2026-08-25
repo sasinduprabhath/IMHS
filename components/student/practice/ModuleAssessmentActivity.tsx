@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -42,9 +42,19 @@ export function ModuleAssessmentActivity({
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [selectedThisQuestion, setSelectedThisQuestion] = useState<boolean | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const total = questions.length;
   const current = questions[currentIndex];
+
+  // Cleanup auto-advance timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, []);
 
   // ─── LocalStorage autosave/resume ─────────────────────────────────────────
   useEffect(() => {
@@ -78,6 +88,7 @@ export function ModuleAssessmentActivity({
   const resumeState = checkResume();
 
   const startFresh = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
     const key = `${AUTOSAVE_KEY}_${moduleId}`;
     localStorage.removeItem(key);
     setAnswers({});
@@ -89,6 +100,7 @@ export function ModuleAssessmentActivity({
 
   const resumeSaved = () => {
     if (!resumeState) return;
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
     setAnswers(resumeState.answers);
     setCurrentIndex(resumeState.currentIndex);
     setSelectedThisQuestion(resumeState.answers[questions[resumeState.currentIndex]?.id] ?? null);
@@ -97,11 +109,35 @@ export function ModuleAssessmentActivity({
   };
 
   const handleAnswer = (value: boolean) => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+
     setSelectedThisQuestion(value);
-    setAnswers((prev) => ({ ...prev, [current.id]: value }));
+    const updatedAnswers = { ...answers, [current.id]: value };
+    setAnswers(updatedAnswers);
+
+    // Auto-advance smoothly after selection (350ms)
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      if (currentIndex < total - 1) {
+        const nextIdx = currentIndex + 1;
+        setCurrentIndex(nextIdx);
+        setSelectedThisQuestion(updatedAnswers[questions[nextIdx]?.id] ?? null);
+      } else {
+        // Finished last question: compute result & transition
+        setPhase("results");
+        localStorage.removeItem(`${AUTOSAVE_KEY}_${moduleId}`);
+        const computedCorrect = questions.filter((q) => updatedAnswers[q.id] === q.answer).length;
+        if (total > 0 && computedCorrect / total >= 0.6) {
+          setShowConfetti(true);
+        }
+        submitCourseAssessmentResult(moduleId, computedCorrect, total).catch((err) => {
+          console.error("Failed to save course assessment result:", err);
+        });
+      }
+    }, 350);
   };
 
   const handleNext = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
     setSelectedThisQuestion(null);
     if (currentIndex < total - 1) {
       setCurrentIndex((i) => i + 1);
@@ -120,6 +156,7 @@ export function ModuleAssessmentActivity({
   };
 
   const handleBack = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
     if (currentIndex > 0) {
       setCurrentIndex((i) => i - 1);
       setSelectedThisQuestion(answers[questions[currentIndex - 1]?.id] ?? null);
@@ -127,6 +164,7 @@ export function ModuleAssessmentActivity({
   };
 
   const goToQuestion = (i: number) => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
     setCurrentIndex(i);
     setSelectedThisQuestion(answers[questions[i]?.id] ?? null);
   };
