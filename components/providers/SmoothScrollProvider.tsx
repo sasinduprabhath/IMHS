@@ -8,10 +8,22 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
 
+  const isPortalRoute = pathname?.startsWith("/admin") || pathname?.startsWith("/dashboard");
+
   useEffect(() => {
-    // Disable browser default scroll restoration so page transitions start at top
+    // Disable browser default scroll restoration
     if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
+    }
+
+    // Do NOT run Lenis smooth scrolling inside Admin or Student Dashboard portals
+    // to prevent wheel-event hijacking on sidebars, modals, and split-screen chat desks
+    if (isPortalRoute) {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
+      return;
     }
 
     const lenis = new Lenis({
@@ -34,18 +46,19 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     return () => {
       cancelAnimationFrame(animationFrame);
       lenis.destroy();
+      lenisRef.current = null;
     };
-  }, []);
+  }, [isPortalRoute]);
 
-  // Immediately scroll to top (0, 0) whenever route/pathname changes
+  // Immediately scroll to top whenever route/pathname changes
   useEffect(() => {
-    if (lenisRef.current) {
+    if (lenisRef.current && !isPortalRoute) {
       lenisRef.current.scrollTo(0, { immediate: true });
     }
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-  }, [pathname]);
+  }, [pathname, isPortalRoute]);
 
   return <>{children}</>;
 }

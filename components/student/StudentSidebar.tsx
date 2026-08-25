@@ -104,6 +104,7 @@ export function StudentSidebar({ user }: { user: any }) {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div
+      data-lenis-prevent="true"
       className={cn(
         "flex flex-col h-full min-h-0 select-none overflow-hidden",
         "bg-gradient-to-b from-[#0C1A30] to-[#0A1628]",
@@ -152,7 +153,10 @@ export function StudentSidebar({ user }: { user: any }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-3 px-2 space-y-0.5 scrollbar-thin scrollbar-thumb-white/15 hover:scrollbar-thumb-white/25 scrollbar-track-transparent">
+      <nav
+        data-lenis-prevent="true"
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-3 px-2 space-y-0.5 scrollbar-thin scrollbar-thumb-white/15 hover:scrollbar-thumb-white/25 scrollbar-track-transparent"
+      >
         {(!collapsed || isMobile) && (
           <p className="text-[9px] font-mono uppercase text-white/25 font-bold tracking-widest px-2 pt-1 pb-2">
             Navigation
