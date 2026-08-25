@@ -33,11 +33,11 @@ const NAV_LINKS = [
   { href: "/admin/chat", label: "Student Chat", icon: MessageSquare, exact: false },
   { href: "/admin/students", label: "Students", icon: Users, exact: false },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, exact: false },
-  { href: "/admin/media", label: "Media & Gallery", icon: Film, exact: false },
   { href: "/admin/learning-hub", label: "Learning Hub CMS", icon: FlaskConical, exact: false },
   { href: "/admin/assignments", label: "Assignments", icon: FileCheck, exact: false },
   { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare, exact: false },
   { href: "/admin/bookings", label: "Consultations", icon: Calendar, exact: false },
+  { href: "/admin/media", label: "Media & Gallery", icon: Film, exact: false },
 ];
 
 const SIDEBAR_STORAGE_KEY = "imhs_admin_sidebar_collapsed";
@@ -96,7 +96,7 @@ export function AdminSidebar({ user }: { user: any }) {
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div
       className={cn(
-        "flex flex-col h-full select-none overflow-hidden",
+        "flex flex-col h-full min-h-0 select-none overflow-hidden",
         "bg-gradient-to-b from-[#0C1A30] to-[#0A1628]",
         !isMobile && (collapsed ? "w-[72px]" : "w-[260px]"),
         "transition-all duration-300"
@@ -138,7 +138,7 @@ export function AdminSidebar({ user }: { user: any }) {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+      <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-3 px-2 space-y-0.5 scrollbar-thin scrollbar-thumb-white/15 hover:scrollbar-thumb-white/25 scrollbar-track-transparent">
         {(!collapsed || isMobile) && (
           <p className="text-[9px] font-mono uppercase text-white/25 font-bold tracking-widest px-2 pt-1 pb-2">
             Navigation
