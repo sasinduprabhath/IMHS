@@ -58,10 +58,10 @@ async function main() {
   await prisma.facultyMember.createMany({
     data: [
       {
-        name: "Dr. Isuru Wijesinghe",
+        name: "Dr. Isuru Wijesinghe, Ph.D.",
         title: "Senior Lecturer & Executive Director",
-        bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
-        photoUrl: "/lecturer.jpeg",
+        bio: "Dr. Isuru Wijesinghe is an academic and researcher with a Ph.D. and MSc in Pharmaceutical Sciences and a B.Pharm (Special) degree. He brings extensive experience in pharmacy education, pharmaceutical research, and the pharmaceutical industry, with a strong commitment to academic excellence and professional development.",
+        photoUrl: "/isuru.png",
         order: 1,
       },
     ],

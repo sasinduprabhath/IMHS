@@ -4,25 +4,25 @@ import Image from "next/image";
 import { RevealOnScroll, StaggerChildren, StaggerItem, HoverCard, AnimatedGrid, GlowOrb } from "@/components/ui/animations";
 import { FacultyClientModal } from "@/components/marketing/FacultyClientModal";
 import { AtomicOrbit, BenzeneRing, MedicalCross, FloatingMolecules, PillCapsuleOrbs } from "@/components/marketing/PharmacyAnimations";
-import { Stethoscope, Users, Star, GraduationCap, ShieldCheck } from "lucide-react";
+import { Stethoscope, Users, Star, GraduationCap, ShieldCheck, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: "Faculty Directory | Senior Lecturers & Medical Board",
+  title: "Academic Leadership & Faculty | IMHS",
   description:
-    "Meet the senior medical consultants, registered pharmacists, and healthcare lecturers directing clinical education at IMHS Sri Lanka.",
+    "Learn from experienced academics and healthcare professionals committed to delivering evidence-based, practice-oriented, and examination-focused education at IMHS Sri Lanka.",
   alternates: {
     canonical: "https://imhsedu.com/faculty",
   },
   openGraph: {
-    title: "Faculty Directory | IMHS Academic Board",
-    description: "Senior medical consultants and clinical pharmacology experts at IMHS.",
+    title: "Academic Leadership & Faculty | IMHS",
+    description: "Excellence in Pharmacy and Health Sciences Education.",
     url: "https://imhsedu.com/faculty",
-    images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "IMHS Faculty Directory" }],
+    images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "IMHS Academic Leadership & Faculty" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Faculty Directory | IMHS Medical Board",
-    description: "Learn from experienced clinical practitioners and SLMC registered pharmacists.",
+    title: "Academic Leadership & Faculty | IMHS Education",
+    description: "Learn from experienced academics and healthcare professionals.",
     images: ["/gallery/faculty-consultation.jpg"],
   },
 };
@@ -40,10 +40,10 @@ export default async function FacultyPage() {
       faculty = [
         {
           id: "dr-isuru-wijesinghe",
-          name: "Dr. Isuru Wijesinghe",
+          name: "Dr. Isuru Wijesinghe, Ph.D.",
           title: "Senior Lecturer & Executive Director",
-          bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
-          photoUrl: "/lecturer.jpeg",
+          bio: "Dr. Isuru Wijesinghe is an academic and researcher with a Ph.D. and MSc in Pharmaceutical Sciences and a B.Pharm (Special) degree. He brings extensive experience in pharmacy education, pharmaceutical research, and the pharmaceutical industry, with a strong commitment to academic excellence and professional development.",
+          photoUrl: "/isuru.png",
           order: 1,
         },
       ];
@@ -53,10 +53,10 @@ export default async function FacultyPage() {
     faculty = [
       {
         id: "dr-isuru-wijesinghe",
-        name: "Dr. Isuru Wijesinghe",
+        name: "Dr. Isuru Wijesinghe, Ph.D.",
         title: "Senior Lecturer & Executive Director",
-        bio: "Ph.D. in Pharmaceutical Sciences, MSc, B.Pharm. Over 15 years of academic lecturing and clinical pharmacy research leadership in Sri Lanka.",
-        photoUrl: "/lecturer.jpeg",
+        bio: "Dr. Isuru Wijesinghe is an academic and researcher with a Ph.D. and MSc in Pharmaceutical Sciences and a B.Pharm (Special) degree. He brings extensive experience in pharmacy education, pharmaceutical research, and the pharmaceutical industry, with a strong commitment to academic excellence and professional development.",
+        photoUrl: "/isuru.png",
         order: 1,
       },
     ];
@@ -80,29 +80,29 @@ export default async function FacultyPage() {
         <MedicalCross size={16} color="#4A8B7A" className="absolute bottom-16 left-1/4 opacity-20" />
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
-            ACADEMIC FACULTY
+            ACADEMIC LEADERSHIP &amp; FACULTY
           </span>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-semibold text-ink leading-tight">
-            Consultant-Led{" "}
+            Excellence in Pharmacy and{" "}
             <span className="text-clinical-teal">
-              Medical Faculty
+              Health Sciences Education
             </span>
           </h1>
-          <p className="text-sm sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed">
-            Learn directly from senior medical specialists who combine active hospital practice with dedicated clinical teaching.
+          <p className="text-sm sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
+            Learn from experienced academics and healthcare professionals committed to delivering evidence-based, practice-oriented, and examination-focused education.
           </p>
           <div className="flex flex-wrap gap-2.5 sm:gap-3 justify-center pt-1 sm:pt-2">
             <div className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-3.5 sm:px-4 py-1.5 text-ink text-xs font-mono shadow-paper">
-              <Users className="w-3.5 h-3.5 text-clinical-teal" />
-              {faculty.length} {faculty.length === 1 ? "Senior Lecturer" : "Faculty Members"}
+              <GraduationCap className="w-3.5 h-3.5 text-clinical-teal" />
+              Expert Academic Guidance
             </div>
             <div className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-3.5 sm:px-4 py-1.5 text-ink text-xs font-mono shadow-paper">
-              <Stethoscope className="w-3.5 h-3.5 text-clinical-teal" />
-              100% Consultant-Led
+              <Sparkles className="w-3.5 h-3.5 text-clinical-teal" />
+              Professionally Relevant Learning
             </div>
             <div className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-3.5 sm:px-4 py-1.5 text-ink text-xs font-mono shadow-paper">
               <ShieldCheck className="w-3.5 h-3.5 text-clinical-teal" />
-              Verified Credentials
+              Verified Academic Credentials
             </div>
           </div>
         </div>
@@ -113,8 +113,8 @@ export default async function FacultyPage() {
         {/* Subtle pill orbs in faculty grid background */}
         <PillCapsuleOrbs count={4} className="opacity-50" />
         <RevealOnScroll className="text-center space-y-2">
-          <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">SENIOR LECTURERS & DIRECTORS</span>
-          <h2 className="text-3xl font-display font-semibold text-ink">Meet the Faculty</h2>
+          <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">OUR ACADEMIC LEADERSHIP</span>
+          <h2 className="text-3xl font-display font-semibold text-ink">Meet Our Faculty</h2>
         </RevealOnScroll>
 
         <FacultyClientModal faculty={faculty} />
