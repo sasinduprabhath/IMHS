@@ -26,7 +26,7 @@ const contactFormSchema = z.object({
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
 const CONTACT_INFO = [
-  { icon: MapPin, label: "Service Region", value: "Sri Lanka (Island-wide & Online)" },
+  { icon: MapPin, label: "Service Area", value: "Island-wide and Online – Sri Lanka" },
   { icon: Mail, label: "Email", value: "info.imhsedu@gmail.com" },
   { icon: PhoneCall, label: "WhatsApp Hotline", value: "+94 77 802 5050" },
   { icon: Clock, label: "Office Hours", value: "Mon-Sat · 8:00 AM - 6:00 PM" },
@@ -102,16 +102,16 @@ export default function ContactPage() {
         <MedicalCross size={15} color="#0E57A4" className="absolute bottom-16 right-1/3 opacity-20" />
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-5">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
-            ADMISSIONS & INQUIRIES
+            ADMISSIONS &amp; INQUIRIES
           </span>
           <h1 className="text-4xl sm:text-5xl font-display font-semibold text-ink leading-tight">
-            Get in Touch with{" "}
+            Contact{" "}
             <span className="text-clinical-teal">
               IMHS
             </span>
           </h1>
-          <p className="text-base text-ink-muted max-w-xl mx-auto leading-relaxed">
-            Have questions about SLMC pharmacy preparations, manufacturing courses, or course fees? Reach out via our administrative form or WhatsApp desk.
+          <p className="text-base text-ink-muted max-w-xl mx-auto leading-relaxed font-sans">
+            Have questions about our courses, admissions, fees, or SLMC External Pharmacist Examination preparation? Complete the inquiry form or contact our Admissions Team via WhatsApp.
           </p>
         </div>
       </section>
@@ -126,8 +126,8 @@ export default function ContactPage() {
           <RevealOnScroll direction="left" className="lg:col-span-7">
             <div className="bg-surface border border-chart-grid rounded-card p-7 sm:p-9 shadow-paper space-y-6">
               <div>
-                <h2 className="text-xl font-display font-semibold text-ink">Administrative Inquiry Form</h2>
-                <p className="text-xs text-ink-muted mt-1">We typically respond within 24 business hours.</p>
+                <h2 className="text-xl font-display font-semibold text-ink">General Inquiry Form</h2>
+                <p className="text-xs text-ink-muted mt-1">We usually respond within one business day.</p>
               </div>
 
               <AnimatePresence mode="wait">
@@ -177,7 +177,7 @@ export default function ContactPage() {
                       </div>
                       <button
                         onClick={() => setSubmitted(false)}
-                        className="text-xs font-mono text-sage hover:text-ink underline underline-offset-2 transition-colors"
+                        className="text-xs font-mono text-sage hover:text-ink underline underline-offset-2 transition-colors cursor-pointer"
                       >
                         Send another message
                       </button>
@@ -192,7 +192,7 @@ export default function ContactPage() {
                     className="space-y-5"
                   >
                     <InputField label="Full Name" required error={errors.name?.message}>
-                      <input type="text" placeholder="Dr. / Mr. / Ms. Full Name" {...register("name")} className={inputClass} />
+                      <input type="text" placeholder="Dr. / Mr. / Ms. – Full Name" {...register("name")} className={inputClass} />
                     </InputField>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -206,13 +206,13 @@ export default function ContactPage() {
 
                     <InputField label="Course of Interest">
                       <select {...register("courseInterest")} className={inputClass}>
-                        <option value="">-- Select a program --</option>
+                        <option value="">Select a programme</option>
                         {COURSE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
                     </InputField>
 
-                    <InputField label="Inquiry Message" required error={errors.message?.message}>
-                      <textarea rows={4} placeholder="Tell us about your inquiry..." {...register("message")} className={inputClass} />
+                    <InputField label="Your Message" required error={errors.message?.message}>
+                      <textarea rows={4} placeholder="Please enter your inquiry." {...register("message")} className={inputClass} />
                     </InputField>
 
                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -232,16 +232,16 @@ export default function ContactPage() {
             {/* WhatsApp CTA */}
             <div className="bg-clinical-teal-surface border border-clinical-teal/20 rounded-card p-7 space-y-5 shadow-paper">
               <div>
-                <h2 className="text-lg font-display font-semibold text-ink">Direct WhatsApp Admissions</h2>
+                <h2 className="text-lg font-display font-semibold text-ink">WhatsApp Admissions Support</h2>
                 <p className="text-xs text-ink-muted mt-1 leading-relaxed">
-                  Prefer instant communication? Skip the form and chat directly with our coordinator to submit payment proof and get provisioned instantly.
+                  Need quick assistance? Contact our Admissions Coordinator through WhatsApp for course details, registration, fee information, or payment confirmation.
                 </p>
               </div>
               <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer" className="block">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Button className="w-full gap-2.5 bg-chart-red hover:bg-chart-red-hover text-white border-0 font-semibold py-3 text-sm">
                     <MessageSquare className="w-4 h-4" />
-                    Open WhatsApp Desk
+                    Chat on WhatsApp
                   </Button>
                 </motion.div>
               </Link>
@@ -250,7 +250,7 @@ export default function ContactPage() {
             {/* Contact details */}
             <div className="bg-surface border border-chart-grid rounded-card p-6 shadow-paper">
               <h3 className="text-sm font-mono font-semibold text-ink uppercase tracking-wider border-b border-chart-grid pb-3 mb-1">
-                Campus &amp; Office
+                Contact Information
               </h3>
               <div className="divide-y divide-chart-grid/50">
                 {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
@@ -270,13 +270,13 @@ export default function ContactPage() {
             {/* Map embed */}
             <div className="bg-surface border border-chart-grid rounded-card overflow-hidden shadow-paper">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.38!2d79.9245!3d6.8514!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwNTEnMDUuMCJOIDc5wrA1NScyOC4yIkU!5e0!3m2!1sen!2slk!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2023773.542!2d79.5!3d7.8731!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2593cf65a1e9d%3A0xe13da4b400e2d38c!2sSri%20Lanka!5e0!3m2!1sen!2slk!4v1"
                 width="100%"
                 height="200"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
-                title="IMHS Campus Location"
+                title="IMHS Sri Lanka"
               />
             </div>
           </RevealOnScroll>
