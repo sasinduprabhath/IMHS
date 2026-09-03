@@ -115,7 +115,7 @@ export default function AboutPage() {
             </span>
           </h1>
           <p className="text-base sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            IMHS was established with the aim of facilitating Professional Healthcare Education for healthcare sector professionals, medical students, and the general public across Sri Lanka.
+            Since its establishment in 2019, IMHS has supported more than 5,000 learners through structured pharmacy education, examination preparation, and professional development programmes.
           </p>
           <div className="flex flex-wrap gap-3 justify-center pt-2">
             {[
