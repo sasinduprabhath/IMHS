@@ -36,39 +36,55 @@ export const metadata = {
 const LEVELS = [
   {
     step: "01",
-    label: "BEGINNER",
-    title: "Foundational Learning",
-    body: "Build essential healthcare tools and core resources for health science fundamentals.",
+    label: "FOUNDATION",
+    title: "Foundational Pharmacy Learning",
+    body: "Build essential knowledge in basic sciences, pharmacology, pharmaceutics, and the safe use of medicines.",
     color: "clinical-teal",
   },
   {
     step: "02",
     label: "INTERMEDIATE",
-    title: "Applied Science",
-    body: "Enhance knowledge with specialized training in key pharmaceutical and pathology areas.",
+    title: "Applied Pharmaceutical Knowledge",
+    body: "Strengthen your knowledge through pharmaceutical calculations, dosage forms, pharmacology, and clinical practice.",
     color: "clinical-teal",
   },
   {
     step: "03",
-    label: "ADVANCED",
-    title: "Specialized Practice",
-    body: "Engage in advanced industrial manufacturing and laboratory clinical skills led by experts.",
+    label: "EXAM PREPARATION",
+    title: "Examination Preparation",
+    body: "Master MCQ & SEQ answering strategies, mock viva coaching, and OSPE practical examination techniques.",
     color: "clinical-teal",
   },
   {
     step: "04",
-    label: "MASTERY",
-    title: "Professional Leadership",
-    body: "Personalized mentorship preparing clinicians and pharmacists for top-tier healthcare roles.",
+    label: "PROFESSIONAL",
+    title: "Advanced Professional Learning",
+    body: "Personalized mentorship and clinical practice preparing pharmacists for top-tier healthcare leadership roles.",
     color: "chart-red",
   },
 ];
 
 const VALUES = [
-  { icon: Target, title: "Mission-Driven", body: "Aim to be a globally renowned healthcare education provider." },
-  { icon: Microscope, title: "Evidence-Based", body: "All curricula built on peer-reviewed clinical and pharmaceutical sciences." },
-  { icon: HeartPulse, title: "Patient-Centred", body: "Training rooted in bedside practice and real hospital scenarios." },
-  { icon: Star, title: "Excellence First", body: "3,500+ graduates achieving regulatory and clinical career milestones." },
+  {
+    icon: Users,
+    title: "LEARNER-CENTRED",
+    body: "Supporting every learner through clear, structured, and accessible pharmacy education.",
+  },
+  {
+    icon: Microscope,
+    title: "EVIDENCE-BASED",
+    body: "Developing educational content using reliable pharmaceutical knowledge and recognised academic sources.",
+  },
+  {
+    icon: HeartPulse,
+    title: "PRACTICE-ORIENTED",
+    body: "Connecting theoretical knowledge with dispensing, medication safety, patient counselling, and professional pharmacy practice.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "QUALITY & INTEGRITY",
+    body: "Maintaining high standards in teaching, learning resources, assessment, and learner support.",
+  },
 ];
 
 export default function AboutPage() {
@@ -188,7 +204,7 @@ export default function AboutPage() {
         <BenzeneRing size={100} color="#F16726" className="absolute -left-4 bottom-4 opacity-15" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <RevealOnScroll className="text-center space-y-2">
-            <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">INSTITUTIONAL PILLARS</span>
+            <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">OUR EDUCATIONAL VALUES</span>
             <h2 className="text-3xl md:text-4xl font-display font-semibold text-ink">Our Core Values</h2>
           </RevealOnScroll>
           <StaggerChildren className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -200,7 +216,7 @@ export default function AboutPage() {
                     <Icon className="w-3.5 h-3.5" />
                     {title}
                   </div>
-                  <p className="text-xs text-ink-muted leading-relaxed">{body}</p>
+                  <p className="text-xs text-ink-muted leading-relaxed font-sans">{body}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -211,9 +227,9 @@ export default function AboutPage() {
       {/* ── LEARNING LEVELS ── */}
       <section id="pathways" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-12">
         <RevealOnScroll className="text-center space-y-2">
-          <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">STRUCTURED CURRICULUM PATHWAYS</span>
+          <span className="font-mono text-xs text-chart-red uppercase tracking-wider font-semibold">STRUCTURED LEARNING PATHWAYS</span>
           <h2 className="text-3xl md:text-4xl font-display font-semibold text-ink">Choose Your Learning Level</h2>
-          <p className="text-base text-ink-muted max-w-xl mx-auto">From foundational pharmacy science to advanced industrial manufacturing - a pathway for every healthcare professional.</p>
+          <p className="text-base text-ink-muted max-w-xl mx-auto font-sans">Progress from essential pharmacy knowledge to examination preparation and advanced professional learning.</p>
         </RevealOnScroll>
 
         {/* Dose Curve timeline connecting the level sequence */}
