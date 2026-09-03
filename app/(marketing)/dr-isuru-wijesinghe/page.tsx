@@ -118,10 +118,10 @@ export default async function DrIsuruWijesinghePage() {
                   Dr. Isuru Wijesinghe
                 </h1>
                 <p className="text-sm sm:text-base font-mono text-clinical-teal font-medium mt-1">
-                  Ph.D. in Pharmaceutical Sciences | MSc | B.Pharm (Honours)
+                  Ph.D. in Pharmaceutical Sciences | MSc | B.Pharm (Special) | Reading for LLB
                 </p>
                 <p className="text-xs sm:text-sm text-ink-muted font-sans mt-1">
-                  Executive Director & Senior Lecturer • Head of Academic Affairs
+                  Founder, Executive Director &amp; Senior Lecturer • Head of Academic Affairs
                 </p>
               </div>
 
@@ -132,8 +132,8 @@ export default async function DrIsuruWijesinghePage() {
                   <div className="text-sm font-bold text-ink font-mono">15+ Years</div>
                 </div>
                 <div className="bg-linen/50 border border-chart-grid p-3 rounded-lg text-center md:text-left">
-                  <div className="text-xs font-mono text-sage uppercase">Students Mentored</div>
-                  <div className="text-sm font-bold text-clinical-teal font-mono">1,000+ Alumni</div>
+                  <div className="text-xs font-mono text-sage uppercase">Learners Supported</div>
+                  <div className="text-sm font-bold text-clinical-teal font-mono">5,000+ Alumni</div>
                 </div>
                 <div className="bg-linen/50 border border-chart-grid p-3 rounded-lg col-span-2 sm:col-span-1 text-center md:text-left">
                   <div className="text-xs font-mono text-sage uppercase">Institution</div>
@@ -175,28 +175,19 @@ export default async function DrIsuruWijesinghePage() {
               <div className="border-b border-chart-grid pb-4">
                 <h2 className="text-xl font-display font-semibold text-ink flex items-center gap-2">
                   <GraduationCap className="w-5 h-5 text-clinical-teal" />
-                  Academic Profile & Leadership Vision
+                  About Me
                 </h2>
               </div>
 
               <div className="space-y-4 text-sm sm:text-base text-ink-muted leading-relaxed font-sans">
                 <p>
-                  <strong>Dr. Isuru Wijesinghe</strong> serves as the Executive Director and Senior Lecturer at the
-                  <strong> Institute of Medicine and Health Sciences (IMHS)</strong>, Sri Lanka. With over
-                  fifteen years of distinguished academic lecturing and clinical pharmacy research leadership, he has
-                  been at the forefront of modernizing healthcare education across Sri Lanka.
+                  I founded IMHS in 2019 to provide accessible, structured, and examination-focused pharmaceutical education across Sri Lanka. I hold a Ph.D. and MSc in Pharmaceutical Sciences, a B.Pharm (Special) degree, and I am currently reading for an LLB.
                 </p>
                 <p>
-                  Dr. Wijesinghe holds a <strong>Ph.D. in Pharmaceutical Sciences</strong>, a Master of Science (MSc),
-                  and a Bachelor of Pharmacy (B.Pharm Honours). His teaching philosophy bridges rigorous clinical theory
-                  with real-world hospital and retail pharmacy practice, preparing students for official
-                  <strong> Sri Lanka Medical Council (SLMC)</strong> registration examinations and pharmaceutical industry careers.
+                  My main focus is to make up-to-date, evidence-based pharmaceutical and health knowledge accessible to students, professionals, and the general public. Through education, I hope to promote responsible medicine use, strengthen public awareness, and contribute to higher professional standards in the pharmaceutical field.
                 </p>
                 <p>
-                  Under his academic directorship, IMHS has established state-of-the-art curriculum frameworks in
-                  Modern Pharmacy, Pharmaceutical Manufacturing (GMP QA/QC), and Medical Laboratory Technology (MLT),
-                  enabling hundreds of clinical graduates to transition into senior roles at leading hospitals, research
-                  institutes, and pharmaceutical manufacturing facilities nationwide.
+                  Today, the IMHS academic pathway supports one of the largest groups of students qualifying as pharmacists each year.
                 </p>
               </div>
             </RevealOnScroll>
