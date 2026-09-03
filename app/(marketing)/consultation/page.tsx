@@ -18,22 +18,22 @@ import {
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 
 export const metadata = {
-  title: "Book 1-on-1 Mentorship & Clinical Consultation | IMHS",
+  title: "Pharmacy Examination Mentorship | Dr. Isuru Wijesinghe | IMHS",
   description:
-    "Schedule 1-on-1 academic mentorship, SLMC exam prep, clinical career consultation, or mock viva interview coaching with Dr. Isuru Wijesinghe at IMHS Sri Lanka.",
+    "Book an Examination Mentorship Session with Dr. Isuru Wijesinghe for External Pharmacist Examination study planning, MCQ and SEQ answering strategies, and mock viva and OSPE coaching.",
   alternates: {
     canonical: "https://imhsedu.com/consultation",
   },
   openGraph: {
-    title: "1-on-1 Clinical Mentorship & Consultation | IMHS",
-    description: "Personalized SLMC exam prep and career coaching with Dr. Isuru Wijesinghe.",
+    title: "Pharmacy Examination Mentorship | Dr. Isuru Wijesinghe | IMHS",
+    description: "Book an Examination Mentorship Session with Dr. Isuru Wijesinghe for External Pharmacist Examination preparation.",
     url: "https://imhsedu.com/consultation",
     images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "IMHS Clinical Consultation" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Book Clinical Consultation | IMHS Education",
-    description: "1-on-1 pharmacy mentorship and career guidance.",
+    title: "Pharmacy Examination Mentorship | IMHS Education",
+    description: "1-on-1 pharmacy examination mentorship and guidance.",
     images: ["/gallery/faculty-consultation.jpg"],
   },
 };
@@ -48,16 +48,16 @@ export default function ConsultationPage() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-5">
           <span className="inline-flex items-center gap-1.5 font-mono text-xs text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-3.5 py-1 rounded-full font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4" /> OFFICIAL FACULTY APPOINTMENTS
+            <ShieldCheck className="w-4 h-4" /> ONE-TO-ONE APPOINTMENT SYSTEM
           </span>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-ink leading-tight">
-            1-on-1 Mentorship &amp;{" "}
-            <span className="text-clinical-teal">Clinical Consultation</span>
+            Pharmacy Examination{" "}
+            <span className="text-clinical-teal">Mentorship</span>
           </h1>
 
           <p className="text-sm sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            Schedule a personalized session with Senior Lecturer &amp; Executive Director <strong>Dr. Isuru Wijesinghe</strong> for SLMC exam strategy, hospital career guidance, or mock viva interview coaching.
+            Schedule a personalized session with Senior Lecturer &amp; Executive Director <strong>Dr. Isuru Wijesinghe</strong> for External Pharmacist Examination study planning, MCQ &amp; SEQ strategies, or mock viva and OSPE coaching.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-1 sm:pt-2">

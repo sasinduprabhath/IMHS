@@ -23,43 +23,49 @@ import {
 
 const SESSIONS = [
   {
-    id: "ACADEMIC_MENTORSHIP",
-    title: "Academic & SLMC Exam Mentorship",
-    duration: "30 Mins",
+    id: "STUDY_PLANNING_GUIDANCE",
+    number: 1,
+    title: "Study Planning and Academic Guidance",
+    duration: "30 Minutes",
     durationMins: 30,
     priceLkr: 3500,
     priceFormatted: "LKR 3,500",
     icon: GraduationCap,
-    tag: "Exam Prep & Strategy",
+    category: "Examination Planning",
+    tag: "Examination Planning",
     color: "text-clinical-teal border-clinical-teal/30 bg-clinical-teal/5",
     description:
-      "1-on-1 guidance on SLMC Pharmacy exam prep, subject priority, SEQ writing techniques, and study schedules.",
+      "Personalised guidance on subject priorities, study schedules, revision methods, and preparation based on your current level.",
   },
   {
-    id: "CLINICAL_CONSULTATION",
-    title: "Clinical & Hospital Career Guidance",
-    duration: "45 Mins",
+    id: "MCQ_SEQ_STRATEGIES",
+    number: 2,
+    title: "MCQ and SEQ Answering Strategies",
+    duration: "45 Minutes",
     durationMins: 45,
     priceLkr: 5000,
     priceFormatted: "LKR 5,000",
     icon: Stethoscope,
-    tag: "Hospital & Career Pathways",
+    category: "Written Examination Preparation",
+    tag: "Written Examination Preparation",
     color: "text-chart-blue border-chart-blue/30 bg-chart-blue/5",
     description:
-      "Direct consultation on clinical pharmacy practice, hospital internships, overseas registration, and career opportunities.",
+      "Focused guidance on answering MCQs and SEQs, managing examination time, identifying key points, and improving answer structure.",
   },
   {
-    id: "MOCK_INTERVIEW",
-    title: "Mock Viva & Interview Coaching",
-    duration: "60 Mins",
+    id: "MOCK_VIVA_OSPE_COACHING",
+    number: 3,
+    title: "Mock Viva and OSPE Coaching",
+    duration: "60 Minutes",
     durationMins: 60,
     priceLkr: 7500,
     priceFormatted: "LKR 7,500",
     icon: MessageSquare,
-    tag: "1-on-1 Oral Practice",
+    category: "Practical and Oral Examination Preparation",
+    tag: "Practical and Oral Examination Preparation",
     color: "text-chart-orange border-chart-orange/30 bg-chart-orange/5",
     description:
-      "Comprehensive viva voce simulation, real-time feedback, and hospital job interview practice with Dr. Isuru.",
+      "Individual mock viva and OSPE practice with examination-style questions, practical scenarios, immediate feedback, and correction of weaknesses.",
   },
 ];
 
@@ -196,10 +202,10 @@ export function DrIsuruBookingClient() {
       <div className="bg-linen/60 border-b border-chart-grid p-4 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-clinical-teal bg-clinical-teal/10 px-2.5 py-1 rounded-full inline-block">
-            1-ON-1 APPOINTMENT SYSTEM
+            ONE-TO-ONE APPOINTMENT SYSTEM
           </span>
           <h2 className="text-lg sm:text-2xl font-display font-bold text-ink leading-snug">
-            Book Mentorship with Dr. Isuru Wijesinghe
+            Book an Examination Mentorship Session with Dr. Isuru Wijesinghe
           </h2>
         </div>
 
@@ -242,10 +248,10 @@ export function DrIsuruBookingClient() {
             >
               <div>
                 <h3 className="text-sm sm:text-base font-display font-bold text-ink">
-                  Step 1: Choose Your Mentorship &amp; Consultation Session
+                  Step 1: Select Your Mentorship Session
                 </h3>
-                <p className="text-xs text-ink-muted mt-1">
-                  Select the specialized guidance format that best matches your academic or career goal.
+                <p className="text-xs text-ink-muted mt-1 font-sans">
+                  Choose the support you need for your External Pharmacist Examination preparation.
                 </p>
               </div>
 
@@ -279,17 +285,17 @@ export function DrIsuruBookingClient() {
                         </div>
 
                         <h4 className="text-sm sm:text-base font-bold font-sans text-ink leading-snug">
-                          {session.title}
+                          {session.number}. {session.title}
                         </h4>
 
-                        <p className="text-xs text-ink-muted leading-relaxed">
+                        <p className="text-xs text-ink-muted leading-relaxed font-sans">
                           {session.description}
                         </p>
                       </div>
 
                       <div className="pt-2 border-t border-chart-grid/60 flex items-center justify-between text-xs font-mono">
-                        <span className="text-clinical-teal font-semibold text-[11px] sm:text-xs">
-                          {session.tag}
+                        <span className="text-clinical-teal font-semibold text-[10px] sm:text-[11px] leading-tight">
+                          Category: {session.category}
                         </span>
                         {isSelected && (
                           <CheckCircle2 className="w-4 h-4 text-clinical-teal shrink-0" />

@@ -10,7 +10,7 @@ const consultationBookingSchema = z.object({
   studentName: z.string().min(1, "Student name is required").max(100, "Name too long"),
   studentEmail: z.string().email("Valid email is required").max(150, "Email too long"),
   studentPhone: z.string().min(7, "Valid phone number is required").max(30, "Phone number too long"),
-  sessionType: z.enum(["MENTORSHIP", "CLINICAL_CONSULTATION", "MOCK_INTERVIEW"]),
+  sessionType: z.string().min(1, "Session type is required").max(100, "Session type too long"),
   durationMins: z.number().int().positive().max(480).optional().default(45),
   priceLkr: z.number().int().nonnegative().max(1000000).optional().default(0),
   bookingDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid booking date format" }),
