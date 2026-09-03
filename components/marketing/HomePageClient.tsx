@@ -271,7 +271,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
     <div className="space-y-0 overflow-x-hidden bg-surface">
 
       {/* ── 1. HERO SECTION ────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-[68px] overflow-hidden bg-slate-950">
+      <section id="top" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-[68px] overflow-hidden bg-slate-950">
         {/* Full Background Video (All Devices: Mobile, Tablet & Desktop) */}
         <video
           autoPlay

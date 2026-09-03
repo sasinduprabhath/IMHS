@@ -15,8 +15,8 @@ const ROUTE_WAYPOINTS: Record<string, Waypoint[]> = {
   "/": [
     { id: "top", label: "Overview", step: "01" },
     { id: "programs", label: "Programs", step: "02" },
-    { id: "faculty", label: "Faculty", step: "03" },
-    { id: "enroll", label: "Enroll", step: "04" },
+    { id: "enroll", label: "Enroll", step: "03" },
+    { id: "achievements", label: "Highlights", step: "04" },
   ],
   "/about": [
     { id: "top", label: "Overview", step: "01" },
