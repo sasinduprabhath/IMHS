@@ -10,7 +10,6 @@ import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { DoseCurve } from "@/components/marketing/DoseCurve";
 import { BlisterDivider } from "@/components/marketing/BlisterDivider";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
-import { MedicalScannerBeam } from "@/components/marketing/PharmacyAnimations";
 import {
   RevealOnScroll,
   StaggerChildren,
@@ -52,6 +51,7 @@ import {
   Activity,
   FileText,
   Clock,
+  Globe,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -89,10 +89,10 @@ interface HomePageClientProps {
 
 // ─── Static Data ──────────────────────────────────────────────────────────────
 const STAT_ITEMS = [
-  { value: "3,500+", label: "Alumni Graduates", icon: GraduationCap },
-  { value: "2019", label: "Founded in Sri Lanka", icon: Award },
-  { value: "6", label: "Senior Consultants", icon: Stethoscope },
-  { value: "4+", label: "Active Programs", icon: BookOpen },
+  { value: "5,000+", label: "Success Stories", icon: GraduationCap },
+  { value: "2019", label: "Year Established", icon: Award },
+  { value: "20+", label: "Educational Programmes", icon: BookOpen },
+  { value: "ISLAND-WIDE", label: "Flexible Online Learning", icon: Globe },
 ];
 
 const HOW_IT_WORKS = [
@@ -758,79 +758,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
         </div>
       </section>
 
-      {/* ── 6. DARK MODE INVERTED FACULTY SPOTLIGHT ───────────────────────── */}
-      <section id="faculty" className="relative bg-[#0B192C] text-white py-24 border-y border-slate-800 overflow-hidden">
-        {/* Ambient neon radial glows */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#0E57A4]/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#38BDF8]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <RevealOnScroll className="text-center space-y-3">
-            <span className="font-mono text-xs text-[#38BDF8] uppercase tracking-widest font-bold bg-[#38BDF8]/10 px-4 py-1.5 rounded-full border border-[#38BDF8]/30 inline-block">
-              SENIOR FACULTY SPOTLIGHT
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white">
-              Meet Our Senior Director
-            </h2>
-            <p className="text-base text-slate-400 max-w-lg mx-auto font-sans leading-relaxed">
-              Learn directly from senior lecturers guiding Sri Lanka&apos;s medical and pharmacy graduates.
-            </p>
-          </RevealOnScroll>
-
-          {/* Spotlight Card */}
-          <RevealOnScroll delay={0.2} className="max-w-2xl mx-auto">
-            <div className="border border-slate-700/80 rounded-3xl p-6 sm:p-9 bg-slate-900/80 backdrop-blur-xl shadow-2xl text-center space-y-7 hover:border-[#38BDF8]/60 transition-all duration-300 group">
-
-              {/* Portrait Container with Laser Scanner Beam */}
-              <div className="relative h-[480px] sm:h-[540px] w-full rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-inner">
-                <MedicalScannerBeam />
-                <Image
-                  src="/lecturer.jpeg"
-                  alt="Dr. Isuru Wijesinghe - Senior Lecturer & Director, IMHS"
-                  fill
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0B192C] via-transparent to-transparent opacity-80" />
-              </div>
-
-              {/* Info */}
-              <div className="space-y-3 pt-2">
-                <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">
-                  Dr. Isuru Wijesinghe
-                </h3>
-                <p className="font-mono text-sm sm:text-base text-[#38BDF8] font-semibold">
-                  (Ph.D., MSc, B.Pharm)
-                </p>
-                <div className="pt-1 flex flex-wrap justify-center gap-2">
-                  <span className="font-mono text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-full inline-block">
-                    Senior Lecturer / Executive Director, IMHS
-                  </span>
-                </div>
-              </div>
-
-              {/* Credential highlights */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-left">
-                <div className="bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
-                  <div className="text-[10px] font-mono text-slate-400 uppercase">Experience</div>
-                  <div className="text-xs font-bold text-white font-mono">15+ Years Clinical</div>
-                </div>
-                <div className="bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
-                  <div className="text-[10px] font-mono text-slate-400 uppercase">Alumni</div>
-                  <div className="text-xs font-bold text-[#38BDF8] font-mono">3,500+ Graduates</div>
-                </div>
-                <div className="bg-slate-800/60 border border-slate-700 p-3 rounded-xl col-span-2 sm:col-span-1">
-                  <div className="text-[10px] font-mono text-slate-400 uppercase">Specialization</div>
-                  <div className="text-xs font-bold text-white font-mono">Clinical Pharmacy</div>
-                </div>
-              </div>
-
-            </div>
-          </RevealOnScroll>
-        </div>
-      </section>
-
-      {/* ── 7. 4-STEP INTERACTIVE ENROLLMENT WORKFLOW ─────────────────────── */}
+      {/* ── 6. 4-STEP INTERACTIVE ENROLLMENT WORKFLOW ─────────────────────── */}
       <EnrollmentProcessSection />
 
       {/* ── 8. OUR ACHIEVEMENTS & HIGHLIGHTS ─────────────────────────────────────── */}
