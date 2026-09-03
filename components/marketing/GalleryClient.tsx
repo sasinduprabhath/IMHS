@@ -64,15 +64,15 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
         <MedicalCross size={22} color="#F16726" className="absolute top-20 left-1/4 opacity-30" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-5">
-          <RxCredentialBadge label="CAMPUS & CONVOCATION GALLERY" />
+          <RxCredentialBadge label="OFFICIAL IMHS VIDEO GALLERY" />
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-ink leading-tight">
-            IMHS Event, Lab &amp;{" "}
-            <span className="text-clinical-teal">Campus Gallery</span>
+            IMHS Events &amp;{" "}
+            <span className="text-clinical-teal">Learning Video Gallery</span>
           </h1>
 
           <p className="text-base sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            Explore official video recordings, annual convocations, pharmaceutical laboratory practicals, and clinical seminars in Sri Lanka.
+            Explore official video highlights from IMHS academic programmes, practical training sessions, workshops, convocations, and special events.
           </p>
 
           <div className="max-w-md mx-auto pt-2">
@@ -194,7 +194,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                   <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-white bg-chart-red/90 px-2.5 py-1 rounded-full shadow-sm z-10">
                     {item.type === "video" ? (
                       <>
-                        <Video className="w-3 h-3" /> OFFICIAL VIDEO
+                        <Video className="w-3 h-3" /> Official IMHS Video
                       </>
                     ) : (
                       <>
@@ -219,7 +219,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                       onClick={() => setActiveItem(item)}
                       className="text-xs font-mono font-bold text-clinical-teal hover:underline flex items-center gap-1 cursor-pointer"
                     >
-                      <Maximize2 className="w-3.5 h-3.5" /> {item.type === "video" ? "Watch Video" : "Enlarge Photo"}
+                      <Maximize2 className="w-3.5 h-3.5" /> {item.type === "video" ? "Watch Full Video" : "Enlarge Photo"}
                     </button>
                   </div>
 
@@ -292,7 +292,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                   </span>
                   <span className="text-xs font-mono text-chart-red font-bold flex items-center gap-1">
                     {activeItem.type === "video" ? <Video className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                    {activeItem.type === "video" ? "Event Recording" : "Campus Photo"}
+                    {activeItem.type === "video" ? "Official IMHS Video" : "Campus Photo"}
                   </span>
                 </div>
 
