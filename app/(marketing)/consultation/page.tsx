@@ -18,22 +18,22 @@ import {
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 
 export const metadata = {
-  title: "Pharmacy Examination Mentorship | Dr. Isuru Wijesinghe | IMHS",
+  title: "One-to-One Pharmacy Examination Mentorship | Dr. Isuru Wijesinghe | IMHS",
   description:
-    "Book an Examination Mentorship Session with Dr. Isuru Wijesinghe for External Pharmacist Examination study planning, MCQ and SEQ answering strategies, and mock viva and OSPE coaching.",
+    "Book a personalised session with Senior Lecturer and Pharmacist Dr. Isuru Wijesinghe for External Pharmacist Examination study planning, MCQ and SEQ answering strategies, mock viva practice, and OSPE preparation.",
   alternates: {
     canonical: "https://imhsedu.com/consultation",
   },
   openGraph: {
-    title: "Pharmacy Examination Mentorship | Dr. Isuru Wijesinghe | IMHS",
-    description: "Book an Examination Mentorship Session with Dr. Isuru Wijesinghe for External Pharmacist Examination preparation.",
+    title: "One-to-One Pharmacy Examination Mentorship | Dr. Isuru Wijesinghe | IMHS",
+    description: "Book a personalised session with Senior Lecturer and Pharmacist Dr. Isuru Wijesinghe for External Pharmacist Examination preparation.",
     url: "https://imhsedu.com/consultation",
     images: [{ url: "/gallery/faculty-consultation.jpg", width: 1200, height: 630, alt: "IMHS Clinical Consultation" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pharmacy Examination Mentorship | IMHS Education",
-    description: "1-on-1 pharmacy examination mentorship and guidance.",
+    title: "One-to-One Pharmacy Examination Mentorship | IMHS Education",
+    description: "Personalised pharmacy examination mentorship with Dr. Isuru Wijesinghe.",
     images: ["/gallery/faculty-consultation.jpg"],
   },
 };
@@ -48,16 +48,16 @@ export default function ConsultationPage() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-5">
           <span className="inline-flex items-center gap-1.5 font-mono text-xs text-clinical-teal bg-clinical-teal/10 border border-clinical-teal/20 px-3.5 py-1 rounded-full font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4" /> ONE-TO-ONE APPOINTMENT SYSTEM
+            <ShieldCheck className="w-4 h-4" /> PERSONALISED EXAMINATION MENTORSHIP
           </span>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-ink leading-tight">
-            Pharmacy Examination{" "}
-            <span className="text-clinical-teal">Mentorship</span>
+            One-to-One Pharmacy{" "}
+            <span className="text-clinical-teal">Examination Mentorship</span>
           </h1>
 
           <p className="text-sm sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
-            Schedule a personalized session with Senior Lecturer &amp; Executive Director <strong>Dr. Isuru Wijesinghe</strong> for External Pharmacist Examination study planning, MCQ &amp; SEQ strategies, or mock viva and OSPE coaching.
+            Book a personalised session with Senior Lecturer and Pharmacist <strong>Dr. Isuru Wijesinghe</strong> for External Pharmacist Examination study planning, MCQ and SEQ answering strategies, mock viva practice, and OSPE preparation.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-1 sm:pt-2">
@@ -65,7 +65,7 @@ export default function ConsultationPage() {
               href="#booking-form"
               className="inline-flex items-center gap-2 bg-clinical-teal hover:bg-clinical-teal-hover text-white text-xs font-mono font-bold px-6 py-3 rounded-full shadow-md transition-all"
             >
-              <Calendar className="w-4 h-4" /> Book Appointment Now
+              <Calendar className="w-4 h-4" /> Book a Mentorship Session
             </a>
             <a
               href="#check-status"
