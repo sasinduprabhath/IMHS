@@ -15,22 +15,22 @@ import {
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 
 export const metadata = {
-  title: "Course Catalog | Accredited Pharmacy & Healthcare Programs",
+  title: "Pharmacy Education & Examination Programmes | Courses | IMHS",
   description:
-    "Explore SLMC-aligned pharmacy courses, clinical modules, fast-track revision, and practical dispensary certifications at IMHS Sri Lanka.",
+    "Explore structured pharmacy courses, professional development programmes, and examination-preparation resources designed for pharmacy students, aspiring pharmacists, and healthcare professionals.",
   alternates: {
     canonical: "https://imhsedu.com/courses",
   },
   openGraph: {
-    title: "Course Catalog | IMHS Healthcare Education",
-    description: "Browse accredited pharmaceutical and clinical healthcare programs in Sri Lanka.",
+    title: "Pharmacy Education and Examination Programmes | IMHS",
+    description: "Explore structured pharmacy courses and examination-preparation resources.",
     url: "https://imhsedu.com/courses",
     images: [{ url: "/gallery/pharmacy-practical.jpg", width: 1200, height: 630, alt: "IMHS Course Catalog" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Course Catalog | IMHS Healthcare Education",
-    description: "Browse accredited pharmacy practice courses and SLMC exam revisions.",
+    title: "Pharmacy Education and Examination Programmes | IMHS Education",
+    description: "Explore structured pharmacy courses and examination-preparation resources.",
     images: ["/gallery/pharmacy-practical.jpg"],
   },
 };
@@ -81,16 +81,16 @@ export default async function CoursesCatalogPage() {
         <MedicalCross size={18} color="#4A8B7A" className="absolute bottom-10 left-1/3 opacity-20 transform-gpu pointer-events-none" />
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
           <span className="inline-block font-mono text-xs text-chart-red uppercase tracking-widest font-semibold border border-chart-red/30 px-4 py-1.5 rounded-full bg-white">
-            ACADEMIC CURRICULUM
+            ACADEMIC PROGRAMMES
           </span>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-semibold text-ink leading-tight">
-            Clinical Education{" "}
+            Pharmacy Education and{" "}
             <span className="text-clinical-teal">
-              Programs
+              Examination Programmes
             </span>
           </h1>
-          <p className="text-sm sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed">
-            Structured, consultant-led pharmaceutical and clinical certification courses for healthcare professionals and medical students.
+          <p className="text-sm sm:text-lg text-ink-muted max-w-2xl mx-auto leading-relaxed font-sans">
+            Explore structured pharmacy courses, professional development programmes, and examination-preparation resources designed for pharmacy students, aspiring pharmacists, and healthcare professionals.
           </p>
           <div className="flex flex-wrap gap-2.5 sm:gap-3 justify-center pt-1 sm:pt-2">
             <div className="flex items-center gap-2 bg-surface border border-chart-grid rounded-full px-3.5 sm:px-4 py-1.5 text-ink text-xs font-mono shadow-paper">
