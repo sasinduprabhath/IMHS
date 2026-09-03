@@ -302,7 +302,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
             {/* Headline */}
             <motion.div custom={0.1} variants={heroVariant} initial="hidden" animate="show" className="w-full">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white leading-[1.08] tracking-tight text-left drop-shadow-lg">
-                Sri Lanka&apos;s Best{" "}
+                Advancing{" "}
                 <motion.span
                   custom={0.2}
                   variants={heroVariant}
@@ -310,9 +310,9 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                   animate="show"
                   className="inline-block text-[#F16726] drop-shadow-md"
                 >
-                  Healthcare
+                  Pharmaceutical Education
                 </motion.span>{" "}
-                Education
+                in Sri Lanka
               </h1>
             </motion.div>
 
@@ -324,7 +324,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
               animate="show"
               className="text-base sm:text-lg text-white/90 font-sans leading-relaxed text-left drop-shadow-sm max-w-xl"
             >
-              Experience top-tier medical education, SLMC exam preparation, and career opportunities with us. Join our prestigious community today!
+              Develop your knowledge, prepare confidently for pharmacy examinations, and strengthen your professional skills through structured learning and dedicated academic guidance.
             </motion.p>
 
             {/* Vital ECG Line */}
@@ -350,7 +350,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                     }}
                   >
                     <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>Enroll on WhatsApp</span>
+                    <span>Enrol via WhatsApp</span>
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </motion.button>
                 </Link>
@@ -363,7 +363,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                     whileTap={{ scale: 0.97 }}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 font-bold text-sm px-8 py-4 rounded-full bg-white/10 backdrop-blur-md text-white transition-all duration-200 border border-white/30 hover:bg-white/20 group"
                   >
-                    <span>Browse Programs</span>
+                    <span>Explore Programmes</span>
                     <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
                   </motion.button>
                 </Link>
@@ -387,7 +387,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                 ))}
               </div>
               <div className="text-sm font-sans font-bold text-white">
-                Over <span className="text-[#F16726] font-mono font-extrabold">3,500+</span> Active Students
+                Over <span className="text-[#F16726] font-mono font-extrabold">6,000+</span> Active Students
               </div>
             </motion.div>
           </div>
