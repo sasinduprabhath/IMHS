@@ -8,7 +8,7 @@ import { MolecularGridBackground } from "@/components/marketing/MolecularGridBac
 import { DNAHelix, AtomicOrbit, BenzeneRing, MedicalCross, PillCapsuleOrbs, FloatingMolecules } from "@/components/marketing/PharmacyAnimations";
 import {
   ShieldCheck, Award, GraduationCap, Users, ArrowRight,
-  CheckCircle2, Target, Microscope, HeartPulse, Star
+  CheckCircle2, Target, Microscope, HeartPulse, Star, Globe
 } from "lucide-react";
 
 export const metadata = {
@@ -119,7 +119,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center pt-2">
             {[
-              { icon: Award, label: "3,500+ Alumni" },
+              { icon: Award, label: "5,000+ Learners Supported" },
               { icon: GraduationCap, label: "Established 2019" },
               { icon: ShieldCheck, label: "Certified Programs" },
             ].map(({ icon: Icon, label }) => (
@@ -141,24 +141,29 @@ export default function AboutPage() {
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-semibold text-ink leading-tight">
               Empowering Over{" "}
-              <span className="text-clinical-teal">3,500+ Successful</span>{" "}
-              Healthcare Graduates
+              <span className="text-clinical-teal">5,000+ Successful</span>{" "}
+              Learners
             </h2>
-            <p className="text-base text-ink-muted leading-relaxed">
-              Since our inception, over 3,500 students have successfully completed professional courses offered by IMHS. We focus on the all-round development of students from all backgrounds, empowering them to meet emerging societal needs, become globally competitive, and uphold social responsibility with strong values.
-            </p>
+            <div className="space-y-4 text-base text-ink-muted leading-relaxed font-sans">
+              <p>
+                Since its establishment in 2019, IMHS has supported more than 5,000 learners through structured pharmacy education, examination preparation, and professional development programmes.
+              </p>
+              <p>
+                We remain committed to strengthening pharmaceutical knowledge, building learner confidence, and supporting academic and professional success.
+              </p>
+            </div>
             <div className="bg-clinical-teal/8 border border-clinical-teal/20 p-5 rounded-card space-y-2">
-              <h4 className="font-mono font-bold text-clinical-teal uppercase text-xs">Institutional Vision</h4>
-              <p className="text-sm text-ink leading-relaxed italic">
-                &ldquo;IMHS aims to be a globally renowned healthcare education provider by delivering quality healthcare education and innovative research.&rdquo;
+              <h4 className="font-mono font-bold text-clinical-teal uppercase text-xs">INSTITUTIONAL VISION</h4>
+              <p className="text-sm text-ink leading-relaxed italic font-sans">
+                &ldquo;To become a recognised centre for pharmaceutical education by delivering accessible, evidence-based, and professionally relevant learning.&rdquo;
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Award, value: "3,500+", label: "Alumni Graduates" },
-                { icon: CheckCircle2, value: "2019", label: "Year Founded" },
-                { icon: GraduationCap, value: "4+", label: "Active Programs" },
-                { icon: Users, value: "6", label: "Senior Faculty" },
+                { icon: Award, value: "5,000+", label: "Success Stories" },
+                { icon: CheckCircle2, value: "2019", label: "Year Established" },
+                { icon: GraduationCap, value: "20+", label: "Educational Programmes" },
+                { icon: Globe, value: "Island-wide", label: "Flexible Online Learning" },
               ].map(({ icon: Icon, value, label }) => (
                 <div key={label} className="bg-surface border border-chart-grid rounded-card p-4 text-center space-y-1 hover:border-clinical-teal/30 transition-colors">
                   <Icon className="w-4 h-4 text-clinical-teal mx-auto" />
@@ -186,8 +191,8 @@ export default function AboutPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="bg-ink/80 backdrop-blur-sm rounded-card p-3 border border-white/10">
-                      <h3 className="text-sm font-semibold text-white">Dr. Isuru Wijesinghe</h3>
-                      <p className="text-xs font-mono text-clinical-teal-light">Senior Lecturer / Director, IMHS</p>
+                      <h3 className="text-sm font-semibold text-white">Dr. Isuru Wijesinghe, Ph.D.</h3>
+                      <p className="text-xs font-mono text-clinical-teal-light">Senior Lecturer / Executive Director, IMHS</p>
                     </div>
                   </div>
                 </div>
