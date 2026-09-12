@@ -7,6 +7,7 @@ echo "==========================================================================
 
 # 1. Pull latest code
 echo "📥 [1/6] Pulling latest updates from Git repository..."
+cd "$(dirname "$0")" || cd /home/imhsedu.com/public_html
 git pull origin main
 
 # 2. Install dependencies

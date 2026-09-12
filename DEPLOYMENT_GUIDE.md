@@ -43,7 +43,7 @@ This guide provides an end-to-end, step-by-step procedure to deploy, configure, 
                                          │ Proxy (127.0.0.1:3020)
                                          ▼
                           ┌─────────────────────────────┐
-                          │   Next.js 15 Server (PM2)   │
+                          │ Next.js 16 (React 19) (PM2) │
                           │   - Edge & Node.js Runtime  │
                           │   - Security Headers & CSP  │
                           │   - Rate Limiting & Auth    │
@@ -250,10 +250,13 @@ npx prisma generate
 # 2. Sync schema tables and indexes to MySQL
 npx prisma db push
 
-# 3. (Optional) Run Initial Seed if setting up from scratch:
+# 3. (Optional) Run Initial Core Seed if setting up from scratch (Admin, Students, Faculty, Sample Courses):
 # npx tsx prisma/seed.ts
 
-# 4. (Optional) If migrating legacy data from SQL dump:
+# 4. (Optional) Run Media CMS Seed (Video Highlights, Convocation, & Gallery Showcase):
+# npx tsx scripts/seed-media-cms.ts
+
+# 5. (Optional) If migrating legacy data from SQL dump:
 # npx tsx scripts/migrate-full-backup.ts
 ```
 
@@ -475,7 +478,7 @@ echo "==========================================================================
 
 # 1. Pull latest code
 echo "📥 [1/6] Pulling latest updates from Git repository..."
-cd /home/imhsedu.com/public_html
+cd "$(dirname "$0")" || cd /home/imhsedu.com/public_html
 git pull origin main
 
 # 2. Install dependencies
