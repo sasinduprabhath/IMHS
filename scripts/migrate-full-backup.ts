@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -602,22 +603,29 @@ async function migrateMasterBackup() {
   // ── PHASE 5: PLATFORM ESSENTIALS (ADMIN & FACULTY SEED) ───────────────
   console.log("\n🔄 Phase 5: Ensuring System Administrator & Faculty Board Exist...");
 
-  // 1. Ensure System Administrator
+  // 1. Ensure System Administrator (admin@imhs.edu.lk / admin123)
   const adminEmail = "admin@imhs.edu.lk";
-  const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
-  if (!existingAdmin) {
-    await prisma.user.create({
-      data: {
-        name: "IMHS System Administrator",
-        email: adminEmail,
-        phone: "+94778025050",
-        passwordHash: "$2a$10$7vN16bC9/L4QkLz7dIq3x.mQ8mS1F.gYqV9aX8j8cO8k1PqWvYtC2", // Default hash for admin123
-        role: "ADMIN",
-        status: "ACTIVE",
-      },
-    });
-    console.log("   ✅ Initialized System Administrator (admin@imhs.edu.lk).");
-  }
+  const adminPasswordHash = await bcrypt.hash("admin123", 10);
+
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      name: "IMHS System Administrator",
+      phone: "+94778025050",
+      passwordHash: adminPasswordHash,
+      role: "ADMIN",
+      status: "ACTIVE",
+    },
+    create: {
+      name: "IMHS System Administrator",
+      email: adminEmail,
+      phone: "+94778025050",
+      passwordHash: adminPasswordHash,
+      role: "ADMIN",
+      status: "ACTIVE",
+    },
+  });
+  console.log("   ✅ Initialized System Administrator (admin@imhs.edu.lk / admin123).");
 
   // 2. Ensure Faculty Members
   const facultyCount = await prisma.facultyMember.count();

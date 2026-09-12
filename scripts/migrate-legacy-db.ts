@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -208,6 +209,30 @@ async function main() {
   }
 
   console.log(`✅ Phase 2 Complete: Synced Categories & Cover Images for ${updatedCoursesCount} courses.\n`);
+
+  // Phase 3: Ensure System Administrator (admin@imhs.edu.lk / admin123)
+  console.log("🔄 Phase 3: Ensuring System Administrator Account...");
+  const adminEmail = "admin@imhs.edu.lk";
+  const adminPasswordHash = await bcrypt.hash("admin123", 10);
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      name: "IMHS System Administrator",
+      phone: "+94778025050",
+      passwordHash: adminPasswordHash,
+      role: "ADMIN",
+      status: "ACTIVE",
+    },
+    create: {
+      name: "IMHS System Administrator",
+      email: adminEmail,
+      phone: "+94778025050",
+      passwordHash: adminPasswordHash,
+      role: "ADMIN",
+      status: "ACTIVE",
+    },
+  });
+  console.log("✅ Phase 3 Complete: Ensured System Administrator (admin@imhs.edu.lk / admin123).\n");
 
   console.log("=========================================================================");
   console.log("  🎉 FULL DATA SYNC & MASTER MIGRATION COMPLETED SUCCESSFULLY!");
