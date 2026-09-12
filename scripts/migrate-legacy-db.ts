@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import readline from "readline";
 import { PrismaClient } from "@prisma/client";
 
@@ -29,8 +30,12 @@ function extractVimeoInfo(metaValue: string | null): { vimeoVideoId: string | nu
 }
 
 async function main() {
-  const defaultSqlPath = "u328662350_iIq7V.sql";
-  const targetSqlPath = process.argv[2] || process.env.SQL_BACKUP_PATH || defaultSqlPath;
+  const defaultSqlPath = path.join(process.cwd(), "u328662350_iIq7V.sql");
+  const fallbackPath = "C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql";
+  const targetSqlPath =
+    process.argv[2] ||
+    process.env.SQL_BACKUP_PATH ||
+    (fs.existsSync(defaultSqlPath) ? defaultSqlPath : fallbackPath);
 
   console.log("=========================================================================");
   console.log(" 🚀 STARTING FULL MASTER DATA SYNC & MIGRATION FOR IMHS CLINICAL PORTAL");
@@ -131,7 +136,7 @@ async function main() {
 
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [{ email: u.email }, { studentId: u.login }],
+        OR: [{ email: u.email }, { studentId: u.login.toUpperCase() }],
       },
     });
 
