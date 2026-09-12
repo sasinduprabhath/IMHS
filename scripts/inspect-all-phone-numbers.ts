@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   const legacyDb = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "3212",
-    database: "imhs_legacy_db",
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "imhs_legacy_db",
   });
 
   console.log("🔍 Checking WhatsApp Phone Numbers & Reg IDs in wp_usermeta...");

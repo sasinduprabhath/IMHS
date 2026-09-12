@@ -7,10 +7,10 @@ async function main() {
   console.log("🚀 Importing Official Student Reg IDs (user_login) into IMHS Database...");
 
   const legacyDb = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "3212",
-    database: "imhs_legacy_db",
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "imhs_legacy_db",
   });
 
   const [legacyUsers]: any = await legacyDb.query(`
