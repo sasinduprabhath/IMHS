@@ -29,7 +29,7 @@ function extractVimeoInfo(metaValue: string | null): { vimeoVideoId: string | nu
 }
 
 async function main() {
-  const defaultSqlPath = "C:\\Users\\User\\Downloads\\u328662350_iIq7V.sql";
+  const defaultSqlPath = "u328662350_iIq7V.sql";
   const targetSqlPath = process.argv[2] || process.env.SQL_BACKUP_PATH || defaultSqlPath;
 
   console.log("=========================================================================");
