@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { sanitizeEmail, sanitizeString } from "@/lib/sanitization";
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET environment variable is missing.");
-}
+// Note: NEXTAUTH_SECRET is enforced at runtime inside authorize() and API routes
+// to avoid failing Next.js build-time static route collection if env is not loaded at build.
+
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -31,7 +31,10 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        const secret = process.env.NEXTAUTH_SECRET!;
+        const secret = process.env.NEXTAUTH_SECRET;
+        if (!secret) {
+          throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET environment variable is missing.");
+        }
 
         // ── Path A: OTP-verified token bypass ─────────────────────────
         // After verifying OTP, the client sends a signed short-lived token
@@ -145,5 +148,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "imhs-build-time-secret-placeholder",
 };

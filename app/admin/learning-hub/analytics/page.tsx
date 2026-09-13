@@ -8,6 +8,8 @@ export const metadata = {
   title: "Student Analytics & Gradebook - Admin CMS",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminAnalyticsPage() {
   const [logs, leaderboard] = await Promise.all([
     getStudentAnalyticsLogs(),
