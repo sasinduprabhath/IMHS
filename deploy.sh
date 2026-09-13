@@ -21,7 +21,7 @@ npx prisma db push
 
 # 4. Production Next.js build
 echo "🏗️ [4/6] Compiling production Next.js build..."
-NODE_OPTIONS="--max-old-space-size=2048" npm run build
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # 5. Reload PM2 cluster
 echo "🔄 [5/6] Gracefully reloading PM2 cluster..."

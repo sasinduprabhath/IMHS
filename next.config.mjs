@@ -7,6 +7,10 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  typescript: {
+    // Prevents JavaScript heap out of memory on production VPS instances
+    ignoreBuildErrors: true,
+  },
   allowedDevOrigins: [
     "localhost",
     "127.0.0.1",

@@ -288,7 +288,7 @@ chmod -R 755 public/
 chmod -R 755 logs/
 
 # Build Next.js application (increase memory limit if VPS has limited RAM)
-NODE_OPTIONS="--max-old-space-size=2048" npm run build
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
 ```
 
 > **Tip**: If the build fails with a heap out of memory error, see [Troubleshooting Issue 2](#issue-2-javascript-heap-out-of-memory-during-npm-run-build) below.
@@ -496,7 +496,7 @@ npx prisma db push
 
 # 4. Production Next.js build
 echo "🏗️ [4/6] Compiling production Next.js build..."
-NODE_OPTIONS="--max-old-space-size=2048" npm run build
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # 5. Reload PM2 cluster
 echo "🔄 [5/6] Gracefully reloading PM2 cluster..."
@@ -564,9 +564,10 @@ Verify that all systems and security features are working properly:
 
 ### Issue 2: "JavaScript heap out of memory" during `npm run build`
 - **Cause**: VPS has limited RAM (e.g. 1GB or 2GB).
-- **Fix**: Create a persistent Linux swap file:
+- **Fix**: 
+  1. Create a 4GB persistent Linux swap file:
   ```bash
-  sudo fallocate -l 2G /swapfile
+  sudo fallocate -l 4G /swapfile
   sudo chmod 600 /swapfile
   sudo mkswap /swapfile
   sudo swapon /swapfile
@@ -574,9 +575,9 @@ Verify that all systems and security features are working properly:
   # Make swap persistent across reboots (IMPORTANT — without this, swap disappears after restart)
   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
   ```
-  Or increase Node memory limit for the build only:
+  2. Run the build with 4GB heap allocation:
   ```bash
-  NODE_OPTIONS="--max-old-space-size=2048" npm run build
+  NODE_OPTIONS="--max-old-space-size=4096" npm run build
   ```
 
 ### Issue 3: OpenLiteSpeed Static Cache caching Dynamic User Sessions
