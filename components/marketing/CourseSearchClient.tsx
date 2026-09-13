@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { CustomSelect } from "@/components/ui/custom-select";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import {
   Search, BookOpen, FileText, ArrowRight, Filter,
-  Check, X, Sparkles, Tag, SlidersHorizontal, Clock, Users
+  Check, X, Sparkles, Tag, SlidersHorizontal, Clock, Users,
+  ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight
 } from "lucide-react";
 
 export interface CourseItem {
@@ -41,6 +42,9 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
   const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>("newest");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(12);
+  const catalogTopRef = useRef<HTMLDivElement>(null);
 
   // Extract unique types, categories, levels from dataset
   const availableTypes = useMemo(() => {
@@ -110,6 +114,42 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
         return 0; // default newest / original order
       });
   }, [courses, search, selectedTypes, selectedCategories, selectedLevels, selectedPrices, sortBy]);
+ 
+  // Reset to page 1 whenever any filter, search, or page size changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedTypes, selectedCategories, selectedLevels, selectedPrices, sortBy, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / pageSize));
+  const validPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (validPage - 1) * pageSize;
+  const paginatedCourses = useMemo(() => {
+    return filteredCourses.slice(startIndex, startIndex + pageSize);
+  }, [filteredCourses, startIndex, pageSize]);
+
+  const handlePageChange = (page: number) => {
+    const p = Math.max(1, Math.min(totalPages, page));
+    setCurrentPage(p);
+    if (catalogTopRef.current) {
+      catalogTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      const el = document.getElementById("catalog");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const getPageNumbers = (current: number, total: number): (number | string)[] => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, "...", total];
+    }
+    if (current >= total - 3) {
+      return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
+  };
 
   const toggleFilter = (list: string[], setList: (l: string[]) => void, item: string) => {
     if (list.includes(item)) {
@@ -136,7 +176,7 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
     (search ? 1 : 0);
 
   return (
-    <div className="space-y-8">
+    <div ref={catalogTopRef} className="space-y-8">
       {/* Top Search Bar & Sort Dropdown */}
       <div className="bg-surface border border-chart-grid rounded-card p-4 sm:p-5 shadow-paper flex flex-col md:flex-row gap-4 items-center justify-between overflow-hidden max-w-full">
         
@@ -389,6 +429,35 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
             </div>
           )}
 
+          {/* Results Summary & Page Size Controls */}
+          {filteredCourses.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-sage pb-1">
+              <div>
+                Showing <strong className="text-ink">{startIndex + 1}–{Math.min(startIndex + pageSize, filteredCourses.length)}</strong> of{" "}
+                <strong className="text-ink">{filteredCourses.length}</strong> academic programs
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline">Per page:</span>
+                <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-chart-grid text-[11px] shadow-2xs">
+                  {[9, 12, 24, 48].map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setPageSize(size)}
+                      className={`px-2.5 py-0.5 rounded font-mono font-bold transition-all ${
+                        pageSize === size
+                          ? "bg-clinical-teal text-white shadow-xs"
+                          : "text-sage hover:text-ink hover:bg-linen/50"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Empty State */}
           {filteredCourses.length === 0 ? (
             <div className="text-center py-16 bg-surface border border-chart-grid rounded-card space-y-4 shadow-paper">
@@ -403,7 +472,7 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => {
+              {paginatedCourses.map((course) => {
                 const totalLessons = course.chapters.reduce(
                   (acc, ch) => acc + ch.lessons.length,
                   0
@@ -544,6 +613,90 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                   </Link>
                 );
               })}
+            </div>
+          )}
+
+          {/* ── Pagination Controls ── */}
+          {totalPages > 1 && (
+            <div className="pt-6 pb-2 border-t border-chart-grid flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
+              <div className="text-sage text-[11px] text-center sm:text-left">
+                Page <strong className="text-ink font-bold">{validPage}</strong> of{" "}
+                <strong className="text-ink font-bold">{totalPages}</strong>{" "}
+                <span className="hidden sm:inline">({filteredCourses.length} programs)</span>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                {/* First Page */}
+                <button
+                  disabled={validPage <= 1}
+                  onClick={() => handlePageChange(1)}
+                  className="h-8.5 w-8.5 rounded-lg border border-chart-grid bg-white text-ink flex items-center justify-center hover:bg-linen hover:border-clinical-teal/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-paper active:scale-95"
+                  title="First Page"
+                >
+                  <ChevronsLeft className="w-4 h-4" />
+                </button>
+
+                {/* Previous Page */}
+                <button
+                  disabled={validPage <= 1}
+                  onClick={() => handlePageChange(validPage - 1)}
+                  className="h-8.5 w-8.5 rounded-lg border border-chart-grid bg-white text-ink flex items-center justify-center hover:bg-linen hover:border-clinical-teal/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-paper active:scale-95"
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Page Numbers */}
+                {getPageNumbers(validPage, totalPages).map((p, idx) => {
+                  if (p === "...") {
+                    return (
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="h-8.5 w-6 flex items-center justify-center text-sage font-mono select-none"
+                      >
+                        …
+                      </span>
+                    );
+                  }
+
+                  const pageNum = Number(p);
+                  const isActive = pageNum === validPage;
+
+                  return (
+                    <button
+                      key={`page-${pageNum}`}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`h-8.5 min-w-8.5 px-2.5 rounded-lg text-xs font-mono font-bold transition-all active:scale-95 shadow-paper ${
+                        isActive
+                          ? "bg-clinical-teal text-white border border-clinical-teal shadow-xs font-black"
+                          : "bg-white text-ink border border-chart-grid hover:bg-linen hover:border-clinical-teal/50"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                {/* Next Page */}
+                <button
+                  disabled={validPage >= totalPages}
+                  onClick={() => handlePageChange(validPage + 1)}
+                  className="h-8.5 w-8.5 rounded-lg border border-chart-grid bg-white text-ink flex items-center justify-center hover:bg-linen hover:border-clinical-teal/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-paper active:scale-95"
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Last Page */}
+                <button
+                  disabled={validPage >= totalPages}
+                  onClick={() => handlePageChange(totalPages)}
+                  className="h-8.5 w-8.5 rounded-lg border border-chart-grid bg-white text-ink flex items-center justify-center hover:bg-linen hover:border-clinical-teal/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-paper active:scale-95"
+                  title="Last Page"
+                >
+                  <ChevronsRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
 
