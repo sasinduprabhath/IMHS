@@ -1,7 +1,7 @@
 import { DrugClassificationActivity } from "@/components/student/practice/DrugClassificationActivity";
 import { DrugClassificationPicker } from "@/components/student/practice/DrugClassificationPicker";
-import { getDrugKnowledgeList, getDrugKnowledgeById } from "@/actions/drug-actions";
-import { notFound } from "next/navigation";
+import { getDrugKnowledgeList } from "@/actions/drug-actions";
+import { DRUGS } from "@/data/drugs";
 import type { Drug } from "@/types/pharmacology";
 
 export const metadata = {
@@ -17,14 +17,11 @@ export default async function DrugClassificationPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
   const drugId = params.drug;
 
-  // 1. Fetch all real DB drugs
+  // 1. Fetch all real DB drugs, falling back to curated DRUGS if DB is empty
   const allDb = await getDrugKnowledgeList();
 
-  if (!allDb || allDb.length === 0) {
-    notFound();
-  }
-
-  const formattedAllDrugs: Drug[] = allDb.map((d: any) => {
+  const formattedAllDrugs: Drug[] = (allDb && allDb.length > 0)
+    ? allDb.map((d: any) => {
     const sideEffects = Array.isArray(d.sideEffects) ? d.sideEffects : (d.sideEffects ? [d.sideEffects] : ["Nausea"]);
     const interactions = Array.isArray(d.interactions) ? d.interactions : (d.interactions ? [d.interactions] : ["CYP3A4 Inhibitors"]);
 
@@ -49,7 +46,8 @@ export default async function DrugClassificationPage({ searchParams }: Props) {
       antidote: d.antidote || "None / Symptomatic Support",
       antidoteOptions: (d.antidoteOptions as string[]) || [d.antidote || "None / Symptomatic Support", "Naloxone"],
     };
-  });
+  })
+: DRUGS;
 
   // ── If no drug query is specified, show Medicine Selection Lobby ─────────
   if (!drugId) {

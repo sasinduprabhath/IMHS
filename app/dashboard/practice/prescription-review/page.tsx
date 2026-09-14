@@ -1,7 +1,7 @@
 import { PrescriptionSideBySideWizard } from "@/components/hub/PrescriptionSideBySideWizard";
 import { PrescriptionCasePicker, PrescriptionCaseSummary } from "@/components/hub/PrescriptionCasePicker";
 import { getPrescriptionCaseById as getDbCaseById, getPrescriptionCases } from "@/actions/prescription-actions";
-import { notFound } from "next/navigation";
+import { PRESCRIPTION_CASES } from "@/data/prescriptionCases";
 
 export const metadata = {
   title: "Prescription Review Challenge — IMHS Practice Hub",
@@ -16,12 +16,23 @@ export default async function PrescriptionReviewPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
   const caseParam = params.case;
 
-  // 1. Fetch all real DB cases
-  const dbCases = await getPrescriptionCases();
-
-  if (!dbCases || dbCases.length === 0) {
-    notFound();
-  }
+  // 1. Fetch all real DB cases, falling back to PRESCRIPTION_CASES if empty
+  const rawDbCases = await getPrescriptionCases();
+  const dbCases = (rawDbCases && rawDbCases.length > 0)
+    ? rawDbCases
+    : PRESCRIPTION_CASES.map((pc) => ({
+        id: pc.id,
+        title: `Clinical Prescription Review Case: ${pc.patient.name}`,
+        imageUrl: pc.imageUrl || "/practice/prescriptions/case-01.png",
+        patientDetails: pc.patient,
+        medicineDetails: pc.medicines,
+        hasProblem: pc.hasProblem,
+        problemOptions: pc.problemOptions,
+        correctProblem: pc.correctProblemIds?.join(", ") || "",
+        shouldDispense: pc.expectedAction === "dispense",
+        dispenseReason: pc.dispensingReason || "",
+        counsellingPoints: pc.expectedCounsellingPoints || [],
+      }));
 
   // Create clean numbered case references (no answer spoilers)
   const caseSummaries: PrescriptionCaseSummary[] = dbCases.map((c: any, index: number) => ({
@@ -50,8 +61,11 @@ export default async function PrescriptionReviewPage({ searchParams }: Props) {
     }
   }
 
-  // ── Load the real DB case data ──────────────────────────────────────────
-  const dbCase = await getDbCaseById(targetId);
+  // ── Load the real DB case data (or fallback case) ──────────────────────
+  let dbCase: any = rawDbCases && rawDbCases.length > 0 ? await getDbCaseById(targetId) : null;
+  if (!dbCase) {
+    dbCase = dbCases.find((c: any) => c.id === targetId);
+  }
   if (!dbCase) {
     return <PrescriptionCasePicker cases={caseSummaries} />;
   }

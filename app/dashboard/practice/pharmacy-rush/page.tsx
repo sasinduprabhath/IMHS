@@ -1,6 +1,6 @@
 import { PharmacyRushActivity } from "@/components/student/practice/PharmacyRushActivity";
-import { getDrugKnowledgeList, getDrugKnowledgeById } from "@/actions/drug-actions";
-import { notFound } from "next/navigation";
+import { getDrugKnowledgeList } from "@/actions/drug-actions";
+import { DRUGS } from "@/data/drugs";
 import type { Drug } from "@/types/pharmacology";
 
 export const metadata = {
@@ -16,15 +16,12 @@ export default async function PharmacyRushPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
   const drugId = params.drug;
 
-  // 1. Fetch all real DB drugs
+  // 1. Fetch all real DB drugs, falling back to curated DRUGS if DB is empty
   const dbDrugs = await getDrugKnowledgeList();
 
-  if (!dbDrugs || dbDrugs.length === 0) {
-    notFound();
-  }
-
   // 2. Format all real DB drugs into standard Drug interface
-  const formattedAvailableDrugs: Drug[] = dbDrugs.map((d: any) => {
+  const formattedAvailableDrugs: Drug[] = (dbDrugs && dbDrugs.length > 0)
+    ? dbDrugs.map((d: any) => {
     const sideEffects = Array.isArray(d.sideEffects) ? d.sideEffects : (d.sideEffects ? [d.sideEffects] : ["Nausea"]);
     const interactions = Array.isArray(d.interactions) ? d.interactions : (d.interactions ? [d.interactions] : ["CYP3A4 Inhibitors"]);
 
@@ -49,7 +46,8 @@ export default async function PharmacyRushPage({ searchParams }: Props) {
       antidote: d.antidote || "None / Symptomatic Support",
       antidoteOptions: (d.antidoteOptions as string[]) || [d.antidote || "None / Symptomatic Support", "Naloxone"],
     };
-  });
+  })
+: DRUGS;
 
   // 3. Find the selected DB drug, or default to the FIRST real DB drug
   let selectedDrug = formattedAvailableDrugs[0];
