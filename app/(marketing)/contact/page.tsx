@@ -197,7 +197,7 @@ export default function ContactPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <InputField label="Phone Number (WhatsApp)" required error={errors.phone?.message}>
-                        <input type="text" placeholder="077 802 5050" {...register("phone")} className={inputClass} />
+                        <input type="text" placeholder="076 650 6621" {...register("phone")} className={inputClass} />
                       </InputField>
                       <InputField label="Email Address (Optional)" error={errors.email?.message}>
                         <input type="email" placeholder="student@example.com" {...register("email")} className={inputClass} />

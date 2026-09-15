@@ -52,7 +52,7 @@ ${coursesList}
 Please log in to your portal and update your password under your *Profile Settings*.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• IMHS Help Desk: +94 77 802 5050
+• IMHS Help Desk: +94 76 650 6621
 • Sri Lanka`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
@@ -87,7 +87,7 @@ Your IMHS Student Portal password has been reset by the administrator.
 Please log in to your portal and update your password under your *Profile Settings*.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• IMHS Help Desk: +94 77 802 5050
+• IMHS Help Desk: +94 76 650 6621
 • Sri Lanka`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;

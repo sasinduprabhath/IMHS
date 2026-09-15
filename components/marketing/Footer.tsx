@@ -94,7 +94,14 @@ export function Footer() {
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center shrink-0">
                   <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
-                <span className="text-white/50">077 802 5050 (WhatsApp Admin)</span>
+                <a
+                  href="https://wa.me/94766506621"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/50 hover:text-white transition-colors"
+                >
+                  076 650 6621 (WhatsApp Admin)
+                </a>
               </li>
             </ul>
           </div>
