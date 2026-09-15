@@ -131,7 +131,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   const [type, setType] = useState(course.type || "Course");
   const [category, setCategory] = useState(course.category || "Modern Pharmacy Course");
   const [level, setLevel] = useState(course.level || "All Levels");
-  const [enrollmentValidity, setEnrollmentValidity] = useState(course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") ? course.enrollmentValidity : "Batch Intake Access");
+  const [enrollmentValidity, setEnrollmentValidity] = useState("");
   const [totalEnrolled, setTotalEnrolled] = useState<number | "">(course.totalEnrolled || 450);
   const [published, setPublished] = useState(course.published);
   const [coverImage, setCoverImage] = useState(course.coverImage || "");
@@ -219,7 +219,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       type: type || "Course",
       category: category || "Modern Pharmacy Course",
       level: level || "All Levels",
-      enrollmentValidity: enrollmentValidity || "Batch Intake Access",
+      enrollmentValidity: "",
       totalEnrolled: totalEnrolled !== "" ? Number(totalEnrolled) : 450,
       published: Boolean(published),
       coverImage: (coverImage || "").trim(),
@@ -790,31 +790,16 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Enrollment Validity</label>
-                <CustomSelect
-                  options={[
-                    { value: "Batch Intake Access", label: "Batch Intake Access" },
-                    { value: "1 Year Access", label: "1 Year Access" },
-                    { value: "6 Month Access", label: "6 Month Access" },
-                    { value: "Exam Intake Period", label: "Exam Intake Period" },
-                  ]}
-                  value={enrollmentValidity && !enrollmentValidity.toLowerCase().includes("lifetime") ? enrollmentValidity : "Batch Intake Access"}
-                  onChange={setEnrollmentValidity}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Enrolled Count (Display)</label>
-                <input
-                  type="number"
-                  min={0}
-                  value={totalEnrolled}
-                  onChange={(e) => setTotalEnrolled(e.target.value !== "" ? Number(e.target.value) : "")}
-                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                />
-                <p className="text-[10px] font-mono text-slate-500 mt-1">Public-facing enrollment badge number on course page</p>
-              </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Enrolled Count (Display)</label>
+              <input
+                type="number"
+                min={0}
+                value={totalEnrolled}
+                onChange={(e) => setTotalEnrolled(e.target.value !== "" ? Number(e.target.value) : "")}
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+              />
+              <p className="text-[10px] font-mono text-slate-500 mt-1">Public-facing enrollment badge number on course page</p>
             </div>
           </section>
 

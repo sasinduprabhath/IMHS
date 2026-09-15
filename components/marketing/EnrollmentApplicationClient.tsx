@@ -434,12 +434,6 @@ export function EnrollmentApplicationClient({
                     <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">
                       Selected Course
                     </span>
-                    {(selectedCourse.enrollmentValidity || selectedCourse.duration) && (
-                      <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#0E57A4]" />{" "}
-                        {selectedCourse.enrollmentValidity || selectedCourse.duration}
-                      </span>
-                    )}
                   </div>
 
                   <div className="space-y-1">

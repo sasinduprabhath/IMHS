@@ -64,7 +64,7 @@ model Course {
   type               String   @default("Course") // "Course" | "Bundle"
   category           String   @default("Modern Pharmacy")
   level              String   @default("All Levels") // "All Levels" | "Beginner" | "Intermediate" | "Expert"
-  enrollmentValidity String   @default("Batch Intake Access")
+  enrollmentValidity String   @default("")
   totalEnrolled      Int      @default(450)
   published          Boolean  @default(false)
   coverImage         String?

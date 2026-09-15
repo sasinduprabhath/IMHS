@@ -43,7 +43,6 @@ const FALLBACK_COURSES: CourseOption[] = [
     price: 45000,
     category: "Pharmacy",
     level: "All Levels",
-    enrollmentValidity: "Batch Intake Access",
   },
   {
     id: "pharmacology-fundamentals",
@@ -52,7 +51,6 @@ const FALLBACK_COURSES: CourseOption[] = [
     price: 52000,
     category: "Pharmacology",
     level: "Intermediate",
-    enrollmentValidity: "Batch Intake Access",
   },
   {
     id: "community-pharmacy",
@@ -61,7 +59,6 @@ const FALLBACK_COURSES: CourseOption[] = [
     price: 38000,
     category: "Management",
     level: "Beginner",
-    enrollmentValidity: "Batch Intake Access",
   },
 ];
 

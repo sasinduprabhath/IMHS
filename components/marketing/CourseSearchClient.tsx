@@ -571,12 +571,6 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                               </span>
                             );
                           })()}
-                          {course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") && (
-                            <span className="flex items-center gap-1 text-ink font-semibold whitespace-nowrap shrink-0">
-                              <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                              {course.enrollmentValidity}
-                            </span>
-                          )}
                         </div>
 
                         {(() => {
