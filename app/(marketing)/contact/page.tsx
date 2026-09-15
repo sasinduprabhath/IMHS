@@ -28,7 +28,7 @@ type ContactFormData = z.infer<typeof contactFormSchema>;
 const CONTACT_INFO = [
   { icon: MapPin, label: "Service Area", value: "Island-wide and Online – Sri Lanka" },
   { icon: Mail, label: "Email", value: "info.imhsedu@gmail.com" },
-  { icon: PhoneCall, label: "WhatsApp Hotline", value: "+94 77 802 5050" },
+  { icon: PhoneCall, label: "WhatsApp Hotline", value: "+94 76 650 6621" },
   { icon: Clock, label: "Office Hours", value: "Mon-Sat · 8:00 AM - 6:00 PM" },
   { icon: Globe, label: "Website", value: "imhsedu.com" },
 ];

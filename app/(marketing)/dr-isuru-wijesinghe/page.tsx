@@ -274,7 +274,7 @@ export default async function DrIsuruWijesinghePage() {
                 </div>
                 <div className="flex items-start justify-between pb-1">
                   <span className="text-sage">Helpline Desk</span>
-                  <span className="font-semibold text-clinical-teal text-right">+94 77 802 5050</span>
+                  <span className="font-semibold text-clinical-teal text-right">+94 76 650 6621</span>
                 </div>
               </div>
 

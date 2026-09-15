@@ -98,7 +98,8 @@ export function StudentSidebar({ user }: { user: any }) {
     : "ST";
   const regId = user?.studentId || null;
 
-  const supportWaLink = `https://wa.me/94776828490?text=${encodeURIComponent(
+  const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621";
+  const supportWaLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(
     "Hello, I need support with my IMHS Student Portal account."
   )}`;
 

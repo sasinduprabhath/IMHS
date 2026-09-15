@@ -3,7 +3,7 @@
  * Clean, emoji-free text formatting for 100% reliable URL parameter encoding and rendering.
  */
 
-const DEFAULT_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+94778025050";
+const DEFAULT_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+94766506621";
 
 /**
  * Clean phone number for wa.me URL format (only digits)

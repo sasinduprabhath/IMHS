@@ -110,7 +110,7 @@ const jsonLdOrg = {
   },
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "+94-77-682-8490",
+    telephone: "+94-76-650-6621",
     contactType: "Customer Support and Admissions",
     areaServed: "LK",
     availableLanguage: ["English", "Sinhala"],

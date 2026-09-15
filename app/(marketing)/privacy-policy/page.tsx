@@ -242,7 +242,7 @@ export default function PrivacyPolicyPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <PhoneCall className="w-4 h-4 text-clinical-teal" />
-                  <span>+94 77 802 5050</span>
+                  <span>+94 76 650 6621</span>
                 </div>
                 <div className="flex items-center gap-2 sm:col-span-2">
                   <MapPin className="w-4 h-4 text-clinical-teal shrink-0" />

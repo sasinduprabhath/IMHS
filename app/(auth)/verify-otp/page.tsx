@@ -11,7 +11,8 @@ import {
   MessageSquare, ArrowLeft, Clock, Clipboard,
 } from "lucide-react";
 
-const WA_LINK = `https://wa.me/94776828490?text=${encodeURIComponent(
+const WA_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621";
+const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
   "Hello IMHS Support, I need help with my account login - my device may have been blocked."
 )}`;
 

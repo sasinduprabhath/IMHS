@@ -252,7 +252,7 @@ export default async function StudentDashboardPage({
               </p>
             </div>
             <a
-              href={`https://wa.me/94778025050?text=${encodeURIComponent("Hello, I have not been assigned a course yet on my IMHS Student Portal.")}`}
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621"}?text=${encodeURIComponent("Hello, I have not been assigned a course yet on my IMHS Student Portal.")}`}
               target="_blank"
               rel="noopener noreferrer"
             >

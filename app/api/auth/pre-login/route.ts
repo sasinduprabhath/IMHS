@@ -21,6 +21,8 @@ const preLoginSchema = z.object({
   deviceInfo: z.string().max(200).optional().default("Unknown Device"),
 });
 
+const SUPPORT_WA_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621";
+
 export async function POST(req: NextRequest) {
   const clientIp = getClientIp(req);
   try {
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
         `• Device Details: ${deviceInfo || "Unknown Device"}\n` +
         `• Problem: My device has been locked by administration. Please approve my device in the admin panel so I can access my courses.`;
 
-      const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
+      const waLink = `https://wa.me/${SUPPORT_WA_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
       logger.security("AUTH_DEVICE_LOCKED", `Blocked device attempted login for ${user.email}`, {
         userId: user.id,
@@ -187,7 +189,7 @@ export async function POST(req: NextRequest) {
         `• Device Details: ${deviceInfo || "Unknown Device"}\n` +
         `• Problem: My account is locked to my primary device. I am attempting to log in from a new device. Please approve my device in the admin panel so I can access my courses.`;
 
-      const waLink = `https://wa.me/94776828490?text=${encodeURIComponent(waMessage)}`;
+      const waLink = `https://wa.me/${SUPPORT_WA_PHONE}?text=${encodeURIComponent(waMessage)}`;
 
       logger.security("AUTH_DEVICE_LOCKED", `Device mismatch for user ${user.email}`, {
         userId: user.id,
@@ -287,7 +289,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const defaultWaLink = `https://wa.me/94776828490?text=${encodeURIComponent(
+    const defaultWaLink = `https://wa.me/${SUPPORT_WA_PHONE}?text=${encodeURIComponent(
       `Hello IMHS Support, I need help with my account login (${user.email}).`
     )}`;
 

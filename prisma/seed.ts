@@ -27,7 +27,7 @@ async function main() {
     data: {
       name: "IMHS System Administrator",
       email: "admin@imhs.edu.lk",
-      phone: "+94778025050",
+      phone: "+94766506621",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
     },

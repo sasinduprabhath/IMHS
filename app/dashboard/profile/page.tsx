@@ -231,7 +231,7 @@ export default function StudentProfilePage() {
               For enrollment issues, Reg ID updates, or account queries - contact the IMHS admin desk.
             </p>
             <a
-              href={`https://wa.me/94778025050?text=${encodeURIComponent(
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621"}?text=${encodeURIComponent(
                 `Hello IMHS, I need help with my student portal account.${user?.studentId ? ` My Reg ID is ${user.studentId}.` : ""}`
               )}`}
               target="_blank"

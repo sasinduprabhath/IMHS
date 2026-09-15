@@ -19,7 +19,7 @@ interface Message {
 }
 
 // ── Config ─────────────────────────────────────────────────────────────────────
-const WA_NUMBER = "94778025050";
+const WA_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621";
 const QUICK_PROMPTS = [
   { icon: "🔒", label: "Device Locked", text: "My account shows Device Locked. What do I do?" },
   { icon: "📧", label: "No 2FA Email", text: "I did not receive my 2FA verification email" },

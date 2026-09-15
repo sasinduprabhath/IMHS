@@ -826,7 +826,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
 
               <div className="space-y-4">
                 <a
-                  href="tel:+94778025050"
+                  href="tel:+94766506621"
                   className="flex items-center gap-4 p-4 bg-surface border border-chart-grid rounded-2xl hover:border-[#0E57A4]/40 hover:shadow-paper transition-all group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-[#0E57A4]/10 flex items-center justify-center group-hover:bg-[#0E57A4]/20 transition-colors">
@@ -834,7 +834,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                   </div>
                   <div>
                     <div className="text-xs font-mono text-sage uppercase tracking-wider">Phone / Hotline</div>
-                    <div className="text-sm font-bold text-ink">+94 77 802 5050</div>
+                    <div className="text-sm font-bold text-ink">+94 76 650 6621</div>
                   </div>
                 </a>
 
