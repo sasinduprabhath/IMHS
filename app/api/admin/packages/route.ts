@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, getMentorshipPackageModel } from "@/lib/prisma";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -27,9 +27,22 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const packages = await (prisma as any).mentorshipPackage.findMany({
-      orderBy: { order: "asc" },
-    });
+    const model = getMentorshipPackageModel();
+    if (model) {
+      const packages = await model.findMany({
+        orderBy: { order: "asc" },
+      });
+      return NextResponse.json({ packages });
+    }
+
+    // Direct fallback to raw SQL if model delegate is loading
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM MentorshipPackage ORDER BY \`order\` ASC
+    `;
+    const packages = rows.map((r: any) => ({
+      ...r,
+      isActive: Boolean(r.isActive),
+    }));
 
     return NextResponse.json({ packages });
   } catch (error: any) {
@@ -62,25 +75,40 @@ export async function POST(req: Request) {
         .replace(/[^A-Z0-9]+/g, "_")
         .slice(0, 40) + "_" + Date.now().toString().slice(-4);
 
-    const created = await (prisma as any).mentorshipPackage.create({
-      data: {
-        packageKey,
-        number: data.number,
-        title: data.title,
-        duration: data.duration,
-        durationMins: data.durationMins,
-        priceLkr: data.priceLkr,
-        category: data.category,
-        tag: data.category,
-        description: data.description,
-        icon: data.icon,
-        colorTheme: data.colorTheme,
-        isActive: data.isActive,
-        order: data.order,
-      },
-    });
+    const model = getMentorshipPackageModel();
+    if (model) {
+      const created = await model.create({
+        data: {
+          packageKey,
+          number: data.number,
+          title: data.title,
+          duration: data.duration,
+          durationMins: data.durationMins,
+          priceLkr: data.priceLkr,
+          category: data.category,
+          tag: data.category,
+          description: data.description,
+          icon: data.icon,
+          colorTheme: data.colorTheme,
+          isActive: data.isActive,
+          order: data.order,
+        },
+      });
 
-    return NextResponse.json({ success: true, package: created });
+      return NextResponse.json({ success: true, package: created });
+    }
+
+    // Raw SQL fallback
+    const id = "pkg_" + Date.now();
+    await prisma.$executeRaw`
+      INSERT INTO MentorshipPackage (id, packageKey, number, title, duration, durationMins, priceLkr, category, tag, description, icon, colorTheme, isActive, \`order\`, createdAt, updatedAt)
+      VALUES (${id}, ${packageKey}, ${data.number}, ${data.title}, ${data.duration}, ${data.durationMins}, ${data.priceLkr}, ${data.category}, ${data.category}, ${data.description}, ${data.icon}, ${data.colorTheme}, ${data.isActive ? 1 : 0}, ${data.order}, NOW(), NOW())
+    `;
+
+    return NextResponse.json({
+      success: true,
+      package: { id, packageKey, ...data, tag: data.category },
+    });
   } catch (error: any) {
     console.error("Error creating mentorship package:", error);
     return NextResponse.json({ error: error.message || "Failed to create package" }, { status: 500 });

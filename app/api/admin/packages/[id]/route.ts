@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, getMentorshipPackageModel } from "@/lib/prisma";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -42,24 +42,49 @@ export async function PUT(
     }
 
     const data = parsed.data;
-    const updated = await (prisma as any).mentorshipPackage.update({
-      where: { id },
-      data: {
-        ...(data.title !== undefined && { title: data.title }),
-        ...(data.number !== undefined && { number: data.number }),
-        ...(data.duration !== undefined && { duration: data.duration }),
-        ...(data.durationMins !== undefined && { durationMins: data.durationMins }),
-        ...(data.priceLkr !== undefined && { priceLkr: data.priceLkr }),
-        ...(data.category !== undefined && { category: data.category, tag: data.category }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.icon !== undefined && { icon: data.icon }),
-        ...(data.colorTheme !== undefined && { colorTheme: data.colorTheme }),
-        ...(data.isActive !== undefined && { isActive: data.isActive }),
-        ...(data.order !== undefined && { order: data.order }),
-      },
-    });
+    const model = getMentorshipPackageModel();
 
-    return NextResponse.json({ success: true, package: updated });
+    if (model) {
+      const updated = await model.update({
+        where: { id },
+        data: {
+          ...(data.title !== undefined && { title: data.title }),
+          ...(data.number !== undefined && { number: data.number }),
+          ...(data.duration !== undefined && { duration: data.duration }),
+          ...(data.durationMins !== undefined && { durationMins: data.durationMins }),
+          ...(data.priceLkr !== undefined && { priceLkr: data.priceLkr }),
+          ...(data.category !== undefined && { category: data.category, tag: data.category }),
+          ...(data.description !== undefined && { description: data.description }),
+          ...(data.icon !== undefined && { icon: data.icon }),
+          ...(data.colorTheme !== undefined && { colorTheme: data.colorTheme }),
+          ...(data.isActive !== undefined && { isActive: data.isActive }),
+          ...(data.order !== undefined && { order: data.order }),
+        },
+      });
+      return NextResponse.json({ success: true, package: updated });
+    }
+
+    // Raw SQL update fallback
+    await prisma.$executeRaw`
+      UPDATE MentorshipPackage
+      SET 
+        title = COALESCE(${data.title ?? null}, title),
+        number = COALESCE(${data.number ?? null}, number),
+        duration = COALESCE(${data.duration ?? null}, duration),
+        durationMins = COALESCE(${data.durationMins ?? null}, durationMins),
+        priceLkr = COALESCE(${data.priceLkr ?? null}, priceLkr),
+        category = COALESCE(${data.category ?? null}, category),
+        tag = COALESCE(${data.category ?? null}, tag),
+        description = COALESCE(${data.description ?? null}, description),
+        icon = COALESCE(${data.icon ?? null}, icon),
+        colorTheme = COALESCE(${data.colorTheme ?? null}, colorTheme),
+        isActive = COALESCE(${data.isActive !== undefined ? (data.isActive ? 1 : 0) : null}, isActive),
+        \`order\` = COALESCE(${data.order ?? null}, \`order\`),
+        updatedAt = NOW()
+      WHERE id = ${id}
+    `;
+
+    return NextResponse.json({ success: true, package: { id, ...data } });
   } catch (error: any) {
     console.error("Error updating package:", error);
     return NextResponse.json({ error: error.message || "Failed to update package" }, { status: 500 });
@@ -77,9 +102,18 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await (prisma as any).mentorshipPackage.delete({
-      where: { id },
-    });
+    const model = getMentorshipPackageModel();
+
+    if (model) {
+      await model.delete({
+        where: { id },
+      });
+      return NextResponse.json({ success: true });
+    }
+
+    await prisma.$executeRaw`
+      DELETE FROM MentorshipPackage WHERE id = ${id}
+    `;
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
