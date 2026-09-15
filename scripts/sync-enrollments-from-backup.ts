@@ -8,7 +8,8 @@ const prisma = new PrismaClient();
 async function syncEnrollmentsFromBackup() {
   const defaultLocalPath = path.join(process.cwd(), "u328662350_iIq7V_original.sql");
   const defaultCwdPath = path.join(process.cwd(), "u328662350_iIq7V.sql");
-  const serverPath = "/home/imhsedu.com/public_html/u328662350_iIq7V_original.sql";
+  const serverPathOriginal = "/home/imhsedu.com/public_html/u328662350_iIq7V_original.sql";
+  const serverPathClean = "/home/imhsedu.com/public_html/u328662350_iIq7V.sql";
   const sqlPath =
     process.argv[2] ||
     process.env.SQL_BACKUP_PATH ||
@@ -16,7 +17,9 @@ async function syncEnrollmentsFromBackup() {
       ? defaultLocalPath
       : fs.existsSync(defaultCwdPath)
       ? defaultCwdPath
-      : serverPath);
+      : fs.existsSync(serverPathOriginal)
+      ? serverPathOriginal
+      : serverPathClean);
 
   console.log("=========================================================================");
   console.log(" 🎓 SYNC STUDENT ENROLLMENTS & BLOCKED STATUSES FROM SQL BACKUP");
