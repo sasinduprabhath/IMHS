@@ -6,11 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
+  if (typeof amount !== "number" || isNaN(amount)) return "LKR 0";
   const formatted = new Intl.NumberFormat("en-LK", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
-  return `රු ${formatted}`;
+  return `LKR ${formatted}`;
 }
 
 /**
