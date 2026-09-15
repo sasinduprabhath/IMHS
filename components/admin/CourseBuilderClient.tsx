@@ -188,11 +188,9 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     new Set(course.chapters.map((_, i) => i))
   );
 
-  // ── Drag & Drop Reordering State ──
-  const [draggedChapterIdx, setDraggedChapterIdx] = useState<number | null>(null);
-  const [dragOverChapterIdx, setDragOverChapterIdx] = useState<number | null>(null);
-  const [draggedLesson, setDraggedLesson] = useState<{ cIdx: number; lIdx: number } | null>(null);
-  const [dragOverLesson, setDragOverLesson] = useState<{ cIdx: number; lIdx: number } | null>(null);
+  // ── Drag & Drop Reordering Refs (avoids React re-renders during native drag) ──
+  const dragChapterRef = React.useRef<number | null>(null);
+  const dragLessonRef = React.useRef<{ cIdx: number; lIdx: number } | null>(null);
 
   // ── Announcements State ──
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(course.announcements || []);
@@ -299,6 +297,22 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     setChapters((prev) => prev.filter((_, i) => i !== cIdx));
   };
 
+  const cleanupDragStyles = () => {
+    if (typeof document === "undefined") return;
+    document.querySelectorAll(".is-dragging-item").forEach((el) => {
+      el.classList.remove("is-dragging-item", "opacity-40", "ring-2", "ring-[#0E57A4]", "bg-blue-50/20");
+    });
+    document.querySelectorAll(".is-dragover-item").forEach((el) => {
+      el.classList.remove("is-dragover-item", "border-t-2", "!border-[#0E57A4]", "bg-blue-50/40");
+    });
+    document.querySelectorAll(".is-dragover-chapter").forEach((el) => {
+      el.classList.remove("is-dragover-chapter", "ring-2", "ring-[#0E57A4]", "border-[#0E57A4]");
+    });
+    document.querySelectorAll(".is-dragover-dropzone").forEach((el) => {
+      el.classList.remove("is-dragover-dropzone", "bg-blue-50/80", "border-t-2", "!border-[#0E57A4]", "border-2", "border-dashed");
+    });
+  };
+
   const reorderChapters = (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= chapters.length || toIdx >= chapters.length) return;
     setChapters((prev) => {
@@ -326,12 +340,18 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   };
 
   const moveLesson = (cIdx: number, lIdx: number, dir: -1 | 1) => {
-    if (lIdx + dir < 0 || lIdx + dir >= chapters[cIdx].lessons.length) return;
+    if (!chapters[cIdx] || lIdx + dir < 0 || lIdx + dir >= chapters[cIdx].lessons.length) return;
     setChapters((prev) => {
       const next = prev.map((ch) => ({ ...ch, lessons: [...ch.lessons] }));
-      const [moved] = next[cIdx].lessons.splice(lIdx, 1);
-      next[cIdx].lessons.splice(lIdx + dir, 0, moved);
-      next[cIdx].lessons = next[cIdx].lessons.map((l, i) => ({ ...l, order: i + 1 }));
+      const temp = next[cIdx].lessons[lIdx];
+      next[cIdx].lessons[lIdx] = next[cIdx].lessons[lIdx + dir];
+      next[cIdx].lessons[lIdx + dir] = temp;
+      next.forEach((ch, chI) => {
+        ch.order = chI + 1;
+        ch.lessons.forEach((l, lI) => {
+          l.order = lI + 1;
+        });
+      });
       return next;
     });
   };
@@ -343,23 +363,23 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     if (from.cIdx === to.cIdx && from.lIdx === to.lIdx) return;
     setChapters((prev) => {
       const next = prev.map((ch) => ({ ...ch, lessons: [...ch.lessons] }));
+      if (!next[from.cIdx] || !next[to.cIdx]) return prev;
+      if (from.lIdx < 0 || from.lIdx >= next[from.cIdx].lessons.length) return prev;
+
       const [moved] = next[from.cIdx].lessons.splice(from.lIdx, 1);
       if (!moved) return prev;
-      next[to.cIdx].lessons.splice(to.lIdx, 0, moved);
 
-      next[from.cIdx].lessons = next[from.cIdx].lessons.map((l, i) => ({ ...l, order: i + 1 }));
-      if (from.cIdx !== to.cIdx) {
-        next[to.cIdx].lessons = next[to.cIdx].lessons.map((l, i) => ({ ...l, order: i + 1 }));
-      }
+      const targetIndex = Math.min(Math.max(0, to.lIdx), next[to.cIdx].lessons.length);
+      next[to.cIdx].lessons.splice(targetIndex, 0, moved);
+
+      next.forEach((ch, chI) => {
+        ch.order = chI + 1;
+        ch.lessons.forEach((l, lI) => {
+          l.order = lI + 1;
+        });
+      });
       return next;
     });
-  };
-
-  const handleDragEnd = () => {
-    setDraggedChapterIdx(null);
-    setDragOverChapterIdx(null);
-    setDraggedLesson(null);
-    setDragOverLesson(null);
   };
 
   const updateChapterTitle = (cIdx: number, val: string) =>
@@ -1139,33 +1159,41 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
             <div className="space-y-3">
               {chapters.map((chapter, cIdx) => {
                 const isOpen = expandedChapters.has(cIdx);
-                const isChapterDragged = draggedChapterIdx === cIdx;
-                const isChapterDragOver = dragOverChapterIdx === cIdx && !isChapterDragged;
 
                 return (
                   <div
-                    key={cIdx}
+                    key={chapter.id || `ch-${cIdx}`}
+                    data-chapter-card="true"
                     onDragOver={(e) => {
-                      if (draggedChapterIdx !== null) {
+                      if (dragChapterRef.current !== null && dragChapterRef.current !== cIdx) {
                         e.preventDefault();
                         e.dataTransfer.dropEffect = "move";
-                        if (dragOverChapterIdx !== cIdx) {
-                          setDragOverChapterIdx(cIdx);
-                        }
+                      }
+                    }}
+                    onDragEnter={(e) => {
+                      if (dragChapterRef.current !== null && dragChapterRef.current !== cIdx) {
+                        e.preventDefault();
+                        (e.currentTarget as HTMLElement).classList.add("is-dragover-chapter", "ring-2", "ring-[#0E57A4]", "border-[#0E57A4]");
+                      }
+                    }}
+                    onDragLeave={(e) => {
+                      const target = e.currentTarget as HTMLElement;
+                      if (!target.contains(e.relatedTarget as Node)) {
+                        target.classList.remove("is-dragover-chapter", "ring-2", "ring-[#0E57A4]", "border-[#0E57A4]");
                       }
                     }}
                     onDrop={(e) => {
-                      if (draggedChapterIdx !== null) {
+                      if (dragChapterRef.current !== null) {
                         e.preventDefault();
-                        reorderChapters(draggedChapterIdx, cIdx);
-                        handleDragEnd();
+                        const from = dragChapterRef.current;
+                        dragChapterRef.current = null;
+                        cleanupDragStyles();
+                        if (from !== cIdx) {
+                          reorderChapters(from, cIdx);
+                        }
                       }
                     }}
-                    className={cn(
-                      "border rounded-2xl overflow-hidden bg-white shadow-xs transition-all",
-                      isChapterDragged ? "opacity-50 border-dashed border-2 border-blue-400 bg-blue-50/10" : "border-slate-200",
-                      isChapterDragOver ? "ring-2 ring-[#0E57A4] border-[#0E57A4] shadow-md" : ""
-                    )}
+                    className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs transition-all"
                   >
                     {/* Chapter Header - always visible */}
                     <div className="flex items-center gap-2.5 px-4 py-3 bg-slate-50/80 border-b border-slate-200">
@@ -1174,11 +1202,21 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                         draggable
                         onDragStart={(e) => {
                           e.stopPropagation();
+                          dragChapterRef.current = cIdx;
                           e.dataTransfer.setData("text/plain", `chapter:${cIdx}`);
                           e.dataTransfer.effectAllowed = "move";
-                          setDraggedChapterIdx(cIdx);
+
+                          const card = (e.currentTarget as HTMLElement).closest("[data-chapter-card]") as HTMLElement;
+                          if (card) {
+                            setTimeout(() => {
+                              card.classList.add("is-dragging-item", "opacity-40", "ring-2", "ring-[#0E57A4]");
+                            }, 0);
+                          }
                         }}
-                        onDragEnd={handleDragEnd}
+                        onDragEnd={() => {
+                          dragChapterRef.current = null;
+                          cleanupDragStyles();
+                        }}
                         className="p-1 -ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none"
                         title="Drag to reorder chapter"
                       >
@@ -1257,30 +1295,38 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                       <div>
                         {chapter.lessons.length === 0 ? (
                           <div
+                            data-drop-zone="true"
                             onDragOver={(e) => {
-                              if (draggedLesson) {
+                              if (dragLessonRef.current) {
                                 e.preventDefault();
-                                e.stopPropagation();
                                 e.dataTransfer.dropEffect = "move";
-                                if (dragOverLesson?.cIdx !== cIdx || dragOverLesson?.lIdx !== 0) {
-                                  setDragOverLesson({ cIdx, lIdx: 0 });
-                                }
+                              }
+                            }}
+                            onDragEnter={(e) => {
+                              if (dragLessonRef.current) {
+                                e.preventDefault();
+                                (e.currentTarget as HTMLElement).classList.add("is-dragover-dropzone", "bg-blue-50/80", "border-2", "border-dashed", "!border-[#0E57A4]");
+                              }
+                            }}
+                            onDragLeave={(e) => {
+                              const target = e.currentTarget as HTMLElement;
+                              if (!target.contains(e.relatedTarget as Node)) {
+                                target.classList.remove("is-dragover-dropzone", "bg-blue-50/80", "border-2", "border-dashed", "!border-[#0E57A4]");
                               }
                             }}
                             onDrop={(e) => {
-                              if (draggedLesson) {
+                              if (dragLessonRef.current) {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                reorderLessons(draggedLesson, { cIdx, lIdx: 0 });
-                                handleDragEnd();
+                                const from = dragLessonRef.current;
+                                dragLessonRef.current = null;
+                                cleanupDragStyles();
+                                if (from) {
+                                  reorderLessons(from, { cIdx, lIdx: 0 });
+                                }
                               }
                             }}
-                            className={cn(
-                              "px-5 py-6 text-center transition-colors",
-                              dragOverLesson?.cIdx === cIdx && dragOverLesson?.lIdx === 0
-                                ? "bg-blue-50/80 border-2 border-dashed border-[#0E57A4]"
-                                : "bg-slate-50/40"
-                            )}
+                            className="px-5 py-6 text-center bg-slate-50/40 transition-colors"
                           >
                             <p className="text-xs font-mono text-slate-500">
                               No lessons in this chapter yet.{" "}
@@ -1295,196 +1341,226 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                           </div>
                         ) : (
                           <div className="divide-y divide-slate-100">
-                            {chapter.lessons.map((lesson, lIdx) => {
-                              const isLessonDragged = draggedLesson?.cIdx === cIdx && draggedLesson?.lIdx === lIdx;
-                              const isLessonDragOver = dragOverLesson?.cIdx === cIdx && dragOverLesson?.lIdx === lIdx && !isLessonDragged;
-
-                              return (
-                                <div
-                                  key={lIdx}
-                                  onDragOver={(e) => {
-                                    if (draggedLesson) {
+                            {chapter.lessons.map((lesson, lIdx) => (
+                              <div
+                                key={lesson.id || `l-${cIdx}-${lIdx}`}
+                                data-lesson-row="true"
+                                onDragOver={(e) => {
+                                  if (dragLessonRef.current) {
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = "move";
+                                  }
+                                }}
+                                onDragEnter={(e) => {
+                                  if (dragLessonRef.current) {
+                                    const from = dragLessonRef.current;
+                                    if (from.cIdx !== cIdx || from.lIdx !== lIdx) {
                                       e.preventDefault();
+                                      (e.currentTarget as HTMLElement).classList.add("is-dragover-item", "border-t-2", "!border-[#0E57A4]", "bg-blue-50/40");
+                                    }
+                                  }
+                                }}
+                                onDragLeave={(e) => {
+                                  const target = e.currentTarget as HTMLElement;
+                                  if (!target.contains(e.relatedTarget as Node)) {
+                                    target.classList.remove("is-dragover-item", "border-t-2", "!border-[#0E57A4]", "bg-blue-50/40");
+                                  }
+                                }}
+                                onDrop={(e) => {
+                                  if (dragLessonRef.current) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const from = dragLessonRef.current;
+                                    dragLessonRef.current = null;
+                                    cleanupDragStyles();
+                                    if (from && (from.cIdx !== cIdx || from.lIdx !== lIdx)) {
+                                      reorderLessons(from, { cIdx, lIdx });
+                                    }
+                                  }
+                                }}
+                                className="px-4 py-3 bg-white hover:bg-slate-50/60 transition-all group relative"
+                              >
+                                <div className="flex items-start gap-2.5">
+                                  {/* Grip handle for dragging lesson */}
+                                  <div
+                                    draggable
+                                    onDragStart={(e) => {
                                       e.stopPropagation();
-                                      e.dataTransfer.dropEffect = "move";
-                                      if (dragOverLesson?.cIdx !== cIdx || dragOverLesson?.lIdx !== lIdx) {
-                                        setDragOverLesson({ cIdx, lIdx });
+                                      dragLessonRef.current = { cIdx, lIdx };
+                                      e.dataTransfer.setData("text/plain", `lesson:${cIdx}:${lIdx}`);
+                                      e.dataTransfer.effectAllowed = "move";
+
+                                      const row = (e.currentTarget as HTMLElement).closest("[data-lesson-row]") as HTMLElement;
+                                      if (row) {
+                                        setTimeout(() => {
+                                          row.classList.add("is-dragging-item", "opacity-40", "bg-blue-50/20");
+                                        }, 0);
                                       }
-                                    }
-                                  }}
-                                  onDrop={(e) => {
-                                    if (draggedLesson) {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      reorderLessons(draggedLesson, { cIdx, lIdx });
-                                      handleDragEnd();
-                                    }
-                                  }}
-                                  className={cn(
-                                    "px-4 py-3 bg-white hover:bg-slate-50/60 transition-all group relative",
-                                    isLessonDragged
-                                      ? "opacity-40 border-dashed border-2 border-blue-400 bg-blue-50/20"
-                                      : "",
-                                    isLessonDragOver
-                                      ? "border-t-2 border-[#0E57A4] bg-blue-50/40 shadow-xs"
-                                      : ""
-                                  )}
-                                >
-                                  <div className="flex items-start gap-2.5">
-                                    {/* Grip handle for dragging lesson */}
-                                    <div
-                                      draggable
-                                      onDragStart={(e) => {
-                                        e.stopPropagation();
-                                        e.dataTransfer.setData("text/plain", `lesson:${cIdx}:${lIdx}`);
-                                        e.dataTransfer.effectAllowed = "move";
-                                        setDraggedLesson({ cIdx, lIdx });
-                                      }}
-                                      onDragEnd={handleDragEnd}
-                                      className="pt-2 text-slate-300 group-hover:text-slate-500 hover:text-[#0E57A4] cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none"
-                                      title="Drag to reorder lesson"
-                                    >
-                                      <GripVertical className="w-4 h-4" />
-                                    </div>
+                                    }}
+                                    onDragEnd={() => {
+                                      dragLessonRef.current = null;
+                                      cleanupDragStyles();
+                                    }}
+                                    className="pt-2 text-slate-400 hover:text-[#0E57A4] cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none"
+                                    title="Drag to reorder lesson"
+                                  >
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
 
-                                    <span className="text-[10px] font-mono text-slate-400 pt-2.5 shrink-0 w-8 text-right font-semibold">
-                                      {cIdx + 1}.{lIdx + 1}
-                                    </span>
+                                  <span className="text-[10px] font-mono text-slate-400 pt-2.5 shrink-0 w-8 text-right font-semibold">
+                                    {cIdx + 1}.{lIdx + 1}
+                                  </span>
 
-                                    <div className="flex-1 min-w-0 space-y-2">
-                                      {/* Lesson title */}
-                                      <input
-                                        type="text"
-                                        value={lesson.title}
-                                        onChange={(e) => updateLesson(cIdx, lIdx, "title", e.target.value)}
-                                        placeholder="Lesson title…"
-                                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] font-medium transition-colors"
-                                      />
+                                  <div className="flex-1 min-w-0 space-y-2">
+                                    {/* Lesson title */}
+                                    <input
+                                      type="text"
+                                      value={lesson.title}
+                                      onChange={(e) => updateLesson(cIdx, lIdx, "title", e.target.value)}
+                                      placeholder="Lesson title…"
+                                      className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] font-medium transition-colors"
+                                    />
 
-                                      {/* Type toggle + media ID */}
-                                      <div className="flex flex-wrap items-center gap-2">
-                                        {/* Type pill buttons */}
-                                        <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden text-[10px] font-mono font-bold shrink-0 bg-slate-50">
-                                          <button
-                                            type="button"
-                                            onClick={() => updateLesson(cIdx, lIdx, "type", "VIDEO")}
-                                            className={cn(
-                                              "flex items-center gap-1 px-2.5 py-1.5 transition-colors cursor-pointer",
-                                              (lesson.type || "VIDEO") === "VIDEO"
-                                                ? "bg-[#0E57A4] text-white font-bold"
-                                                : "text-slate-600 hover:bg-slate-100"
-                                            )}
-                                          >
-                                            <Video className="w-3 h-3" /> Video
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => updateLesson(cIdx, lIdx, "type", "DOCUMENT")}
-                                            className={cn(
-                                              "flex items-center gap-1 px-2.5 py-1.5 transition-colors border-l border-slate-200 cursor-pointer",
-                                              lesson.type === "DOCUMENT"
-                                                ? "bg-[#0E57A4] text-white font-bold"
-                                                : "text-slate-600 hover:bg-slate-100"
-                                            )}
-                                          >
-                                            <FileText className="w-3 h-3" /> Document
-                                          </button>
-                                        </div>
-
-                                        {/* Media ID field */}
-                                        {(lesson.type || "VIDEO") === "VIDEO" ? (
-                                          <input
-                                            type="text"
-                                            value={lesson.vimeoVideoId}
-                                            onChange={(e) => updateLesson(cIdx, lIdx, "vimeoVideoId", e.target.value)}
-                                            placeholder="HD Video Stream ID (e.g. 76979871)"
-                                            className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                                          />
-                                        ) : (
-                                          <input
-                                            type="text"
-                                            value={lesson.driveFileId}
-                                            onChange={(e) => updateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
-                                            placeholder="Google Drive File ID"
-                                            className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                                          />
-                                        )}
-
-                                        {/* Companion PDF - only shown for video lessons */}
-                                        {(lesson.type || "VIDEO") === "VIDEO" && (
-                                          <input
-                                            type="text"
-                                            value={lesson.driveFileId}
-                                            onChange={(e) => updateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
-                                            placeholder="Companion PDF File ID (optional)"
-                                            className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-600 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                                          />
-                                        )}
+                                    {/* Type toggle + media ID */}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {/* Type pill buttons */}
+                                      <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden text-[10px] font-mono font-bold shrink-0 bg-slate-50">
+                                        <button
+                                          type="button"
+                                          onClick={() => updateLesson(cIdx, lIdx, "type", "VIDEO")}
+                                          className={cn(
+                                            "flex items-center gap-1 px-2.5 py-1.5 transition-colors cursor-pointer",
+                                            (lesson.type || "VIDEO") === "VIDEO"
+                                              ? "bg-[#0E57A4] text-white font-bold"
+                                              : "text-slate-600 hover:bg-slate-100"
+                                          )}
+                                        >
+                                          <Video className="w-3 h-3" /> Video
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => updateLesson(cIdx, lIdx, "type", "DOCUMENT")}
+                                          className={cn(
+                                            "flex items-center gap-1 px-2.5 py-1.5 transition-colors border-l border-slate-200 cursor-pointer",
+                                            lesson.type === "DOCUMENT"
+                                              ? "bg-[#0E57A4] text-white font-bold"
+                                              : "text-slate-600 hover:bg-slate-100"
+                                          )}
+                                        >
+                                          <FileText className="w-3 h-3" /> Document
+                                        </button>
                                       </div>
-                                    </div>
 
-                                    {/* Action buttons: Move up, Move down, Remove */}
-                                    <div className="flex items-center gap-1 shrink-0 mt-1">
-                                      <button
-                                        type="button"
-                                        onClick={() => moveLesson(cIdx, lIdx, -1)}
-                                        disabled={lIdx === 0}
-                                        className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-20 transition-colors cursor-pointer"
-                                        title="Move lesson up"
-                                      >
-                                        <MoveUp className="w-3.5 h-3.5" />
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => moveLesson(cIdx, lIdx, 1)}
-                                        disabled={lIdx === chapter.lessons.length - 1}
-                                        className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-20 transition-colors cursor-pointer"
-                                        title="Move lesson down"
-                                      >
-                                        <MoveDown className="w-3.5 h-3.5" />
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => removeLesson(cIdx, lIdx)}
-                                        className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
-                                        title="Remove lesson"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                      </button>
+                                      {/* Media ID field */}
+                                      {(lesson.type || "VIDEO") === "VIDEO" ? (
+                                        <input
+                                          type="text"
+                                          value={lesson.vimeoVideoId}
+                                          onChange={(e) => updateLesson(cIdx, lIdx, "vimeoVideoId", e.target.value)}
+                                          placeholder="HD Video Stream ID (e.g. 76979871)"
+                                          className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+                                        />
+                                      ) : (
+                                        <input
+                                          type="text"
+                                          value={lesson.driveFileId}
+                                          onChange={(e) => updateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
+                                          placeholder="Google Drive File ID"
+                                          className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+                                        />
+                                      )}
+
+                                      {/* Companion PDF - only shown for video lessons */}
+                                      {(lesson.type || "VIDEO") === "VIDEO" && (
+                                        <input
+                                          type="text"
+                                          value={lesson.driveFileId}
+                                          onChange={(e) => updateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
+                                          placeholder="Companion PDF File ID (optional)"
+                                          className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-600 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+                                        />
+                                      )}
                                     </div>
                                   </div>
+
+                                  {/* Action buttons: Move up, Move down, Remove */}
+                                  <div className="flex items-center gap-1 shrink-0 mt-1">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        moveLesson(cIdx, lIdx, -1);
+                                      }}
+                                      disabled={lIdx === 0}
+                                      className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/80 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+                                      title="Move lesson up"
+                                    >
+                                      <MoveUp className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        moveLesson(cIdx, lIdx, 1);
+                                      }}
+                                      disabled={lIdx === chapter.lessons.length - 1}
+                                      className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/80 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+                                      title="Move lesson down"
+                                    >
+                                      <MoveDown className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeLesson(cIdx, lIdx);
+                                      }}
+                                      className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+                                      title="Remove lesson"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
                                 </div>
-                              );
-                            })}
+                              </div>
+                            ))}
                           </div>
                         )}
 
                         {/* Add lesson button at bottom & drop target for dragging lesson to the end */}
                         <div
+                          data-drop-zone="true"
                           onDragOver={(e) => {
-                            if (draggedLesson) {
+                            if (dragLessonRef.current) {
                               e.preventDefault();
-                              e.stopPropagation();
                               e.dataTransfer.dropEffect = "move";
-                              if (dragOverLesson?.cIdx !== cIdx || dragOverLesson?.lIdx !== chapter.lessons.length) {
-                                setDragOverLesson({ cIdx, lIdx: chapter.lessons.length });
-                              }
+                            }
+                          }}
+                          onDragEnter={(e) => {
+                            if (dragLessonRef.current) {
+                              e.preventDefault();
+                              (e.currentTarget as HTMLElement).classList.add("is-dragover-dropzone", "bg-blue-50/80", "border-t-2", "!border-[#0E57A4]");
+                            }
+                          }}
+                          onDragLeave={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            if (!target.contains(e.relatedTarget as Node)) {
+                              target.classList.remove("is-dragover-dropzone", "bg-blue-50/80", "border-t-2", "!border-[#0E57A4]");
                             }
                           }}
                           onDrop={(e) => {
-                            if (draggedLesson) {
+                            if (dragLessonRef.current) {
                               e.preventDefault();
                               e.stopPropagation();
-                              reorderLessons(draggedLesson, { cIdx, lIdx: chapter.lessons.length });
-                              handleDragEnd();
+                              const from = dragLessonRef.current;
+                              dragLessonRef.current = null;
+                              cleanupDragStyles();
+                              if (from) {
+                                reorderLessons(from, { cIdx, lIdx: chapter.lessons.length });
+                              }
                             }
                           }}
-                          className={cn(
-                            "px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 transition-colors",
-                            dragOverLesson?.cIdx === cIdx && dragOverLesson?.lIdx === chapter.lessons.length
-                              ? "bg-blue-50/80 border-t-2 border-[#0E57A4]"
-                              : ""
-                          )}
+                          className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 transition-colors"
                         >
                           <button
                             type="button"
