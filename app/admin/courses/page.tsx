@@ -15,7 +15,7 @@ export default async function AdminCoursesPage() {
         include: { lessons: true },
       },
       _count: {
-        select: { enrollments: true },
+        select: { enrollments: true, assessmentResults: true },
       },
     },
     orderBy: { createdAt: "desc" },

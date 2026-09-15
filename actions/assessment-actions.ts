@@ -236,3 +236,104 @@ export async function submitCourseAssessmentResult(
     throw new Error("Failed to save assessment result.");
   }
 }
+
+/**
+ * Admin Action: Fetch all student assessment results for a specific course.
+ */
+export async function getCourseAssessmentResults(courseId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user as any)?.role !== "ADMIN") {
+    throw new Error("Unauthorized: Admin access required.");
+  }
+
+  try {
+    const cleanCourseId = sanitizeIdentifier(courseId, 100);
+    const results = await prisma.courseAssessmentResult.findMany({
+      where: { courseId: cleanCourseId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            studentId: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: { completedAt: "desc" },
+    });
+
+    return results;
+  } catch (error: any) {
+    console.error("Error fetching course assessment results:", error);
+    return [];
+  }
+}
+
+/**
+ * Admin Action: Reset / Delete an assessment result so a student can retake the exam.
+ */
+export async function deleteCourseAssessmentResult(resultId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user as any)?.role !== "ADMIN") {
+    return { success: false, error: "Unauthorized: Admin access required." };
+  }
+
+  try {
+    await prisma.courseAssessmentResult.delete({
+      where: { id: resultId },
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error deleting course assessment result:", error);
+    return { success: false, error: error.message || "Failed to reset assessment result." };
+  }
+}
+
+/**
+ * Admin Action: Fetch all student assessment results across all courses for the platform-wide view.
+ */
+export async function getAllPlatformAssessmentResults(filterCourseId?: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user as any)?.role !== "ADMIN") {
+    throw new Error("Unauthorized: Admin access required.");
+  }
+
+  try {
+    const where: any = {};
+    if (filterCourseId && filterCourseId !== "all") {
+      where.courseId = filterCourseId;
+    }
+
+    const results = await prisma.courseAssessmentResult.findMany({
+      where,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            studentId: true,
+            email: true,
+            phone: true,
+          },
+        },
+        course: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            category: true,
+          },
+        },
+      },
+      orderBy: { completedAt: "desc" },
+    });
+
+    return results;
+  } catch (error: any) {
+    console.error("Error fetching all platform assessment results:", error);
+    return [];
+  }
+}
+

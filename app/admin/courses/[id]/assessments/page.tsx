@@ -3,7 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { CourseAssessmentEditor } from "@/components/admin/CourseAssessmentEditor";
+import { CourseAssessmentHubClient } from "@/components/admin/CourseAssessmentHubClient";
+
+export const revalidate = 0;
 
 export default async function AdminCourseAssessmentPage({
   params,
@@ -26,6 +28,7 @@ export default async function AdminCourseAssessmentPage({
     notFound();
   }
 
+  // Fetch True/False questions for this course
   const assessmentQuestions = await prisma.moduleAssessmentQuestion.findMany({
     where: { courseId: course.id },
     select: { id: true, question: true, isTrue: true, explanation: true },
@@ -39,12 +42,49 @@ export default async function AdminCourseAssessmentPage({
     explanation: q.explanation || "",
   }));
 
+  // Fetch student exam results for this course
+  const rawResults = await prisma.courseAssessmentResult.findMany({
+    where: { courseId: course.id },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          studentId: true,
+          email: true,
+          phone: true,
+        },
+      },
+    },
+    orderBy: { completedAt: "desc" },
+  });
+
+  const formattedResults = rawResults.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    courseId: r.courseId,
+    score: r.score,
+    maxScore: r.maxScore,
+    percentage: r.percentage,
+    passed: r.passed,
+    completedAt: r.completedAt.toISOString(),
+    user: {
+      id: r.user.id,
+      name: r.user.name,
+      studentId: r.user.studentId,
+      email: r.user.email,
+      phone: r.user.phone,
+    },
+  }));
+
   return (
     <div className="p-6">
-      <CourseAssessmentEditor
+      <CourseAssessmentHubClient
         courseId={course.id}
         courseTitle={course.title}
+        courseSlug={course.slug}
         initialQuestions={formattedQuestions}
+        initialResults={formattedResults}
       />
     </div>
   );

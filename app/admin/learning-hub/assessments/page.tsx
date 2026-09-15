@@ -1,15 +1,12 @@
 import React from "react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import {
-  ClipboardList, BookOpen, ChevronRight, HelpCircle, CheckCircle2, XCircle, ArrowRight
-} from "lucide-react";
+import { LearningHubAssessmentsClient } from "@/components/admin/LearningHubAssessmentsClient";
 
 export const metadata = {
-  title: "Module Assessment Question Bank - IMHS Admin",
+  title: "Examination & Assessment Hub - IMHS Admin",
 };
 
 export const revalidate = 0;
@@ -20,7 +17,7 @@ export default async function AdminLearningHubAssessmentsPage() {
     redirect("/login");
   }
 
-  // Fetch all courses with their assessment questions count using safe parameterized Prisma ORM
+  // Fetch all courses with their assessment questions and results counts
   const coursesData = await prisma.course.findMany({
     select: {
       id: true,
@@ -31,18 +28,70 @@ export default async function AdminLearningHubAssessmentsPage() {
       _count: {
         select: {
           assessmentQuestions: true,
+          assessmentResults: true,
         },
       },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  const countMap = new Map<string, number>();
-  coursesData.forEach((course) => {
-    countMap.set(course.id, course._count.assessmentQuestions || 0);
+  const courses = coursesData.map((c) => ({
+    id: c.id,
+    title: c.title,
+    slug: c.slug,
+    category: c.category,
+    published: c.published,
+    questionCount: c._count.assessmentQuestions || 0,
+    resultCount: c._count.assessmentResults || 0,
+  }));
+
+  // Fetch all completed student exam results across the academy
+  const rawResults = await prisma.courseAssessmentResult.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          studentId: true,
+          email: true,
+          phone: true,
+        },
+      },
+      course: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          category: true,
+        },
+      },
+    },
+    orderBy: { completedAt: "desc" },
   });
 
-  const courses = coursesData;
+  const formattedResults = rawResults.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    courseId: r.courseId,
+    score: r.score,
+    maxScore: r.maxScore,
+    percentage: r.percentage,
+    passed: r.passed,
+    completedAt: r.completedAt.toISOString(),
+    user: {
+      id: r.user.id,
+      name: r.user.name,
+      studentId: r.user.studentId,
+      email: r.user.email,
+      phone: r.user.phone,
+    },
+    course: {
+      id: r.course.id,
+      title: r.course.title,
+      slug: r.course.slug,
+      category: r.course.category,
+    },
+  }));
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8 pb-12">
@@ -53,87 +102,22 @@ export default async function AdminLearningHubAssessmentsPage() {
             Learning Hub CMS
           </span>
           <span className="text-xs font-mono text-white/70">
-            {courses.length} Active Courses
+            {courses.length} Active Courses · {formattedResults.length} Total Submissions
           </span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-white">
-          Module Assessment Question Bank
+          Course Examination &amp; Assessment Hub
         </h1>
         <p className="text-xs text-white/80 max-w-2xl leading-relaxed">
-          Manage 100-question assessment pools categorized by course. Select any course below to add, edit, bulk upload, or configure its End-of-Course True/False questions.
+          Manage True/False exam question banks and monitor student exam performance across all academic courses.
         </p>
       </div>
 
-      {/* Course Selection Grid */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-display font-bold text-slate-900 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-[#0E57A4]" />
-            Select Course to Manage Assessment Questions
-          </h2>
-          <span className="text-xs font-mono font-bold text-slate-500">
-            Showing {courses.length} Courses
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {courses.map((course) => {
-            const qCount = countMap.get(course.id) || 0;
-            const isPublished = Boolean(course.published);
-
-            return (
-              <div
-                key={course.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-5 shadow-xs hover:shadow-lg hover:border-[#0E57A4]/40 transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[10px] font-mono font-bold uppercase text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-full border border-[#0E57A4]/20">
-                      {course.category || "Pharmacy Program"}
-                    </span>
-
-                    {isPublished ? (
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Published Live
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-200 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                        <XCircle className="w-3 h-3 text-red-500" /> Draft
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-base font-display font-bold text-slate-900 group-hover:text-[#0E57A4] transition-colors leading-snug">
-                    {course.title}
-                  </h3>
-                </div>
-
-                <div className="space-y-4 pt-2 border-t border-slate-100">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-500 flex items-center gap-1.5">
-                      <HelpCircle className="w-4 h-4 text-[#0E57A4]" /> Assessment Pool:
-                    </span>
-                    <span className={`font-bold px-2.5 py-1 rounded-xl border ${qCount > 0
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                        : "bg-amber-50 text-amber-800 border-amber-200"
-                      }`}>
-                      {qCount} / 100 Questions Assigned
-                    </span>
-                  </div>
-
-                  <Link
-                    href={`/admin/courses/${course.id}/assessments`}
-                    className="w-full py-3 px-4 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-white text-xs font-bold transition-all shadow-xs hover:shadow-md flex items-center justify-center gap-2 group-hover:scale-[1.01]"
-                  >
-                    <span>Manage Course Questions</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* Main Interactive Client Component */}
+      <LearningHubAssessmentsClient
+        courses={courses}
+        initialResults={formattedResults}
+      />
     </div>
   );
 }

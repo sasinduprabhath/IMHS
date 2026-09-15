@@ -31,7 +31,7 @@ interface CourseItem {
   price: number;
   published: boolean;
   chapters: { lessons: { id: string; type?: string; title?: string }[] }[];
-  _count: { enrollments: number };
+  _count: { enrollments: number; assessmentResults?: number };
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -244,8 +244,14 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                     </Link>
 
                     <Link href={`/admin/courses/${course.id}/assessments`}>
-                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1 bg-blue-50 text-[#0E57A4] border-blue-200 hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] font-semibold shadow-xs active:scale-[0.98] transition-all">
-                        <ClipboardList className="w-3 h-3" /> Exam Qs
+                      <Button size="sm" variant="outline" className="h-8 px-3 text-[11px] gap-1.5 bg-blue-50 text-[#0E57A4] border-blue-200 hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] font-semibold shadow-xs active:scale-[0.98] transition-all cursor-pointer">
+                        <ClipboardList className="w-3 h-3" />
+                        <span>Exam Qs</span>
+                        {typeof course._count?.assessmentResults === "number" && course._count.assessmentResults > 0 && (
+                          <span className="text-[9px] font-mono font-bold bg-[#0E57A4] text-white px-1.5 py-0.5 rounded-full leading-none">
+                            {course._count.assessmentResults}
+                          </span>
+                        )}
                       </Button>
                     </Link>
 
@@ -348,8 +354,14 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                           </Link>
 
                           <Link href={`/admin/courses/${course.id}/assessments`}>
-                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1 bg-blue-50 text-[#0E57A4] border-blue-200 hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] font-semibold shadow-xs active:scale-[0.98] transition-all cursor-pointer">
-                              <ClipboardList className="w-3 h-3" /> Exam Qs
+                            <Button size="sm" variant="outline" className="h-8 px-2.5 text-[11px] gap-1.5 bg-blue-50 text-[#0E57A4] border-blue-200 hover:bg-[#0E57A4] hover:text-white hover:border-[#0E57A4] font-semibold shadow-xs active:scale-[0.98] transition-all cursor-pointer">
+                              <ClipboardList className="w-3 h-3" />
+                              <span>Exam Qs</span>
+                              {typeof course._count?.assessmentResults === "number" && course._count.assessmentResults > 0 && (
+                                <span className="text-[9px] font-mono font-bold bg-[#0E57A4] text-white px-1.5 py-0.5 rounded-full leading-none">
+                                  {course._count.assessmentResults}
+                                </span>
+                              )}
                             </Button>
                           </Link>
 
