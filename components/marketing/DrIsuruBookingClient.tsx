@@ -21,7 +21,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const SESSIONS = [
+const DEFAULT_SESSIONS = [
   {
     id: "STUDY_PLANNING_GUIDANCE",
     number: 1,
@@ -69,6 +69,20 @@ const SESSIONS = [
   },
 ];
 
+const ICON_LOOKUP: Record<string, React.ElementType> = {
+  GraduationCap,
+  Stethoscope,
+  MessageSquare,
+  Sparkles,
+};
+
+const COLOR_LOOKUP: Record<string, string> = {
+  teal: "text-clinical-teal border-clinical-teal/30 bg-clinical-teal/5",
+  blue: "text-chart-blue border-chart-blue/30 bg-chart-blue/5",
+  orange: "text-chart-orange border-chart-orange/30 bg-chart-orange/5",
+  indigo: "text-indigo-600 border-indigo-200 bg-indigo-50/50",
+};
+
 const TIME_SLOTS = [
   "09:30 AM",
   "11:00 AM",
@@ -80,8 +94,41 @@ const TIME_SLOTS = [
 export function DrIsuruBookingClient() {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
-  // Form State
-  const [selectedSession, setSelectedSession] = useState(SESSIONS[0]);
+  // Dynamic Mentorship Sessions from DB (with fallback to default)
+  const [sessions, setSessions] = useState(DEFAULT_SESSIONS);
+  const [selectedSession, setSelectedSession] = useState(DEFAULT_SESSIONS[0]);
+
+  React.useEffect(() => {
+    async function loadPackages() {
+      try {
+        const res = await fetch("/api/consultations/packages");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.packages && data.packages.length > 0) {
+            const formatted = data.packages.map((pkg: any) => ({
+              id: pkg.packageKey || pkg.id,
+              number: pkg.number,
+              title: pkg.title,
+              duration: pkg.duration,
+              durationMins: pkg.durationMins,
+              priceLkr: pkg.priceLkr,
+              priceFormatted: `LKR ${pkg.priceLkr.toLocaleString()}`,
+              icon: ICON_LOOKUP[pkg.icon] || GraduationCap,
+              category: pkg.category,
+              tag: pkg.tag || pkg.category,
+              color: COLOR_LOOKUP[pkg.colorTheme] || COLOR_LOOKUP.teal,
+              description: pkg.description,
+            }));
+            setSessions(formatted);
+            setSelectedSession(formatted[0]);
+          }
+        }
+      } catch (err) {
+        console.warn("Using default consultation packages fallback:", err);
+      }
+    }
+    loadPackages();
+  }, []);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
@@ -256,7 +303,7 @@ export function DrIsuruBookingClient() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-                {SESSIONS.map((session) => {
+                {sessions.map((session) => {
                   const isSelected = selectedSession.id === session.id;
                   const Icon = session.icon;
                   return (

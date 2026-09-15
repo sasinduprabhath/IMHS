@@ -26,6 +26,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MentorshipPackagesManager } from "@/components/admin/MentorshipPackagesManager";
 
 interface Booking {
   id: string;
@@ -53,6 +54,7 @@ export default function AdminBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [activeTab, setActiveTab] = useState<"appointments" | "packages">("appointments");
 
   // Edit Modal State
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -213,8 +215,38 @@ export default function AdminBookingsPage() {
         </div>
       </div>
 
-      {/* ── Search & Status Filters ── */}
-      <div className="bg-slate-50 border border-slate-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
+      {/* ── Main Tab Navigation ── */}
+      <div className="flex items-center gap-2 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab("appointments")}
+          className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 -mb-px ${
+            activeTab === "appointments"
+              ? "border-[#0E57A4] text-[#0E57A4]"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          <Calendar className="w-4 h-4" />
+          Appointments &amp; Bookings ({bookings.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("packages")}
+          className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 -mb-px ${
+            activeTab === "packages"
+              ? "border-[#0E57A4] text-[#0E57A4]"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          Mentorship Packages &amp; Pricing
+        </button>
+      </div>
+
+      {activeTab === "packages" ? (
+        <MentorshipPackagesManager />
+      ) : (
+        <>
+          {/* ── Search & Status Filters ── */}
+          <div className="bg-slate-50 border border-slate-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
         <div className="relative max-w-md w-full">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -541,6 +573,8 @@ export default function AdminBookingsPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

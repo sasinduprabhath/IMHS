@@ -445,4 +445,26 @@ model GalleryItem {
   @@index([isPublished])
 }
 
+model MentorshipPackage {
+  id           String   @id @default(cuid())
+  packageKey   String   @unique
+  number       Int      @default(1)
+  title        String
+  duration     String   // e.g. "30 Minutes"
+  durationMins Int      @default(30)
+  priceLkr     Int      @default(3500)
+  category     String   // e.g. "Examination Planning"
+  tag          String?
+  description  String   @db.Text
+  icon         String   @default("GraduationCap")
+  colorTheme   String   @default("teal") // "teal" | "blue" | "orange"
+  isActive     Boolean  @default(true)
+  order        Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+}
+
 
