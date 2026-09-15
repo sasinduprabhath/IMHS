@@ -338,9 +338,11 @@ export default async function StudentDashboardPage({
                           {course.category}
                         </span>
                       )}
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-sage bg-[#F5F7FA] border border-[#E2E8F0] px-2 py-0.5 rounded">
-                        {course.enrollmentValidity || "Lifetime Access"}
-                      </span>
+                      {course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") && (
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-sage bg-[#F5F7FA] border border-[#E2E8F0] px-2 py-0.5 rounded">
+                          {course.enrollmentValidity}
+                        </span>
+                      )}
                     </div>
 
                     {/* Title */}

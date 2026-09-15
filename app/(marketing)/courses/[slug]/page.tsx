@@ -132,7 +132,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: "blended",
-      courseWorkload: course.enrollmentValidity || "Lifetime Access",
+      courseWorkload: course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") ? course.enrollmentValidity : "Batch Intake",
     },
   };
 
@@ -242,11 +242,15 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                     </span>
                   </>
                 )}
-                <span className="text-chart-grid text-xs">·</span>
-                <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
-                  <Clock className="w-3.5 h-3.5 text-amber-500" />
-                  {course.enrollmentValidity || "Lifetime"} Access
-                </span>
+                {course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") && (
+                  <>
+                    <span className="text-chart-grid text-xs">·</span>
+                    <span className="flex items-center gap-1.5 text-xs font-mono text-ink-muted">
+                      <Clock className="w-3.5 h-3.5 text-amber-500" />
+                      {course.enrollmentValidity.replace(/\s*access/gi, "").trim()} Access
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -265,7 +269,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   { icon: FileText, text: "PDF lab guides & case studies" },
                   { icon: Award, text: "Official IMHS Completion Certificate" },
                   { icon: MessageCircle, text: "WhatsApp admin support" },
-                  { icon: Clock, text: `${course.enrollmentValidity || "Lifetime"} portal access` },
+                  { icon: Clock, text: course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") ? `${course.enrollmentValidity} portal access` : "Structured portal access & recordings" },
                   { icon: GraduationCap, text: "SLMC exam preparation materials" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-2 text-xs text-ink">
@@ -388,7 +392,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   <div className="space-y-0.5">
                     <p className="text-[9px] font-mono uppercase tracking-widest text-sage">Total Course Fee</p>
                     <p className="text-3xl font-mono font-bold text-clinical-teal">{formatCurrency(course.price)}</p>
-                    <p className="text-[10px] text-ink-muted">Lifetime portal access &amp; certification</p>
+                    <p className="text-[10px] text-ink-muted">Complete portal access &amp; certification</p>
                   </div>
 
                   {/* Primary CTA */}
@@ -413,7 +417,9 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   {/* Spec rows */}
                   <div className="border-t border-chart-grid/50 pt-4 space-y-2.5">
                     {[
-                      { icon: Clock, label: "Validity", value: course.enrollmentValidity || "Lifetime" },
+                      ...(course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime")
+                        ? [{ icon: Clock, label: "Validity", value: course.enrollmentValidity }]
+                        : []),
                       { icon: Users, label: "Enrolled", value: `${enrolledCount} Students` },
                       { icon: Layers, label: "Content", value: `${course.chapters.length} Ch · ${lessonsCount} Lessons` },
                     ].map(({ icon: Icon, label, value }) => (

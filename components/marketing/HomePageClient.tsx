@@ -699,7 +699,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
             </div>
 
             <div className="pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-500 relative z-10 mt-6">
-              <span className="font-semibold">Unlimited Lifetime Portal Re-runs</span>
+              <span className="font-semibold">Full Program Portal Lecture Re-runs</span>
               <CheckCircle2 className="w-4 h-4 text-[#0E57A4]" />
             </div>
           </motion.div>

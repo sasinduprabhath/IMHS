@@ -131,7 +131,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   const [type, setType] = useState(course.type || "Course");
   const [category, setCategory] = useState(course.category || "Modern Pharmacy Course");
   const [level, setLevel] = useState(course.level || "All Levels");
-  const [enrollmentValidity, setEnrollmentValidity] = useState(course.enrollmentValidity || "Lifetime Access");
+  const [enrollmentValidity, setEnrollmentValidity] = useState(course.enrollmentValidity && !course.enrollmentValidity.toLowerCase().includes("lifetime") ? course.enrollmentValidity : "Batch Intake Access");
   const [totalEnrolled, setTotalEnrolled] = useState<number | "">(course.totalEnrolled || 450);
   const [published, setPublished] = useState(course.published);
   const [coverImage, setCoverImage] = useState(course.coverImage || "");
@@ -219,7 +219,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       type: type || "Course",
       category: category || "Modern Pharmacy Course",
       level: level || "All Levels",
-      enrollmentValidity: enrollmentValidity || "Lifetime Access",
+      enrollmentValidity: enrollmentValidity || "Batch Intake Access",
       totalEnrolled: totalEnrolled !== "" ? Number(totalEnrolled) : 450,
       published: Boolean(published),
       coverImage: (coverImage || "").trim(),
@@ -795,11 +795,12 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Enrollment Validity</label>
                 <CustomSelect
                   options={[
-                    { value: "Lifetime Access", label: "Lifetime Access" },
+                    { value: "Batch Intake Access", label: "Batch Intake Access" },
                     { value: "1 Year Access", label: "1 Year Access" },
                     { value: "6 Month Access", label: "6 Month Access" },
+                    { value: "Exam Intake Period", label: "Exam Intake Period" },
                   ]}
-                  value={enrollmentValidity}
+                  value={enrollmentValidity && !enrollmentValidity.toLowerCase().includes("lifetime") ? enrollmentValidity : "Batch Intake Access"}
                   onChange={setEnrollmentValidity}
                 />
               </div>
