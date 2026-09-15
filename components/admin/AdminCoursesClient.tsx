@@ -198,9 +198,6 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <span className="font-mono text-[10px] bg-blue-50 text-[#0E57A4] border border-blue-200 px-2.5 py-0.5 rounded-full font-bold inline-block">
-                        {courseCode}
-                      </span>
                       <h3 className="font-bold text-slate-900 text-sm leading-snug">
                         {course.title}
                       </h3>
@@ -269,7 +266,7 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
           <table className="w-full text-left text-xs font-sans min-w-[980px] border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-500 uppercase font-mono text-[10px]">
-                <th className="py-3.5 px-4 pl-6 text-left w-auto min-w-[320px]">Course Program &amp; Code</th>
+                <th className="py-3.5 px-4 pl-6 text-left w-auto min-w-[320px]">Course / Programme Name</th>
                 <th className="py-3.5 px-3 text-left whitespace-nowrap w-36">Publishing Status</th>
                 <th className="py-3.5 px-3 text-left whitespace-nowrap w-32">Tuition Fee</th>
                 <th className="py-3.5 px-3 text-left whitespace-nowrap w-44">Syllabus Structure</th>
@@ -287,7 +284,6 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                 </tr>
               ) : (
                 paginatedCourses.map((course) => {
-                  const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
                   const allItems = course.chapters.flatMap((ch) => ch.lessons);
                   const questionsCount = allItems.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
                   const lessonsCount = allItems.length - questionsCount;
@@ -298,14 +294,12 @@ export function AdminCoursesClient({ initialCourses }: { initialCourses: CourseI
                       className="hover:bg-slate-50/70 transition-all duration-150 group"
                     >
                       <td className="py-4 px-4 pl-6 align-middle">
-                        <div className="flex items-start gap-2.5">
-                          <span className="font-mono text-[10px] bg-blue-50 text-[#0E57A4] border border-blue-200/80 px-2 py-0.5 rounded-md font-bold shrink-0 mt-0.5 whitespace-nowrap">
-                            {courseCode}
-                          </span>
-                          <span className="text-sm font-sans font-bold text-slate-900 group-hover:text-[#0E57A4] transition-colors leading-snug">
-                            {course.title}
-                          </span>
-                        </div>
+                        <Link
+                          href={`/admin/courses/${course.id}/edit`}
+                          className="text-sm font-sans font-bold text-slate-900 group-hover:text-[#0E57A4] hover:underline transition-colors leading-snug block"
+                        >
+                          {course.title}
+                        </Link>
                       </td>
 
                       <td className="py-4 px-3 align-middle whitespace-nowrap">
