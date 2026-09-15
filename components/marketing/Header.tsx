@@ -100,7 +100,7 @@ export function Header() {
 
         {/* Desktop CTAs */}
         <div className="hidden lg:flex items-center gap-2.5">
-          <Link href="/contact">
+          <Link href="/enroll">
             <Button
               size="sm"
               className={cn(
@@ -187,7 +187,7 @@ export function Header() {
               })}
 
               <div className="pt-4 border-t border-[#E2E8F0] flex gap-2.5 mt-2">
-                <Link href="/contact" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/enroll" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
                   <button
                     type="button"
                     className="w-full flex items-center justify-center gap-1.5 h-10 text-white font-semibold text-sm rounded-xl bg-gradient-to-r from-[#0E57A4] to-[#1A6FC4] hover:brightness-105 active:scale-95 shadow-sm transition-all"

@@ -500,9 +500,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                             ))}
                           </div>
                           <Link
-                            href={createCourseInquiryWALink(course.title)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={`/enroll?course=${course.slug}`}
                             className="text-xs font-semibold text-[#0E57A4] font-sans flex items-center gap-1 group-hover:translate-x-1 transition-transform hover:underline"
                           >
                             Enroll Now <ChevronRight className="w-3.5 h-3.5" />
@@ -1013,14 +1011,14 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
             </p>
           </RevealOnScroll>
           <RevealOnScroll delay={0.4} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href={createCourseInquiryWALink()} target="_blank" rel="noopener noreferrer">
+            <Link href="/enroll">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="inline-block">
                 <Button
                   size="lg"
                   className="gap-2.5 bg-[#F16726] hover:bg-[#d95517] border-0 text-white shadow-lg font-bold px-10 text-base rounded-full"
                 >
-                  <PhoneCall className="w-5 h-5" />
-                  Inquire &amp; Enroll Now
+                  <Sparkles className="w-5 h-5" />
+                  Apply &amp; Enroll Online
                 </Button>
               </motion.div>
             </Link>

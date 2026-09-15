@@ -60,6 +60,7 @@ export function Footer() {
                 { href: "/courses", label: "Course Catalog" },
                 { href: "/consultation", label: "1-on-1 Mentorship" },
                 { href: "/gallery", label: "Campus Gallery" },
+                { href: "/enroll", label: "Online Enrollment" },
                 { href: "/contact", label: "Contact Us" },
               ].map(({ href, label }) => (
                 <li key={href}>
@@ -115,13 +116,13 @@ export function Footer() {
               <p className="text-white/50 text-xs leading-relaxed">
                 Admissions are conducted via direct administrative inquiry. Contact our desk to submit application details and receive your portal login.
               </p>
-              <Link href="/contact" className="block">
+              <Link href="/enroll" className="block">
                 <button
                   className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:opacity-90"
                   style={{ background: "linear-gradient(135deg, #F16726 0%, #D95316 100%)", boxShadow: "0 4px 12px rgba(241,103,38,.25)" }}
                 >
                   <Sparkles className="w-4 h-4" />
-                  Contact Admissions
+                  Enroll in a Programme
                 </button>
               </Link>
               <Link href="/login" className="block">

@@ -393,15 +393,16 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
                   {/* Primary CTA */}
                   <div className="space-y-2">
-                    <Link href={createCourseInquiryWALink(course.title)} target="_blank" rel="noopener noreferrer" className="block">
+                    <Link href={`/enroll?course=${course.slug}`} className="block">
                       <button className="w-full flex items-center justify-center gap-2 bg-chart-red hover:bg-chart-red-hover text-white font-bold text-sm py-3 px-5 rounded-full transition-all shadow-lg shadow-chart-red/20 hover:shadow-chart-red/30 hover:-translate-y-px">
-                        <PhoneCall className="w-4 h-4" />
-                        Inquire &amp; Enroll Now
+                        <GraduationCap className="w-4 h-4" />
+                        Enroll in this Course
                       </button>
                     </Link>
-                    <Link href="/contact" className="block">
+                    <Link href={createCourseInquiryWALink(course.title)} target="_blank" rel="noopener noreferrer" className="block">
                       <button className="w-full flex items-center justify-center gap-2 border border-chart-grid text-ink-muted hover:border-clinical-teal/50 hover:text-clinical-teal text-xs py-2.5 px-5 rounded-full transition-colors bg-linen/30">
-                        Send an inquiry form
+                        <PhoneCall className="w-3.5 h-3.5 text-clinical-teal" />
+                        WhatsApp Admissions Desk
                       </button>
                     </Link>
                     <p className="text-[9px] text-center text-sage font-mono">

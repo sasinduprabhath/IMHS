@@ -19,7 +19,6 @@ const contactFormSchema = z.object({
   name: z.string().min(2, "Full name is required"),
   phone: z.string().min(8, "Valid phone number is required"),
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
-  courseInterest: z.string().optional(),
   message: z.string().min(5, "Message must be at least 5 characters"),
 });
 
@@ -31,14 +30,6 @@ const CONTACT_INFO = [
   { icon: PhoneCall, label: "WhatsApp Hotline", value: "+94 76 650 6621" },
   { icon: Clock, label: "Office Hours", value: "Mon-Sat · 8:00 AM - 6:00 PM" },
   { icon: Globe, label: "Website", value: "imhsedu.com" },
-];
-
-const COURSE_OPTIONS = [
-  "Modern Pharmacy Course (SLMC Registration)",
-  "Advanced Certificate in Pharmaceutical Manufacturing",
-  "Foundation Course in Pharmaceutical Science & Healthcare",
-  "Diploma in Healthcare & Medical Laboratory Technology",
-  "Other / General Institutional Inquiry",
 ];
 
 function InputField({
@@ -204,12 +195,12 @@ export default function ContactPage() {
                       </InputField>
                     </div>
 
-                    <InputField label="Course of Interest">
-                      <select {...register("courseInterest")} className={inputClass}>
-                        <option value="">Select a programme</option>
-                        {COURSE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                      </select>
-                    </InputField>
+                    <div className="p-3 bg-clinical-teal/5 border border-clinical-teal/20 rounded-xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-ink font-sans">
+                      <span className="text-ink-muted">Looking to apply for a specific diploma or certificate program?</span>
+                      <Link href="/enroll" className="font-bold text-clinical-teal hover:underline flex items-center gap-1 shrink-0 font-mono">
+                        Course Enrollment Page &rarr;
+                      </Link>
+                    </div>
 
                     <InputField label="Your Message" required error={errors.message?.message}>
                       <textarea rows={4} placeholder="Please enter your inquiry." {...register("message")} className={inputClass} />

@@ -134,10 +134,10 @@ export default async function CoursesCatalogPage() {
             </p>
           </RevealOnScroll>
           <RevealOnScroll delay={0.2}>
-            <Link href="/contact" className="inline-block mt-4">
+            <Link href="/enroll" className="inline-block mt-4">
               <Button className="gap-2.5 bg-chart-red hover:bg-chart-red-hover text-white border-0 shadow-md font-semibold px-8 py-3 text-base">
-                <PhoneCall className="w-5 h-5" />
-                Inquire & Enroll Now
+                <GraduationCap className="w-5 h-5" />
+                Apply &amp; Enroll Online
               </Button>
             </Link>
           </RevealOnScroll>

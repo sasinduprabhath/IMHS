@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   PhoneCall, 
@@ -26,8 +27,8 @@ interface EnrollmentStep {
 const ENROLLMENT_STEPS: EnrollmentStep[] = [
   {
     step: '01',
-    title: 'Contact Admin on WhatsApp',
-    description: 'Message our coordinator on WhatsApp with your full name and preferred healthcare program.',
+    title: 'Submit Application Online',
+    description: 'Fill our official online enrollment form or message our admissions coordinator with your details.',
     icon: PhoneCall,
     badgeBg: 'bg-blue-600',
     badgeText: 'text-blue-600',
@@ -134,8 +135,17 @@ export function EnrollmentProcessSection() {
           </div>
         </div>
 
-        {/* Prominent Call-to-Action Button */}
-        <div className="text-center mt-12 sm:mt-16">
+        {/* Prominent Call-to-Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 sm:mt-16">
+          <Link
+            href="/enroll"
+            className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#0E57A4] to-[#1A6FC4] hover:from-[#0B4685] hover:to-[#0E57A4] text-white text-sm sm:text-base font-bold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition duration-300 group w-full sm:w-auto"
+          >
+            <Sparkles className="w-5 h-5 text-orange-300" />
+            <span>Fill Online Enrollment Form</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition duration-200" />
+          </Link>
+
           <a
             href={whatsappUrl}
             target="_blank"
@@ -143,7 +153,7 @@ export function EnrollmentProcessSection() {
             className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#F16726] to-orange-500 hover:from-orange-600 hover:to-[#F16726] text-white text-sm sm:text-base font-bold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition duration-300 group w-full sm:w-auto"
           >
             <MessageSquare className="w-5 h-5 fill-white/20" />
-            <span>Start Enrollment on WhatsApp</span>
+            <span>Chat on WhatsApp Desk</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition duration-200" />
           </a>
         </div>
