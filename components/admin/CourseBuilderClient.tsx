@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Reorder, useDragControls } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { FormattedText } from "@/components/ui/formatted-text";
@@ -39,7 +40,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface LessonInput {
-  id?: string;
+  id: string;
   title: string;
   order: number;
   type?: "VIDEO" | "DOCUMENT";
@@ -49,7 +50,7 @@ interface LessonInput {
 }
 
 interface ChapterInput {
-  id?: string;
+  id: string;
   title: string;
   order: number;
   lessons: LessonInput[];
@@ -117,6 +118,376 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "announcements", label: "Announcements", icon: Bell },
 ];
 
+// ─── Reorder Subcomponents (GPU-Accelerated Smooth Framer Motion) ─────────────
+interface LessonReorderItemProps {
+  lesson: LessonInput;
+  cIdx: number;
+  lIdx: number;
+  totalLessons: number;
+  allChapters: ChapterInput[];
+  onMoveLesson: (cIdx: number, lIdx: number, dir: -1 | 1) => void;
+  onMoveLessonToChapter: (fromCIdx: number, lIdx: number, toCIdx: number) => void;
+  onUpdateLesson: (cIdx: number, lIdx: number, field: keyof LessonInput, value: string) => void;
+  onRemoveLesson: (cIdx: number, lIdx: number) => void;
+}
+
+function LessonReorderItem({
+  lesson,
+  cIdx,
+  lIdx,
+  totalLessons,
+  allChapters,
+  onMoveLesson,
+  onMoveLessonToChapter,
+  onUpdateLesson,
+  onRemoveLesson,
+}: LessonReorderItemProps) {
+  const lessonDragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={lesson}
+      id={lesson.id}
+      dragListener={false}
+      dragControls={lessonDragControls}
+      className="px-4 py-3 bg-white hover:bg-slate-50/60 transition-colors relative select-none"
+      whileDrag={{
+        scale: 1.01,
+        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08)",
+        backgroundColor: "#ffffff",
+        zIndex: 50,
+      }}
+    >
+      <div className="flex items-start gap-2.5">
+        {/* Grip handle for dragging lesson */}
+        <div
+          onPointerDown={(e) => {
+            e.preventDefault();
+            lessonDragControls.start(e);
+          }}
+          className="pt-2 text-slate-400 hover:text-[#0E57A4] cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none touch-none"
+          title="Drag to reorder lesson"
+        >
+          <GripVertical className="w-4 h-4" />
+        </div>
+
+        <span className="text-[10px] font-mono text-slate-400 pt-2.5 shrink-0 w-8 text-right font-semibold">
+          {cIdx + 1}.{lIdx + 1}
+        </span>
+
+        <div className="flex-1 min-w-0 space-y-2">
+          {/* Lesson title */}
+          <input
+            type="text"
+            value={lesson.title}
+            onChange={(e) => onUpdateLesson(cIdx, lIdx, "title", e.target.value)}
+            placeholder="Lesson title…"
+            className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] font-medium transition-colors"
+          />
+
+          {/* Type toggle + media ID */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Type pill buttons */}
+            <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden text-[10px] font-mono font-bold shrink-0 bg-slate-50">
+              <button
+                type="button"
+                onClick={() => onUpdateLesson(cIdx, lIdx, "type", "VIDEO")}
+                className={cn(
+                  "flex items-center gap-1 px-2.5 py-1.5 transition-colors cursor-pointer",
+                  (lesson.type || "VIDEO") === "VIDEO"
+                    ? "bg-[#0E57A4] text-white font-bold"
+                    : "text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                <Video className="w-3 h-3" /> Video
+              </button>
+              <button
+                type="button"
+                onClick={() => onUpdateLesson(cIdx, lIdx, "type", "DOCUMENT")}
+                className={cn(
+                  "flex items-center gap-1 px-2.5 py-1.5 transition-colors border-l border-slate-200 cursor-pointer",
+                  lesson.type === "DOCUMENT"
+                    ? "bg-[#0E57A4] text-white font-bold"
+                    : "text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                <FileText className="w-3 h-3" /> Document
+              </button>
+            </div>
+
+            {/* Media ID field */}
+            {(lesson.type || "VIDEO") === "VIDEO" ? (
+              <input
+                type="text"
+                value={lesson.vimeoVideoId}
+                onChange={(e) => onUpdateLesson(cIdx, lIdx, "vimeoVideoId", e.target.value)}
+                placeholder="HD Video Stream ID (e.g. 76979871)"
+                className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+              />
+            ) : (
+              <input
+                type="text"
+                value={lesson.driveFileId}
+                onChange={(e) => onUpdateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
+                placeholder="Google Drive File ID"
+                className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+              />
+            )}
+
+            {/* Companion PDF - only shown for video lessons */}
+            {(lesson.type || "VIDEO") === "VIDEO" && (
+              <input
+                type="text"
+                value={lesson.driveFileId}
+                onChange={(e) => onUpdateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
+                placeholder="Companion PDF File ID (optional)"
+                className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-600 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Action buttons: Move up, Move down, Move to Chapter, Remove */}
+        <div className="flex items-center gap-1 shrink-0 mt-1">
+          <button
+            type="button"
+            onClick={() => onMoveLesson(cIdx, lIdx, -1)}
+            disabled={lIdx === 0}
+            className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/80 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+            title="Move lesson up"
+          >
+            <MoveUp className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onMoveLesson(cIdx, lIdx, 1)}
+            disabled={lIdx === totalLessons - 1}
+            className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/80 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+            title="Move lesson down"
+          >
+            <MoveDown className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Move to another chapter selector (if multiple chapters exist) */}
+          {allChapters.length > 1 && (
+            <select
+              aria-label="Move lesson to chapter"
+              value=""
+              onChange={(e) => {
+                const targetCIdx = Number(e.target.value);
+                if (!isNaN(targetCIdx) && targetCIdx !== cIdx) {
+                  onMoveLessonToChapter(cIdx, lIdx, targetCIdx);
+                }
+              }}
+              className="p-1 text-[11px] font-mono text-slate-400 hover:text-[#0E57A4] bg-transparent hover:bg-slate-100 rounded-lg cursor-pointer transition-colors border-0 focus:outline-none"
+              title="Move to another chapter"
+            >
+              <option value="" disabled>➔ CH</option>
+              {allChapters.map((ch, otherCIdx) => (
+                <option key={ch.id} value={otherCIdx} disabled={otherCIdx === cIdx}>
+                  {otherCIdx === cIdx ? `(Current) CH ${otherCIdx + 1}` : `Move to CH ${otherCIdx + 1}: ${ch.title.slice(0, 20)}`}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onRemoveLesson(cIdx, lIdx)}
+            className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+            title="Remove lesson"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    </Reorder.Item>
+  );
+}
+
+interface ChapterReorderItemProps {
+  chapter: ChapterInput;
+  cIdx: number;
+  totalChapters: number;
+  isOpen: boolean;
+  toggleChapter: () => void;
+  updateChapterTitle: (cIdx: number, val: string) => void;
+  moveChapter: (cIdx: number, dir: -1 | 1) => void;
+  removeChapter: (cIdx: number) => void;
+  addLesson: (cIdx: number) => void;
+  handleReorderLessons: (cIdx: number, newLessons: LessonInput[]) => void;
+  updateLesson: (cIdx: number, lIdx: number, field: keyof LessonInput, value: string) => void;
+  removeLesson: (cIdx: number, lIdx: number) => void;
+  moveLesson: (cIdx: number, lIdx: number, dir: -1 | 1) => void;
+  moveLessonToChapter: (fromCIdx: number, lIdx: number, toCIdx: number) => void;
+  allChapters: ChapterInput[];
+}
+
+function ChapterReorderItem({
+  chapter,
+  cIdx,
+  totalChapters,
+  isOpen,
+  toggleChapter,
+  updateChapterTitle,
+  moveChapter,
+  removeChapter,
+  addLesson,
+  handleReorderLessons,
+  updateLesson,
+  removeLesson,
+  moveLesson,
+  moveLessonToChapter,
+  allChapters,
+}: ChapterReorderItemProps) {
+  const chapterDragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={chapter}
+      id={chapter.id}
+      dragListener={false}
+      dragControls={chapterDragControls}
+      className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs transition-shadow relative"
+      whileDrag={{
+        scale: 1.01,
+        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        zIndex: 40,
+      }}
+    >
+      {/* Chapter Header - always visible */}
+      <div className="flex items-center gap-2.5 px-4 py-3 bg-slate-50/80 border-b border-slate-200">
+        {/* Chapter Drag handle */}
+        <div
+          onPointerDown={(e) => {
+            e.preventDefault();
+            chapterDragControls.start(e);
+          }}
+          className="p-1 -ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none touch-none"
+          title="Drag to reorder chapter"
+        >
+          <GripVertical className="w-4 h-4" />
+        </div>
+
+        {/* Collapse toggle */}
+        <button
+          type="button"
+          onClick={toggleChapter}
+          className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors shrink-0 cursor-pointer"
+        >
+          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+
+        <span className="text-[10px] font-mono font-bold text-[#0E57A4] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">
+          CH {String(cIdx + 1).padStart(2, "0")}
+        </span>
+
+        <input
+          type="text"
+          value={chapter.title}
+          onChange={(e) => updateChapterTitle(cIdx, e.target.value)}
+          className="flex-1 bg-transparent text-sm font-semibold text-slate-900 focus:outline-none min-w-0"
+          placeholder="Chapter title…"
+        />
+
+        <span className="text-[10px] font-mono text-slate-500 shrink-0 hidden sm:block">
+          {chapter.lessons.length} lesson{chapter.lessons.length !== 1 ? "s" : ""}
+        </span>
+
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => moveChapter(cIdx, -1)}
+            disabled={cIdx === 0}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-25 transition-colors cursor-pointer"
+            title="Move up"
+          >
+            <MoveUp className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => moveChapter(cIdx, 1)}
+            disabled={cIdx === totalChapters - 1}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-25 transition-colors cursor-pointer"
+            title="Move down"
+          >
+            <MoveDown className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => addLesson(cIdx)}
+            className="p-1.5 rounded-lg text-[#0E57A4] hover:bg-blue-50 transition-colors cursor-pointer"
+            title="Add lesson"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => removeChapter(cIdx)}
+            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+            title="Delete chapter"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Lessons - collapsible */}
+      {isOpen && (
+        <div>
+          {chapter.lessons.length === 0 ? (
+            <div className="px-5 py-6 text-center bg-slate-50/40 transition-colors">
+              <p className="text-xs font-mono text-slate-500">
+                No lessons in this chapter yet.{" "}
+                <button
+                  type="button"
+                  onClick={() => addLesson(cIdx)}
+                  className="text-[#0E57A4] hover:underline font-bold cursor-pointer"
+                >
+                  Add first lesson →
+                </button>
+              </p>
+            </div>
+          ) : (
+            <Reorder.Group
+              axis="y"
+              values={chapter.lessons}
+              onReorder={(newLessons) => handleReorderLessons(cIdx, newLessons)}
+              className="divide-y divide-slate-100"
+            >
+              {chapter.lessons.map((lesson, lIdx) => (
+                <LessonReorderItem
+                  key={lesson.id}
+                  lesson={lesson}
+                  cIdx={cIdx}
+                  lIdx={lIdx}
+                  totalLessons={chapter.lessons.length}
+                  allChapters={allChapters}
+                  onMoveLesson={moveLesson}
+                  onMoveLessonToChapter={moveLessonToChapter}
+                  onUpdateLesson={updateLesson}
+                  onRemoveLesson={removeLesson}
+                />
+              ))}
+            </Reorder.Group>
+          )}
+
+          {/* Add lesson button at bottom */}
+          <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
+            <button
+              type="button"
+              onClick={() => addLesson(cIdx)}
+              className="flex items-center gap-1.5 text-xs font-mono text-[#0E57A4] hover:text-[#0A4482] font-bold transition-colors cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Lesson
+            </button>
+          </div>
+        </div>
+      )}
+    </Reorder.Item>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) {
   const router = useRouter();
@@ -168,13 +539,13 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   };
 
   // ── Syllabus State ──
-  const [chapters, setChapters] = useState<ChapterInput[]>(
-    course.chapters.map((ch) => ({
-      id: ch.id,
+  const [chapters, setChapters] = useState<ChapterInput[]>(() =>
+    course.chapters.map((ch, cIdx) => ({
+      id: ch.id || `ch-${cIdx}-${Date.now()}`,
       title: ch.title,
       order: ch.order,
-      lessons: ch.lessons.map((l) => ({
-        id: l.id,
+      lessons: ch.lessons.map((l, lIdx) => ({
+        id: l.id || `l-${cIdx}-${lIdx}-${Date.now()}`,
         title: l.title,
         order: l.order,
         type: (l.type as any) || (l.vimeoVideoId ? "VIDEO" : "DOCUMENT"),
@@ -184,13 +555,9 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       })),
     }))
   );
-  const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
-    new Set(course.chapters.map((_, i) => i))
+  const [expandedChapterIds, setExpandedChapterIds] = useState<Set<string>>(
+    () => new Set(course.chapters.map((ch, i) => ch.id || `ch-${i}`))
   );
-
-  // ── Drag & Drop Reordering Refs (avoids React re-renders during native drag) ──
-  const dragChapterRef = React.useRef<number | null>(null);
-  const dragLessonRef = React.useRef<{ cIdx: number; lIdx: number } | null>(null);
 
   // ── Announcements State ──
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(course.announcements || []);
@@ -276,20 +643,21 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   }, [isDirty]);
 
   // ─── Chapter / Lesson Helpers ───────────────────────────────────────────────
-  const toggleChapter = (idx: number) =>
-    setExpandedChapters((prev) => {
+  const toggleChapter = (id: string) =>
+    setExpandedChapterIds((prev) => {
       const next = new Set(prev);
-      next.has(idx) ? next.delete(idx) : next.add(idx);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
 
   const addChapter = () => {
     const newIdx = chapters.length;
+    const newId = `ch-new-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setChapters((prev) => [
       ...prev,
-      { title: `Chapter ${newIdx + 1}`, order: newIdx + 1, lessons: [] },
+      { id: newId, title: `Chapter ${newIdx + 1}`, order: newIdx + 1, lessons: [] },
     ]);
-    setExpandedChapters((prev) => new Set([...prev, newIdx]));
+    setExpandedChapterIds((prev) => new Set([...prev, newId]));
   };
 
   const removeChapter = (cIdx: number) => {
@@ -297,46 +665,34 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     setChapters((prev) => prev.filter((_, i) => i !== cIdx));
   };
 
-  const cleanupDragStyles = () => {
-    if (typeof document === "undefined") return;
-    document.querySelectorAll(".is-dragging-item").forEach((el) => {
-      el.classList.remove("is-dragging-item", "opacity-40", "ring-2", "ring-[#0E57A4]", "bg-blue-50/20");
-    });
-    document.querySelectorAll(".is-dragover-item").forEach((el) => {
-      el.classList.remove("is-dragover-item", "border-t-2", "!border-[#0E57A4]", "bg-blue-50/40");
-    });
-    document.querySelectorAll(".is-dragover-chapter").forEach((el) => {
-      el.classList.remove("is-dragover-chapter", "ring-2", "ring-[#0E57A4]", "border-[#0E57A4]");
-    });
-    document.querySelectorAll(".is-dragover-dropzone").forEach((el) => {
-      el.classList.remove("is-dragover-dropzone", "bg-blue-50/80", "border-t-2", "!border-[#0E57A4]", "border-2", "border-dashed");
-    });
-  };
-
-  const reorderChapters = (fromIdx: number, toIdx: number) => {
-    if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= chapters.length || toIdx >= chapters.length) return;
-    setChapters((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      if (!moved) return prev;
-      next.splice(toIdx, 0, moved);
-      return next.map((ch, i) => ({ ...ch, order: i + 1 }));
-    });
-    setExpandedChapters((prev) => {
-      const wasOpen = prev.has(fromIdx);
-      const targetWasOpen = prev.has(toIdx);
-      const nextSet = new Set(prev);
-      if (wasOpen) nextSet.add(toIdx);
-      else nextSet.delete(toIdx);
-      if (targetWasOpen) nextSet.add(fromIdx);
-      else nextSet.delete(fromIdx);
-      return nextSet;
-    });
+  const handleReorderChapters = (newChapters: ChapterInput[]) => {
+    setChapters(newChapters.map((ch, i) => ({ ...ch, order: i + 1 })));
   };
 
   const moveChapter = (cIdx: number, dir: -1 | 1) => {
-    if (cIdx + dir < 0 || cIdx + dir >= chapters.length) return;
-    reorderChapters(cIdx, cIdx + dir);
+    const targetIdx = cIdx + dir;
+    if (targetIdx < 0 || targetIdx >= chapters.length) return;
+    setChapters((prev) => {
+      const next = [...prev];
+      const temp = next[cIdx];
+      next[cIdx] = next[targetIdx];
+      next[targetIdx] = temp;
+      return next.map((ch, i) => ({ ...ch, order: i + 1 }));
+    });
+  };
+
+  const handleReorderLessons = (cIdx: number, newLessons: LessonInput[]) => {
+    setChapters((prev) => {
+      const next = [...prev];
+      next[cIdx] = {
+        ...next[cIdx],
+        lessons: newLessons.map((l, i) => ({
+          ...l,
+          order: i + 1,
+        })),
+      };
+      return next;
+    });
   };
 
   const moveLesson = (cIdx: number, lIdx: number, dir: -1 | 1) => {
@@ -356,22 +712,13 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     });
   };
 
-  const reorderLessons = (
-    from: { cIdx: number; lIdx: number },
-    to: { cIdx: number; lIdx: number }
-  ) => {
-    if (from.cIdx === to.cIdx && from.lIdx === to.lIdx) return;
+  const moveLessonToChapter = (fromCIdx: number, lIdx: number, toCIdx: number) => {
+    if (fromCIdx === toCIdx || fromCIdx < 0 || toCIdx < 0 || fromCIdx >= chapters.length || toCIdx >= chapters.length) return;
     setChapters((prev) => {
       const next = prev.map((ch) => ({ ...ch, lessons: [...ch.lessons] }));
-      if (!next[from.cIdx] || !next[to.cIdx]) return prev;
-      if (from.lIdx < 0 || from.lIdx >= next[from.cIdx].lessons.length) return prev;
-
-      const [moved] = next[from.cIdx].lessons.splice(from.lIdx, 1);
+      const [moved] = next[fromCIdx].lessons.splice(lIdx, 1);
       if (!moved) return prev;
-
-      const targetIndex = Math.min(Math.max(0, to.lIdx), next[to.cIdx].lessons.length);
-      next[to.cIdx].lessons.splice(targetIndex, 0, moved);
-
+      next[toCIdx].lessons.push(moved);
       next.forEach((ch, chI) => {
         ch.order = chI + 1;
         ch.lessons.forEach((l, lI) => {
@@ -380,6 +727,10 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       });
       return next;
     });
+    const targetChapterId = chapters[toCIdx]?.id;
+    if (targetChapterId) {
+      setExpandedChapterIds((prev) => new Set([...prev, targetChapterId]));
+    }
   };
 
   const updateChapterTitle = (cIdx: number, val: string) =>
@@ -389,13 +740,15 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       return next;
     });
 
-  const addLesson = (cIdx: number) =>
+  const addLesson = (cIdx: number) => {
     setChapters((prev) => {
       const next = [...prev];
       const ch = { ...next[cIdx] };
+      const newLessonId = `l-new-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       ch.lessons = [
         ...ch.lessons,
         {
+          id: newLessonId,
           title: `Lesson ${cIdx + 1}.${ch.lessons.length + 1}`,
           order: ch.lessons.length + 1,
           type: "VIDEO",
@@ -407,12 +760,13 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       next[cIdx] = ch;
       return next;
     });
+  };
 
   const removeLesson = (cIdx: number, lIdx: number) =>
     setChapters((prev) => {
       const next = [...prev];
       const ch = { ...next[cIdx] };
-      ch.lessons = ch.lessons.filter((_, i) => i !== lIdx);
+      ch.lessons = ch.lessons.filter((_, i) => i !== lIdx).map((l, i) => ({ ...l, order: i + 1 }));
       next[cIdx] = ch;
       return next;
     });
@@ -515,6 +869,25 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       });
 
       if (res.ok) {
+        const data = await res.json();
+        if (data.course?.chapters) {
+          setChapters(
+            data.course.chapters.map((ch: any) => ({
+              id: ch.id,
+              title: ch.title,
+              order: ch.order,
+              lessons: (ch.lessons || []).map((l: any) => ({
+                id: l.id,
+                title: l.title,
+                order: l.order,
+                type: (l.type as any) || (l.vimeoVideoId ? "VIDEO" : "DOCUMENT"),
+                vimeoVideoId: l.vimeoVideoId || "",
+                driveFileId: l.driveFileId || "",
+                content: l.content || "",
+              })),
+            }))
+          );
+        }
         setInitialSnapshot(getSnapshot());
         setSaveSuccess(true);
         router.refresh();
@@ -1156,426 +1529,33 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
               <p className="text-xs text-slate-400 mt-1">Click &ldquo;Add Chapter&rdquo; to build your syllabus curriculum.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {chapters.map((chapter, cIdx) => {
-                const isOpen = expandedChapters.has(cIdx);
-
-                return (
-                  <div
-                    key={chapter.id || `ch-${cIdx}`}
-                    data-chapter-card="true"
-                    onDragOver={(e) => {
-                      if (dragChapterRef.current !== null && dragChapterRef.current !== cIdx) {
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = "move";
-                      }
-                    }}
-                    onDragEnter={(e) => {
-                      if (dragChapterRef.current !== null && dragChapterRef.current !== cIdx) {
-                        e.preventDefault();
-                        (e.currentTarget as HTMLElement).classList.add("is-dragover-chapter", "ring-2", "ring-[#0E57A4]", "border-[#0E57A4]");
-                      }
-                    }}
-                    onDragLeave={(e) => {
-                      const target = e.currentTarget as HTMLElement;
-                      if (!target.contains(e.relatedTarget as Node)) {
-                        target.classList.remove("is-dragover-chapter", "ring-2", "ring-[#0E57A4]", "border-[#0E57A4]");
-                      }
-                    }}
-                    onDrop={(e) => {
-                      if (dragChapterRef.current !== null) {
-                        e.preventDefault();
-                        const from = dragChapterRef.current;
-                        dragChapterRef.current = null;
-                        cleanupDragStyles();
-                        if (from !== cIdx) {
-                          reorderChapters(from, cIdx);
-                        }
-                      }
-                    }}
-                    className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs transition-all"
-                  >
-                    {/* Chapter Header - always visible */}
-                    <div className="flex items-center gap-2.5 px-4 py-3 bg-slate-50/80 border-b border-slate-200">
-                      {/* Chapter Drag handle */}
-                      <div
-                        draggable
-                        onDragStart={(e) => {
-                          e.stopPropagation();
-                          dragChapterRef.current = cIdx;
-                          e.dataTransfer.setData("text/plain", `chapter:${cIdx}`);
-                          e.dataTransfer.effectAllowed = "move";
-
-                          const card = (e.currentTarget as HTMLElement).closest("[data-chapter-card]") as HTMLElement;
-                          if (card) {
-                            setTimeout(() => {
-                              card.classList.add("is-dragging-item", "opacity-40", "ring-2", "ring-[#0E57A4]");
-                            }, 0);
-                          }
-                        }}
-                        onDragEnd={() => {
-                          dragChapterRef.current = null;
-                          cleanupDragStyles();
-                        }}
-                        className="p-1 -ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none"
-                        title="Drag to reorder chapter"
-                      >
-                        <GripVertical className="w-4 h-4" />
-                      </div>
-
-                      {/* Collapse toggle */}
-                      <button
-                        type="button"
-                        onClick={() => toggleChapter(cIdx)}
-                        className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors shrink-0 cursor-pointer"
-                      >
-                        {isOpen
-                          ? <ChevronDown className="w-4 h-4" />
-                          : <ChevronRight className="w-4 h-4" />
-                        }
-                      </button>
-
-                      <span className="text-[10px] font-mono font-bold text-[#0E57A4] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">
-                        CH {String(cIdx + 1).padStart(2, "0")}
-                      </span>
-
-                      <input
-                        type="text"
-                        value={chapter.title}
-                        onChange={(e) => updateChapterTitle(cIdx, e.target.value)}
-                        className="flex-1 bg-transparent text-sm font-semibold text-slate-900 focus:outline-none min-w-0"
-                        placeholder="Chapter title…"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-
-                      <span className="text-[10px] font-mono text-slate-500 shrink-0 hidden sm:block">
-                        {chapter.lessons.length} lesson{chapter.lessons.length !== 1 ? "s" : ""}
-                      </span>
-
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => moveChapter(cIdx, -1)}
-                          disabled={cIdx === 0}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-25 transition-colors cursor-pointer"
-                          title="Move up"
-                        >
-                          <MoveUp className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveChapter(cIdx, 1)}
-                          disabled={cIdx === chapters.length - 1}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 disabled:opacity-25 transition-colors cursor-pointer"
-                          title="Move down"
-                        >
-                          <MoveDown className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => addLesson(cIdx)}
-                          className="p-1.5 rounded-lg text-[#0E57A4] hover:bg-blue-50 transition-colors cursor-pointer"
-                          title="Add lesson"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeChapter(cIdx)}
-                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
-                          title="Delete chapter"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Lessons - collapsible */}
-                    {isOpen && (
-                      <div>
-                        {chapter.lessons.length === 0 ? (
-                          <div
-                            data-drop-zone="true"
-                            onDragOver={(e) => {
-                              if (dragLessonRef.current) {
-                                e.preventDefault();
-                                e.dataTransfer.dropEffect = "move";
-                              }
-                            }}
-                            onDragEnter={(e) => {
-                              if (dragLessonRef.current) {
-                                e.preventDefault();
-                                (e.currentTarget as HTMLElement).classList.add("is-dragover-dropzone", "bg-blue-50/80", "border-2", "border-dashed", "!border-[#0E57A4]");
-                              }
-                            }}
-                            onDragLeave={(e) => {
-                              const target = e.currentTarget as HTMLElement;
-                              if (!target.contains(e.relatedTarget as Node)) {
-                                target.classList.remove("is-dragover-dropzone", "bg-blue-50/80", "border-2", "border-dashed", "!border-[#0E57A4]");
-                              }
-                            }}
-                            onDrop={(e) => {
-                              if (dragLessonRef.current) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                const from = dragLessonRef.current;
-                                dragLessonRef.current = null;
-                                cleanupDragStyles();
-                                if (from) {
-                                  reorderLessons(from, { cIdx, lIdx: 0 });
-                                }
-                              }
-                            }}
-                            className="px-5 py-6 text-center bg-slate-50/40 transition-colors"
-                          >
-                            <p className="text-xs font-mono text-slate-500">
-                              No lessons in this chapter yet.{" "}
-                              <button
-                                type="button"
-                                onClick={() => addLesson(cIdx)}
-                                className="text-[#0E57A4] hover:underline font-bold"
-                              >
-                                Add first lesson →
-                              </button>
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="divide-y divide-slate-100">
-                            {chapter.lessons.map((lesson, lIdx) => (
-                              <div
-                                key={lesson.id || `l-${cIdx}-${lIdx}`}
-                                data-lesson-row="true"
-                                onDragOver={(e) => {
-                                  if (dragLessonRef.current) {
-                                    e.preventDefault();
-                                    e.dataTransfer.dropEffect = "move";
-                                  }
-                                }}
-                                onDragEnter={(e) => {
-                                  if (dragLessonRef.current) {
-                                    const from = dragLessonRef.current;
-                                    if (from.cIdx !== cIdx || from.lIdx !== lIdx) {
-                                      e.preventDefault();
-                                      (e.currentTarget as HTMLElement).classList.add("is-dragover-item", "border-t-2", "!border-[#0E57A4]", "bg-blue-50/40");
-                                    }
-                                  }
-                                }}
-                                onDragLeave={(e) => {
-                                  const target = e.currentTarget as HTMLElement;
-                                  if (!target.contains(e.relatedTarget as Node)) {
-                                    target.classList.remove("is-dragover-item", "border-t-2", "!border-[#0E57A4]", "bg-blue-50/40");
-                                  }
-                                }}
-                                onDrop={(e) => {
-                                  if (dragLessonRef.current) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    const from = dragLessonRef.current;
-                                    dragLessonRef.current = null;
-                                    cleanupDragStyles();
-                                    if (from && (from.cIdx !== cIdx || from.lIdx !== lIdx)) {
-                                      reorderLessons(from, { cIdx, lIdx });
-                                    }
-                                  }
-                                }}
-                                className="px-4 py-3 bg-white hover:bg-slate-50/60 transition-all group relative"
-                              >
-                                <div className="flex items-start gap-2.5">
-                                  {/* Grip handle for dragging lesson */}
-                                  <div
-                                    draggable
-                                    onDragStart={(e) => {
-                                      e.stopPropagation();
-                                      dragLessonRef.current = { cIdx, lIdx };
-                                      e.dataTransfer.setData("text/plain", `lesson:${cIdx}:${lIdx}`);
-                                      e.dataTransfer.effectAllowed = "move";
-
-                                      const row = (e.currentTarget as HTMLElement).closest("[data-lesson-row]") as HTMLElement;
-                                      if (row) {
-                                        setTimeout(() => {
-                                          row.classList.add("is-dragging-item", "opacity-40", "bg-blue-50/20");
-                                        }, 0);
-                                      }
-                                    }}
-                                    onDragEnd={() => {
-                                      dragLessonRef.current = null;
-                                      cleanupDragStyles();
-                                    }}
-                                    className="pt-2 text-slate-400 hover:text-[#0E57A4] cursor-grab active:cursor-grabbing transition-colors shrink-0 select-none"
-                                    title="Drag to reorder lesson"
-                                  >
-                                    <GripVertical className="w-4 h-4" />
-                                  </div>
-
-                                  <span className="text-[10px] font-mono text-slate-400 pt-2.5 shrink-0 w-8 text-right font-semibold">
-                                    {cIdx + 1}.{lIdx + 1}
-                                  </span>
-
-                                  <div className="flex-1 min-w-0 space-y-2">
-                                    {/* Lesson title */}
-                                    <input
-                                      type="text"
-                                      value={lesson.title}
-                                      onChange={(e) => updateLesson(cIdx, lIdx, "title", e.target.value)}
-                                      placeholder="Lesson title…"
-                                      className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] font-medium transition-colors"
-                                    />
-
-                                    {/* Type toggle + media ID */}
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      {/* Type pill buttons */}
-                                      <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden text-[10px] font-mono font-bold shrink-0 bg-slate-50">
-                                        <button
-                                          type="button"
-                                          onClick={() => updateLesson(cIdx, lIdx, "type", "VIDEO")}
-                                          className={cn(
-                                            "flex items-center gap-1 px-2.5 py-1.5 transition-colors cursor-pointer",
-                                            (lesson.type || "VIDEO") === "VIDEO"
-                                              ? "bg-[#0E57A4] text-white font-bold"
-                                              : "text-slate-600 hover:bg-slate-100"
-                                          )}
-                                        >
-                                          <Video className="w-3 h-3" /> Video
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => updateLesson(cIdx, lIdx, "type", "DOCUMENT")}
-                                          className={cn(
-                                            "flex items-center gap-1 px-2.5 py-1.5 transition-colors border-l border-slate-200 cursor-pointer",
-                                            lesson.type === "DOCUMENT"
-                                              ? "bg-[#0E57A4] text-white font-bold"
-                                              : "text-slate-600 hover:bg-slate-100"
-                                          )}
-                                        >
-                                          <FileText className="w-3 h-3" /> Document
-                                        </button>
-                                      </div>
-
-                                      {/* Media ID field */}
-                                      {(lesson.type || "VIDEO") === "VIDEO" ? (
-                                        <input
-                                          type="text"
-                                          value={lesson.vimeoVideoId}
-                                          onChange={(e) => updateLesson(cIdx, lIdx, "vimeoVideoId", e.target.value)}
-                                          placeholder="HD Video Stream ID (e.g. 76979871)"
-                                          className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                                        />
-                                      ) : (
-                                        <input
-                                          type="text"
-                                          value={lesson.driveFileId}
-                                          onChange={(e) => updateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
-                                          placeholder="Google Drive File ID"
-                                          className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                                        />
-                                      )}
-
-                                      {/* Companion PDF - only shown for video lessons */}
-                                      {(lesson.type || "VIDEO") === "VIDEO" && (
-                                        <input
-                                          type="text"
-                                          value={lesson.driveFileId}
-                                          onChange={(e) => updateLesson(cIdx, lIdx, "driveFileId", e.target.value)}
-                                          placeholder="Companion PDF File ID (optional)"
-                                          className="flex-1 min-w-[140px] bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-600 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
-                                        />
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Action buttons: Move up, Move down, Remove */}
-                                  <div className="flex items-center gap-1 shrink-0 mt-1">
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        moveLesson(cIdx, lIdx, -1);
-                                      }}
-                                      disabled={lIdx === 0}
-                                      className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/80 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
-                                      title="Move lesson up"
-                                    >
-                                      <MoveUp className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        moveLesson(cIdx, lIdx, 1);
-                                      }}
-                                      disabled={lIdx === chapter.lessons.length - 1}
-                                      className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/80 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
-                                      title="Move lesson down"
-                                    >
-                                      <MoveDown className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeLesson(cIdx, lIdx);
-                                      }}
-                                      className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
-                                      title="Remove lesson"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Add lesson button at bottom & drop target for dragging lesson to the end */}
-                        <div
-                          data-drop-zone="true"
-                          onDragOver={(e) => {
-                            if (dragLessonRef.current) {
-                              e.preventDefault();
-                              e.dataTransfer.dropEffect = "move";
-                            }
-                          }}
-                          onDragEnter={(e) => {
-                            if (dragLessonRef.current) {
-                              e.preventDefault();
-                              (e.currentTarget as HTMLElement).classList.add("is-dragover-dropzone", "bg-blue-50/80", "border-t-2", "!border-[#0E57A4]");
-                            }
-                          }}
-                          onDragLeave={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            if (!target.contains(e.relatedTarget as Node)) {
-                              target.classList.remove("is-dragover-dropzone", "bg-blue-50/80", "border-t-2", "!border-[#0E57A4]");
-                            }
-                          }}
-                          onDrop={(e) => {
-                            if (dragLessonRef.current) {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              const from = dragLessonRef.current;
-                              dragLessonRef.current = null;
-                              cleanupDragStyles();
-                              if (from) {
-                                reorderLessons(from, { cIdx, lIdx: chapter.lessons.length });
-                              }
-                            }
-                          }}
-                          className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 transition-colors"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => addLesson(cIdx)}
-                            className="flex items-center gap-1.5 text-xs font-mono text-[#0E57A4] hover:text-[#0A4482] font-bold transition-colors cursor-pointer"
-                          >
-                            <Plus className="w-3.5 h-3.5" /> Add Lesson
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <Reorder.Group
+              axis="y"
+              values={chapters}
+              onReorder={handleReorderChapters}
+              className="space-y-3"
+            >
+              {chapters.map((chapter, cIdx) => (
+                <ChapterReorderItem
+                  key={chapter.id}
+                  chapter={chapter}
+                  cIdx={cIdx}
+                  totalChapters={chapters.length}
+                  isOpen={expandedChapterIds.has(chapter.id)}
+                  toggleChapter={() => toggleChapter(chapter.id)}
+                  updateChapterTitle={updateChapterTitle}
+                  moveChapter={moveChapter}
+                  removeChapter={removeChapter}
+                  addLesson={addLesson}
+                  handleReorderLessons={handleReorderLessons}
+                  updateLesson={updateLesson}
+                  removeLesson={removeLesson}
+                  moveLesson={moveLesson}
+                  moveLessonToChapter={moveLessonToChapter}
+                  allChapters={chapters}
+                />
+              ))}
+            </Reorder.Group>
           )}
         </div>
       )}
