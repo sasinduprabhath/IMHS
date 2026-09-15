@@ -460,54 +460,86 @@ async function migrateMasterBackup() {
 
   console.log(`✅ Phase 2 Complete: Synced ${coursesSynced} courses with Categories, Images & Prices.`);
 
-  // ── PHASE 3: ENROLLMENTS ──────────────────────────────────────────────
-  console.log("\n🔄 Phase 3: Syncing Student Course Enrollments...");
+  // ── PHASE 3: ENROLLMENTS (WITH ACTIVE VS FROZEN/BLOCKED STATUS) ────────
+  console.log("\n🔄 Phase 3: Syncing Student Course Enrollments (Preserving Blocked / Frozen Access)...");
 
-  const enrollmentPosts = Array.from(postsMap.values()).filter(
-    (p) => p.type === "tutor_enrolled" || p.type === "tutor_enrolled_courses"
-  );
+  // Filter enrollment posts and sort chronologically by ID so later actions take precedence
+  const enrollmentPosts = Array.from(postsMap.values())
+    .filter((p) => p.type === "tutor_enrolled" || p.type === "tutor_enrolled_courses")
+    .sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
 
   console.log(`   Found ${enrollmentPosts.length} student enrollment records in SQL dump.`);
 
-  let enrollmentsSynced = 0;
+  let activeEnrollmentsSynced = 0;
+  let frozenEnrollmentsSynced = 0;
+  let skippedEnrollments = 0;
 
   for (const en of enrollmentPosts) {
     const wpUser = usersMap.get(en.authorId);
-    if (!wpUser) continue;
+    if (!wpUser) {
+      skippedEnrollments++;
+      continue;
+    }
 
     const wpCourse = postsMap.get(en.parentId);
-    const courseSlug = wpCourse ? wpCourse.slug : null;
+    if (!wpCourse) {
+      skippedEnrollments++;
+      continue;
+    }
 
     const dbUser = await prisma.user.findUnique({
       where: { email: wpUser.email },
     });
+    if (!dbUser) {
+      skippedEnrollments++;
+      continue;
+    }
 
-    if (!dbUser) continue;
+    // Match course in Prisma by slug or title
+    const dbCourse = await prisma.course.findFirst({
+      where: {
+        OR: [
+          { slug: wpCourse.slug },
+          { title: wpCourse.title },
+        ],
+      },
+    });
 
-    const dbCourse = courseSlug
-      ? await prisma.course.findFirst({ where: { slug: courseSlug } })
-      : await prisma.course.findFirst();
+    if (!dbCourse) {
+      skippedEnrollments++;
+      continue;
+    }
 
-    if (dbCourse) {
-      await prisma.enrollment.upsert({
-        where: {
-          userId_courseId: {
-            userId: dbUser.id,
-            courseId: dbCourse.id,
-          },
-        },
-        update: { status: "ACTIVE" },
-        create: {
+    // In Tutor LMS: 'cancel' or 'trash' means the student's access was revoked/blocked!
+    const isBlocked = en.status === "cancel" || en.status === "trash";
+    const status: "ACTIVE" | "FROZEN" = isBlocked ? "FROZEN" : "ACTIVE";
+
+    await prisma.enrollment.upsert({
+      where: {
+        userId_courseId: {
           userId: dbUser.id,
           courseId: dbCourse.id,
-          status: "ACTIVE",
         },
-      });
-      enrollmentsSynced++;
+      },
+      update: { status },
+      create: {
+        userId: dbUser.id,
+        courseId: dbCourse.id,
+        status,
+      },
+    });
+
+    if (status === "ACTIVE") {
+      activeEnrollmentsSynced++;
+    } else {
+      frozenEnrollmentsSynced++;
     }
   }
 
-  console.log(`✅ Phase 3 Complete: Verified ${enrollmentsSynced} student enrollments.`);
+  console.log(
+    `✅ Phase 3 Complete: Processed ${activeEnrollmentsSynced + frozenEnrollmentsSynced} enrollments ` +
+    `(${activeEnrollmentsSynced} ACTIVE, ${frozenEnrollmentsSynced} FROZEN/BLOCKED, ${skippedEnrollments} unlinked).`
+  );
 
   // ── PHASE 4: CHAPTERS & LESSONS (WITH VIMEO & DRIVE FILES) ────────────
   console.log("\n🔄 Phase 4: Syncing Course Chapters & Lessons (Vimeo Videos & Drive Documents)...");
