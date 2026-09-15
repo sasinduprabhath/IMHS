@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { PORTAL_LOGIN_URL, SITE_URL } from "./site";
 
 /** Generate a cryptographically-random 6-digit OTP */
 export function generateOtp(): string {
@@ -108,6 +109,10 @@ export function buildOtpEmail(opts: {
           <!-- Footer -->
           <tr>
             <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;padding:20px 36px;text-align:center;">
+              <p style="margin:0 0 12px;font-size:12px;">
+                <a href="${PORTAL_LOGIN_URL}" style="color:#0E57A4;">Student Portal</a>
+                &middot; <a href="${SITE_URL}/" style="color:#0E57A4;">imhsedu.com</a>
+              </p>
               <p style="margin:0 0 12px;font-size:12px;color:#94A3B8;">
                 Need help? Contact IMHS Support on WhatsApp.
               </p>
@@ -127,7 +132,7 @@ export function buildOtpEmail(opts: {
 </body>
 </html>`;
 
-  const text = `Your IMHS verification code is: ${otp}\n\nHello ${name},\n\nUse the code ${otp} to log in to the IMHS Student Portal.\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIMHS - Institute of Medicine & Health Sciences`;
+  const text = `Your IMHS verification code is: ${otp}\n\nHello ${name},\n\nUse the code ${otp} to log in to the IMHS Student Portal: ${PORTAL_LOGIN_URL}\nThis code expires in 10 minutes. Do not share it with anyone.\n\nIMHS - Institute of Medicine & Health Sciences\n${SITE_URL}/`;
 
   return { subject, html, text };
 }

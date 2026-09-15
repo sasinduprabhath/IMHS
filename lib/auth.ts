@@ -91,12 +91,13 @@ export const authOptions: NextAuthOptions = {
         }
 
         let searchEmail = email;
-        if (searchEmail === "admin") searchEmail = "admin@imhs.edu.lk";
+        if (searchEmail === "admin") searchEmail = "admin@imhsedu.com";
 
         const user = await prisma.user.findFirst({
           where: {
             OR: [
               { email: searchEmail },
+              ...(searchEmail === "admin@imhsedu.com" ? [{ email: "admin@imhs.edu.lk" }] : []),
               { studentId: searchEmail.toUpperCase() },
             ],
           },

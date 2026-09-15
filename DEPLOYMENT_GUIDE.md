@@ -261,7 +261,7 @@ npx prisma db push
 ```
 
 > 🔒 **SECURITY NOTE ON DEFAULT SEED USERS**:
-> If you run `prisma/seed.ts`, it creates a default administrator (`admin@imhs.edu.lk`) with the initial password `admin123`.
+> If you run `prisma/seed.ts`, it creates a default administrator (`admin@imhsedu.com`) with the initial password `admin123`.
 > **You must immediately log in and change this password** in the portal under Settings / Profile or via the database before going live.
 
 ---

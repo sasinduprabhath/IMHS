@@ -36,9 +36,9 @@ async function runTests() {
   assert(!cleanedControl.includes("\0") && !cleanedControl.includes("\x08") && !cleanedControl.includes("\x1a"), "Strips null bytes and dangerous control characters");
 
   // 3. Email Sanitization
-  const rawEmail = "  Doctor.John+Test@IMHS.edu.LK  ";
+  const rawEmail = "  Doctor.John+Test@IMHSEDU.COM  ";
   const cleanEmail = sanitizeEmail(rawEmail);
-  assert(cleanEmail === "doctor.john+test@imhs.edu.lk", "Normalizes, trims, and lowercases email address");
+  assert(cleanEmail === "doctor.john+test@imhsedu.com", "Normalizes, trims, and lowercases email address");
 
   // 4. Phone Sanitization
   const rawPhone = " +94 (77) 123-4567 ext: 999 <script> ";
@@ -48,12 +48,12 @@ async function runTests() {
   // 5. URL Sanitization & Protocol Injection Prevention
   const javascriptUrl = "javascript:alert(document.cookie)";
   const dataUrl = "data:text/html,<script>alert(1)</script>";
-  const validHttpsUrl = "https://imhs.edu.lk/assets/brief.pdf";
+  const validHttpsUrl = "https://imhsedu.com/assets/brief.pdf";
   const validRelativeUrl = "/uploads/submissions/assignment-1.pdf";
 
   assert(sanitizeUrl(javascriptUrl) === null, "Rejects 'javascript:' URL injection");
   assert(sanitizeUrl(dataUrl) === null, "Rejects 'data:' URL injection");
-  assert(sanitizeUrl(validHttpsUrl) === "https://imhs.edu.lk/assets/brief.pdf", "Accepts safe HTTPS URLs");
+  assert(sanitizeUrl(validHttpsUrl) === "https://imhsedu.com/assets/brief.pdf", "Accepts safe HTTPS URLs");
   assert(sanitizeUrl(validRelativeUrl) === "/uploads/submissions/assignment-1.pdf", "Accepts safe root-relative URLs");
 
   // 6. Identifier & Slug Sanitization

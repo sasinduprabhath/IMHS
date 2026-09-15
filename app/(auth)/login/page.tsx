@@ -270,7 +270,7 @@ function LoginForm() {
             <input
               type="email"
               required
-              placeholder="student@imhs.edu.lk"
+              placeholder="student@imhsedu.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm text-ink placeholder:text-sage/60 focus:outline-none focus:border-[#0E57A4] focus:bg-white transition-all duration-200 font-sans"

@@ -22,7 +22,7 @@ async function runTests() {
 
   // 1. Password and Hash Redaction
   const userPayload = {
-    email: "student@imhs.edu.lk",
+    email: "student@imhsedu.com",
     password: "SuperSecretPassword123!",
     passwordHash: "$2a$12$e8x76df876sdfsdf",
     tempPassword: "TempPass9988!!",
@@ -32,7 +32,7 @@ async function runTests() {
   assert(redactedUser.password === "***REDACTED***", "Redacts 'password' field");
   assert(redactedUser.passwordHash === "***REDACTED***", "Redacts 'passwordHash' field");
   assert(redactedUser.tempPassword === "***REDACTED***", "Redacts 'tempPassword' field");
-  assert(redactedUser.email === "student@imhs.edu.lk", "Preserves safe fields like 'email'");
+  assert(redactedUser.email === "student@imhsedu.com", "Preserves safe fields like 'email'");
   assert(redactedUser.role === "STUDENT", "Preserves safe fields like 'role'");
 
   // 2. OTP and Verification Token Redaction
@@ -78,7 +78,7 @@ async function runTests() {
   assert(redactedNested.meta[0].secretKey === "***REDACTED***", "Redacts secretKey in nested array");
 
   // 5. Test Live Logger Methods
-  logger.info("Unit test info log", { testUser: "test@imhs.edu.lk" });
+  logger.info("Unit test info log", { testUser: "test@imhsedu.com" });
   logger.warn("Unit test warn log", { warningCode: "WARN_001" });
   logger.security("AUTH_LOGIN_FAILED", "Unit test security alert for failed login", {
     userId: "test-user-id",

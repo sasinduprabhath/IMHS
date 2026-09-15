@@ -26,7 +26,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       name: "IMHS System Administrator",
-      email: "admin@imhs.edu.lk",
+      email: "admin@imhsedu.com",
       phone: "+94766506621",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
@@ -483,7 +483,7 @@ async function main() {
   }
 
   console.log("Database seeded successfully!");
-  console.log("Admin login: admin@imhs.edu.lk / admin123");
+  console.log("Admin login: admin@imhsedu.com / admin123");
   console.log("Student login: kasun.fernando@example.com / student123");
 }
 

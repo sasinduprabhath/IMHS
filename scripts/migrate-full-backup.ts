@@ -635,8 +635,8 @@ async function migrateMasterBackup() {
   // ── PHASE 5: PLATFORM ESSENTIALS (ADMIN & FACULTY SEED) ───────────────
   console.log("\n🔄 Phase 5: Ensuring System Administrator & Faculty Board Exist...");
 
-  // 1. Ensure System Administrator (admin@imhs.edu.lk / admin123)
-  const adminEmail = "admin@imhs.edu.lk";
+  // 1. Ensure System Administrator (admin@imhsedu.com / admin123)
+  const adminEmail = "admin@imhsedu.com";
   const adminPasswordHash = await bcrypt.hash("admin123", 10);
 
   await prisma.user.upsert({
@@ -657,7 +657,7 @@ async function migrateMasterBackup() {
       status: "ACTIVE",
     },
   });
-  console.log("   ✅ Initialized System Administrator (admin@imhs.edu.lk / admin123).");
+  console.log("   ✅ Initialized System Administrator (admin@imhsedu.com / admin123).");
 
   // 2. Ensure Faculty Members
   const facultyCount = await prisma.facultyMember.count();

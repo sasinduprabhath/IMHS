@@ -210,9 +210,9 @@ async function main() {
 
   console.log(`✅ Phase 2 Complete: Synced Categories & Cover Images for ${updatedCoursesCount} courses.\n`);
 
-  // Phase 3: Ensure System Administrator (admin@imhs.edu.lk / admin123)
+  // Phase 3: Ensure System Administrator (admin@imhsedu.com / admin123)
   console.log("🔄 Phase 3: Ensuring System Administrator Account...");
-  const adminEmail = "admin@imhs.edu.lk";
+  const adminEmail = "admin@imhsedu.com";
   const adminPasswordHash = await bcrypt.hash("admin123", 10);
   await prisma.user.upsert({
     where: { email: adminEmail },
@@ -232,7 +232,7 @@ async function main() {
       status: "ACTIVE",
     },
   });
-  console.log("✅ Phase 3 Complete: Ensured System Administrator (admin@imhs.edu.lk / admin123).\n");
+  console.log("✅ Phase 3 Complete: Ensured System Administrator (admin@imhsedu.com / admin123).\n");
 
   console.log("=========================================================================");
   console.log("  🎉 FULL DATA SYNC & MASTER MIGRATION COMPLETED SUCCESSFULLY!");

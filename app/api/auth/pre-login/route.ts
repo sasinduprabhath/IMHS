@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
     // ── Look up user ───────────────────────────────────────────────────
     let searchEmail = email;
-    if (searchEmail === "admin") searchEmail = "admin@imhs.edu.lk";
+    if (searchEmail === "admin") searchEmail = "admin@imhsedu.com";
 
     const user = await prisma.user.findFirst({
       where: {

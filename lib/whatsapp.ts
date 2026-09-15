@@ -3,6 +3,8 @@
  * Clean, emoji-free text formatting for 100% reliable URL parameter encoding and rendering.
  */
 
+import { PORTAL_LOGIN_URL } from "./site";
+
 const DEFAULT_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+94766506621";
 
 /**
@@ -32,7 +34,7 @@ export function createStudentCredentialsWALink(
 ): string {
   const cleanPhone = formatPhoneForWhatsApp(studentPhone);
   const coursesList = courseTitles.map((t) => `  • ${t}`).join("\n");
-  const portalUrl = "https://imhs.edu.lk/login";
+  const portalUrl = PORTAL_LOGIN_URL;
 
   const message = `INSTITUTE OF MEDICINE AND HEALTH SCIENCES (IMHS)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -68,7 +70,7 @@ export function createPasswordResetWALink(
   tempPass: string
 ): string {
   const cleanPhone = formatPhoneForWhatsApp(studentPhone);
-  const portalUrl = "https://imhsedu.com/login";
+  const portalUrl = PORTAL_LOGIN_URL;
 
   const message = `INSTITUTE OF MEDICINE AND HEALTH SCIENCES (IMHS)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
