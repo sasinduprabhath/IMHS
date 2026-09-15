@@ -145,10 +145,10 @@ export default async function EnrollPage() {
 
       {/* ── MAIN APPLICATION FORM SECTION ─────────────────────── */}
       <section className="relative py-12 sm:py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Suspense
             fallback={
-              <div className="min-h-[480px] flex flex-col items-center justify-center gap-3 bg-white rounded-2xl border border-slate-200 p-12 text-slate-500">
+              <div className="min-h-[420px] flex flex-col items-center justify-center gap-3 bg-white rounded-3xl border border-slate-200 p-12 text-slate-500">
                 <div className="w-8 h-8 border-3 border-[#0E57A4] border-t-transparent rounded-full animate-spin" />
                 <p className="text-sm font-medium">Loading enrollment application form...</p>
               </div>
@@ -157,43 +157,10 @@ export default async function EnrollPage() {
             <EnrollmentApplicationClient courses={courses} />
           </Suspense>
 
-          {/* Additional Guidance & Admissions Information */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0E57A4] flex items-center justify-center mb-4">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-sm font-display mb-1.5">Accredited Curricula</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Structured in compliance with national healthcare guidelines, pharmacology boards, and modern practical dispensing standards.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F16726] flex items-center justify-center mb-4">
-                <Headphones className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-sm font-display mb-1.5">Direct WhatsApp Support</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Dedicated coordinators assist you with slip confirmation, timetable schedules, and lecturer Q&amp;A escalation anytime.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-                <Award className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-sm font-display mb-1.5">Official Certification</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Upon passing module assessments, students receive QR-verifiable IMHS certification recognized by healthcare employers.
-              </p>
-            </div>
-          </div>
-
           {/* Quick Inquiry link */}
-          <div className="mt-10 text-center">
-            <p className="text-xs text-slate-500">
-              Not ready to enroll yet and have general questions?{" "}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-slate-500 font-sans">
+              Have general questions about examinations or schedules?{" "}
               <Link href="/contact" className="font-semibold text-[#0E57A4] hover:underline">
                 Send a General Inquiry instead
               </Link>
