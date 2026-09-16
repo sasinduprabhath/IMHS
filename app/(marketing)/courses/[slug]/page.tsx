@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
@@ -69,6 +69,11 @@ export async function generateMetadata({ params }: CourseDetailPageProps) {
 
 export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
   const { slug } = await params;
+
+  if (slug.startsWith("upload_") || /\.(jpe?g|png|webp|gif|svg)$/i.test(slug)) {
+    redirect(`/api/uploads/courses/${slug}`);
+  }
+
   let course: any = null;
   let faculty: any[] = [];
 

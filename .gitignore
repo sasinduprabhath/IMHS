@@ -43,4 +43,5 @@ next-env.d.ts
 
 # runtime uploads
 /public/uploads/
+/public/courses/upload_*
 

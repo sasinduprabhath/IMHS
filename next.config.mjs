@@ -128,6 +128,23 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
+        source: "/uploads/courses/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; img-src 'self' data: https:; style-src 'unsafe-inline'",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Content-Disposition",
+            value: "inline",
+          },
+        ],
+      },
+      {
         source: "/uploads/:path*",
         headers: [
           {
@@ -156,6 +173,18 @@ const nextConfig = {
             value: "nosniff",
           },
         ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: "/api/uploads/:path*",
+      },
+      {
+        source: "/courses/:file(upload_[a-zA-Z0-9_.-]+)",
+        destination: "/api/uploads/courses/:file",
       },
     ];
   },

@@ -196,7 +196,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: signatureCheck.error }, { status: 400 });
     }
 
-    const targetSubfolder = folder === "courses" ? "courses" : "practice/prescriptions";
+    const targetSubfolder = folder === "courses" ? "uploads/courses" : "uploads/practice/prescriptions";
     const uploadDir = path.join(process.cwd(), "public", ...targetSubfolder.split("/"));
     await mkdir(uploadDir, { recursive: true });
 
@@ -204,6 +204,13 @@ export async function POST(req: Request) {
     const filePath = path.join(uploadDir, safeFileName);
 
     await writeFile(filePath, buffer);
+
+    // Also write fallback to public/courses for legacy compatibility
+    if (folder === "courses") {
+      const legacyCoursesDir = path.join(process.cwd(), "public", "courses");
+      await mkdir(legacyCoursesDir, { recursive: true });
+      await writeFile(path.join(legacyCoursesDir, safeFileName), buffer);
+    }
 
     const relativeUrl = `/${targetSubfolder}/${safeFileName}`;
 
