@@ -78,6 +78,40 @@ export async function PATCH(
     if (data.phone) updateData.phone = sanitizePhone(data.phone);
     if (data.studentId !== undefined) updateData.studentId = sanitizeIdentifier(data.studentId, 50);
 
+    // Pre-check duplicate email
+    if (updateData.email) {
+      const existingEmailUser = await prisma.user.findFirst({
+        where: {
+          email: updateData.email,
+          id: { not: id },
+        },
+        select: { id: true, name: true, studentId: true },
+      });
+      if (existingEmailUser) {
+        return NextResponse.json({
+          success: false,
+          message: `The email "${updateData.email}" is already used by another student: "${existingEmailUser.name}" (${existingEmailUser.studentId || "No Reg ID"}). Each student must have a unique email.`,
+        }, { status: 409 });
+      }
+    }
+
+    // Pre-check duplicate studentId
+    if (updateData.studentId) {
+      const existingIdUser = await prisma.user.findFirst({
+        where: {
+          studentId: updateData.studentId,
+          id: { not: id },
+        },
+        select: { id: true, name: true, email: true },
+      });
+      if (existingIdUser) {
+        return NextResponse.json({
+          success: false,
+          message: `The Reg ID "${updateData.studentId}" is already assigned to "${existingIdUser.name}" (${existingIdUser.email}). Reg IDs must be unique.`,
+        }, { status: 409 });
+      }
+    }
+
     const updatedStudent = await prisma.user.update({
       where: { id },
       data: updateData,
@@ -92,6 +126,26 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, student: updatedStudent });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    if (error?.code === "P2002") {
+      const target = error.meta?.target;
+      const targetStr = Array.isArray(target) ? target.join(", ") : String(target || "");
+      if (targetStr.includes("email")) {
+        return NextResponse.json({
+          success: false,
+          message: "Another student account already exists with this email address.",
+        }, { status: 409 });
+      }
+      if (targetStr.includes("studentId")) {
+        return NextResponse.json({
+          success: false,
+          message: "Another student account already exists with this Reg ID.",
+        }, { status: 409 });
+      }
+      return NextResponse.json({
+        success: false,
+        message: "Unique constraint failed: A student with this detail already exists in the system.",
+      }, { status: 409 });
+    }
+    return NextResponse.json({ success: false, message: error.message || "Failed to update student" }, { status: 500 });
   }
 }

@@ -29,6 +29,7 @@ import {
   Phone,
   Mail,
   GraduationCap,
+  AlertCircle,
 } from "lucide-react";
 
 interface StudentItem {
@@ -66,6 +67,7 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
   const [editPhone, setEditPhone] = useState("");
   const [editStudentId, setEditStudentId] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const filteredStudents = students.filter(
     (s) =>
@@ -131,12 +133,14 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
     setEditEmail(st.email);
     setEditPhone(st.phone);
     setEditStudentId(st.studentId || "");
+    setEditError(null);
   };
 
   const handleSaveEditStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editModalStudent) return;
 
+    setEditError(null);
     setIsSavingEdit(true);
     try {
       const res = await fetch(`/api/admin/students/${editModalStudent.id}`, {
@@ -167,10 +171,10 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
         );
         setEditModalStudent(null);
       } else {
-        alert(data.message || "Failed to update student details");
+        setEditError(data.message || "Failed to update student details");
       }
     } catch {
-      alert("Error updating student details");
+      setEditError("Network error updating student details. Please try again.");
     } finally {
       setIsSavingEdit(false);
     }
@@ -526,6 +530,13 @@ export function StudentDirectoryClient({ initialStudents }: { initialStudents: S
                   <X className="w-4 h-4" />
                 </button>
               </div>
+
+              {editError && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-700 px-3.5 py-2.5 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+                  <span>{editError}</span>
+                </div>
+              )}
 
               <form onSubmit={handleSaveEditStudent} className="space-y-4">
                 <div className="space-y-1.5">
