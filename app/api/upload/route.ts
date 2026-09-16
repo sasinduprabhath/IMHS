@@ -205,11 +205,15 @@ export async function POST(req: Request) {
 
     await writeFile(filePath, buffer);
 
-    // Also write fallback to public/courses for legacy compatibility
+    // Also write fallback to legacy folders for 100% backwards compatibility
     if (folder === "courses") {
       const legacyCoursesDir = path.join(process.cwd(), "public", "courses");
       await mkdir(legacyCoursesDir, { recursive: true });
       await writeFile(path.join(legacyCoursesDir, safeFileName), buffer);
+    } else if (folder === "prescriptions") {
+      const legacyPracticeDir = path.join(process.cwd(), "public", "practice", "prescriptions");
+      await mkdir(legacyPracticeDir, { recursive: true });
+      await writeFile(path.join(legacyPracticeDir, safeFileName), buffer);
     }
 
     const relativeUrl = `/${targetSubfolder}/${safeFileName}`;

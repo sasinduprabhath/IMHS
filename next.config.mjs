@@ -186,6 +186,10 @@ const nextConfig = {
         source: "/courses/:file(upload_[a-zA-Z0-9_.-]+)",
         destination: "/api/uploads/courses/:file",
       },
+      {
+        source: "/practice/prescriptions/:path*",
+        destination: "/api/uploads/practice/prescriptions/:path*",
+      },
     ];
   },
   turbopack: {
