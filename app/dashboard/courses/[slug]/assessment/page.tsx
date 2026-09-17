@@ -43,6 +43,25 @@ export default async function CourseAssessmentFullPage({
     notFound();
   }
 
+  if (!course.published && session.user.role !== "ADMIN") {
+    redirect("/dashboard");
+  }
+
+  if (session.user.role !== "ADMIN") {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: {
+          userId,
+          courseId: course.id,
+        },
+      },
+    });
+
+    if (!enrollment || enrollment.status === "FROZEN") {
+      redirect("/dashboard");
+    }
+  }
+
   const allLessons = course.chapters.flatMap((ch) => ch.lessons);
 
   // Fetch completed lessons for this student

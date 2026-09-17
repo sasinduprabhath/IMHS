@@ -68,7 +68,7 @@ export default async function CoursePlayerPage({ params }: { params: Promise<{ s
       select: { status: true },
     });
 
-    if (user?.status === "FROZEN" || !enrollment || enrollment.status === "FROZEN") {
+    if (user?.status === "FROZEN" || !enrollment || enrollment.status === "FROZEN" || !course.published) {
       redirect("/dashboard");
     }
   }

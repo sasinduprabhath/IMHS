@@ -28,6 +28,7 @@ export default async function StudentDashboardPage({
 
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
 
   let enrollments: any[] = [];
   let userProgress: any[] = [];
@@ -37,7 +38,10 @@ export default async function StudentDashboardPage({
     if (userId) {
       const [userEnrollments, progressList, userRecord] = await Promise.all([
         prisma.enrollment.findMany({
-          where: { userId },
+          where: {
+            userId,
+            ...(isAdmin ? {} : { course: { published: true } }),
+          },
           include: {
             course: {
               include: {
@@ -69,13 +73,12 @@ export default async function StudentDashboardPage({
   const shouldRunTour = isForcedTour || (dbUser ? !dbUser.hasCompletedTour : false);
 
   const completedLessonIds = new Set(userProgress.map((p) => p.lessonId));
-  const totalLessons = enrollments.reduce(
-    (sum: number, e: any) =>
-      sum + e.course.chapters.reduce((s: number, ch: any) => s + ch.lessons.length, 0),
-    0
+  const visibleLessonIds = new Set(
+    enrollments.flatMap((e: any) => e.course.chapters.flatMap((ch: any) => ch.lessons.map((l: any) => l.id)))
   );
-  const completedCount = completedLessonIds.size;
-  const overallProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+  const totalLessons = visibleLessonIds.size;
+  const completedCount = userProgress.filter((p: any) => visibleLessonIds.has(p.lessonId)).length;
+  const overallProgress = totalLessons > 0 ? Math.min(100, Math.round((completedCount / totalLessons) * 100)) : 0;
 
   const studentFirstName = session?.user?.name?.split(" ")[0] || "Learner";
   const studentInitials = session?.user?.name

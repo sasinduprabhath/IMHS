@@ -55,13 +55,21 @@ export async function POST(
       where: { id: assignmentId },
       include: {
         course: {
-          select: { id: true, title: true },
+          select: { id: true, title: true, published: true },
         },
       },
     });
 
     if (!assignment) {
       return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
+    }
+
+    const isAdmin = (session.user as any)?.role === "ADMIN";
+    if (assignment.course && !assignment.course.published && !isAdmin) {
+      return NextResponse.json(
+        { error: "This course is currently in draft mode and not accepting submissions." },
+        { status: 403 }
+      );
     }
 
     const enrollment = await prisma.enrollment.findUnique({

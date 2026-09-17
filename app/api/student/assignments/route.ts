@@ -13,9 +13,14 @@ export async function GET(req: Request) {
   const courseId = searchParams.get("courseId");
 
   try {
-    // Get student's enrolled course IDs
+    const isAdmin = (session.user as any)?.role === "ADMIN";
+    // Get student's enrolled course IDs (filtering out draft courses for students)
     const enrollments = await prisma.enrollment.findMany({
-      where: { userId: session.user.id, status: "ACTIVE" },
+      where: {
+        userId: session.user.id,
+        status: "ACTIVE",
+        ...(isAdmin ? {} : { course: { published: true } }),
+      },
       select: { courseId: true },
     });
 
