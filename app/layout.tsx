@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { PageTransitionProvider } from "@/components/providers/PageTransitionProvider";
+import { ChunkErrorRecovery } from "@/components/providers/ChunkErrorRecovery";
 
 const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
@@ -153,10 +153,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }}
         />
-        {/* Production Chunk & Stylesheet Self-Healing Auto-Recovery */}
-        <Script src="/chunk-recovery.js" strategy="beforeInteractive" />
       </head>
       <body className="font-sans bg-surface text-ink min-h-screen flex flex-col antialiased">
+        <ChunkErrorRecovery />
         <AuthProvider>
           <SmoothScrollProvider>
             <PageTransitionProvider>{children}</PageTransitionProvider>
