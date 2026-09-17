@@ -36,6 +36,7 @@ import {
   ImageIcon,
   Camera,
   Loader2,
+  ExternalLink,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -950,6 +951,24 @@ Passcode: 291799
     router.push("/admin/courses");
   };
 
+  const [isPreviewing, setIsPreviewing] = useState(false);
+
+  const handlePreviewAsStudent = async () => {
+    setIsPreviewing(true);
+    try {
+      if (isDirty) {
+        const ok = await handleSaveAll();
+        if (!ok) {
+          setIsPreviewing(false);
+          return;
+        }
+      }
+      window.open(`/dashboard/courses/${slug}?preview=true`, "_blank");
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
+
   const unassignedFaculty = allFaculty.filter(
     (f) => !assignedInstructors.some((a) => a.id === f.id)
   );
@@ -1064,7 +1083,20 @@ Passcode: 291799
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {/* Preview as Student Button */}
+            <button
+              type="button"
+              onClick={handlePreviewAsStudent}
+              disabled={isPreviewing}
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold text-[#0E57A4] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 transition-all shadow-2xs cursor-pointer select-none"
+              title="Preview course syllabus and player as an enrolled student in a new tab"
+            >
+              <Eye className="w-4 h-4 text-blue-600" />
+              <span>{isPreviewing ? "Saving & Opening…" : "Preview as Student"}</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-60 ml-0.5" />
+            </button>
+
             {/* Publish to Catalog Toggle Button */}
             <button
               type="button"

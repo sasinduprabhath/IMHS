@@ -81,6 +81,30 @@ interface CoursePlayerProps {
   initialCompletedLessonIds: string[];
   blockedChapterIds?: string[];
   blockedLessonIds?: string[];
+  isAdmin?: boolean;
+}
+
+function AdminPreviewBanner({ courseId }: { courseId: string }) {
+  return (
+    <div className="bg-slate-900 border border-slate-700/80 text-white px-4 sm:px-5 py-3 rounded-2xl shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 mb-2">
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 border border-amber-400/40 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider shrink-0 shadow-2xs">
+          <BookOpenIcon className="w-3.5 h-3.5" />
+          Admin Student View
+        </span>
+        <p className="text-xs text-slate-300 font-sans truncate sm:whitespace-normal">
+          You are viewing this course syllabus and player exactly as an enrolled student experiences it.
+        </p>
+      </div>
+      <Link
+        href={`/admin/courses/${courseId}/edit`}
+        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/15 transition-all shrink-0 cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+      >
+        <ArrowLeftIcon className="w-3.5 h-3.5" />
+        <span>Return to Course Builder</span>
+      </Link>
+    </div>
+  );
 }
 
 function CoursePlayerContent({
@@ -88,6 +112,7 @@ function CoursePlayerContent({
   initialCompletedLessonIds,
   blockedChapterIds = [],
   blockedLessonIds = [],
+  isAdmin = false,
 }: CoursePlayerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -207,6 +232,7 @@ function CoursePlayerContent({
 
     return (
       <div className="space-y-6 max-w-6xl mx-auto pb-12">
+        {isAdmin && <AdminPreviewBanner courseId={course.id} />}
         {/* Top Header Bar with Back to Syllabus button */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-chart-grid p-4 sm:p-5 rounded-2xl shadow-xs">
           <div className="space-y-1">
@@ -456,6 +482,7 @@ function CoursePlayerContent({
   if (activeTab === "assignments") {
     return (
       <div className="space-y-6 max-w-6xl mx-auto pb-12">
+        {isAdmin && <AdminPreviewBanner courseId={course.id} />}
         <div className="flex items-center justify-between bg-white border border-chart-grid p-4 rounded-2xl">
           <Link
             href={`/dashboard/courses/${course.slug}`}
@@ -473,6 +500,7 @@ function CoursePlayerContent({
   if (activeTab === "announcements") {
     return (
       <div className="space-y-6 max-w-6xl mx-auto pb-12">
+        {isAdmin && <AdminPreviewBanner courseId={course.id} />}
         <div className="flex items-center justify-between bg-white border border-chart-grid p-4 rounded-2xl">
           <Link
             href={`/dashboard/courses/${course.slug}`}
@@ -559,6 +587,7 @@ function CoursePlayerContent({
   if (activeAnnouncementId && currentAnnouncement) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto pb-12">
+        {isAdmin && <AdminPreviewBanner courseId={course.id} />}
         <div className="flex items-center justify-between bg-white border border-chart-grid p-4 rounded-2xl">
           <Link
             href={`/dashboard/courses/${course.slug}`}
@@ -656,6 +685,7 @@ function CoursePlayerContent({
   // ── 4. DEFAULT: FULL COURSE SYLLABUS & HUB OVERVIEW PAGE ────────────────
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-16">
+      {isAdmin && <AdminPreviewBanner courseId={course.id} />}
       {/* ── Top Header Banner ── */}
       <div
         className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-7 sm:p-9 rounded-3xl text-white shadow-xl overflow-hidden border border-white/20"

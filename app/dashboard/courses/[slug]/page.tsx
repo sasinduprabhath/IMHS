@@ -102,6 +102,7 @@ export default async function CoursePlayerPage({ params }: { params: Promise<{ s
       initialCompletedLessonIds={completedLessonIds}
       blockedChapterIds={blockedChapterIds}
       blockedLessonIds={blockedLessonIds}
+      isAdmin={session.user.role === "ADMIN"}
     />
   );
 }
