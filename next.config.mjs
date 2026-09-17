@@ -128,6 +128,24 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
+        // Dynamic HTML and API routes must always revalidate so mobile browsers never serve stale HTML with outdated chunk hashes
+        source: "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:jpg|jpeg|gif|png|svg|ico|webp|woff2?)).*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, max-age=0, must-revalidate",
+          },
+          {
+            key: "Pragma",
+            value: "no-cache",
+          },
+          {
+            key: "Expires",
+            value: "0",
+          },
+        ],
+      },
+      {
         source: "/uploads/courses/:path*",
         headers: [
           {

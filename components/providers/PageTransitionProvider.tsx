@@ -23,7 +23,11 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
 
-  const isMarketingRoute = !pathname.startsWith("/dashboard") && !pathname.startsWith("/admin");
+  const isMarketingRoute =
+    !pathname.startsWith("/dashboard") &&
+    !pathname.startsWith("/admin") &&
+    !pathname.startsWith("/login") &&
+    !pathname.startsWith("/verify-otp");
 
   useEffect(() => {
     // Show accurate skeleton loading animation for exactly 0.5s on initial mount and route change
@@ -36,6 +40,13 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   }, [pathname]);
 
   const renderSkeletonForPath = (path: string) => {
+    if (path.startsWith("/login") || path.startsWith("/verify-otp")) {
+      return (
+        <div className="min-h-screen bg-[#070E18] flex items-center justify-center p-4 animate-pulse">
+          <div className="w-full max-w-md h-96 bg-white/5 rounded-3xl border border-white/10" />
+        </div>
+      );
+    }
     if (path.startsWith("/dashboard/courses/")) {
       return <CoursePlayerLoading />;
     }
