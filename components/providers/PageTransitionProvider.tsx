@@ -4,9 +4,6 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Header for seamless top navbar display during transitions
-import { Header } from "@/components/marketing/Header";
-
 // Skeleton components
 import HomepageLoading from "@/app/loading";
 import ContactLoading from "@/app/(marketing)/contact/loading";
@@ -22,12 +19,6 @@ import AdminDashboardLoading from "@/app/admin/loading";
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
-
-  const isMarketingRoute =
-    !pathname.startsWith("/dashboard") &&
-    !pathname.startsWith("/admin") &&
-    !pathname.startsWith("/login") &&
-    !pathname.startsWith("/verify-otp");
 
   useEffect(() => {
     // Show accurate skeleton loading animation for exactly 0.5s on initial mount and route change
@@ -83,10 +74,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
 
   return (
     <div className="min-h-screen flex flex-col w-full relative">
-      {/* 1. Persistent Top Navbar for Marketing Routes (Always static, never fades/blinks) */}
-      {isMarketingRoute && <Header />}
-
-      {/* 2. Content Transition Area */}
+      {/* Content Transition Area */}
       <div className="flex-1 w-full relative flex flex-col items-stretch">
         <AnimatePresence mode="wait">
           {isLoading ? (
