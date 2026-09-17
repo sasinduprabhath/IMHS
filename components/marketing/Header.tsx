@@ -24,6 +24,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+  const isAuthPage = pathname === "/login" || pathname === "/verify-otp";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -35,7 +36,7 @@ export function Header() {
     <header
       className={cn(
         "sticky top-0 left-0 right-0 z-50 transition-all duration-300 -mb-[68px]",
-        scrolled
+        scrolled || isAuthPage
           ? "bg-white/95 backdrop-blur-xl border-b border-[#E2E8F0] shadow-md text-slate-900"
           : isHomePage
           ? "backdrop-blur-xl bg-slate-950/70 border-b border-white/10 shadow-lg text-white"
