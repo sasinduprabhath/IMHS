@@ -218,7 +218,7 @@ async function main() {
     where: { email: adminEmail },
     update: {
       name: "IMHS System Administrator",
-      phone: "+94778025050",
+      phone: "+94766506621",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
       status: "ACTIVE",
@@ -226,7 +226,7 @@ async function main() {
     create: {
       name: "IMHS System Administrator",
       email: adminEmail,
-      phone: "+94778025050",
+      phone: "+94766506621",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
       status: "ACTIVE",

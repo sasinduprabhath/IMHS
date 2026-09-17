@@ -75,7 +75,7 @@ async function parseInquiriesAndQuizzes() {
       SubmissionID: subId,
       Name: data.name || "Student Candidate",
       Email: data.email || "N/A",
-      Phone: data.phone || "+94778025050",
+      Phone: data.phone || "+94766506621",
       Subject: data.subject || "Course Inquiry",
       Message: data.message || "Requested course enrollment information."
     });

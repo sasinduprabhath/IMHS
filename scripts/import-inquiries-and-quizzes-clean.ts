@@ -79,8 +79,8 @@ async function importInquiriesAndQuizzesClean() {
   let countInquiries = 0;
 
   for (const [subId, data] of inquiriesMap.entries()) {
-    const name = data.name || `Student Inquiry #${subId}`;
-    const phone = data.phone || "+94778025050";
+    const name = data.name || "Student Candidate";
+    const phone = data.phone || "+94766506621";
     const email = data.email || null;
     const courseInterest = data.subject || "Clinical Pharmacy Course Admissions";
     const message = data.message || "Requested detailed information regarding IMHS clinical course enrollment.";

@@ -63,7 +63,7 @@ async function importInquiriesAndQuizzes() {
 
   for (const [subId, data] of submissionsMap.entries()) {
     const name = data.name || "Student Candidate";
-    const phone = data.phone || "+94778025050";
+    const phone = data.phone || "+94766506621";
     const email = data.email || null;
     const courseInterest = data.subject || "Pharmacy Course Admissions Inquiry";
     const message = data.message || "Requested detailed information regarding IMHS clinical course enrollment.";
