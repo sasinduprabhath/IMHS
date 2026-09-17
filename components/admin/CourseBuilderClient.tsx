@@ -810,6 +810,30 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
     if (res.ok) setAnnouncements((prev) => prev.filter((a) => a.id !== annId));
   };
 
+  const handleInsertLiveClassTemplate = () => {
+    setNewAnnTitle(`✨ Lecture 45 - PHARMACEUTICS (Live Online Class)`);
+    setNewAnnContent(
+`*✍️📖️  IMHS MODERN PHARMACY COURSE – Batch 08*
+
+*✨  Lecture 45 - PHARMACEUTICS*
+
+⭕🟡 Date: *Sep 20 .2026* Sunday 
+
+Time: *08:00 PM* 
+
+👉 *Join Zoom Meeting  Click Here 👈*    :
+
+https://us06web.zoom.us/j/87322800118?pwd=uCEQzsfGHUuvCUenoutDbkpnVGSxp2.1
+
+Meeting ID: 873 2280 0118
+Passcode: 291799
+
+
+*Institute of Medicine and Health Sciences*
+✍️✍️✍️✍️✍️✍️`
+    );
+  };
+
   // ─── Instructor Helpers ─────────────────────────────────────────────────────
   const handleAssignInstructor = async () => {
     if (!selectedFacultyId) return;
@@ -1654,9 +1678,19 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
 
           {/* Post form */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
-            <h3 className="text-xs font-mono font-bold text-slate-900 uppercase flex items-center gap-1.5">
-              <Megaphone className="w-3.5 h-3.5 text-[#F16726]" /> Post New Announcement
-            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <h3 className="text-xs font-mono font-bold text-slate-900 uppercase flex items-center gap-1.5">
+                <Megaphone className="w-3.5 h-3.5 text-[#F16726]" /> Post New Announcement
+              </h3>
+              <button
+                type="button"
+                onClick={handleInsertLiveClassTemplate}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#0E57A4] hover:text-[#0b4787] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer w-fit shadow-2xs"
+              >
+                <Video className="w-3.5 h-3.5 text-blue-600" />
+                <span>+ Insert Live Class Template</span>
+              </button>
+            </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Title</label>
               <input
