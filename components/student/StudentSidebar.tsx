@@ -4,9 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
-import { cn } from "@/lib/utils";
+import { cn, formatGoogleDriveImageUrl } from "@/lib/utils";
 import {
   GraduationCap,
   UserCircle,
@@ -127,7 +126,12 @@ export function StudentSidebar({ user }: { user: any }) {
         {collapsed && !isMobile ? (
           <Link href="/dashboard/profile" title="My Profile">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E57A4] to-[#2172C9] flex items-center justify-center font-display font-bold text-white text-sm ring-2 ring-white/10 hover:ring-[#0E57A4]/60 transition-all overflow-hidden">
-              <img src={user?.image || "/student-avatar.png"} alt={user?.name || "Student"} className="w-full h-full object-cover" />
+              <img
+                src={formatGoogleDriveImageUrl(user?.image) || user?.image || "/student-avatar.png"}
+                alt={user?.name || "Student"}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover"
+              />
             </div>
           </Link>
         ) : (
@@ -135,7 +139,12 @@ export function StudentSidebar({ user }: { user: any }) {
             {/* Avatar with gradient ring */}
             <div className="relative shrink-0">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E57A4] to-[#2172C9] flex items-center justify-center font-display font-bold text-white text-sm shadow-glow overflow-hidden">
-                <img src={user?.image || "/student-avatar.png"} alt={user?.name || "Student"} className="w-full h-full object-cover" />
+                <img
+                  src={formatGoogleDriveImageUrl(user?.image) || user?.image || "/student-avatar.png"}
+                  alt={user?.name || "Student"}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#0A1628] rounded-full z-10" />
             </div>

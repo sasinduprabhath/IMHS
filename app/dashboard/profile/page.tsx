@@ -8,6 +8,7 @@ import {
   Eye, EyeOff, KeyRound, AlertCircle, IdCard,
   GraduationCap, MessageCircle,
 } from "lucide-react";
+import { formatGoogleDriveImageUrl } from "@/lib/utils";
 
 export default function StudentProfilePage() {
   const { data: session } = useSession();
@@ -80,7 +81,12 @@ export default function StudentProfilePage() {
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {/* Large Avatar */}
           <div className="w-20 h-20 rounded-2xl bg-clinical-teal text-white flex items-center justify-center font-mono font-bold text-3xl shadow-lg border-2 border-white/30 shrink-0 overflow-hidden">
-            <img src={user?.image || "/student-avatar.png"} alt={user?.name || "Medical Student Candidate"} className="w-full h-full object-cover" />
+            <img
+              src={formatGoogleDriveImageUrl(user?.image) || user?.image || "/student-avatar.png"}
+              alt={user?.name || "Medical Student Candidate"}
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           <div className="flex-1 min-w-0 space-y-2">

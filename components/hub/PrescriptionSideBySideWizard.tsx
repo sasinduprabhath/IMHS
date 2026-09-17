@@ -10,6 +10,7 @@ import {
   ChevronLeft, Sparkles, BookOpen, ShieldCheck, Trophy, Check, FileText
 } from "lucide-react";
 import { ConfettiCanvas } from "@/components/ui/ConfettiCanvas";
+import { formatGoogleDriveImageUrl } from "@/lib/utils";
 
 export interface PrescriptionCaseData {
   id: string;
@@ -301,8 +302,9 @@ export function PrescriptionSideBySideWizard({
               {caseData.imageUrl && !imgFailed ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={caseData.imageUrl}
+                  src={formatGoogleDriveImageUrl(caseData.imageUrl) || caseData.imageUrl}
                   alt="Prescription Review Challenge"
+                  referrerPolicy="no-referrer"
                   className="w-auto max-h-[500px] object-contain rounded-2xl select-none"
                   draggable={false}
                   onError={() => setImgFailed(true)}

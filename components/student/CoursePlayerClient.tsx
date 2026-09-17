@@ -4,9 +4,8 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import DOMPurify from "dompurify";
-import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
-import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl } from "@/lib/utils";
+import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { FormattedText } from "@/components/ui/formatted-text";
 import {
   CheckCircle2 as CheckCircleIcon,
@@ -988,8 +987,9 @@ function CoursePlayerContent({
               <div key={ins.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
                 <div className="w-10 h-10 relative rounded-full overflow-hidden border border-slate-300 shrink-0">
                   <img
-                    src={ins.facultyMember.photoUrl || "/lecturer.jpeg"}
+                    src={formatGoogleDriveImageUrl(ins.facultyMember.photoUrl) || ins.facultyMember.photoUrl || "/lecturer.jpeg"}
                     alt={ins.facultyMember.name}
+                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
                   />
                 </div>

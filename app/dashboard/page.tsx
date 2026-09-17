@@ -13,6 +13,7 @@ import {
   Trophy, GraduationCap, FileText, Lock, Sparkles,
   Target, Zap, CheckCircle2, TrendingUp, ShieldCheck,
 } from "lucide-react";
+import { formatGoogleDriveImageUrl } from "@/lib/utils";
 
 export const metadata = { title: "My Courses - IMHS Student Portal" };
 export const revalidate = 0;
@@ -113,8 +114,9 @@ export default async function StudentDashboardPage({
             <div className="relative shrink-0 group">
               <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl ring-4 ring-white/25 border-2 border-white bg-white/10 backdrop-blur-md flex items-center justify-center font-display font-bold text-white text-2xl shadow-xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
                 <img
-                  src={(session?.user as any)?.image || dbUser?.image || "/student-avatar.png"}
+                  src={formatGoogleDriveImageUrl((session?.user as any)?.image || dbUser?.image) || (session?.user as any)?.image || dbUser?.image || "/student-avatar.png"}
                   alt={session?.user?.name || "Student"}
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -304,12 +306,19 @@ export default async function StudentDashboardPage({
                   {/* Cover Image */}
                   {course.coverImage ? (
                     <div className="relative h-36 bg-[#F5F7FA] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={course.coverImage}
-                        alt={course.title}
-                        className={`w-full h-full object-cover transition-transform duration-500 ${!isFrozen ? "group-hover:scale-105" : "opacity-40"}`}
-                      />
+                      {(() => {
+                        const coverSrc = formatGoogleDriveImageUrl(course.coverImage) || course.coverImage;
+                        return (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={coverSrc}
+                            alt={course.title}
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            className={`w-full h-full object-cover transition-transform duration-500 ${!isFrozen ? "group-hover:scale-105" : "opacity-40"}`}
+                          />
+                        );
+                      })()}
                       {isFrozen && (
                         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
                           <div className="flex items-center gap-1.5 bg-[#EF4444] text-white text-[10px] font-mono font-bold px-3 py-1.5 rounded-pill uppercase tracking-wider">
