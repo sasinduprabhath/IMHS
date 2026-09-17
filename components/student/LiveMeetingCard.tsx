@@ -97,25 +97,33 @@ export function LiveMeetingCard({
           </div>
         )}
 
-        {/* ── Action Section: Security Notice + Join CTA ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-100">
-          <div className="flex items-start sm:items-center gap-2 text-xs text-slate-500 font-sans">
-            <Lock className="h-4 w-4 text-slate-400 shrink-0 mt-0.5 sm:mt-0" />
-            <span>
-              Single-student session. Link sharing or external access is monitored.
-            </span>
-          </div>
-
+        {/* ── Action Section: Big Centered CTA (Matching User Screenshot) ── */}
+        <div className="pt-2 space-y-2.5 text-center">
           <a
             href={meetingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0b4787] text-white px-7 py-3 text-sm font-bold shadow-sm hover:shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] shrink-0 cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-[#0E57A4] hover:bg-[#0b4888] text-white px-6 py-4 text-base sm:text-lg font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all hover:scale-[1.008] active:scale-[0.99] cursor-pointer"
           >
-            <Video className="h-4 w-4 text-blue-200" />
-            <span>Join Live Class</span>
-            <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+            <Video className="h-6 w-6 text-white shrink-0" />
+            <span>JOIN THE LIVE LECTURE</span>
           </a>
+
+          <div>
+            <a
+              href={meetingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-sm sm:text-base font-semibold text-[#0E57A4] hover:text-[#0b4888] hover:underline transition-colors cursor-pointer"
+            >
+              Click here to join via {platform === "meet" ? "Google Meet" : platform === "teams" ? "Microsoft Teams" : "Zoom"}
+            </a>
+          </div>
+
+          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-sans pt-1">
+            <Lock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+            <span>Single-student session. Link sharing or external access is monitored.</span>
+          </div>
         </div>
       </div>
     </div>
