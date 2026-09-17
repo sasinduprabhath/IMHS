@@ -4,6 +4,7 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import DOMPurify from "dompurify";
+import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
 import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { FormattedText } from "@/components/ui/formatted-text";
