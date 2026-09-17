@@ -102,12 +102,13 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   if (!course || !course.published) notFound();
 
   const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
-  const displayEnrolled =
-    course.totalEnrolled && course.totalEnrolled > 0
-      ? course.totalEnrolled
-      : (course._count?.enrollments || 450);
+  const realCount = course._count?.enrollments || 0;
+  const hasCustomCount = typeof course.totalEnrolled === "number" && course.totalEnrolled > 0;
+  const displayEnrolled = hasCustomCount ? course.totalEnrolled : realCount;
   const enrolledCount = displayEnrolled;
-  const enrolledText = `${displayEnrolled.toLocaleString()}+ Enrolled`;
+  const enrolledText = hasCustomCount
+    ? `${displayEnrolled.toLocaleString()}+ Enrolled`
+    : `${realCount.toLocaleString()} Enrolled`;
   const allLessons = course.chapters.flatMap((ch: any) => ch.lessons);
   const questionsCount = allLessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
   const lessonsCount = allLessons.length - questionsCount;
@@ -417,7 +418,13 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   {/* Spec rows */}
                   <div className="border-t border-chart-grid/50 pt-4 space-y-2.5">
                     {[
-                      { icon: Users, label: "Enrolled", value: `${displayEnrolled.toLocaleString()}+ Students` },
+                      {
+                        icon: Users,
+                        label: "Enrolled",
+                        value: hasCustomCount
+                          ? `${displayEnrolled.toLocaleString()}+ Students`
+                          : `${realCount.toLocaleString()} Students`,
+                      },
                       { icon: Layers, label: "Content", value: `${course.chapters.length} Ch · ${lessonsCount} Lessons` },
                     ].map(({ icon: Icon, label, value }) => (
                       <div key={label} className="flex items-center justify-between">

@@ -504,7 +504,9 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   const [category, setCategory] = useState(course.category || "Modern Pharmacy Course");
   const [level, setLevel] = useState(course.level || "All Levels");
   const [enrollmentValidity, setEnrollmentValidity] = useState("");
-  const [totalEnrolled, setTotalEnrolled] = useState<number | "">(course.totalEnrolled || 450);
+  const [totalEnrolled, setTotalEnrolled] = useState<number | "">(
+    typeof course.totalEnrolled === "number" && course.totalEnrolled > 0 ? course.totalEnrolled : ""
+  );
   const [published, setPublished] = useState(course.published);
   const [coverImage, setCoverImage] = useState(course.coverImage || "");
   const [imgError, setImgError] = useState(false);
@@ -592,7 +594,7 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       category: category || "Modern Pharmacy Course",
       level: level || "All Levels",
       enrollmentValidity: "",
-      totalEnrolled: totalEnrolled !== "" ? Number(totalEnrolled) : 450,
+      totalEnrolled: totalEnrolled !== "" ? Number(totalEnrolled) : 0,
       published: Boolean(published),
       coverImage: (coverImage || "").trim(),
       chapters: chapters.map((ch, chIdx) => ({
@@ -881,7 +883,7 @@ Passcode: 291799
           price: Number(price),
           originalPrice: originalPrice !== "" ? Number(originalPrice) : null,
           type, category, level, enrollmentValidity,
-          totalEnrolled: totalEnrolled !== "" ? Number(totalEnrolled) : 450,
+          totalEnrolled: totalEnrolled !== "" ? Number(totalEnrolled) : 0,
           published,
           coverImage: coverImage || null,
         }),
@@ -1304,11 +1306,14 @@ Passcode: 291799
               <input
                 type="number"
                 min={0}
+                placeholder="Leave empty to show real enrollment count"
                 value={totalEnrolled}
                 onChange={(e) => setTotalEnrolled(e.target.value !== "" ? Number(e.target.value) : "")}
                 className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
               />
-              <p className="text-[10px] font-mono text-slate-500 mt-1">Public-facing enrollment badge number on course page</p>
+              <p className="text-[10px] font-mono text-slate-500 mt-1">
+                Custom public badge count. Leave empty to automatically display the real enrolled students count from the database.
+              </p>
             </div>
           </section>
 

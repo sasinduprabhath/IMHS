@@ -574,11 +574,12 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                         </div>
 
                         {(() => {
-                          const displayCount =
-                            course.totalEnrolled && course.totalEnrolled > 0
-                              ? course.totalEnrolled
-                              : (course._count?.enrollments || 450);
-                          const enrolledText = `${displayCount.toLocaleString()}+ Enrolled Students`;
+                          const realCount = course._count?.enrollments || 0;
+                          const hasCustomCount = typeof course.totalEnrolled === "number" && course.totalEnrolled > 0;
+                          const displayCount = hasCustomCount ? (course.totalEnrolled as number) : realCount;
+                          const enrolledText = hasCustomCount
+                            ? `${displayCount.toLocaleString()}+ Enrolled Students`
+                            : `${realCount.toLocaleString()} Enrolled Students`;
 
                           return (
                             <div className="flex items-center gap-1 text-[11px] font-mono text-sage">

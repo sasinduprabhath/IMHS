@@ -66,7 +66,12 @@ export async function PATCH(
         ...(category !== undefined && { category }),
         ...(level !== undefined && { level }),
         ...(enrollmentValidity !== undefined && { enrollmentValidity }),
-        ...(totalEnrolled !== undefined && { totalEnrolled: parseInt(totalEnrolled) }),
+        ...(totalEnrolled !== undefined && {
+          totalEnrolled:
+            totalEnrolled === "" || totalEnrolled === null || isNaN(parseInt(totalEnrolled))
+              ? 0
+              : Math.max(0, parseInt(totalEnrolled)),
+        }),
         ...(published !== undefined && { published }),
         ...(coverImage !== undefined && { coverImage }),
       },
