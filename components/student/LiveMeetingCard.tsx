@@ -30,88 +30,92 @@ export function LiveMeetingCard({
 }: LiveMeetingInfo) {
   const platformTitle =
     platform === "zoom"
-      ? "Zoom Live Classroom"
+      ? "Zoom Classroom"
       : platform === "meet"
-      ? "Google Meet Live Class"
+      ? "Google Meet"
       : platform === "teams"
-      ? "Microsoft Teams Live"
-      : "Live Online Classroom";
+      ? "Microsoft Teams"
+      : "Live Classroom";
 
   return (
-    <div className="my-4 overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-slate-950 to-cyan-950 text-white shadow-xl">
-      {/* ── Header ── */}
-      <div className="border-b border-white/10 bg-white/[0.03] px-5 py-4 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Live Indicator + Platform */}
+    <div className="my-5 relative overflow-hidden rounded-2xl border border-blue-100/90 bg-gradient-to-br from-white via-white to-blue-50/30 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-200">
+      {/* Top Accent Brand Line */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0E57A4] via-blue-500 to-cyan-500" />
+
+      <div className="space-y-4">
+        {/* ── Top Meta Bar ── */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
             </span>
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full">
               Live Online Lecture
             </span>
-            <span className="text-white/20">•</span>
-            <span className="font-mono text-[11px] font-medium text-white/70">
+            <span className="text-slate-300">•</span>
+            <span className="font-mono text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+              <Video className="h-3.5 w-3.5 text-[#0E57A4]" />
               {platformTitle}
             </span>
           </div>
 
-          {/* Security Badge */}
-          <div className="flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-0.5 text-[10px] font-mono font-semibold text-cyan-300">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Enrolled Student Session</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 px-3 py-1 text-[11px] font-mono font-semibold text-[#0E57A4]">
+            <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+            <span>Authorized Student Access</span>
           </div>
         </div>
 
-        {/* Topic / Lecture Title (if present) */}
+        {/* ── Topic / Lecture Title (if present) ── */}
         {topic && (
-          <div className="mt-3 flex items-start gap-2">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-            <h4 className="font-display text-base font-bold text-white sm:text-lg">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#0E57A4]">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              <span>Scheduled Lecture Topic</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold text-slate-900 leading-snug">
               {topic}
-            </h4>
+            </h3>
           </div>
         )}
 
-        {/* Date & Time pills (if present) */}
+        {/* ── Date & Time Schedule ── */}
         {(date || time) && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-2 font-mono text-xs">
+          <div className="flex flex-wrap items-center gap-2.5">
             {date && (
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/80">
-                <Calendar className="h-3.5 w-3.5 text-cyan-400" />
-                {date}
-              </span>
+              <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50 px-3 py-1.5 font-mono text-xs text-slate-700">
+                <Calendar className="h-4 w-4 text-[#0E57A4]" />
+                <span className="font-semibold">{date}</span>
+              </div>
             )}
             {time && (
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/80">
-                <Clock className="h-3.5 w-3.5 text-amber-400" />
-                {time}
-              </span>
+              <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50 px-3 py-1.5 font-mono text-xs text-slate-700">
+                <Clock className="h-4 w-4 text-[#F16726]" />
+                <span className="font-semibold">{time}</span>
+              </div>
             )}
           </div>
         )}
-      </div>
 
-      {/* ── Single Direct Join Button ── */}
-      <div className="space-y-3.5 p-5 sm:p-6">
-        <a
-          href={meetingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-[#0E57A4] via-blue-600 to-cyan-600 px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg shadow-blue-950/40 transition-all hover:scale-[1.01] hover:from-[#0b4787] hover:to-cyan-500 active:scale-[0.99] cursor-pointer"
-        >
-          <Video className="h-5 w-5 text-cyan-200" />
-          <span>Join Live Class</span>
-          <ExternalLink className="h-4 w-4 opacity-80" />
-        </a>
+        {/* ── Action Section: Security Notice + Join CTA ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-100">
+          <div className="flex items-start sm:items-center gap-2 text-xs text-slate-500 font-sans">
+            <Lock className="h-4 w-4 text-slate-400 shrink-0 mt-0.5 sm:mt-0" />
+            <span>
+              Single-student session. Link sharing or external access is monitored.
+            </span>
+          </div>
 
-        {/* ── Security Notice Footer ── */}
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3.5 py-2 text-[11px] text-amber-200/90 flex items-center gap-2">
-          <Lock className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-          <p className="leading-relaxed font-sans">
-            <strong className="text-amber-300">Protected Session:</strong> Access is exclusively for enrolled students. Link sharing and external forwarding are strictly prohibited.
-          </p>
+          <a
+            href={meetingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0b4787] text-white px-7 py-3 text-sm font-bold shadow-sm hover:shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] shrink-0 cursor-pointer"
+          >
+            <Video className="h-4 w-4 text-blue-200" />
+            <span>Join Live Class</span>
+            <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+          </a>
         </div>
       </div>
     </div>

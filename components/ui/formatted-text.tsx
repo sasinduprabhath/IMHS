@@ -48,17 +48,6 @@ function extractLiveMeeting(content: string): {
     afterText = content.slice(blockMatch.index + blockMatch[0].length).trim();
   }
 
-  // Ensure no raw meeting credentials remain in visible text
-  const cleanCredentials = (text: string) =>
-    text
-      .replace(/(?:Meeting\s*ID|Meeting\s*id|ID)\s*:\s*[0-9 ]+\r?\n?/gi, "")
-      .replace(/(?:Passcode|Password|Pwd|Code)\s*:\s*[^\r\n\s]+\r?\n?/gi, "")
-      .replace(/👉\s*\*?Join\s+Zoom\s+Meeting[^\n]*\r?\n?/gi, "")
-      .trim();
-
-  beforeText = cleanCredentials(beforeText);
-  afterText = cleanCredentials(afterText);
-
   // Meeting ID
   const meetingIdMatch = content.match(/(?:Meeting\s*ID|Meeting\s*id|ID)\s*:\s*([0-9 ]{9,16})/i);
   let meetingId = meetingIdMatch ? meetingIdMatch[1].trim() : null;
@@ -81,6 +70,20 @@ function extractLiveMeeting(content: string): {
   // Topic / Lecture
   const lectureMatch = content.match(/(?:Lecture\s*[0-9]+[^\r\n]*|Topic\s*:[^\r\n]+)/i);
   const topic = lectureMatch ? lectureMatch[0].replace(/[*~_✨]/g, "").trim() : null;
+
+  // Ensure no raw meeting credentials or duplicate date/time remain in visible text
+  const cleanCredentials = (text: string) =>
+    text
+      .replace(/(?:⭕|🟡|\*)*\s*Date\s*:\s*[^\r\n]+(?:\r?\n)?/gi, "")
+      .replace(/(?:⏰|\*)*\s*Time\s*:\s*[^\r\n]+(?:\r?\n)?/gi, "")
+      .replace(/(?:Meeting\s*ID|Meeting\s*id|ID)\s*:\s*[0-9 ]+\r?\n?/gi, "")
+      .replace(/(?:Passcode|Password|Pwd|Code)\s*:\s*[^\r\n\s]+\r?\n?/gi, "")
+      .replace(/👉\s*\*?Join\s+Zoom\s+Meeting[^\n]*\r?\n?/gi, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+
+  beforeText = cleanCredentials(beforeText);
+  afterText = cleanCredentials(afterText);
 
   return {
     meetingInfo: {
