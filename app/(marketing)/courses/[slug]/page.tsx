@@ -102,7 +102,12 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   if (!course || !course.published) notFound();
 
   const courseCode = course.slug.split("-").slice(0, 2).join("-").toUpperCase();
-  const enrolledCount = course._count?.enrollments ?? course.totalEnrolled ?? 0;
+  const displayEnrolled =
+    course.totalEnrolled && course.totalEnrolled > 0
+      ? course.totalEnrolled
+      : (course._count?.enrollments || 450);
+  const enrolledCount = displayEnrolled;
+  const enrolledText = `${displayEnrolled.toLocaleString()}+ Enrolled`;
   const allLessons = course.chapters.flatMap((ch: any) => ch.lessons);
   const questionsCount = allLessons.filter((l: any) => l.type === "QUIZ" || l.title?.startsWith("Quiz Q")).length;
   const lessonsCount = allLessons.length - questionsCount;
@@ -197,7 +202,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
               <div className="mt-3 flex items-center justify-center gap-4 text-xs font-mono text-sage">
                 <span className="flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-clinical-teal" />
-                  {enrolledCount} Enrolled
+                  {enrolledText}
                 </span>
                 <span className="text-chart-grid">·</span>
                 <span className="flex items-center gap-1.5">
@@ -412,7 +417,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   {/* Spec rows */}
                   <div className="border-t border-chart-grid/50 pt-4 space-y-2.5">
                     {[
-                      { icon: Users, label: "Enrolled", value: `${enrolledCount} Students` },
+                      { icon: Users, label: "Enrolled", value: `${displayEnrolled.toLocaleString()}+ Students` },
                       { icon: Layers, label: "Content", value: `${course.chapters.length} Ch · ${lessonsCount} Lessons` },
                     ].map(({ icon: Icon, label, value }) => (
                       <div key={label} className="flex items-center justify-between">

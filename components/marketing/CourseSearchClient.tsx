@@ -574,10 +574,11 @@ export function CourseSearchClient({ courses }: { courses: CourseItem[] }) {
                         </div>
 
                         {(() => {
-                          const dbEnrolled = course._count?.enrollments || 0;
-                          const fallbackEnrolled = course.totalEnrolled || 0;
-                          const count = dbEnrolled > 0 ? dbEnrolled : fallbackEnrolled;
-                          const enrolledText = count > 0 ? `${count} Enrolled Students` : "Active Enrollment Open";
+                          const displayCount =
+                            course.totalEnrolled && course.totalEnrolled > 0
+                              ? course.totalEnrolled
+                              : (course._count?.enrollments || 450);
+                          const enrolledText = `${displayCount.toLocaleString()}+ Enrolled Students`;
 
                           return (
                             <div className="flex items-center gap-1 text-[11px] font-mono text-sage">
