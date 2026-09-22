@@ -1256,13 +1256,29 @@ Passcode: 291799
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Description</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Description
+                  <span className="text-[10px] font-normal text-slate-400 ml-2 font-mono">
+                    (Supports *bold*, _italic_, and line breaks)
+                  </span>
+                </label>
+              </div>
               <textarea
-                rows={4}
+                rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] resize-none transition-colors"
+                placeholder="Detailed description of what students will learn in this course..."
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] resize-y font-sans transition-colors min-h-[120px]"
               />
+              {description && (
+                <div className="mt-2.5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold mb-1.5">
+                    Live Formatted Preview (As displayed on public course page)
+                  </div>
+                  <FormattedText content={description} className="text-xs text-slate-600" />
+                </div>
+              )}
             </div>
           </section>
 

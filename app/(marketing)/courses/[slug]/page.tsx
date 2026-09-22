@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
+import { FormattedText } from "@/components/ui/formatted-text";
 import { formatCurrency, formatGoogleDriveImageUrl } from "@/lib/utils";
 import { createCourseInquiryWALink } from "@/lib/whatsapp";
 import {
@@ -256,9 +257,9 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
             </div>
 
             {/* Description */}
-            <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm space-y-2">
+            <div className="bg-white border border-chart-grid rounded-2xl p-5 shadow-sm space-y-3">
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-sage font-bold">About This Course</h2>
-              <p className="text-sm text-ink-muted leading-relaxed font-sans">{course.description}</p>
+              <FormattedText content={course.description} className="text-sm text-ink-muted leading-relaxed font-sans" />
             </div>
 
             {/* What's included (compact grid) */}

@@ -489,7 +489,7 @@ export function HomePageClient({ courses, faculty, testimonials, achievements, g
                             {course.title}
                           </h3>
                           <p className="text-xs text-ink-muted line-clamp-3 leading-relaxed">
-                            {course.description}
+                            {course.description ? course.description.replace(/[*_~]/g, "") : ""}
                           </p>
                         </div>
 

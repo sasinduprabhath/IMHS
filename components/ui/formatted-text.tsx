@@ -113,7 +113,7 @@ function renderParsedParagraphs(rawText: string) {
   const paragraphs = rawText.split("\n");
 
   const parseLine = (line: string) => {
-    const tokenRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|\+[0-9]{2}\s?[0-9\s]{8,12}|\*[^*]+\*|_[^_]+_|~[^~]+~)/g;
+    const tokenRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|\+[0-9]{2}\s?[0-9\s]{8,12}|\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__|_[^_]+_|~[^~]+~)/g;
     const parts = line.split(tokenRegex);
 
     return parts.map((part, idx) => {
@@ -151,14 +151,24 @@ function renderParsedParagraphs(rawText: string) {
         );
       }
 
-      // 3. WhatsApp Bold (*text*)
-      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-        return <strong key={idx} className="font-bold text-ink">{part.slice(1, -1)}</strong>;
+      // 3a. Markdown Bold (**text**)
+      if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+        return <strong key={idx} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
       }
 
-      // 4. WhatsApp Italic (_text_)
+      // 3b. WhatsApp Bold (*text*)
+      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+        return <strong key={idx} className="font-bold text-slate-900">{part.slice(1, -1)}</strong>;
+      }
+
+      // 4a. Markdown Italic (__text__)
+      if (part.startsWith("__") && part.endsWith("__") && part.length > 4) {
+        return <em key={idx} className="italic text-slate-800">{part.slice(2, -2)}</em>;
+      }
+
+      // 4b. WhatsApp Italic (_text_)
       if (part.startsWith("_") && part.endsWith("_") && part.length > 2) {
-        return <em key={idx} className="italic text-ink">{part.slice(1, -1)}</em>;
+        return <em key={idx} className="italic text-slate-800">{part.slice(1, -1)}</em>;
       }
 
       // 5. WhatsApp Strikethrough (~text~)
@@ -171,11 +181,16 @@ function renderParsedParagraphs(rawText: string) {
     });
   };
 
-  return paragraphs.map((para, pIdx) => (
-    <p key={pIdx} className="min-h-[1em]">
-      {parseLine(para)}
-    </p>
-  ));
+  return paragraphs.map((para, pIdx) => {
+    if (!para.trim()) {
+      return <span key={pIdx} className="block h-2" aria-hidden="true" />;
+    }
+    return (
+      <p key={pIdx} className="min-h-[1.4em]">
+        {parseLine(para)}
+      </p>
+    );
+  });
 }
 
 export function FormattedText({ content, className = "" }: FormattedTextProps) {
