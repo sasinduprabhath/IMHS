@@ -10,7 +10,11 @@ import { checkRateLimit, getClientIp, RATE_LIMITS, rateLimitResponse } from "@/l
 import { sanitizeEmail, sanitizeString } from "@/lib/sanitization";
 import { generateOtp, hashOtp, otpExpiry, buildOtpEmail, maskEmail } from "@/lib/otp";
 import { sendMail } from "@/lib/mailer";
-import { verifyTrustedDeviceToken, TRUSTED_DEVICE_COOKIE_NAME } from "@/lib/trustedDevice";
+import {
+  verifyTrustedDeviceToken,
+  TRUSTED_DEVICE_COOKIE_NAME,
+  DEVICE_UUID_COOKIE_NAME,
+} from "@/lib/trustedDevice";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 
@@ -19,6 +23,7 @@ const preLoginSchema = z.object({
   password: z.string().min(1, "Password is required").max(100, "Password max 100 characters"),
   deviceSignature: z.string().max(100).optional().default(""),
   deviceInfo: z.string().max(200).optional().default("Unknown Device"),
+  deviceUuid: z.string().max(100).optional().default(""),
 });
 
 const SUPPORT_WA_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^0-9]/g, "") || "94766506621";
@@ -35,10 +40,13 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    const { email: rawEmail, password: rawPassword, deviceSignature, deviceInfo } = parsed.data;
+    const { email: rawEmail, password: rawPassword, deviceSignature, deviceInfo, deviceUuid: rawDeviceUuid } = parsed.data;
 
     const email = sanitizeEmail(rawEmail);
     const password = sanitizeString(rawPassword, 100);
+    // Resolve persistent device UUID from payload or first-party HttpOnly cookie
+    const cookieDeviceUuid = req.cookies.get(DEVICE_UUID_COOKIE_NAME)?.value || "";
+    const incomingDeviceUuid = sanitizeString(rawDeviceUuid || cookieDeviceUuid, 100);
 
     // ── Rate limiting (Strict IP + Account Protection) ─────────────────
     // 1. IP-wide brute force prevention
@@ -106,11 +114,14 @@ export async function POST(req: NextRequest) {
       where: { userId: user.id },
     });
 
-    const currentDeviceRecord = studentDevices.find(
-      (d) => d.deviceSignature === deviceSignature
-    );
+    // Check if device matches by persistent UUID or hardware signature
+    const currentDeviceRecord = studentDevices.find((d) => {
+      if (incomingDeviceUuid && d.deviceSignature === incomingDeviceUuid) return true;
+      if (deviceSignature && d.deviceSignature === deviceSignature) return true;
+      return false;
+    });
 
-    // 1. HARD BLOCK: If this specific device is marked as BLOCKED, reject immediately
+    // 1. HARD BLOCK: If this specific device was explicitly BLOCKED by admin, reject immediately
     if (currentDeviceRecord && currentDeviceRecord.status === "BLOCKED") {
       await prisma.studentDevice.update({
         where: { id: currentDeviceRecord.id },
@@ -155,124 +166,81 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Check if student already has other registered primary/allowed devices
-    const hasAnyRegisteredDevices = studentDevices.length > 0;
-    const isCurrentDeviceApproved =
-      currentDeviceRecord &&
-      (currentDeviceRecord.status === "ALLOWED" || currentDeviceRecord.status === "PRIMARY");
-    const isUserSignatureMatch =
-      user.deviceSignature &&
-      deviceSignature === user.deviceSignature &&
-      (!currentDeviceRecord || currentDeviceRecord.status !== "BLOCKED");
+    // 2. Check if this device is already recognized & approved (PRIMARY or ALLOWED, or matches user.deviceSignature)
+    const isApprovedDevice =
+      (currentDeviceRecord && (currentDeviceRecord.status === "ALLOWED" || currentDeviceRecord.status === "PRIMARY")) ||
+      (user.deviceSignature && (user.deviceSignature === incomingDeviceUuid || user.deviceSignature === deviceSignature));
 
-    // 3. If student has registered devices, but THIS device is NOT approved -> Block & Record
-    if ((hasAnyRegisteredDevices || user.deviceSignature) && !isCurrentDeviceApproved && !isUserSignatureMatch) {
-      if (!currentDeviceRecord && deviceSignature) {
-        await prisma.studentDevice.create({
+    if (isApprovedDevice) {
+      if (currentDeviceRecord) {
+        await prisma.studentDevice.update({
+          where: { id: currentDeviceRecord.id },
           data: {
-            userId: user.id,
-            deviceSignature,
-            deviceInfo,
-            status: "BLOCKED",
-            ipAddress: clientIp,
             lastAttemptAt: new Date(),
+            ipAddress: clientIp,
+            deviceInfo: deviceInfo || currentDeviceRecord.deviceInfo,
           },
         });
       }
 
-      const waMessage =
-        `Hello IMHS Support,\n\n` +
-        `*Device Unlock Request*\n` +
-        `• Student Name: ${user.name}\n` +
-        `• Email: ${user.email}\n` +
-        `• Reg ID: ${user.studentId || "N/A"}\n` +
-        `• Device Details: ${deviceInfo || "Unknown Device"}\n` +
-        `• Problem: My account is locked to my primary device. I am attempting to log in from a new device. Please approve my device in the admin panel so I can access my courses.`;
+      // Check 30-day trusted cookie ONLY AFTER confirming device is authorized
+      const trustedCookie = req.cookies.get(TRUSTED_DEVICE_COOKIE_NAME)?.value;
+      if (trustedCookie) {
+        const candidateIds = [incomingDeviceUuid, deviceSignature].filter(Boolean);
+        const isTrusted = await verifyTrustedDeviceToken(trustedCookie, user.id, candidateIds);
+        if (isTrusted) {
+          logger.security("AUTH_LOGIN_SUCCESS", `30-day trusted device recognized for ${user.email}`, { userId: user.id, ip: clientIp });
+          const secret = process.env.NEXTAUTH_SECRET;
+          if (!secret) {
+            throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
+          }
+          const verifiedToken = await encode({
+            token: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              phone: user.phone,
+              studentId: user.studentId,
+              otpVerified: true,
+              exp: Math.floor(Date.now() / 1000) + 5 * 60,
+            },
+            secret,
+          });
 
-      const waLink = `https://wa.me/${SUPPORT_WA_PHONE}?text=${encodeURIComponent(waMessage)}`;
-
-      logger.security("AUTH_DEVICE_LOCKED", `Device mismatch for user ${user.email}`, {
-        userId: user.id,
-        ip: clientIp,
-        details: { deviceInfo },
-      });
-
-      return NextResponse.json(
-        {
-          status: "DEVICE_LOCKED",
-          message:
-            `Access Denied: Your account is locked to your primary registered device. ` +
-            `Please click below to send a pre-filled message to IMHS Support on WhatsApp requesting approval for this device (${deviceInfo || "Device"}).`,
-          waLink,
-          studentInfo: {
-            name: user.name,
-            email: user.email,
-            regId: user.studentId,
-          },
-        },
-        { status: 403 }
-      );
+          return NextResponse.json({
+            status: "TRUSTED_DEVICE_BYPASS",
+            verifiedToken,
+            deviceUuid: incomingDeviceUuid || (currentDeviceRecord?.deviceSignature.startsWith("dev_") ? currentDeviceRecord.deviceSignature : undefined),
+          });
+        }
+      }
     }
 
-    // 4. First login for this student: register this incoming device as PRIMARY
-    if (!hasAnyRegisteredDevices && !user.deviceSignature && deviceSignature) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          deviceSignature,
-          deviceLockedAt: new Date(),
-        },
-      });
-
+    // 3. New / Unrecognized / Pending Device:
+    // DO NOT automatically insert BLOCKED!
+    // Instead, record as PENDING and require explicit 2FA Email OTP verification.
+    const effectiveSignature = incomingDeviceUuid || deviceSignature;
+    if (!currentDeviceRecord && effectiveSignature) {
       await prisma.studentDevice.create({
         data: {
           userId: user.id,
-          deviceSignature,
-          deviceInfo,
-          status: "PRIMARY",
+          deviceSignature: effectiveSignature,
+          deviceInfo: deviceInfo || "Web Browser",
+          status: "PENDING",
           ipAddress: clientIp,
           lastAttemptAt: new Date(),
         },
       });
-    }
-
-    // 5. Update last attempt on the approved device
-    if (currentDeviceRecord) {
+    } else if (currentDeviceRecord && currentDeviceRecord.status === "PENDING") {
       await prisma.studentDevice.update({
         where: { id: currentDeviceRecord.id },
-        data: { lastAttemptAt: new Date(), ipAddress: clientIp },
+        data: {
+          lastAttemptAt: new Date(),
+          ipAddress: clientIp,
+          deviceInfo: deviceInfo || currentDeviceRecord.deviceInfo,
+        },
       });
-    }
-
-    // 6. Check 30-day trusted cookie ONLY AFTER confirming device is authorized
-    const trustedCookie = req.cookies.get(TRUSTED_DEVICE_COOKIE_NAME)?.value;
-    if (trustedCookie) {
-      const isTrusted = await verifyTrustedDeviceToken(trustedCookie, user.id, deviceSignature);
-      if (isTrusted) {
-        logger.security("AUTH_LOGIN_SUCCESS", `30-day trusted device recognized for ${user.email}`, { userId: user.id, ip: clientIp });
-        const secret = process.env.NEXTAUTH_SECRET;
-        if (!secret) {
-          throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
-        }
-        const verifiedToken = await encode({
-          token: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            phone: user.phone,
-            studentId: user.studentId,
-            otpVerified: true,
-            exp: Math.floor(Date.now() / 1000) + 5 * 60,
-          },
-          secret,
-        });
-
-        return NextResponse.json({
-          status: "TRUSTED_DEVICE_BYPASS",
-          verifiedToken,
-        });
-      }
     }
 
     // ── Generate & send OTP ────────────────────────────────────────────

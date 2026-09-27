@@ -98,14 +98,29 @@ function OtpForm() {
     setErrorMsg("");
 
     try {
+      let storedUuid = "";
+      try {
+        storedUuid = localStorage.getItem("imhs_device_uuid") || "";
+      } catch {}
+
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pendingUserId, otp: otpValue, trustDevice }),
+        body: JSON.stringify({
+          pendingUserId,
+          otp: otpValue,
+          trustDevice,
+          deviceUuid: storedUuid,
+        }),
       });
       const data = await res.json();
 
       if (data.status === "SUCCESS") {
+        if (data.deviceUuid) {
+          try {
+            localStorage.setItem("imhs_device_uuid", data.deviceUuid);
+          } catch {}
+        }
         setStatus("success");
         const result = await signIn("credentials", {
           redirect: false,

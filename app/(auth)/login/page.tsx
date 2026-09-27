@@ -22,15 +22,23 @@ const FEATURES = [
 // ─────────────────────────────────────────────────────────────
 // Device fingerprinting - runs entirely client-side
 // ─────────────────────────────────────────────────────────────
-async function collectDeviceSignature(): Promise<{ hash: string; info: string }> {
+async function collectDeviceSignature(): Promise<{ hash: string; info: string; deviceUuid: string }> {
   try {
+    let deviceUuid = "";
+    try {
+      deviceUuid = localStorage.getItem("imhs_device_uuid") || "";
+    } catch {}
+
     const ua = navigator.userAgent;
     let osCategory = "desktop";
     let os = "Desktop";
-    if (ua.includes("Windows")) { osCategory = "windows"; os = "Windows PC"; }
-    else if (ua.includes("Mac OS")) { osCategory = "mac"; os = "macOS"; }
+
+    // Check mobile / tablet first before generic desktop Mac OS strings
+    if (ua.includes("iPhone")) { osCategory = "ios"; os = "iPhone"; }
+    else if (ua.includes("iPad")) { osCategory = "ios"; os = "iPad"; }
     else if (ua.includes("Android")) { osCategory = "android"; os = "Android Phone"; }
-    else if (ua.includes("iPhone") || ua.includes("iPad")) { osCategory = "ios"; os = "iOS Device"; }
+    else if (ua.includes("Windows")) { osCategory = "windows"; os = "Windows PC"; }
+    else if (ua.includes("Mac OS") || ua.includes("Macintosh")) { osCategory = "mac"; os = "macOS"; }
     else if (ua.includes("Linux")) { osCategory = "linux"; os = "Linux"; }
 
     let browser = "Browser";
@@ -39,50 +47,23 @@ async function collectDeviceSignature(): Promise<{ hash: string; info: string }>
     else if (ua.includes("Edg")) browser = "Edge";
     else if (ua.includes("Firefox")) browser = "Firefox";
 
-    const info = `${os} · ${browser} (${screen.width}x${screen.height})`;
+    // Normalize screen resolution so portrait vs landscape rotation doesn't mutate hash
+    const minDim = Math.min(screen.width, screen.height);
+    const maxDim = Math.max(screen.width, screen.height);
+    const info = `${os} · ${browser} (${minDim}x${maxDim})`;
 
-    // Hardware-first, OS-Update Proof fingerprint components
-    // Excludes volatile version strings (e.g. Chrome/122 or Android/14)
+    // Stable hardware attributes (zero canvas random noise to survive iOS Safari anti-tracking)
     const parts: string[] = [
       osCategory,
-      `${screen.width}x${screen.height}x${screen.colorDepth}`,
-      String(navigator.hardwareConcurrency || 0),
-      String((navigator as unknown as { deviceMemory?: number }).deviceMemory || 0),
-      Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+      `${minDim}x${maxDim}`,
+      String(screen.colorDepth || 24),
+      String(navigator.hardwareConcurrency || 2),
+      Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Colombo",
     ];
 
-    // WebGL Hardware GPU Fingerprint (Unmasked GPU Renderer + Vendor)
-    try {
-      const canvas = document.createElement("canvas");
-      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl") as WebGLRenderingContext | null;
-      if (gl) {
-        const dbg = gl.getExtension("WEBGL_debug_renderer_info");
-        if (dbg) {
-          parts.push(String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || ""));
-          parts.push(String(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || ""));
-        }
-      }
-    } catch { }
-
-    // Canvas rendering signature (hardware GPU rasterization output)
-    try {
-      const canvas2 = document.createElement("canvas");
-      canvas2.width = 200;
-      canvas2.height = 40;
-      const ctx = canvas2.getContext("2d");
-      if (ctx) {
-        ctx.textBaseline = "top";
-        ctx.font = "14px 'Arial'";
-        ctx.textBaseline = "alphabetic";
-        ctx.fillStyle = "#f60";
-        ctx.fillRect(125, 1, 62, 20);
-        ctx.fillStyle = "#069";
-        ctx.fillText("IMHS-DEVICE-LOCK-V1", 2, 15);
-        ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-        ctx.fillText("IMHS-DEVICE-LOCK-V1", 4, 17);
-        parts.push(canvas2.toDataURL().slice(-50));
-      }
-    } catch { }
+    if (deviceUuid) {
+      parts.push(deviceUuid);
+    }
 
     const raw = parts.join("|");
     const encoded = new TextEncoder().encode(raw);
@@ -90,11 +71,14 @@ async function collectDeviceSignature(): Promise<{ hash: string; info: string }>
     const hashArr = Array.from(new Uint8Array(hashBuf));
     const hash = hashArr.map((b) => b.toString(16).padStart(2, "0")).join("");
 
-    return { hash, info };
+    return { hash, info, deviceUuid };
   } catch {
+    const minDim = Math.min(screen.width, screen.height);
+    const maxDim = Math.max(screen.width, screen.height);
     return {
-      hash: `fallback-${screen.width}x${screen.height}-${navigator.hardwareConcurrency || 0}`,
-      info: `Web Browser (${screen.width}x${screen.height})`,
+      hash: `fallback-${minDim}x${maxDim}`,
+      info: `Web Browser (${minDim}x${maxDim})`,
+      deviceUuid: "",
     };
   }
 }
@@ -116,12 +100,14 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [deviceSig, setDeviceSig] = useState("");
   const [deviceInfo, setDeviceInfo] = useState("");
+  const [deviceUuid, setDeviceUuid] = useState("");
 
   // Collect device fingerprint silently on mount
   useEffect(() => {
-    collectDeviceSignature().then(({ hash, info }) => {
+    collectDeviceSignature().then(({ hash, info, deviceUuid: dUuid }) => {
       setDeviceSig(hash);
       setDeviceInfo(info);
+      setDeviceUuid(dUuid);
     });
   }, []);
 
@@ -137,7 +123,7 @@ function LoginForm() {
       const res = await fetch("/api/auth/pre-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, deviceSignature: deviceSig, deviceInfo }),
+        body: JSON.stringify({ email, password, deviceSignature: deviceSig, deviceInfo, deviceUuid }),
       });
       const data = await res.json();
 
@@ -158,6 +144,11 @@ function LoginForm() {
       }
 
       if (data.status === "TRUSTED_DEVICE_BYPASS" && data.verifiedToken) {
+        if (data.deviceUuid) {
+          try {
+            localStorage.setItem("imhs_device_uuid", data.deviceUuid);
+          } catch {}
+        }
         const result = await signIn("credentials", {
           redirect: false,
           verifiedToken: data.verifiedToken,

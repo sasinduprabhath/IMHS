@@ -7,6 +7,11 @@ import { prisma } from "@/lib/prisma";
 import { verifyOtp } from "@/lib/otp";
 import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 import { encode } from "next-auth/jwt";
+import {
+  generateDeviceUuid,
+  setDeviceCookies,
+  DEVICE_UUID_COOKIE_NAME,
+} from "@/lib/trustedDevice";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 
@@ -15,6 +20,8 @@ const verifyOtpSchema = z.object({
   otp: z.string().regex(/^\d{6}$/, "Verification code must be exactly 6 digits"),
   trustDevice: z.boolean().optional().default(false),
   deviceSignature: z.string().max(100).optional().default(""),
+  deviceUuid: z.string().max(100).optional().default(""),
+  deviceInfo: z.string().max(200).optional().default(""),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,7 +36,21 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    const { pendingUserId, otp: otpInput, trustDevice, deviceSignature } = parsed.data;
+    const {
+      pendingUserId,
+      otp: otpInput,
+      trustDevice,
+      deviceSignature,
+      deviceUuid: rawDeviceUuid,
+      deviceInfo,
+    } = parsed.data;
+
+    // Resolve device UUID from payload, cookie, or generate new
+    const cookieUuid = req.cookies.get(DEVICE_UUID_COOKIE_NAME)?.value || "";
+    let finalDeviceUuid = rawDeviceUuid || cookieUuid || "";
+    if (!finalDeviceUuid || !finalDeviceUuid.startsWith("dev_")) {
+      finalDeviceUuid = generateDeviceUuid();
+    }
 
     // IP-level OTP rate limiting
     const ipLimit = checkRateLimit(`auth:otp:ip:${clientIp}`, 15, RATE_LIMITS.OTP_VERIFY.windowMs);
@@ -60,17 +81,22 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Confirm device is not blocked
-    if (deviceSignature) {
-      const blockedDevice = await prisma.studentDevice.findFirst({
-        where: { userId: user.id, deviceSignature, status: "BLOCKED" },
-      });
-      if (blockedDevice) {
-        return NextResponse.json({
-          status: "ERROR",
-          message: "Access Denied: This device has been locked by administration.",
-        }, { status: 403 });
-      }
+    // Confirm device is not explicitly BLOCKED by admin
+    const blockedDevice = await prisma.studentDevice.findFirst({
+      where: {
+        userId: user.id,
+        status: "BLOCKED",
+        OR: [
+          { deviceSignature: finalDeviceUuid },
+          ...(deviceSignature ? [{ deviceSignature }] : []),
+        ],
+      },
+    });
+    if (blockedDevice) {
+      return NextResponse.json({
+        status: "ERROR",
+        message: "Access Denied: This device has been locked by administration.",
+      }, { status: 403 });
     }
 
     // Check expiry
@@ -134,6 +160,56 @@ export async function POST(req: NextRequest) {
       ip: clientIp,
     });
 
+    // ── Device Registration & Approval ────────────────────────────────
+    const existingDevices = await prisma.studentDevice.findMany({
+      where: { userId: user.id },
+    });
+
+    const isFirstDevice = !user.deviceSignature && existingDevices.length === 0;
+    const approvedStatus = isFirstDevice ? "PRIMARY" : "ALLOWED";
+
+    // Match existing device by uuid, signature, or pending status
+    const matchingRecord = existingDevices.find((d) =>
+      d.deviceSignature === finalDeviceUuid ||
+      (deviceSignature && d.deviceSignature === deviceSignature) ||
+      d.status === "PENDING"
+    );
+
+    if (matchingRecord) {
+      await prisma.studentDevice.update({
+        where: { id: matchingRecord.id },
+        data: {
+          deviceSignature: finalDeviceUuid,
+          deviceInfo: deviceInfo || matchingRecord.deviceInfo || "Web Browser",
+          status: approvedStatus,
+          ipAddress: clientIp,
+          lastAttemptAt: new Date(),
+        },
+      });
+    } else {
+      await prisma.studentDevice.create({
+        data: {
+          userId: user.id,
+          deviceSignature: finalDeviceUuid,
+          deviceInfo: deviceInfo || "Web Browser",
+          status: approvedStatus,
+          ipAddress: clientIp,
+          lastAttemptAt: new Date(),
+        },
+      });
+    }
+
+    // If first device ever, also store as user's primary deviceSignature
+    if (isFirstDevice) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          deviceSignature: finalDeviceUuid,
+          deviceLockedAt: new Date(),
+        },
+      });
+    }
+
     // Build a signed JWT that the login page can use with NextAuth signIn
     const secret = process.env.NEXTAUTH_SECRET;
     if (!secret) {
@@ -156,23 +232,11 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({
       status: "SUCCESS",
       verifiedToken,
+      deviceUuid: finalDeviceUuid,
     });
 
-    // If student checked "Trust this browser for 30 days"
-    if (trustDevice) {
-      const { createTrustedDeviceToken, TRUSTED_DEVICE_COOKIE_NAME, THIRTY_DAYS_IN_SECONDS } = await import("@/lib/trustedDevice");
-      const trustedCookieVal = await createTrustedDeviceToken(user.id, deviceSignature);
-
-      response.cookies.set({
-        name: TRUSTED_DEVICE_COOKIE_NAME,
-        value: trustedCookieVal,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        maxAge: THIRTY_DAYS_IN_SECONDS, // 30 Days
-      });
-    }
+    // Set persistent 1-year device UUID cookie + (optional) 30-day trusted device cookie
+    await setDeviceCookies(response, user.id, finalDeviceUuid, trustDevice);
 
     return response;
 
