@@ -11,6 +11,7 @@ import {
   generateDeviceUuid,
   setDeviceCookies,
   DEVICE_UUID_COOKIE_NAME,
+  MAX_REGISTERED_DEVICES_PER_STUDENT,
 } from "@/lib/trustedDevice";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
@@ -165,7 +166,31 @@ export async function POST(req: NextRequest) {
       where: { userId: user.id },
     });
 
-    const isFirstDevice = !user.deviceSignature && existingDevices.length === 0;
+    // Check if this device is already one of the approved devices
+    const isCurrentAlreadyApproved = existingDevices.some(
+      (d) =>
+        (d.status === "PRIMARY" || d.status === "ALLOWED") &&
+        (d.deviceSignature === finalDeviceUuid || (deviceSignature && d.deviceSignature === deviceSignature))
+    );
+
+    const approvedDevices = existingDevices.filter(
+      (d) => d.status === "PRIMARY" || d.status === "ALLOWED"
+    );
+
+    // If attempting to approve a NEW device beyond the maximum allowed limit, reject
+    if (!isCurrentAlreadyApproved && approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT) {
+      logger.security("AUTH_DEVICE_LIMIT_EXCEEDED", `Student ${user.email} exceeded max registered device limit during OTP verify (${approvedDevices.length}/${MAX_REGISTERED_DEVICES_PER_STUDENT})`, {
+        userId: user.id,
+        ip: clientIp,
+      });
+
+      return NextResponse.json({
+        status: "ERROR",
+        message: `Device limit reached. Your account already has the maximum of ${MAX_REGISTERED_DEVICES_PER_STUDENT} active devices registered. Please contact IMHS Support to replace an old device.`,
+      }, { status: 403 });
+    }
+
+    const isFirstDevice = !user.deviceSignature && approvedDevices.length === 0;
     const approvedStatus = isFirstDevice ? "PRIMARY" : "ALLOWED";
 
     // Match existing device by uuid, signature, or pending status

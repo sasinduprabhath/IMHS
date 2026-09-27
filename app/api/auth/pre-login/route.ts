@@ -14,6 +14,7 @@ import {
   verifyTrustedDeviceToken,
   TRUSTED_DEVICE_COOKIE_NAME,
   DEVICE_UUID_COOKIE_NAME,
+  MAX_REGISTERED_DEVICES_PER_STUDENT,
 } from "@/lib/trustedDevice";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
@@ -217,9 +218,49 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. New / Unrecognized / Pending Device:
-    // DO NOT automatically insert BLOCKED!
-    // Instead, record as PENDING and require explicit 2FA Email OTP verification.
+    // 3. New / Unrecognized Device:
+    // Anti-Account-Sharing: Check if the student has reached their maximum allowed registered devices
+    const approvedDevices = studentDevices.filter(
+      (d) => d.status === "PRIMARY" || d.status === "ALLOWED"
+    );
+
+    if (approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT) {
+      const waMessage =
+        `Hello IMHS Support,\n\n` +
+        `*Device Limit Reached (Max ${MAX_REGISTERED_DEVICES_PER_STUDENT} Devices)*\n` +
+        `• Student Name: ${user.name}\n` +
+        `• Email: ${user.email}\n` +
+        `• Reg ID: ${user.studentId || "N/A"}\n` +
+        `• Attempted Device: ${deviceInfo || "New Device"}\n` +
+        `• Request: My account already has ${approvedDevices.length} registered devices. I need to replace an old device with this new device. Please reset or manage my registered devices in the admin panel.`;
+
+      const waLink = `https://wa.me/${SUPPORT_WA_PHONE}?text=${encodeURIComponent(waMessage)}`;
+
+      logger.security("AUTH_DEVICE_LIMIT_EXCEEDED", `Student ${user.email} exceeded max registered device limit (${approvedDevices.length}/${MAX_REGISTERED_DEVICES_PER_STUDENT})`, {
+        userId: user.id,
+        ip: clientIp,
+        details: { deviceInfo },
+      });
+
+      return NextResponse.json(
+        {
+          status: "DEVICE_LOCKED",
+          message:
+            `Device Limit Reached: Your account already has the maximum of ${MAX_REGISTERED_DEVICES_PER_STUDENT} registered devices (e.g. your PC and mobile phone). ` +
+            `To prevent unauthorized account sharing, registering an additional device requires administrator approval. Please click below to request device replacement via WhatsApp.`,
+          waLink,
+          studentInfo: {
+            name: user.name,
+            email: user.email,
+            regId: user.studentId,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    // Device count is within allowed limit (< MAX_REGISTERED_DEVICES_PER_STUDENT)
+    // Record as PENDING and require explicit 2FA Email OTP verification.
     const effectiveSignature = incomingDeviceUuid || deviceSignature;
     if (!currentDeviceRecord && effectiveSignature) {
       await prisma.studentDevice.create({

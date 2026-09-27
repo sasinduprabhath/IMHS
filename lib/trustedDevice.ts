@@ -8,6 +8,13 @@ export const ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 export const TRUSTED_DEVICE_COOKIE_NAME = "imhs_trusted_device";
 export const THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60;
 
+/**
+ * Maximum authorized devices a student can bind to their account.
+ * Standard educational tier: 2 devices (e.g. 1 PC/Laptop + 1 Smartphone/Tablet).
+ * Any additional device login is blocked to stop account sharing.
+ */
+export const MAX_REGISTERED_DEVICES_PER_STUDENT = 2;
+
 function getJwtSecret(): string {
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret) {
