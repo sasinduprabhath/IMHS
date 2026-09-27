@@ -190,42 +190,32 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
-    const isFirstDevice = !user.deviceSignature && approvedDevices.length === 0;
-    const approvedStatus = isFirstDevice ? "PRIMARY" : "ALLOWED";
-
-    // Match existing device by uuid, signature, or pending status
-    const matchingRecord = existingDevices.find((d) =>
-      d.deviceSignature === finalDeviceUuid ||
-      (deviceSignature && d.deviceSignature === deviceSignature) ||
-      d.status === "PENDING"
+    // Check if user has a legacy primary device (old canvas fingerprint without 'dev_' prefix)
+    const legacyPrimaryDevice = existingDevices.find(
+      (d) => d.status === "PRIMARY" && !d.deviceSignature.startsWith("dev_")
     );
 
-    if (matchingRecord) {
+    // If student is upgrading from a legacy canvas device, upgrade it in-place to the new persistent UUID
+    if (legacyPrimaryDevice && finalDeviceUuid.startsWith("dev_")) {
       await prisma.studentDevice.update({
-        where: { id: matchingRecord.id },
+        where: { id: legacyPrimaryDevice.id },
         data: {
           deviceSignature: finalDeviceUuid,
-          deviceInfo: deviceInfo || matchingRecord.deviceInfo || "Web Browser",
-          status: approvedStatus,
+          deviceInfo: deviceInfo || legacyPrimaryDevice.deviceInfo || "Web Browser",
+          status: "PRIMARY",
           ipAddress: clientIp,
           lastAttemptAt: new Date(),
         },
       });
-    } else {
-      await prisma.studentDevice.create({
-        data: {
-          userId: user.id,
-          deviceSignature: finalDeviceUuid,
-          deviceInfo: deviceInfo || "Web Browser",
-          status: approvedStatus,
-          ipAddress: clientIp,
-          lastAttemptAt: new Date(),
-        },
-      });
-    }
 
-    // If first device ever, also store as user's primary deviceSignature
-    if (isFirstDevice) {
+      // Remove any temporary PENDING record created during pre-login for this session
+      const pendingRecord = existingDevices.find(
+        (d) => d.status === "PENDING" && d.id !== legacyPrimaryDevice.id
+      );
+      if (pendingRecord) {
+        await prisma.studentDevice.delete({ where: { id: pendingRecord.id } }).catch(() => {});
+      }
+
       await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -233,6 +223,51 @@ export async function POST(req: NextRequest) {
           deviceLockedAt: new Date(),
         },
       });
+    } else {
+      const isFirstDevice = !user.deviceSignature && approvedDevices.length === 0;
+      const approvedStatus = isFirstDevice ? "PRIMARY" : "ALLOWED";
+
+      // Match existing device by uuid, signature, or pending status
+      const matchingRecord = existingDevices.find((d) =>
+        d.deviceSignature === finalDeviceUuid ||
+        (deviceSignature && d.deviceSignature === deviceSignature) ||
+        d.status === "PENDING"
+      );
+
+      if (matchingRecord) {
+        await prisma.studentDevice.update({
+          where: { id: matchingRecord.id },
+          data: {
+            deviceSignature: finalDeviceUuid,
+            deviceInfo: deviceInfo || matchingRecord.deviceInfo || "Web Browser",
+            status: approvedStatus,
+            ipAddress: clientIp,
+            lastAttemptAt: new Date(),
+          },
+        });
+      } else {
+        await prisma.studentDevice.create({
+          data: {
+            userId: user.id,
+            deviceSignature: finalDeviceUuid,
+            deviceInfo: deviceInfo || "Web Browser",
+            status: approvedStatus,
+            ipAddress: clientIp,
+            lastAttemptAt: new Date(),
+          },
+        });
+      }
+
+      // If first device ever, also store as user's primary deviceSignature
+      if (isFirstDevice) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            deviceSignature: finalDeviceUuid,
+            deviceLockedAt: new Date(),
+          },
+        });
+      }
     }
 
     // Build a signed JWT that the login page can use with NextAuth signIn
