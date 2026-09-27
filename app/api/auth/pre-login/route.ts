@@ -224,7 +224,20 @@ export async function POST(req: NextRequest) {
       (d) => d.status === "PRIMARY" || d.status === "ALLOWED"
     );
 
-    if (approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT) {
+    // Differentiate modern persistent UUID devices from old legacy canvas-hash duplicates
+    const modernApprovedDevices = approvedDevices.filter((d) =>
+      d.deviceSignature.startsWith("dev_")
+    );
+
+    // A student has reached their limit if:
+    // 1. They have MAX_REGISTERED_DEVICES_PER_STUDENT modern persistent devices, OR
+    // 2. They already have >= MAX_REGISTERED_DEVICES_PER_STUDENT approved devices AND at least one is already modern.
+    // (If all existing approved devices are legacy duplicates created by the old canvas bug, allow them to transition via 2FA OTP).
+    const hasReachedLimit =
+      modernApprovedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT ||
+      (approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT && modernApprovedDevices.length > 0);
+
+    if (hasReachedLimit) {
       const waMessage =
         `Hello IMHS Support,\n\n` +
         `*Device Limit Reached (Max ${MAX_REGISTERED_DEVICES_PER_STUDENT} Devices)*\n` +

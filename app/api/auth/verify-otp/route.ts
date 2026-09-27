@@ -177,8 +177,16 @@ export async function POST(req: NextRequest) {
       (d) => d.status === "PRIMARY" || d.status === "ALLOWED"
     );
 
+    const modernApprovedDevices = approvedDevices.filter((d) =>
+      d.deviceSignature.startsWith("dev_")
+    );
+
+    const hasReachedLimit =
+      modernApprovedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT ||
+      (approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT && modernApprovedDevices.length > 0);
+
     // If attempting to approve a NEW device beyond the maximum allowed limit, reject
-    if (!isCurrentAlreadyApproved && approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT) {
+    if (!isCurrentAlreadyApproved && hasReachedLimit) {
       logger.security("AUTH_DEVICE_LIMIT_EXCEEDED", `Student ${user.email} exceeded max registered device limit during OTP verify (${approvedDevices.length}/${MAX_REGISTERED_DEVICES_PER_STUDENT})`, {
         userId: user.id,
         ip: clientIp,
@@ -190,31 +198,32 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
-    // Check if user has a legacy primary device (old canvas fingerprint without 'dev_' prefix)
-    const legacyPrimaryDevice = existingDevices.find(
-      (d) => d.status === "PRIMARY" && !d.deviceSignature.startsWith("dev_")
+    // Check if user has legacy records (old canvas fingerprints without 'dev_' prefix)
+    const hasLegacyRecords = existingDevices.some(
+      (d) => !d.deviceSignature.startsWith("dev_")
     );
 
-    // If student is upgrading from a legacy canvas device, upgrade it in-place to the new persistent UUID
-    if (legacyPrimaryDevice && finalDeviceUuid.startsWith("dev_")) {
-      await prisma.studentDevice.update({
-        where: { id: legacyPrimaryDevice.id },
+    // If student has legacy records and no modern UUID devices yet:
+    // This is an existing student's first login under the new system!
+    // Auto-clean the legacy duplicates created by the old canvas bug, and establish this clean device as PRIMARY.
+    if (hasLegacyRecords && modernApprovedDevices.length === 0 && finalDeviceUuid.startsWith("dev_")) {
+      await prisma.studentDevice.deleteMany({
+        where: {
+          userId: user.id,
+          NOT: { deviceSignature: { startsWith: "dev_" } },
+        },
+      });
+
+      await prisma.studentDevice.create({
         data: {
+          userId: user.id,
           deviceSignature: finalDeviceUuid,
-          deviceInfo: deviceInfo || legacyPrimaryDevice.deviceInfo || "Web Browser",
+          deviceInfo: deviceInfo || "Primary Device",
           status: "PRIMARY",
           ipAddress: clientIp,
           lastAttemptAt: new Date(),
         },
       });
-
-      // Remove any temporary PENDING record created during pre-login for this session
-      const pendingRecord = existingDevices.find(
-        (d) => d.status === "PENDING" && d.id !== legacyPrimaryDevice.id
-      );
-      if (pendingRecord) {
-        await prisma.studentDevice.delete({ where: { id: pendingRecord.id } }).catch(() => {});
-      }
 
       await prisma.user.update({
         where: { id: user.id },
