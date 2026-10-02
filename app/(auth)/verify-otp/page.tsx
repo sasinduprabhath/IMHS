@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import {
   ShieldCheck, Mail, RefreshCw, AlertCircle, CheckCircle2,
-  MessageSquare, ArrowLeft, Clock, Clipboard, Sparkles,
+  MessageSquare, ArrowLeft, Clock, Clipboard,
 } from "lucide-react";
 import { collectDeviceSignature } from "@/lib/clientDevice";
 
@@ -39,14 +39,12 @@ function OtpForm() {
   const [secondsLeft, setSecondsLeft] = useState(600);
   const [resendCooldown, setResendCooldown] = useState(60);
 
-  // Device client collection & Instant Admin Approval
+  // Device client collection
   const [clientDev, setClientDev] = useState<{ hash: string; info: string; deviceUuid: string }>({
     hash: "",
     info: "",
     deviceUuid: urlDeviceUuid,
   });
-  const [isCheckingApproval, setIsCheckingApproval] = useState(false);
-  const [adminApprovalMsg, setAdminApprovalMsg] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -141,13 +139,9 @@ function OtpForm() {
     router.refresh();
   }, [router]);
 
-  // Check if admin approved this device in the admin panel
-  const checkApproval = useCallback(async (isManual: boolean = false) => {
+  // Check if admin approved this device in the admin panel (silent background check)
+  const checkApproval = useCallback(async () => {
     if (!pendingUserId || status === "loading" || status === "success") return;
-    if (isManual) {
-      setIsCheckingApproval(true);
-      setAdminApprovalMsg(null);
-    }
 
     try {
       let storedUuid = clientDev.deviceUuid;
@@ -172,28 +166,19 @@ function OtpForm() {
 
       const data = await res.json();
       if (data.status === "SUCCESS") {
-        setAdminApprovalMsg("✓ Device approved by Admin! Redirecting to dashboard…");
         await completeLogin(data.verifiedToken, data.deviceUuid);
-      } else if (isManual) {
-        setAdminApprovalMsg("Awaiting admin approval. Once your administrator clicks 'Approve', this screen will automatically sign you in.");
-        setTimeout(() => setAdminApprovalMsg(null), 6000);
       }
     } catch {
-      if (isManual) {
-        setAdminApprovalMsg("Connection check failed. Please try again.");
-        setTimeout(() => setAdminApprovalMsg(null), 4000);
-      }
-    } finally {
-      if (isManual) setIsCheckingApproval(false);
+      // Silent fail in background poll
     }
   }, [pendingUserId, status, clientDev, trustDevice, completeLogin]);
 
-  // Background polling for instant admin approval (polls every 3.5 seconds)
+  // Background polling for instant admin approval (polls silently every 3.5 seconds)
   useEffect(() => {
     if (!pendingUserId || status === "loading" || status === "success" || secondsLeft <= 0) return;
 
     const timer = setInterval(() => {
-      checkApproval(false);
+      checkApproval();
     }, 3500);
 
     return () => clearInterval(timer);
@@ -405,36 +390,6 @@ function OtpForm() {
             Log in directly with Email &amp; Password on this browser for the next 30 days without entering an OTP code.
           </span>
         </label>
-      </div>
-
-      {/* ── Instant Admin Approval Auto-Sync Card ── */}
-      <div className="bg-gradient-to-br from-blue-50/70 via-sky-50/40 to-slate-50 border border-blue-200/80 rounded-2xl p-3.5 text-center space-y-2 shadow-2xs">
-        <div className="flex items-center justify-center gap-2 text-xs font-bold text-[#0E57A4]">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0E57A4]"></span>
-          </span>
-          <span>Instant Admin Approval Active</span>
-        </div>
-        <p className="text-[11px] text-slate-600 leading-tight max-w-xs mx-auto">
-          If your administrator approves your device in the admin panel, this page will automatically log you in without requiring an email OTP code.
-        </p>
-        <div className="flex justify-center pt-0.5">
-          <button
-            type="button"
-            onClick={() => checkApproval(true)}
-            disabled={isCheckingApproval || status === "loading" || status === "success"}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0E57A4] bg-white hover:bg-blue-50 border border-blue-200 transition-all shadow-2xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3 h-3 ${isCheckingApproval ? "animate-spin" : ""}`} />
-            {isCheckingApproval ? "Checking approval…" : "Check Admin Approval Now"}
-          </button>
-        </div>
-        {adminApprovalMsg && (
-          <p className="text-[11px] font-medium text-[#0E57A4] pt-1">
-            {adminApprovalMsg}
-          </p>
-        )}
       </div>
 
       {/* Attempts remaining indicator */}
