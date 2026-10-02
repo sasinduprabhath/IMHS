@@ -18,11 +18,18 @@ import { z } from "zod";
 
 const verifyOtpSchema = z.object({
   pendingUserId: z.string().min(1, "User ID is required").max(50, "User ID too long"),
-  otp: z.string().regex(/^\d{6}$/, "Verification code must be exactly 6 digits"),
+  otp: z.string().optional().default(""),
   trustDevice: z.boolean().optional().default(false),
   deviceSignature: z.string().max(100).optional().default(""),
   deviceUuid: z.string().max(100).optional().default(""),
   deviceInfo: z.string().max(200).optional().default(""),
+  checkAdminApproval: z.boolean().optional().default(false),
+}).refine((data) => {
+  if (data.checkAdminApproval) return true;
+  return /^\d{6}$/.test(data.otp);
+}, {
+  message: "Verification code must be exactly 6 digits",
+  path: ["otp"],
 });
 
 export async function POST(req: NextRequest) {
@@ -44,6 +51,7 @@ export async function POST(req: NextRequest) {
       deviceSignature,
       deviceUuid: rawDeviceUuid,
       deviceInfo,
+      checkAdminApproval,
     } = parsed.data;
 
     // Resolve device UUID from payload, cookie, or generate new
@@ -51,6 +59,211 @@ export async function POST(req: NextRequest) {
     let finalDeviceUuid = rawDeviceUuid || cookieUuid || "";
     if (!finalDeviceUuid || !finalDeviceUuid.startsWith("dev_")) {
       finalDeviceUuid = generateDeviceUuid();
+    }
+
+    // ── Mode 1: Check Admin Approval (Polling or manual check) ───────────
+    if (checkAdminApproval) {
+      const pollLimit = checkRateLimit(`auth:otp-approval:ip:${clientIp}`, 60, 60000);
+      if (!pollLimit.success) {
+        return NextResponse.json({
+          status: "ERROR",
+          message: "Polling too fast. Please wait a moment.",
+        }, { status: 429 });
+      }
+
+      const user = await prisma.user.findUnique({ where: { id: pendingUserId } });
+      if (!user) {
+        return NextResponse.json({
+          status: "ERROR",
+          message: "User session expired. Please log in again.",
+        }, { status: 400 });
+      }
+
+      // Confirm device is not explicitly BLOCKED by admin
+      const blockedDevice = await prisma.studentDevice.findFirst({
+        where: {
+          userId: user.id,
+          status: "BLOCKED",
+          OR: [
+            { deviceSignature: finalDeviceUuid },
+            ...(deviceSignature ? [{ deviceSignature }] : []),
+          ],
+        },
+      });
+      if (blockedDevice) {
+        return NextResponse.json({
+          status: "ERROR",
+          message: "Access Denied: This device has been locked by administration.",
+        }, { status: 403 });
+      }
+
+      // Check if device is approved as PRIMARY or ALLOWED
+      const approvedDevice = await prisma.studentDevice.findFirst({
+        where: {
+          userId: user.id,
+          status: { in: ["PRIMARY", "ALLOWED"] },
+          OR: [
+            { deviceSignature: finalDeviceUuid },
+            ...(deviceSignature ? [{ deviceSignature }] : []),
+          ],
+        },
+      });
+
+      const isApproved =
+        !!approvedDevice ||
+        (user.deviceSignature && (user.deviceSignature === finalDeviceUuid || user.deviceSignature === deviceSignature));
+
+      if (isApproved) {
+        // Clear pending OTP from user
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { otpCode: null, otpExpiry: null, otpAttempts: 0 },
+        });
+
+        if (approvedDevice) {
+          await prisma.studentDevice.update({
+            where: { id: approvedDevice.id },
+            data: {
+              deviceSignature: approvedDevice.deviceSignature.startsWith("dev_")
+                ? approvedDevice.deviceSignature
+                : finalDeviceUuid,
+              lastAttemptAt: new Date(),
+              ipAddress: clientIp,
+              deviceInfo: deviceInfo || approvedDevice.deviceInfo,
+            },
+          });
+        }
+
+        const secret = process.env.NEXTAUTH_SECRET;
+        if (!secret) {
+          throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
+        }
+        const verifiedToken = await encode({
+          token: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            phone: user.phone,
+            studentId: user.studentId,
+            otpVerified: true,
+            exp: Math.floor(Date.now() / 1000) + 5 * 60,
+          },
+          secret,
+        });
+
+        logger.security("AUTH_LOGIN_SUCCESS", `Device approved by admin logged in without OTP for ${user.email}`, {
+          userId: user.id,
+          ip: clientIp,
+        });
+
+        const response = NextResponse.json({
+          status: "SUCCESS",
+          verifiedToken,
+          deviceUuid: finalDeviceUuid,
+          adminApproved: true,
+        });
+
+        await setDeviceCookies(response, user.id, finalDeviceUuid, true);
+        return response;
+      }
+
+      return NextResponse.json({
+        status: "PENDING_APPROVAL",
+        message: "Awaiting administrator approval in the admin panel.",
+      });
+    }
+
+    // ── Mode 2: Standard OTP Verification ────────────────────────────────
+    const user = await prisma.user.findUnique({ where: { id: pendingUserId } });
+    if (!user) {
+      return NextResponse.json({
+        status: "ERROR",
+        message: "User session expired. Please log in again.",
+      }, { status: 400 });
+    }
+
+    // Confirm device is not explicitly BLOCKED by admin
+    const blockedDevice = await prisma.studentDevice.findFirst({
+      where: {
+        userId: user.id,
+        status: "BLOCKED",
+        OR: [
+          { deviceSignature: finalDeviceUuid },
+          ...(deviceSignature ? [{ deviceSignature }] : []),
+        ],
+      },
+    });
+    if (blockedDevice) {
+      return NextResponse.json({
+        status: "ERROR",
+        message: "Access Denied: This device has been locked by administration.",
+      }, { status: 403 });
+    }
+
+    // If device is already approved by admin, bypass OTP verification immediately!
+    const alreadyApprovedDevice = await prisma.studentDevice.findFirst({
+      where: {
+        userId: user.id,
+        status: { in: ["PRIMARY", "ALLOWED"] },
+        OR: [
+          { deviceSignature: finalDeviceUuid },
+          ...(deviceSignature ? [{ deviceSignature }] : []),
+        ],
+      },
+    });
+
+    const isAlreadyApproved =
+      !!alreadyApprovedDevice ||
+      (user.deviceSignature && (user.deviceSignature === finalDeviceUuid || user.deviceSignature === deviceSignature));
+
+    if (isAlreadyApproved) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { otpCode: null, otpExpiry: null, otpAttempts: 0 },
+      });
+
+      if (alreadyApprovedDevice) {
+        await prisma.studentDevice.update({
+          where: { id: alreadyApprovedDevice.id },
+          data: {
+            deviceSignature: alreadyApprovedDevice.deviceSignature.startsWith("dev_")
+              ? alreadyApprovedDevice.deviceSignature
+              : finalDeviceUuid,
+            lastAttemptAt: new Date(),
+            ipAddress: clientIp,
+            deviceInfo: deviceInfo || alreadyApprovedDevice.deviceInfo,
+          },
+        });
+      }
+
+      const secret = process.env.NEXTAUTH_SECRET;
+      if (!secret) {
+        throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
+      }
+      const verifiedToken = await encode({
+        token: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          phone: user.phone,
+          studentId: user.studentId,
+          otpVerified: true,
+          exp: Math.floor(Date.now() / 1000) + 5 * 60,
+        },
+        secret,
+      });
+
+      const response = NextResponse.json({
+        status: "SUCCESS",
+        verifiedToken,
+        deviceUuid: finalDeviceUuid,
+        adminApproved: true,
+      });
+
+      await setDeviceCookies(response, user.id, finalDeviceUuid, trustDevice);
+      return response;
     }
 
     // IP-level OTP rate limiting
@@ -73,31 +286,11 @@ export async function POST(req: NextRequest) {
       }, { status: 429 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: pendingUserId } });
-
-    if (!user || !user.otpCode || !user.otpExpiry) {
+    if (!user.otpCode || !user.otpExpiry) {
       return NextResponse.json({
         status: "ERROR",
         message: "Verification code not found or already used. Please log in again.",
       }, { status: 400 });
-    }
-
-    // Confirm device is not explicitly BLOCKED by admin
-    const blockedDevice = await prisma.studentDevice.findFirst({
-      where: {
-        userId: user.id,
-        status: "BLOCKED",
-        OR: [
-          { deviceSignature: finalDeviceUuid },
-          ...(deviceSignature ? [{ deviceSignature }] : []),
-        ],
-      },
-    });
-    if (blockedDevice) {
-      return NextResponse.json({
-        status: "ERROR",
-        message: "Access Denied: This device has been locked by administration.",
-      }, { status: 403 });
     }
 
     // Check expiry

@@ -8,6 +8,7 @@ const testSuites = [
   { name: "Input Validation & Sanitization", script: "scripts/test-validation.ts" },
   { name: "Server-Side Rate Limiting", script: "scripts/test-rate-limit.ts" },
   { name: "AES-256-GCM Field Encryption", script: "scripts/test-encryption.ts" },
+  { name: "Instant Admin Approval & Device 2FA Bypass", script: "scripts/test-admin-approval.ts" },
 ];
 
 console.log("================================================================================");

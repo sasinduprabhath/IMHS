@@ -15,6 +15,8 @@ import {
   TRUSTED_DEVICE_COOKIE_NAME,
   DEVICE_UUID_COOKIE_NAME,
   MAX_REGISTERED_DEVICES_PER_STUDENT,
+  generateDeviceUuid,
+  setDeviceCookies,
 } from "@/lib/trustedDevice";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
@@ -173,10 +175,22 @@ export async function POST(req: NextRequest) {
       (user.deviceSignature && (user.deviceSignature === incomingDeviceUuid || user.deviceSignature === deviceSignature));
 
     if (isApprovedDevice) {
+      let boundUuid = incomingDeviceUuid;
+      if (!boundUuid || !boundUuid.startsWith("dev_")) {
+        if (currentDeviceRecord && currentDeviceRecord.deviceSignature.startsWith("dev_")) {
+          boundUuid = currentDeviceRecord.deviceSignature;
+        } else {
+          boundUuid = generateDeviceUuid();
+        }
+      }
+
       if (currentDeviceRecord) {
         await prisma.studentDevice.update({
           where: { id: currentDeviceRecord.id },
           data: {
+            deviceSignature: currentDeviceRecord.deviceSignature.startsWith("dev_")
+              ? currentDeviceRecord.deviceSignature
+              : boundUuid,
             lastAttemptAt: new Date(),
             ipAddress: clientIp,
             deviceInfo: deviceInfo || currentDeviceRecord.deviceInfo,
@@ -184,38 +198,38 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Check 30-day trusted cookie ONLY AFTER confirming device is authorized
-      const trustedCookie = req.cookies.get(TRUSTED_DEVICE_COOKIE_NAME)?.value;
-      if (trustedCookie) {
-        const candidateIds = [incomingDeviceUuid, deviceSignature].filter(Boolean);
-        const isTrusted = await verifyTrustedDeviceToken(trustedCookie, user.id, candidateIds);
-        if (isTrusted) {
-          logger.security("AUTH_LOGIN_SUCCESS", `30-day trusted device recognized for ${user.email}`, { userId: user.id, ip: clientIp });
-          const secret = process.env.NEXTAUTH_SECRET;
-          if (!secret) {
-            throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
-          }
-          const verifiedToken = await encode({
-            token: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role,
-              phone: user.phone,
-              studentId: user.studentId,
-              otpVerified: true,
-              exp: Math.floor(Date.now() / 1000) + 5 * 60,
-            },
-            secret,
-          });
+      logger.security("AUTH_LOGIN_SUCCESS", `Authorized device logged in for ${user.email}`, {
+        userId: user.id,
+        ip: clientIp,
+      });
 
-          return NextResponse.json({
-            status: "TRUSTED_DEVICE_BYPASS",
-            verifiedToken,
-            deviceUuid: incomingDeviceUuid || (currentDeviceRecord?.deviceSignature.startsWith("dev_") ? currentDeviceRecord.deviceSignature : undefined),
-          });
-        }
+      const secret = process.env.NEXTAUTH_SECRET;
+      if (!secret) {
+        throw new Error("CRITICAL SECURITY ERROR: NEXTAUTH_SECRET is not configured.");
       }
+      const verifiedToken = await encode({
+        token: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          phone: user.phone,
+          studentId: user.studentId,
+          otpVerified: true,
+          exp: Math.floor(Date.now() / 1000) + 5 * 60,
+        },
+        secret,
+      });
+
+      const res = NextResponse.json({
+        status: "TRUSTED_DEVICE_BYPASS",
+        verifiedToken,
+        deviceUuid: boundUuid,
+      });
+
+      // Issue 1-year UUID and 30-day trusted cookie so this browser stays authorized
+      await setDeviceCookies(res, user.id, boundUuid, true);
+      return res;
     }
 
     // 3. New / Unrecognized Device:
@@ -273,28 +287,38 @@ export async function POST(req: NextRequest) {
     }
 
     // Device count is within allowed limit (< MAX_REGISTERED_DEVICES_PER_STUDENT)
-    // Record as PENDING and require explicit 2FA Email OTP verification.
-    const effectiveSignature = incomingDeviceUuid || deviceSignature;
-    if (!currentDeviceRecord && effectiveSignature) {
+    // Record as PENDING and require explicit 2FA Email OTP verification (or instant Admin Approval).
+    let finalDeviceUuid = incomingDeviceUuid;
+    if (!finalDeviceUuid || !finalDeviceUuid.startsWith("dev_")) {
+      finalDeviceUuid = generateDeviceUuid();
+    }
+
+    if (!currentDeviceRecord) {
       await prisma.studentDevice.create({
         data: {
           userId: user.id,
-          deviceSignature: effectiveSignature,
+          deviceSignature: finalDeviceUuid,
           deviceInfo: deviceInfo || "Web Browser",
           status: "PENDING",
           ipAddress: clientIp,
           lastAttemptAt: new Date(),
         },
       });
-    } else if (currentDeviceRecord && currentDeviceRecord.status === "PENDING") {
+    } else if (currentDeviceRecord.status === "PENDING") {
       await prisma.studentDevice.update({
         where: { id: currentDeviceRecord.id },
         data: {
+          deviceSignature: currentDeviceRecord.deviceSignature.startsWith("dev_")
+            ? currentDeviceRecord.deviceSignature
+            : finalDeviceUuid,
           lastAttemptAt: new Date(),
           ipAddress: clientIp,
           deviceInfo: deviceInfo || currentDeviceRecord.deviceInfo,
         },
       });
+      if (currentDeviceRecord.deviceSignature.startsWith("dev_")) {
+        finalDeviceUuid = currentDeviceRecord.deviceSignature;
+      }
     }
 
     // ── Generate & send OTP ────────────────────────────────────────────
@@ -342,12 +366,17 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       status: "OTP_SENT",
       maskedEmail: maskEmail(user.email),
       pendingUserId: user.id,
+      deviceUuid: finalDeviceUuid,
       expiresAt: expiry.toISOString(),
     });
+
+    // Seed the 1-year device UUID cookie immediately so all subsequent OTP verification and approval calls match
+    await setDeviceCookies(res, user.id, finalDeviceUuid, false);
+    return res;
 
   } catch (err) {
     console.error("[pre-login] Unexpected error:", err);
