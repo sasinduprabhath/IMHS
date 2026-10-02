@@ -578,6 +578,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                   {devices.map((dev) => {
                     const isPrimary = dev.status === "PRIMARY";
                     const isAllowed = dev.status === "ALLOWED";
+                    const isPending = dev.status === "PENDING";
                     const isBlocked = dev.status === "BLOCKED";
 
                     return (
@@ -597,9 +598,13 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                             <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
                               ✓ AUTHORIZED
                             </span>
+                          ) : isPending ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full" title="Student was sent an Email OTP and has not entered the code yet">
+                              ⏳ AWAITING 2FA OTP
+                            </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
-                              ⚠ BLOCKED ATTEMPT
+                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full">
+                              🛑 BLOCKED
                             </span>
                           )}
                         </td>
