@@ -57,10 +57,17 @@ export async function PATCH(
   }
 
   if (action === "MAKE_PRIMARY" || action === "APPROVE") {
-    const newStatus = action === "MAKE_PRIMARY" ? "PRIMARY" : "ALLOWED";
+    // Check if the student currently has a PRIMARY device
+    const existingPrimary = await prisma.studentDevice.findFirst({
+      where: { userId: id, status: "PRIMARY" },
+    });
+
+    // If making primary explicitly, OR if student has no primary device yet, make this PRIMARY
+    const isPrimaryAction = action === "MAKE_PRIMARY" || !existingPrimary;
+    const newStatus = isPrimaryAction ? "PRIMARY" : "ALLOWED";
     
     // If making primary, set user's primary deviceSignature
-    if (action === "MAKE_PRIMARY") {
+    if (isPrimaryAction) {
       // Set all other devices to ALLOWED if they were PRIMARY
       await prisma.studentDevice.updateMany({
         where: { userId: id, status: "PRIMARY" },
@@ -83,7 +90,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: `Device successfully ${action === "MAKE_PRIMARY" ? "set as primary" : "approved"}. Student can now log in from this device.`,
+      message: `Device successfully ${isPrimaryAction ? "set as primary" : "approved"}. Student can now log in from this device.`,
     });
   }
 
