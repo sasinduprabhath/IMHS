@@ -27,6 +27,7 @@ import {
   FileCheck as FileCheckIcon,
   ExternalLink as ExternalLinkIcon,
   Play as PlayIcon,
+  RotateCcw as RotateCcwIcon,
 } from "lucide-react";
 import { StudentAssignmentsClient } from "@/components/student/StudentAssignmentsClient";
 import { ModuleAssessmentActivity } from "@/components/student/practice/ModuleAssessmentActivity";
@@ -127,6 +128,7 @@ function CoursePlayerContent({
     new Set(initialCompletedLessonIds)
   );
   const [isUpdating, setIsUpdating] = useState(false);
+  const [playerKey, setPlayerKey] = useState(0);
 
   // End-of-Course Assessment State
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
@@ -385,6 +387,7 @@ function CoursePlayerContent({
                   className="bg-black aspect-video relative select-none group/player"
                 >
                   <iframe
+                    key={playerKey}
                     src={getVimeoEmbedUrl(currentLesson.vimeoVideoId)}
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
@@ -392,6 +395,22 @@ function CoursePlayerContent({
                     className="w-full h-full border-0"
                     title="Protected Clinical Stream"
                   />
+                </div>
+                {/* Stream Health & One-Click Reconnect Bar */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-4 sm:px-5 py-2.5 bg-slate-50 border-t border-chart-grid text-[11px] font-sans text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span>Stream paused or interrupted by network drop? Click <strong>Reload Player</strong> to reconnect.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPlayerKey((k) => k + 1)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 text-[#0E57A4] font-semibold hover:bg-slate-100 transition-all shadow-2xs text-[11px] cursor-pointer shrink-0"
+                    title="Re-establish video connection without reloading the entire page"
+                  >
+                    <RotateCcwIcon className="w-3 h-3" />
+                    Reload Player
+                  </button>
                 </div>
               </div>
             )}
