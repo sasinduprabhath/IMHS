@@ -961,13 +961,12 @@ function CoursePlayerContent({
               <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0E57A4] bg-[#EBF3FA] px-3 py-1 rounded-full border border-[#0E57A4]/20">
                 End-of-Course Module Assessment
               </span>
-              {isAllLessonsCompleted ? (
-                <span className="text-[10px] font-mono font-bold uppercase text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
-                  <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-600" /> Assessment Unlocked
-                </span>
-              ) : (
-                <span className="text-[10px] font-mono font-bold uppercase text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1">
-                  <LockIcon className="w-3.5 h-3.5 text-amber-600" /> Locked until lessons complete
+              <span className="text-[10px] font-mono font-bold uppercase text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
+                <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-600" /> Assessment Available
+              </span>
+              {isAllLessonsCompleted && (
+                <span className="text-[10px] font-mono font-bold uppercase text-blue-800 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  100% Course Completed
                 </span>
               )}
             </div>
@@ -975,30 +974,18 @@ function CoursePlayerContent({
               Course Final Assessment
             </h2>
             <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
-              {isAllLessonsCompleted
-                ? "You have completed 100% of the lessons in this course! You are now eligible to take the End-of-Course Module Assessment."
-                : `Complete all ${allLessons.length} lessons in this course to unlock the End-of-Course Module Assessment. Current Progress: ${completedLessonIds.size}/${allLessons.length} completed.`}
+              Test your clinical competence and knowledge on this course with the End-of-Course Module Assessment.
             </p>
           </div>
 
           <div className="shrink-0">
-            {isAllLessonsCompleted ? (
-              <Link
-                href={`/dashboard/courses/${course.slug}/assessment`}
-                className="px-6 py-3 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-105 active:scale-95 flex items-center gap-2 inline-flex"
-              >
-                <ClipboardList className="w-4 h-4" />
-                Start End-of-Course Assessment
-              </Link>
-            ) : (
-              <button
-                disabled
-                className="px-6 py-3 rounded-2xl bg-slate-200 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-2"
-              >
-                <LockIcon className="w-4 h-4" />
-                Locked ({allLessons.length - completedLessonIds.size} lessons remaining)
-              </button>
-            )}
+            <Link
+              href={`/dashboard/courses/${course.slug}/assessment`}
+              className="px-6 py-3 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-105 active:scale-95 flex items-center gap-2 inline-flex"
+            >
+              <ClipboardList className="w-4 h-4" />
+              Start End-of-Course Assessment
+            </Link>
           </div>
         </div>
 
@@ -1014,14 +1001,12 @@ function CoursePlayerContent({
                 </p>
               </div>
             </div>
-            {isAllLessonsCompleted && (
-              <Link
-                href={`/dashboard/courses/${course.slug}/assessment`}
-                className="text-xs font-bold text-[#0E57A4] hover:underline font-mono"
-              >
-                Retake Assessment
-              </Link>
-            )}
+            <Link
+              href={`/dashboard/courses/${course.slug}/assessment`}
+              className="text-xs font-bold text-[#0E57A4] hover:underline font-mono"
+            >
+              Retake Assessment
+            </Link>
           </div>
         )}
       </div>

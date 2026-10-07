@@ -62,22 +62,6 @@ export default async function CourseAssessmentFullPage({
     }
   }
 
-  const allLessons = course.chapters.flatMap((ch) => ch.lessons);
-
-  // Fetch completed lessons for this student
-  const progressRecords = await prisma.lessonProgress.findMany({
-    where: { userId },
-    select: { lessonId: true },
-  });
-
-  const completedSet = new Set(progressRecords.map((p) => p.lessonId));
-  const isUnlocked = allLessons.length > 0 && allLessons.every((l) => completedSet.has(l.id));
-
-  // Gate check: If lessons incomplete, redirect back to course page
-  if (!isUnlocked && session.user.role !== "ADMIN") {
-    redirect(`/dashboard/courses/${slug}?assessmentLocked=true`);
-  }
-
   // Fetch questions assigned to this course
   const questions = await getCourseAssessmentQuestions(course.id);
 
