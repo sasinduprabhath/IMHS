@@ -17,6 +17,16 @@ const nextConfig = {
     "192.168.1.102",
     "*.local",
   ],
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "imhsedu.com",
+        "www.imhsedu.com",
+        "localhost:3020",
+        "localhost:3000",
+      ],
+    },
+  },
   images: {
     remotePatterns: [
       {
