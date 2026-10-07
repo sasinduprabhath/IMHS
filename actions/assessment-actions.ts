@@ -11,19 +11,26 @@ export interface CourseQuestionInput {
   question: string;
   isTrue: boolean;
   explanation?: string;
+  isPublished?: boolean;
 }
 
 /**
  * Fetch questions assigned to a specific course.
+ * If includeUnpublished is false (default for students), only active/published questions are returned.
  * If 0 questions assigned in DB, returns empty array ([]).
  */
-export async function getCourseAssessmentQuestions(courseId: string) {
+export async function getCourseAssessmentQuestions(courseId: string, includeUnpublished = false) {
   try {
     const cleanCourseId = sanitizeIdentifier(courseId, 100);
+    const whereClause: any = { courseId: cleanCourseId };
+    if (!includeUnpublished) {
+      whereClause.isPublished = true;
+    }
+
     const dbQuestions = await prisma.moduleAssessmentQuestion.findMany({
-      where: { courseId: cleanCourseId },
+      where: whereClause,
       orderBy: { createdAt: "asc" },
-      select: { id: true, question: true, isTrue: true, explanation: true },
+      select: { id: true, question: true, isTrue: true, explanation: true, isPublished: true },
     });
 
     if (dbQuestions && dbQuestions.length > 0) {
@@ -34,6 +41,7 @@ export async function getCourseAssessmentQuestions(courseId: string) {
         answer: Boolean(q.isTrue),
         explanation: q.explanation || undefined,
         topic: "Course Assessment",
+        isPublished: Boolean(q.isPublished),
       }));
     }
 
@@ -59,6 +67,7 @@ export async function getAssessmentQuestions(moduleId?: string) {
     answer: q.answer,
     explanation: q.explanation,
     topic: q.topic || "General Pharmacology",
+    isPublished: true,
   }));
 }
 
@@ -82,7 +91,7 @@ export async function getModules() {
  * Helper for bulk importing assessment questions
  */
 export async function bulkImportAssessmentQuestions(
-  questions: Array<{ moduleId?: string; question: string; isTrue: boolean; explanation?: string }>
+  questions: Array<{ moduleId?: string; question: string; isTrue: boolean; explanation?: string; isPublished?: boolean }>
 ): Promise<{ success: boolean; count?: number; error?: string }> {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any)?.role !== "ADMIN") {
@@ -96,6 +105,7 @@ export async function bulkImportAssessmentQuestions(
         question: sanitizeString(q.question, 2000),
         isTrue: Boolean(q.isTrue),
         explanation: q.explanation ? sanitizeString(q.explanation, 2000) : null,
+        isPublished: q.isPublished !== false,
       })),
     });
     return { success: true, count: result.count };
@@ -137,6 +147,7 @@ export async function saveCourseAssessmentQuestions(
         question: sanitizeString(q.question, 2000),
         isTrue: Boolean(q.isTrue),
         explanation: q.explanation ? sanitizeString(q.explanation, 2000) : null,
+        isPublished: q.isPublished !== false,
       })),
     });
 
@@ -144,6 +155,50 @@ export async function saveCourseAssessmentQuestions(
   } catch (error: any) {
     console.error("Error saving course assessment questions:", error);
     throw new Error("Failed to save course assessment questions: " + (error.message || ""));
+  }
+}
+
+/**
+ * Admin Action: Quick 1-click toggle publication status of an existing question in DB
+ */
+export async function toggleCourseQuestionPublish(questionId: string, isPublished: boolean) {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user as any)?.role !== "ADMIN") {
+    throw new Error("Unauthorized: Admin access required.");
+  }
+
+  try {
+    const cleanId = sanitizeIdentifier(questionId, 100);
+    const updated = await prisma.moduleAssessmentQuestion.update({
+      where: { id: cleanId },
+      data: { isPublished: Boolean(isPublished) },
+    });
+    return { success: true, isPublished: updated.isPublished };
+  } catch (error: any) {
+    console.error("Error toggling question publish status:", error);
+    throw new Error("Failed to update question status: " + (error.message || ""));
+  }
+}
+
+/**
+ * Admin Action: Quick bulk publish or disable all questions for a course in DB
+ */
+export async function setAllCourseQuestionsPublish(courseId: string, isPublished: boolean) {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user as any)?.role !== "ADMIN") {
+    throw new Error("Unauthorized: Admin access required.");
+  }
+
+  try {
+    const cleanCourseId = sanitizeIdentifier(courseId, 100);
+    const result = await prisma.moduleAssessmentQuestion.updateMany({
+      where: { courseId: cleanCourseId },
+      data: { isPublished: Boolean(isPublished) },
+    });
+    return { success: true, count: result.count };
+  } catch (error: any) {
+    console.error("Error setting all questions publish status:", error);
+    throw new Error("Failed to update questions: " + (error.message || ""));
   }
 }
 

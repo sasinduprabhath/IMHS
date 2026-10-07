@@ -312,6 +312,7 @@ model ModuleAssessmentQuestion {
   question    String   @db.Text
   isTrue      Boolean
   explanation String?  @db.Text
+  isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

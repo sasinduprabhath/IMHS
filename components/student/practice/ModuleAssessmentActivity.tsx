@@ -244,34 +244,53 @@ export function ModuleAssessmentActivity({
               </div>
             </div>
 
-            <div className="space-y-3 pt-2 max-w-md mx-auto">
-              {resumeState && Object.keys(resumeState.answers).length > 0 ? (
-                <>
-                  <div className="text-xs text-center text-slate-500 font-mono font-bold">
-                    Saved session found - {Object.keys(resumeState.answers).length} of {total} answered
-                  </div>
-                  <button
-                    onClick={resumeSaved}
-                    className="w-full py-3.5 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-[1.01]"
-                  >
-                    Resume Where I Left Off
-                  </button>
+            {total === 0 ? (
+              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 space-y-4 text-center max-w-md mx-auto shadow-2xs">
+                <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-slate-800">Assessment Questions Under Preparation</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    The examination questions for this assessment are currently being prepared or updated by the faculty. Please check back soon or consult your course instructor.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="px-5 py-2.5 rounded-xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ArrowRight className="w-4 h-4 rotate-180" /> Return to Course
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 pt-2 max-w-md mx-auto">
+                {resumeState && Object.keys(resumeState.answers).length > 0 ? (
+                  <>
+                    <div className="text-xs text-center text-slate-500 font-mono font-bold">
+                      Saved session found - {Object.keys(resumeState.answers).length} of {total} answered
+                    </div>
+                    <button
+                      onClick={resumeSaved}
+                      className="w-full py-3.5 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-[1.01]"
+                    >
+                      Resume Where I Left Off
+                    </button>
+                    <button
+                      onClick={startFresh}
+                      className="w-full py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs"
+                    >
+                      Start Fresh
+                    </button>
+                  </>
+                ) : (
                   <button
                     onClick={startFresh}
-                    className="w-full py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs"
+                    className="w-full py-3.5 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-[1.01]"
                   >
-                    Start Fresh
+                    Begin Assessment ({total} Questions)
                   </button>
-                </>
-              ) : (
-                <button
-                  onClick={startFresh}
-                  className="w-full py-3.5 rounded-2xl bg-[#0E57A4] hover:bg-[#0A4482] text-xs font-bold text-white transition-all shadow-md hover:scale-[1.01]"
-                >
-                  Begin Assessment ({total} Questions)
-                </button>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
       </ActivityShell>

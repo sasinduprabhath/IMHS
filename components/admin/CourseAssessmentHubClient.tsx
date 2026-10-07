@@ -28,6 +28,7 @@ interface CourseAssessmentHubClientProps {
     isTrue?: boolean;
     answer?: boolean;
     explanation?: string | null;
+    isPublished?: boolean;
   }>;
   initialResults: AssessmentResultItem[];
 }

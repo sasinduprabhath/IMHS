@@ -31,7 +31,7 @@ export default async function AdminCourseAssessmentPage({
   // Fetch True/False questions for this course
   const assessmentQuestions = await prisma.moduleAssessmentQuestion.findMany({
     where: { courseId: course.id },
-    select: { id: true, question: true, isTrue: true, explanation: true },
+    select: { id: true, question: true, isTrue: true, explanation: true, isPublished: true },
     orderBy: { createdAt: "asc" },
   });
 
@@ -40,6 +40,7 @@ export default async function AdminCourseAssessmentPage({
     question: q.question,
     isTrue: Boolean(q.isTrue),
     explanation: q.explanation || "",
+    isPublished: Boolean(q.isPublished),
   }));
 
   // Fetch student exam results for this course

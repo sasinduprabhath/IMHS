@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   ClipboardList, Plus, Trash2, Save, ArrowLeft, Check, AlertCircle,
   Sparkles, FileUp, Download, Info, Search, Filter, ChevronLeft, ChevronRight,
-  Layers, CheckCircle2, XCircle
+  Layers, CheckCircle2, XCircle, Eye, EyeOff
 } from "lucide-react";
 import { saveCourseAssessmentQuestions, type CourseQuestionInput } from "@/actions/assessment-actions";
 
@@ -19,6 +19,7 @@ interface CourseAssessmentEditorProps {
     isTrue?: boolean;
     answer?: boolean;
     explanation?: string | null;
+    isPublished?: boolean;
   }>;
 }
 
@@ -39,6 +40,7 @@ export function CourseAssessmentEditor({
         question: q.question || q.statement || "",
         isTrue: q.isTrue ?? q.answer ?? true,
         explanation: q.explanation || "",
+        isPublished: q.isPublished ?? true,
       }));
     }
     return [];
@@ -54,6 +56,7 @@ export function CourseAssessmentEditor({
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "true" | "false">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "disabled">("all");
 
   const addQuestion = () => {
     if (questions.length >= MAX_QUESTIONS) {
@@ -67,6 +70,7 @@ export function CourseAssessmentEditor({
         question: "",
         isTrue: true,
         explanation: "",
+        isPublished: true,
       },
     ]);
     // Automatically switch to the last page where the new question is added
@@ -89,7 +93,13 @@ export function CourseAssessmentEditor({
     });
   };
 
+  const publishAllQuestions = () => {
+    setQuestions((prev) => prev.map((q) => ({ ...q, isPublished: true })));
+  };
 
+  const disableAllQuestions = () => {
+    setQuestions((prev) => prev.map((q) => ({ ...q, isPublished: false })));
+  };
 
   const clearAllQuestions = () => {
     if (confirm("Are you sure you want to clear all questions for this course?")) {
@@ -158,7 +168,10 @@ export function CourseAssessmentEditor({
             const boolRaw = (r[1] || "true").toLowerCase().trim();
             const isTrue = ["true", "1", "yes", "t", "y"].includes(boolRaw);
             const explanation = r[2] || "";
-            return { question: statement, isTrue, explanation };
+            // Optional 4th column for publish status (default true)
+            const pubRaw = r[3] !== undefined && r[3] !== "" ? r[3].toLowerCase().trim() : "true";
+            const isPublished = !["false", "0", "no", "disabled", "draft", "f", "n"].includes(pubRaw);
+            return { question: statement, isTrue, explanation, isPublished };
           })
           .filter((q) => q.question.trim().length > 0);
 
@@ -197,11 +210,11 @@ export function CourseAssessmentEditor({
   // ── Download Sample CSV Template ──────────────────────────────────────────
   const downloadSampleCSV = () => {
     const csvContent =
-      `statement,isTrue,explanation\n` +
-      `"Amlodipine is classified as a Calcium Channel Blocker.",TRUE,"Amlodipine belongs to the dihydropyridine subclass of CCBs."\n` +
-      `"Metformin is contraindicated in severe renal impairment.",TRUE,"Metformin can increase the risk of lactic acidosis in kidney impairment."\n` +
-      `"Atorvastatin should be taken with high-fat meals for absorption.",FALSE,"Atorvastatin can be taken with or without food at any time of day."\n` +
-      `"Amoxicillin is a broad-spectrum aminopenicillin antibiotic.",TRUE,"Amoxicillin covers Gram-positive and select Gram-negative organisms."\n`;
+      `statement,isTrue,explanation,isPublished\n` +
+      `"Amlodipine is classified as a Calcium Channel Blocker.",TRUE,"Amlodipine belongs to the dihydropyridine subclass of CCBs.",TRUE\n` +
+      `"Metformin is contraindicated in severe renal impairment.",TRUE,"Metformin can increase the risk of lactic acidosis in kidney impairment.",TRUE\n` +
+      `"Atorvastatin should be taken with high-fat meals for absorption.",FALSE,"Atorvastatin can be taken with or without food at any time of day.",TRUE\n` +
+      `"Amoxicillin is a broad-spectrum aminopenicillin antibiotic.",TRUE,"Amoxicillin covers Gram-positive and select Gram-negative organisms.",FALSE\n`;
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -259,9 +272,11 @@ export function CourseAssessmentEditor({
         }
         if (filterType === "true" && !q.isTrue) return false;
         if (filterType === "false" && q.isTrue) return false;
+        if (statusFilter === "published" && q.isPublished === false) return false;
+        if (statusFilter === "disabled" && q.isPublished !== false) return false;
         return true;
       });
-  }, [questions, searchQuery, filterType]);
+  }, [questions, searchQuery, filterType, statusFilter]);
 
   const totalFiltered = filteredWithOriginalIndex.length;
   const totalPages = Math.ceil(totalFiltered / pageSize) || 1;
@@ -274,6 +289,8 @@ export function CourseAssessmentEditor({
 
   const trueCount = useMemo(() => questions.filter((q) => q.isTrue).length, [questions]);
   const falseCount = useMemo(() => questions.filter((q) => !q.isTrue).length, [questions]);
+  const publishedCount = useMemo(() => questions.filter((q) => q.isPublished !== false).length, [questions]);
+  const disabledCount = useMemo(() => questions.filter((q) => q.isPublished === false).length, [questions]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-16">
@@ -307,8 +324,16 @@ export function CourseAssessmentEditor({
                     ? "bg-red-950/60 text-red-300 border-red-500/30"
                     : "bg-white/10 text-white border-white/20"
                 }`}>
-                  {questions.length} / {MAX_QUESTIONS} Questions Assigned
+                  {questions.length} / {MAX_QUESTIONS} Total
                 </span>
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> {publishedCount} Published
+                </span>
+                {disabledCount > 0 && (
+                  <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/25 text-amber-200 border border-amber-400/40 flex items-center gap-1">
+                    <EyeOff className="w-3 h-3 text-amber-400" /> {disabledCount} Disabled
+                  </span>
+                )}
               </div>
               <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-white mt-1">
                 {courseTitle}
@@ -356,8 +381,6 @@ export function CourseAssessmentEditor({
               <FileUp className="w-4 h-4" /> Import CSV / Excel
             </button>
 
-
-
             <button
               onClick={addQuestion}
               disabled={questions.length >= MAX_QUESTIONS}
@@ -365,6 +388,29 @@ export function CourseAssessmentEditor({
             >
               <Plus className="w-4 h-4" /> Add Question
             </button>
+
+            {/* Quick Bulk Publish / Disable Buttons */}
+            {questions.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  onClick={publishAllQuestions}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5 border border-emerald-400/30"
+                  title="Mark all questions as Published (active for students)"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Publish All
+                </button>
+
+                <button
+                  type="button"
+                  onClick={disableAllQuestions}
+                  className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5 border border-amber-400/30"
+                  title="Mark all questions as Disabled (draft/hidden from students)"
+                >
+                  <EyeOff className="w-3.5 h-3.5 text-amber-400" /> Disable All
+                </button>
+              </>
+            )}
           </div>
 
           {questions.length > 0 && (
@@ -396,7 +442,7 @@ export function CourseAssessmentEditor({
       {saveSuccess && (
         <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 font-semibold">
           <Check className="w-4 h-4 shrink-0 text-emerald-600" />
-          <span>Course assessment questions updated successfully! ({questions.length} saved to database)</span>
+          <span>Course assessment questions updated successfully! ({publishedCount} published, {disabledCount} disabled)</span>
         </div>
       )}
 
@@ -405,7 +451,7 @@ export function CourseAssessmentEditor({
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-xs">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* Search Input */}
-            <div className="relative w-full sm:w-80">
+            <div className="relative w-full sm:w-72">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -428,40 +474,80 @@ export function CourseAssessmentEditor({
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5 text-[#0E57A4]" /> Filter:
-              </span>
-              <button
-                onClick={() => { setFilterType("all"); setCurrentPage(1); }}
-                className={`text-xs font-mono font-bold px-3 py-1 rounded-full border transition ${
-                  filterType === "all"
-                    ? "bg-[#0E57A4] text-white border-[#0E57A4]"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                }`}
-              >
-                All ({questions.length})
-              </button>
-              <button
-                onClick={() => { setFilterType("true"); setCurrentPage(1); }}
-                className={`text-xs font-mono font-bold px-3 py-1 rounded-full border transition ${
-                  filterType === "true"
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "bg-white text-emerald-700 border-slate-200 hover:bg-emerald-50"
-                }`}
-              >
-                TRUE ({trueCount})
-              </button>
-              <button
-                onClick={() => { setFilterType("false"); setCurrentPage(1); }}
-                className={`text-xs font-mono font-bold px-3 py-1 rounded-full border transition ${
-                  filterType === "false"
-                    ? "bg-red-600 text-white border-red-600"
-                    : "bg-white text-red-700 border-slate-200 hover:bg-red-50"
-                }`}
-              >
-                FALSE ({falseCount})
-              </button>
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Publication Status Filters */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
+                  <Eye className="w-3.5 h-3.5 text-[#0E57A4]" /> Status:
+                </span>
+                <button
+                  onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
+                  className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border transition ${
+                    statusFilter === "all"
+                      ? "bg-[#0B192C] text-white border-[#0B192C]"
+                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  All ({questions.length})
+                </button>
+                <button
+                  onClick={() => { setStatusFilter("published"); setCurrentPage(1); }}
+                  className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border transition ${
+                    statusFilter === "published"
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-white text-emerald-700 border-slate-200 hover:bg-emerald-50"
+                  }`}
+                >
+                  Published ({publishedCount})
+                </button>
+                <button
+                  onClick={() => { setStatusFilter("disabled"); setCurrentPage(1); }}
+                  className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border transition ${
+                    statusFilter === "disabled"
+                      ? "bg-amber-600 text-white border-amber-600"
+                      : "bg-white text-amber-700 border-slate-200 hover:bg-amber-50"
+                  }`}
+                >
+                  Disabled ({disabledCount})
+                </button>
+              </div>
+
+              {/* True/False Filters */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5 text-[#0E57A4]" /> Answer:
+                </span>
+                <button
+                  onClick={() => { setFilterType("all"); setCurrentPage(1); }}
+                  className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border transition ${
+                    filterType === "all"
+                      ? "bg-[#0E57A4] text-white border-[#0E57A4]"
+                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => { setFilterType("true"); setCurrentPage(1); }}
+                  className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border transition ${
+                    filterType === "true"
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-white text-emerald-700 border-slate-200 hover:bg-emerald-50"
+                  }`}
+                >
+                  TRUE ({trueCount})
+                </button>
+                <button
+                  onClick={() => { setFilterType("false"); setCurrentPage(1); }}
+                  className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border transition ${
+                    filterType === "false"
+                      ? "bg-red-600 text-white border-red-600"
+                      : "bg-white text-red-700 border-slate-200 hover:bg-red-50"
+                  }`}
+                >
+                  FALSE ({falseCount})
+                </button>
+              </div>
             </div>
 
             {/* Page Size Selector */}
@@ -531,13 +617,26 @@ export function CourseAssessmentEditor({
           paginatedQuestions.map(({ q, originalIndex }) => (
             <div
               key={originalIndex}
-              className="bg-white rounded-2xl border border-slate-200/90 p-5 space-y-4 shadow-2xs hover:shadow-xs hover:border-[#0E57A4]/30 transition-all duration-200"
+              className={`rounded-2xl border p-5 space-y-4 shadow-2xs transition-all duration-200 ${
+                q.isPublished !== false
+                  ? "bg-white border-slate-200/90 hover:shadow-xs hover:border-[#0E57A4]/30"
+                  : "bg-amber-50/20 border-dashed border-amber-300/80 hover:shadow-xs hover:border-amber-400"
+              }`}
             >
               <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-mono font-bold text-[#0E57A4] bg-[#EBF3FA] px-2.5 py-0.5 rounded-md border border-[#0E57A4]/20">
                     Question #{originalIndex + 1}
                   </span>
+                  {q.isPublished === false ? (
+                    <span className="text-[10px] font-mono text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300 font-bold flex items-center gap-1">
+                      <EyeOff className="w-3 h-3 text-amber-600" /> Disabled (Draft)
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md border border-emerald-300 font-bold flex items-center gap-1">
+                      <Check className="w-3 h-3 text-emerald-600" /> Active
+                    </span>
+                  )}
                   {originalIndex >= MAX_QUESTIONS && (
                     <span className="text-[9px] font-mono text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200 font-bold">
                       Exceeds {MAX_QUESTIONS} limit
@@ -545,7 +644,31 @@ export function CourseAssessmentEditor({
                   )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  {/* Publish / Disable Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => updateQuestion(originalIndex, "isPublished", !(q.isPublished !== false))}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
+                      q.isPublished !== false
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                        : "bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100"
+                    }`}
+                    title={q.isPublished !== false ? "Question is Active. Click to Disable (hide from students)." : "Question is Disabled. Click to Publish (show to students)."}
+                  >
+                    {q.isPublished !== false ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Published</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Disabled</span>
+                      </>
+                    )}
+                  </button>
+
                   {/* True / False Select */}
                   <div className="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
                     <button
