@@ -22,7 +22,7 @@ interface CourseAssessmentEditorProps {
   }>;
 }
 
-const MAX_QUESTIONS = 100;
+const MAX_QUESTIONS = 200;
 
 export function CourseAssessmentEditor({
   courseId,
@@ -467,7 +467,7 @@ export function CourseAssessmentEditor({
             {/* Page Size Selector */}
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-xs font-mono text-slate-500">Per page:</span>
-              {[10, 20, 50, 100].map((size) => (
+              {[10, 25, 50, 100, 200].map((size) => (
                 <button
                   key={size}
                   onClick={() => {
@@ -540,7 +540,7 @@ export function CourseAssessmentEditor({
                   </span>
                   {originalIndex >= MAX_QUESTIONS && (
                     <span className="text-[9px] font-mono text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200 font-bold">
-                      Exceeds 100 limit
+                      Exceeds {MAX_QUESTIONS} limit
                     </span>
                   )}
                 </div>

@@ -119,7 +119,8 @@ export async function saveCourseAssessmentQuestions(
 
   try {
     const cleanCourseId = sanitizeIdentifier(courseId, 100);
-    const targetQuestions = (questions || []).slice(0, 100);
+    const MAX_COURSE_QUESTIONS = 200;
+    const targetQuestions = (questions || []).slice(0, MAX_COURSE_QUESTIONS);
 
     // Delete existing questions for this course
     await prisma.moduleAssessmentQuestion.deleteMany({
