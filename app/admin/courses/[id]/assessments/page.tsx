@@ -29,18 +29,28 @@ export default async function AdminCourseAssessmentPage({
   }
 
   // Fetch True/False questions for this course
-  const assessmentQuestions = await prisma.moduleAssessmentQuestion.findMany({
-    where: { courseId: course.id },
-    select: { id: true, question: true, isTrue: true, explanation: true, isPublished: true },
-    orderBy: { createdAt: "asc" },
-  });
+  let assessmentQuestions: any[] = [];
+  try {
+    assessmentQuestions = await prisma.moduleAssessmentQuestion.findMany({
+      where: { courseId: course.id },
+      select: { id: true, question: true, isTrue: true, explanation: true, isPublished: true },
+      orderBy: { createdAt: "asc" },
+    });
+  } catch (err: any) {
+    console.warn("isPublished field not available in Prisma client or DB, falling back to legacy fields:", err?.message);
+    assessmentQuestions = await prisma.moduleAssessmentQuestion.findMany({
+      where: { courseId: course.id },
+      select: { id: true, question: true, isTrue: true, explanation: true },
+      orderBy: { createdAt: "asc" },
+    });
+  }
 
   const formattedQuestions = assessmentQuestions.map((q) => ({
     id: q.id,
     question: q.question,
     isTrue: Boolean(q.isTrue),
     explanation: q.explanation || "",
-    isPublished: Boolean(q.isPublished),
+    isPublished: q.isPublished !== undefined ? Boolean(q.isPublished) : true,
   }));
 
   // Fetch student exam results for this course

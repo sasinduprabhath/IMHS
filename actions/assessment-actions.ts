@@ -27,11 +27,21 @@ export async function getCourseAssessmentQuestions(courseId: string, includeUnpu
       whereClause.isPublished = true;
     }
 
-    const dbQuestions = await prisma.moduleAssessmentQuestion.findMany({
-      where: whereClause,
-      orderBy: { createdAt: "asc" },
-      select: { id: true, question: true, isTrue: true, explanation: true, isPublished: true },
-    });
+    let dbQuestions: any[] = [];
+    try {
+      dbQuestions = await prisma.moduleAssessmentQuestion.findMany({
+        where: whereClause,
+        orderBy: { createdAt: "asc" },
+        select: { id: true, question: true, isTrue: true, explanation: true, isPublished: true },
+      });
+    } catch (queryErr: any) {
+      console.warn("isPublished not recognized in Prisma client or DB, falling back:", queryErr?.message);
+      dbQuestions = await prisma.moduleAssessmentQuestion.findMany({
+        where: { courseId: cleanCourseId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, question: true, isTrue: true, explanation: true },
+      });
+    }
 
     if (dbQuestions && dbQuestions.length > 0) {
       return dbQuestions.map((q) => ({
@@ -41,7 +51,7 @@ export async function getCourseAssessmentQuestions(courseId: string, includeUnpu
         answer: Boolean(q.isTrue),
         explanation: q.explanation || undefined,
         topic: "Course Assessment",
-        isPublished: Boolean(q.isPublished),
+        isPublished: q.isPublished !== undefined ? Boolean(q.isPublished) : true,
       }));
     }
 
@@ -141,15 +151,32 @@ export async function saveCourseAssessmentQuestions(
       return { success: true, count: 0 };
     }
 
-    const created = await prisma.moduleAssessmentQuestion.createMany({
-      data: targetQuestions.map((q) => ({
-        courseId: cleanCourseId,
-        question: sanitizeString(q.question, 2000),
-        isTrue: Boolean(q.isTrue),
-        explanation: q.explanation ? sanitizeString(q.explanation, 2000) : null,
-        isPublished: q.isPublished !== false,
-      })),
-    });
+    let created;
+    try {
+      created = await prisma.moduleAssessmentQuestion.createMany({
+        data: targetQuestions.map((q) => ({
+          courseId: cleanCourseId,
+          question: sanitizeString(q.question, 2000),
+          isTrue: Boolean(q.isTrue),
+          explanation: q.explanation ? sanitizeString(q.explanation, 2000) : null,
+          isPublished: q.isPublished !== false,
+        })),
+      });
+    } catch (saveErr: any) {
+      if (saveErr?.message?.includes("isPublished") || saveErr?.name === "PrismaClientValidationError") {
+        console.warn("isPublished not supported in DB/client, saving without it:", saveErr?.message);
+        created = await prisma.moduleAssessmentQuestion.createMany({
+          data: targetQuestions.map((q) => ({
+            courseId: cleanCourseId,
+            question: sanitizeString(q.question, 2000),
+            isTrue: Boolean(q.isTrue),
+            explanation: q.explanation ? sanitizeString(q.explanation, 2000) : null,
+          })),
+        });
+      } else {
+        throw saveErr;
+      }
+    }
 
     return { success: true, count: created.count };
   } catch (error: any) {
@@ -176,6 +203,9 @@ export async function toggleCourseQuestionPublish(questionId: string, isPublishe
     return { success: true, isPublished: updated.isPublished };
   } catch (error: any) {
     console.error("Error toggling question publish status:", error);
+    if (error?.message?.includes("isPublished") || error?.name === "PrismaClientValidationError") {
+      throw new Error("Database schema needs update. Please run 'npx prisma db push' on the server.");
+    }
     throw new Error("Failed to update question status: " + (error.message || ""));
   }
 }
@@ -198,6 +228,9 @@ export async function setAllCourseQuestionsPublish(courseId: string, isPublished
     return { success: true, count: result.count };
   } catch (error: any) {
     console.error("Error setting all questions publish status:", error);
+    if (error?.message?.includes("isPublished") || error?.name === "PrismaClientValidationError") {
+      throw new Error("Database schema needs update. Please run 'npx prisma db push' on the server.");
+    }
     throw new Error("Failed to update questions: " + (error.message || ""));
   }
 }
