@@ -86,6 +86,13 @@ export async function verifyTrustedDeviceToken(
   }
 }
 
+function getCookieDomain(host?: string | null): string | undefined {
+  if (process.env.COOKIE_DOMAIN) return process.env.COOKIE_DOMAIN;
+  if (host && host.includes("imhsedu.com")) return ".imhsedu.com";
+  if (process.env.NODE_ENV === "production") return ".imhsedu.com";
+  return undefined;
+}
+
 /**
  * Sets persistent device cookies on outgoing HTTP responses:
  * - 1-year HttpOnly device UUID cookie
@@ -95,18 +102,27 @@ export async function setDeviceCookies(
   res: NextResponse,
   userId: string,
   deviceUuid: string,
-  trustDevice: boolean = true
+  trustDevice: boolean = true,
+  host?: string | null
 ): Promise<void> {
   const isProd = process.env.NODE_ENV === "production";
+  const cookieDomain = getCookieDomain(host);
 
-  // 1. Long-term persistent device UUID cookie (1 Year)
-  res.cookies.set({
-    name: DEVICE_UUID_COOKIE_NAME,
-    value: deviceUuid,
+  const baseOptions: any = {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
     path: "/",
+  };
+  if (cookieDomain) {
+    baseOptions.domain = cookieDomain;
+  }
+
+  // 1. Long-term persistent device UUID cookie (1 Year)
+  res.cookies.set({
+    ...baseOptions,
+    name: DEVICE_UUID_COOKIE_NAME,
+    value: deviceUuid,
     maxAge: ONE_YEAR_IN_SECONDS,
   });
 
@@ -114,12 +130,9 @@ export async function setDeviceCookies(
   if (trustDevice) {
     const trustedToken = await createTrustedDeviceToken(userId, deviceUuid);
     res.cookies.set({
+      ...baseOptions,
       name: TRUSTED_DEVICE_COOKIE_NAME,
       value: trustedToken,
-      httpOnly: true,
-      secure: isProd,
-      sameSite: "lax",
-      path: "/",
       maxAge: THIRTY_DAYS_IN_SECONDS,
     });
   }

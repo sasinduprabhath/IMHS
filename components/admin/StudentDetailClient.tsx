@@ -115,7 +115,7 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
     fetchDevices();
   }, [fetchDevices]);
 
-  const handleDeviceAction = async (deviceId: string, action: "APPROVE" | "MAKE_PRIMARY" | "BLOCK") => {
+  const handleDeviceAction = async (deviceId: string, action: "APPROVE" | "MAKE_PRIMARY" | "BLOCK" | "DELETE") => {
     try {
       const res = await fetch(`/api/admin/students/${student.id}/devices`, {
         method: "PATCH",
@@ -645,6 +645,17 @@ export function StudentDetailClient({ student, availableCourses }: StudentDetail
                                 Block
                               </button>
                             )}
+                            <button
+                              onClick={() => {
+                                if (confirm("Are you sure you want to delete this device record? The student will be able to register a fresh device.")) {
+                                  handleDeviceAction(dev.id, "DELETE");
+                                }
+                              }}
+                              className="px-2 py-1 text-[10px] font-semibold font-mono rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+                              title="Delete device registration"
+                            >
+                              Remove
+                            </button>
                           </div>
                         </td>
                       </tr>

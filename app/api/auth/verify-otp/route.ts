@@ -79,17 +79,21 @@ export async function POST(req: NextRequest) {
         }, { status: 400 });
       }
 
-      // Confirm device is not explicitly BLOCKED by admin
-      const blockedDevice = await prisma.studentDevice.findFirst({
-        where: {
-          userId: user.id,
-          status: "BLOCKED",
-          OR: [
-            { deviceSignature: finalDeviceUuid },
-            ...(deviceSignature ? [{ deviceSignature }] : []),
-          ],
-        },
+      const allUserDevices = await prisma.studentDevice.findMany({
+        where: { userId: user.id },
       });
+
+      const normPollingInfo = (deviceInfo || "").trim().toLowerCase();
+
+      // Confirm device is not explicitly BLOCKED by admin
+      const blockedDevice = allUserDevices.find((d) => {
+        if (d.status !== "BLOCKED") return false;
+        if (finalDeviceUuid && (d.deviceSignature === finalDeviceUuid || d.deviceSignature.includes(finalDeviceUuid))) return true;
+        if (deviceSignature && (d.deviceSignature === deviceSignature || d.deviceSignature.includes(deviceSignature))) return true;
+        if (normPollingInfo && d.deviceInfo && d.deviceInfo.trim().toLowerCase() === normPollingInfo) return true;
+        return false;
+      });
+
       if (blockedDevice) {
         return NextResponse.json({
           status: "ERROR",
@@ -98,15 +102,12 @@ export async function POST(req: NextRequest) {
       }
 
       // Check if device is approved as PRIMARY or ALLOWED
-      const approvedDevice = await prisma.studentDevice.findFirst({
-        where: {
-          userId: user.id,
-          status: { in: ["PRIMARY", "ALLOWED"] },
-          OR: [
-            { deviceSignature: finalDeviceUuid },
-            ...(deviceSignature ? [{ deviceSignature }] : []),
-          ],
-        },
+      const approvedDevice = allUserDevices.find((d) => {
+        if (d.status !== "PRIMARY" && d.status !== "ALLOWED") return false;
+        if (finalDeviceUuid && (d.deviceSignature === finalDeviceUuid || d.deviceSignature.includes(finalDeviceUuid))) return true;
+        if (deviceSignature && (d.deviceSignature === deviceSignature || d.deviceSignature.includes(deviceSignature))) return true;
+        if (normPollingInfo && d.deviceInfo && d.deviceInfo.trim().toLowerCase() === normPollingInfo) return true;
+        return false;
       });
 
       const isApproved =
@@ -164,7 +165,7 @@ export async function POST(req: NextRequest) {
           adminApproved: true,
         });
 
-        await setDeviceCookies(response, user.id, finalDeviceUuid, true);
+        await setDeviceCookies(response, user.id, finalDeviceUuid, true, req.headers.get("host"));
         return response;
       }
 
@@ -355,19 +356,56 @@ export async function POST(req: NextRequest) {
     });
 
     // ── Device Registration & Approval ────────────────────────────────
-    const existingDevices = await prisma.studentDevice.findMany({
+    let existingDevices = await prisma.studentDevice.findMany({
       where: { userId: user.id },
+      orderBy: { lastAttemptAt: "desc" },
     });
 
-    // Check if this device is already one of the approved devices
-    const isCurrentAlreadyApproved = existingDevices.some(
+    // Auto-clean any duplicate entities with identical deviceInfo for this student
+    const seenVerifyDevs = new Map<string, (typeof existingDevices)[0]>();
+    const dupVerifyIds: string[] = [];
+    for (const dev of existingDevices) {
+      const norm = (dev.deviceInfo || "").trim().toLowerCase();
+      if (!norm) continue;
+      if (seenVerifyDevs.has(norm)) {
+        const existing = seenVerifyDevs.get(norm)!;
+        if (dev.status === "PRIMARY" && existing.status !== "PRIMARY") {
+          dupVerifyIds.push(existing.id);
+          seenVerifyDevs.set(norm, dev);
+        } else {
+          dupVerifyIds.push(dev.id);
+        }
+      } else {
+        seenVerifyDevs.set(norm, dev);
+      }
+    }
+    if (dupVerifyIds.length > 0) {
+      await prisma.studentDevice.deleteMany({
+        where: { id: { in: dupVerifyIds } },
+      });
+      existingDevices = existingDevices.filter((d) => !dupVerifyIds.includes(d.id));
+    }
+
+    const normVerifyInfo = (deviceInfo || "").trim().toLowerCase();
+
+    // Check if this device is already one of the approved devices (by UUID, hash, or identical hardware profile)
+    const existingApprovedMatch = existingDevices.find(
       (d) =>
         (d.status === "PRIMARY" || d.status === "ALLOWED") &&
-        (d.deviceSignature === finalDeviceUuid || (deviceSignature && d.deviceSignature === deviceSignature))
+        ((finalDeviceUuid && (d.deviceSignature === finalDeviceUuid || d.deviceSignature.includes(finalDeviceUuid))) ||
+         (deviceSignature && (d.deviceSignature === deviceSignature || d.deviceSignature.includes(deviceSignature))) ||
+         (normVerifyInfo && d.deviceInfo && d.deviceInfo.trim().toLowerCase() === normVerifyInfo))
     );
+
+    const isCurrentAlreadyApproved = !!existingApprovedMatch;
 
     const approvedDevices = existingDevices.filter(
       (d) => d.status === "PRIMARY" || d.status === "ALLOWED"
+    );
+
+    // Group approved devices by distinct physical profile
+    const uniqueApprovedProfiles = new Set(
+      approvedDevices.map((d) => (d.deviceInfo || d.deviceSignature).trim().toLowerCase())
     );
 
     const modernApprovedDevices = approvedDevices.filter((d) =>
@@ -375,10 +413,10 @@ export async function POST(req: NextRequest) {
     );
 
     const hasReachedLimit =
-      modernApprovedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT ||
-      (approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT && modernApprovedDevices.length > 0);
+      uniqueApprovedProfiles.size >= MAX_REGISTERED_DEVICES_PER_STUDENT ||
+      modernApprovedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT;
 
-    // If attempting to approve a NEW device beyond the maximum allowed limit, reject
+    // If attempting to approve a genuinely NEW device beyond the maximum allowed limit, reject
     if (!isCurrentAlreadyApproved && hasReachedLimit) {
       logger.security("AUTH_DEVICE_LIMIT_EXCEEDED", `Student ${user.email} exceeded max registered device limit during OTP verify (${approvedDevices.length}/${MAX_REGISTERED_DEVICES_PER_STUDENT})`, {
         userId: user.id,
@@ -397,8 +435,7 @@ export async function POST(req: NextRequest) {
     );
 
     // If student has legacy records and no modern UUID devices yet:
-    // This is an existing student's first login under the new system!
-    // Auto-clean the legacy duplicates created by the old canvas bug, and establish this clean device as PRIMARY.
+    // Auto-clean the legacy duplicates and establish this clean device as PRIMARY.
     if (hasLegacyRecords && modernApprovedDevices.length === 0 && finalDeviceUuid.startsWith("dev_")) {
       await prisma.studentDevice.deleteMany({
         where: {
@@ -425,23 +462,54 @@ export async function POST(req: NextRequest) {
           deviceLockedAt: new Date(),
         },
       });
+    } else if (existingApprovedMatch) {
+      // ── CRITICAL: Re-bind existing approved device instead of creating a duplicate! ──
+      await prisma.studentDevice.update({
+        where: { id: existingApprovedMatch.id },
+        data: {
+          deviceSignature: finalDeviceUuid,
+          deviceInfo: deviceInfo || existingApprovedMatch.deviceInfo || "Web Browser",
+          lastAttemptAt: new Date(),
+          ipAddress: clientIp,
+        },
+      });
+
+      // Purge any temporary PENDING records created during pre-login for this attempt
+      await prisma.studentDevice.deleteMany({
+        where: {
+          userId: user.id,
+          status: "PENDING",
+        },
+      });
+
+      // Ensure user.deviceSignature is kept in sync if this was the primary device
+      if (existingApprovedMatch.status === "PRIMARY") {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            deviceSignature: finalDeviceUuid,
+            deviceLockedAt: user.deviceLockedAt || new Date(),
+          },
+        });
+      }
     } else {
+      // Genuinely new device within allowed limit (< MAX_REGISTERED_DEVICES_PER_STUDENT)
       const isFirstDevice = !user.deviceSignature && approvedDevices.length === 0;
       const approvedStatus = isFirstDevice ? "PRIMARY" : "ALLOWED";
 
-      // Match existing device by uuid, signature, or pending status
-      const matchingRecord = existingDevices.find((d) =>
+      // Match pending record created during pre-login
+      const pendingRecord = existingDevices.find((d) =>
+        d.status === "PENDING" ||
         d.deviceSignature === finalDeviceUuid ||
-        (deviceSignature && d.deviceSignature === deviceSignature) ||
-        d.status === "PENDING"
+        (deviceSignature && d.deviceSignature === deviceSignature)
       );
 
-      if (matchingRecord) {
+      if (pendingRecord) {
         await prisma.studentDevice.update({
-          where: { id: matchingRecord.id },
+          where: { id: pendingRecord.id },
           data: {
             deviceSignature: finalDeviceUuid,
-            deviceInfo: deviceInfo || matchingRecord.deviceInfo || "Web Browser",
+            deviceInfo: deviceInfo || pendingRecord.deviceInfo || "Web Browser",
             status: approvedStatus,
             ipAddress: clientIp,
             lastAttemptAt: new Date(),
@@ -459,6 +527,14 @@ export async function POST(req: NextRequest) {
           },
         });
       }
+
+      // Purge any leftover PENDING records
+      await prisma.studentDevice.deleteMany({
+        where: {
+          userId: user.id,
+          status: "PENDING",
+        },
+      });
 
       // If first device ever, also store as user's primary deviceSignature
       if (isFirstDevice) {
@@ -498,7 +574,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Set persistent 1-year device UUID cookie + (optional) 30-day trusted device cookie
-    await setDeviceCookies(response, user.id, finalDeviceUuid, trustDevice);
+    await setDeviceCookies(response, user.id, finalDeviceUuid, trustDevice, req.headers.get("host"));
 
     return response;
 

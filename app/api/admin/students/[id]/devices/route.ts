@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const deviceActionSchema = z.object({
   deviceId: z.string().min(1, "Device ID required").max(100),
-  action: z.enum(["APPROVE", "MAKE_PRIMARY", "BLOCK"]),
+  action: z.enum(["APPROVE", "MAKE_PRIMARY", "BLOCK", "DELETE"]),
 });
 
 export async function GET(
@@ -54,6 +54,51 @@ export async function PATCH(
   const device = await prisma.studentDevice.findUnique({ where: { id: deviceId } });
   if (!device || device.userId !== id) {
     return NextResponse.json({ error: "Device not found for this student" }, { status: 404 });
+  }
+
+  if (action === "DELETE") {
+    await prisma.studentDevice.delete({
+      where: { id: deviceId },
+    });
+
+    // Check remaining approved devices
+    const remainingApproved = await prisma.studentDevice.findFirst({
+      where: {
+        userId: id,
+        status: { in: ["PRIMARY", "ALLOWED"] },
+      },
+      orderBy: { lastAttemptAt: "desc" },
+    });
+
+    if (remainingApproved) {
+      if (remainingApproved.status !== "PRIMARY") {
+        await prisma.studentDevice.update({
+          where: { id: remainingApproved.id },
+          data: { status: "PRIMARY" },
+        });
+      }
+      await prisma.user.update({
+        where: { id },
+        data: {
+          deviceSignature: remainingApproved.deviceSignature,
+          deviceLockedAt: new Date(),
+        },
+      });
+    } else {
+      // If no approved devices left, clear lock
+      await prisma.user.update({
+        where: { id },
+        data: {
+          deviceSignature: null,
+          deviceLockedAt: null,
+        },
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Device removed successfully.",
+    });
   }
 
   if (action === "MAKE_PRIMARY" || action === "APPROVE") {

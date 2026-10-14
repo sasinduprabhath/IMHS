@@ -43,15 +43,12 @@ export async function collectDeviceSignature(): Promise<ClientDeviceInfo> {
     // Stable hardware attributes (zero canvas random noise to survive iOS Safari anti-tracking)
     const parts: string[] = [
       osCategory,
+      browser,
       `${minDim}x${maxDim}`,
       String(screen.colorDepth || 24),
       String(navigator.hardwareConcurrency || 2),
       Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Colombo",
     ];
-
-    if (deviceUuid) {
-      parts.push(deviceUuid);
-    }
 
     const raw = parts.join("|");
     const encoded = new TextEncoder().encode(raw);

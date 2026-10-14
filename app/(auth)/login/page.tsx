@@ -57,11 +57,30 @@ function LoginForm() {
     setLoading(true);
 
     try {
+      let activeUuid = deviceUuid;
+      let activeSig = deviceSig;
+      let activeInfo = deviceInfo;
+
+      if (!activeUuid || !activeSig || !activeInfo) {
+        try {
+          const fresh = await collectDeviceSignature();
+          activeSig = activeSig || fresh.hash;
+          activeInfo = activeInfo || fresh.info;
+          activeUuid = activeUuid || fresh.deviceUuid;
+        } catch {}
+      }
+
+      if (!activeUuid && typeof window !== "undefined") {
+        try {
+          activeUuid = localStorage.getItem("imhs_device_uuid") || "";
+        } catch {}
+      }
+
       // Step 1 - pre-login: validates password, device, generates OTP
       const res = await fetch("/api/auth/pre-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, deviceSignature: deviceSig, deviceInfo, deviceUuid }),
+        body: JSON.stringify({ email, password, deviceSignature: activeSig, deviceInfo: activeInfo, deviceUuid: activeUuid }),
       });
       const data = await res.json();
 

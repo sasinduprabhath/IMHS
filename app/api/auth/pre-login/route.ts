@@ -113,14 +113,57 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Device Authorization & Lock Enforcement ───────────────────────
-    const studentDevices = await prisma.studentDevice.findMany({
+    let studentDevices = await prisma.studentDevice.findMany({
       where: { userId: user.id },
+      orderBy: { lastAttemptAt: "desc" },
     });
 
-    // Check if device matches by persistent UUID or hardware signature
+    // ── Self-Healing Auto-Deduplication ────────────────────────────────
+    // If the database has multiple records with identical deviceInfo for this student
+    // (e.g. duplicate "Windows PC · Chrome (1080×1920)"), merge them:
+    // keep the PRIMARY (or most recent) record and purge the redundant duplicates.
+    const seenDeviceProfiles = new Map<string, (typeof studentDevices)[0]>();
+    const duplicateDeviceIdsToDelete: string[] = [];
+
+    for (const dev of studentDevices) {
+      const normInfo = (dev.deviceInfo || "").trim().toLowerCase();
+      if (!normInfo) continue;
+      if (seenDeviceProfiles.has(normInfo)) {
+        const existing = seenDeviceProfiles.get(normInfo)!;
+        if (dev.status === "PRIMARY" && existing.status !== "PRIMARY") {
+          duplicateDeviceIdsToDelete.push(existing.id);
+          seenDeviceProfiles.set(normInfo, dev);
+        } else {
+          duplicateDeviceIdsToDelete.push(dev.id);
+        }
+      } else {
+        seenDeviceProfiles.set(normInfo, dev);
+      }
+    }
+
+    if (duplicateDeviceIdsToDelete.length > 0) {
+      await prisma.studentDevice.deleteMany({
+        where: { id: { in: duplicateDeviceIdsToDelete } },
+      });
+      studentDevices = studentDevices.filter((d) => !duplicateDeviceIdsToDelete.includes(d.id));
+    }
+
+    // ── Multi-Layer Smart Device Matching ──────────────────────────────
+    // A device matches if:
+    // 1. UUID matches (d.deviceSignature === incomingDeviceUuid)
+    // 2. Hardware hash matches (d.deviceSignature === deviceSignature)
+    // 3. Or Device Profile matches (same student's identical OS, browser, and screen dimensions)
+    const normIncomingInfo = (deviceInfo || "").trim().toLowerCase();
+
     const currentDeviceRecord = studentDevices.find((d) => {
-      if (incomingDeviceUuid && d.deviceSignature === incomingDeviceUuid) return true;
-      if (deviceSignature && d.deviceSignature === deviceSignature) return true;
+      // 1. Direct UUID match
+      if (incomingDeviceUuid && (d.deviceSignature === incomingDeviceUuid || d.deviceSignature.includes(incomingDeviceUuid))) return true;
+      // 2. Direct hardware hash match
+      if (deviceSignature && (d.deviceSignature === deviceSignature || d.deviceSignature.includes(deviceSignature))) return true;
+      // 3. Normalized device profile match (same physical computer/browser for this student)
+      if (normIncomingInfo && d.deviceInfo && d.deviceInfo.trim().toLowerCase() === normIncomingInfo) {
+        return true;
+      }
       return false;
     });
 
@@ -228,7 +271,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Issue 1-year UUID and 30-day trusted cookie so this browser stays authorized
-      await setDeviceCookies(res, user.id, boundUuid, true);
+      await setDeviceCookies(res, user.id, boundUuid, true, req.headers.get("host"));
       return res;
     }
 
@@ -238,18 +281,20 @@ export async function POST(req: NextRequest) {
       (d) => d.status === "PRIMARY" || d.status === "ALLOWED"
     );
 
+    // Group approved devices by unique physical profile (same OS+Browser+Screen = 1 device)
+    const uniqueApprovedProfiles = new Set(
+      approvedDevices.map((d) => (d.deviceInfo || d.deviceSignature).trim().toLowerCase())
+    );
+
     // Differentiate modern persistent UUID devices from old legacy canvas-hash duplicates
     const modernApprovedDevices = approvedDevices.filter((d) =>
       d.deviceSignature.startsWith("dev_")
     );
 
-    // A student has reached their limit if:
-    // 1. They have MAX_REGISTERED_DEVICES_PER_STUDENT modern persistent devices, OR
-    // 2. They already have >= MAX_REGISTERED_DEVICES_PER_STUDENT approved devices AND at least one is already modern.
-    // (If all existing approved devices are legacy duplicates created by the old canvas bug, allow them to transition via 2FA OTP).
+    // A student has reached their limit if their unique physical approved devices >= MAX_REGISTERED_DEVICES_PER_STUDENT
     const hasReachedLimit =
-      modernApprovedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT ||
-      (approvedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT && modernApprovedDevices.length > 0);
+      uniqueApprovedProfiles.size >= MAX_REGISTERED_DEVICES_PER_STUDENT ||
+      modernApprovedDevices.length >= MAX_REGISTERED_DEVICES_PER_STUDENT;
 
     if (hasReachedLimit) {
       const waMessage =
