@@ -44,6 +44,22 @@ export function formatGoogleDriveImageUrl(url: string | null | undefined): strin
 }
 
 /**
+ * Get internal proxy URL for Google Drive image fallback
+ */
+export function getDriveProxyUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  const match = trimmed.match(/\/(?:file\/)?d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match && match[1]) {
+    return `/api/drive-image?id=${match[1]}`;
+  }
+  if (!trimmed.startsWith("http") && !trimmed.startsWith("/") && /^[a-zA-Z0-9_-]{25,50}$/.test(trimmed)) {
+    return `/api/drive-image?id=${trimmed}`;
+  }
+  return null;
+}
+
+/**
  * Get embedded viewer iframe URL for PDF/PPTX Google Drive ID or external document URL
  */
 export function getEmbeddedDocumentUrl(driveFileIdOrUrl: string | null | undefined): string {

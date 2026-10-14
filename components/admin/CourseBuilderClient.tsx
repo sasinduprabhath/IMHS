@@ -8,7 +8,7 @@ import { Reorder, useDragControls } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { FormattedText } from "@/components/ui/formatted-text";
-import { cn, formatGoogleDriveImageUrl } from "@/lib/utils";
+import { cn, formatGoogleDriveImageUrl, getDriveProxyUrl } from "@/lib/utils";
 import {
   ArrowLeft,
   Save,
@@ -1814,7 +1814,14 @@ Passcode: 291799
                   <img
                     src={formatGoogleDriveImageUrl(newAnnImage) || newAnnImage}
                     alt="Announcement attachment preview"
+                    referrerPolicy="no-referrer"
                     className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 bg-white shadow-2xs"
+                    onError={(e) => {
+                      const proxy = getDriveProxyUrl(newAnnImage);
+                      if (proxy && e.currentTarget.src !== window.location.origin + proxy) {
+                        e.currentTarget.src = proxy;
+                      }
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-slate-800 truncate">{newAnnImage}</p>
@@ -1928,7 +1935,14 @@ Passcode: 291799
                       <img
                         src={formatGoogleDriveImageUrl(ann.imageUrl) || ann.imageUrl}
                         alt={ann.title}
+                        referrerPolicy="no-referrer"
                         className="w-full max-h-72 object-contain bg-slate-950/5"
+                        onError={(e) => {
+                          const proxy = getDriveProxyUrl(ann.imageUrl);
+                          if (proxy && e.currentTarget.src !== window.location.origin + proxy) {
+                            e.currentTarget.src = proxy;
+                          }
+                        }}
                       />
                       <a
                         href={formatGoogleDriveImageUrl(ann.imageUrl) || ann.imageUrl}

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DOMPurify from "dompurify";
 import { VitalLine } from "@/components/ui/vital-line";
 import { Button } from "@/components/ui/button";
-import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl, formatGoogleDriveImageUrl } from "@/lib/utils";
+import { getEmbeddedDocumentUrl, getDocumentDownloadUrl, getVimeoEmbedUrl, formatGoogleDriveImageUrl, getDriveProxyUrl } from "@/lib/utils";
 import { FormattedText } from "@/components/ui/formatted-text";
 import {
   CheckCircle2 as CheckCircleIcon,
@@ -176,7 +176,14 @@ function CoursePlayerContent({
             <img
               src={previewImage.src}
               alt={previewImage.title}
+              referrerPolicy="no-referrer"
               className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-xs"
+              onError={(e) => {
+                const proxy = getDriveProxyUrl(previewImage.src);
+                if (proxy && e.currentTarget.src !== window.location.origin + proxy) {
+                  e.currentTarget.src = proxy;
+                }
+              }}
             />
           </div>
         </div>
@@ -659,7 +666,14 @@ function CoursePlayerContent({
                       <img
                         src={formatGoogleDriveImageUrl(a.imageUrl) || a.imageUrl}
                         alt={a.title}
+                        referrerPolicy="no-referrer"
                         className="w-full max-h-96 object-contain bg-slate-950/5 group-hover:scale-[1.01] transition-transform duration-200"
+                        onError={(e) => {
+                          const proxy = getDriveProxyUrl(a.imageUrl);
+                          if (proxy && e.currentTarget.src !== window.location.origin + proxy) {
+                            e.currentTarget.src = proxy;
+                          }
+                        }}
                       />
                       <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/25 transition-colors flex items-center justify-center">
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/80 text-white text-xs font-mono font-medium px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
@@ -757,7 +771,14 @@ function CoursePlayerContent({
                   <img
                     src={formatGoogleDriveImageUrl(currentAnnouncement.imageUrl) || currentAnnouncement.imageUrl}
                     alt={currentAnnouncement.title}
+                    referrerPolicy="no-referrer"
                     className="w-full max-h-[520px] object-contain bg-slate-950/5 group-hover:scale-[1.01] transition-transform duration-200"
+                    onError={(e) => {
+                      const proxy = getDriveProxyUrl(currentAnnouncement.imageUrl);
+                      if (proxy && e.currentTarget.src !== window.location.origin + proxy) {
+                        e.currentTarget.src = proxy;
+                      }
+                    }}
                   />
                   <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/25 transition-colors flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/80 text-white text-xs font-mono font-medium px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg backdrop-blur-xs">
