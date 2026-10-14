@@ -196,7 +196,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: signatureCheck.error }, { status: 400 });
     }
 
-    const targetSubfolder = folder === "courses" ? "uploads/courses" : "uploads/practice/prescriptions";
+    const targetSubfolder =
+      folder === "courses"
+        ? "uploads/courses"
+        : folder === "announcements"
+        ? "uploads/announcements"
+        : "uploads/practice/prescriptions";
     const uploadDir = path.join(process.cwd(), "public", ...targetSubfolder.split("/"));
     await mkdir(uploadDir, { recursive: true });
 
@@ -214,6 +219,10 @@ export async function POST(req: Request) {
       const legacyPracticeDir = path.join(process.cwd(), "public", "practice", "prescriptions");
       await mkdir(legacyPracticeDir, { recursive: true });
       await writeFile(path.join(legacyPracticeDir, safeFileName), buffer);
+    } else if (folder === "announcements") {
+      const legacyAnnDir = path.join(process.cwd(), "public", "announcements");
+      await mkdir(legacyAnnDir, { recursive: true });
+      await writeFile(path.join(legacyAnnDir, safeFileName), buffer);
     }
 
     const relativeUrl = `/${targetSubfolder}/${safeFileName}`;

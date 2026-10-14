@@ -28,6 +28,8 @@ import {
   ExternalLink as ExternalLinkIcon,
   Play as PlayIcon,
   RotateCcw as RotateCcwIcon,
+  X as XIcon,
+  ImageIcon,
 } from "lucide-react";
 import { StudentAssignmentsClient } from "@/components/student/StudentAssignmentsClient";
 import { ModuleAssessmentActivity } from "@/components/student/practice/ModuleAssessmentActivity";
@@ -67,6 +69,7 @@ interface CoursePlayerProps {
       id: string;
       title: string;
       content: string;
+      imageUrl?: string | null;
       createdAt: string | Date;
     }[];
     instructors?: {
@@ -134,6 +137,52 @@ function CoursePlayerContent({
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
   const [assessmentQuestions, setAssessmentQuestions] = useState<any[]>([]);
   const [assessmentResult, setAssessmentResult] = useState<any>(null);
+  const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
+
+  const renderImageLightbox = () => {
+    if (!previewImage) return null;
+    return (
+      <div
+        onClick={() => setPreviewImage(null)}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white border border-slate-200 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200"
+        >
+          <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
+            <h4 className="text-sm font-bold text-slate-900 truncate pr-4">{previewImage.title}</h4>
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={previewImage.src}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono font-medium text-[#0E57A4] hover:bg-blue-50 px-2.5 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center gap-1.5"
+              >
+                <ExternalLinkIcon className="w-3.5 h-3.5" /> Open Tab
+              </a>
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                aria-label="Close image preview"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          <div className="p-4 overflow-auto flex items-center justify-center bg-slate-950/5 min-h-[300px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewImage.src}
+              alt={previewImage.title}
+              className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-xs"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const isAllLessonsCompleted = allLessons.length > 0 && completedLessonIds.size >= allLessons.length;
 
@@ -594,10 +643,37 @@ function CoursePlayerContent({
                   content={a.content}
                   className="text-xs sm:text-sm text-slate-800 leading-relaxed font-sans"
                 />
+
+                {a.imageUrl && (
+                  <div className="pt-2">
+                    <div
+                      onClick={() =>
+                        setPreviewImage({
+                          src: formatGoogleDriveImageUrl(a.imageUrl!) || a.imageUrl!,
+                          title: a.title,
+                        })
+                      }
+                      className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900/5 group cursor-pointer shadow-2xs hover:shadow-md transition-all max-w-2xl"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={formatGoogleDriveImageUrl(a.imageUrl) || a.imageUrl}
+                        alt={a.title}
+                        className="w-full max-h-96 object-contain bg-slate-950/5 group-hover:scale-[1.01] transition-transform duration-200"
+                      />
+                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/25 transition-colors flex items-center justify-center">
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/80 text-white text-xs font-mono font-medium px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
+                          <ExternalLinkIcon className="w-3.5 h-3.5" /> Click to Enlarge Image
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
+        {renderImageLightbox()}
       </div>
     );
   }
@@ -652,6 +728,45 @@ function CoursePlayerContent({
               content={currentAnnouncement.content}
               className="text-sm text-slate-800 leading-relaxed font-sans"
             />
+
+            {currentAnnouncement.imageUrl && (
+              <div className="mt-6 pt-4 border-t border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-red-500" /> Attached Notice / Flyer
+                  </span>
+                  <a
+                    href={formatGoogleDriveImageUrl(currentAnnouncement.imageUrl) || currentAnnouncement.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-mono font-semibold text-[#0E57A4] hover:underline flex items-center gap-1"
+                  >
+                    <ExternalLinkIcon className="w-3.5 h-3.5" /> Open Full Image
+                  </a>
+                </div>
+                <div
+                  onClick={() =>
+                    setPreviewImage({
+                      src: formatGoogleDriveImageUrl(currentAnnouncement.imageUrl!) || currentAnnouncement.imageUrl!,
+                      title: currentAnnouncement.title,
+                    })
+                  }
+                  className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900/5 group cursor-pointer shadow-xs hover:shadow-md transition-all"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={formatGoogleDriveImageUrl(currentAnnouncement.imageUrl) || currentAnnouncement.imageUrl}
+                    alt={currentAnnouncement.title}
+                    className="w-full max-h-[520px] object-contain bg-slate-950/5 group-hover:scale-[1.01] transition-transform duration-200"
+                  />
+                  <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/25 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/80 text-white text-xs font-mono font-medium px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg backdrop-blur-xs">
+                      <ExternalLinkIcon className="w-4 h-4" /> Click to View Full Size
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Sidebar: All Batch Announcements List */}
@@ -681,9 +796,16 @@ function CoursePlayerContent({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-mono text-[10px] text-red-600 font-bold uppercase">
-                        Notice #{course.announcements!.length - idx}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono text-[10px] text-red-600 font-bold uppercase">
+                          Notice #{course.announcements!.length - idx}
+                        </span>
+                        {a.imageUrl && (
+                          <span className="text-[9px] text-rose-600 bg-rose-50 border border-rose-200 px-1 py-0.2 rounded font-mono font-medium">
+                            Photo
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[10px] text-slate-400 font-mono">
                         {new Date(a.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
                       </span>
@@ -697,6 +819,7 @@ function CoursePlayerContent({
             </div>
           </div>
         </div>
+        {renderImageLightbox()}
       </div>
     );
   }

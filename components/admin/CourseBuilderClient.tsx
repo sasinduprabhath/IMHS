@@ -61,6 +61,7 @@ interface AnnouncementItem {
   id: string;
   title: string;
   content: string;
+  imageUrl?: string | null;
   createdAt: string | Date;
 }
 
@@ -566,6 +567,9 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(course.announcements || []);
   const [newAnnTitle, setNewAnnTitle] = useState("");
   const [newAnnContent, setNewAnnContent] = useState("");
+  const [newAnnImage, setNewAnnImage] = useState("");
+  const [isUploadingAnnImage, setIsUploadingAnnImage] = useState(false);
+  const [annImageUploadError, setAnnImageUploadError] = useState("");
   const [isAddingAnn, setIsAddingAnn] = useState(false);
 
   // ── Instructors State ──
@@ -791,16 +795,49 @@ export function CourseBuilderClient({ course, allFaculty }: CourseBuilderProps) 
       const res = await fetch(`/api/admin/courses/${course.id}/announcements`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newAnnTitle, content: newAnnContent }),
+        body: JSON.stringify({
+          title: newAnnTitle,
+          content: newAnnContent,
+          imageUrl: newAnnImage.trim() || null,
+        }),
       });
       const data = await res.json();
       if (res.ok && data.announcement) {
         setAnnouncements((prev) => [data.announcement, ...prev]);
         setNewAnnTitle("");
         setNewAnnContent("");
+        setNewAnnImage("");
+        setAnnImageUploadError("");
       }
     } finally {
       setIsAddingAnn(false);
+    }
+  };
+
+  const handleAnnImageUpload = async (file: File) => {
+    if (!file) return;
+    setIsUploadingAnnImage(true);
+    setAnnImageUploadError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "announcements");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setNewAnnImage(data.url);
+      } else {
+        setAnnImageUploadError(data.error || "Failed to upload image.");
+      }
+    } catch {
+      setAnnImageUploadError("Network error while uploading image.");
+    } finally {
+      setIsUploadingAnnImage(false);
     }
   };
 
@@ -1764,11 +1801,86 @@ Passcode: 291799
                 className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] resize-none transition-colors"
               />
             </div>
+
+            {/* Announcement Image / Flyer Upload */}
+            <div className="space-y-2 pt-1 border-t border-slate-100">
+              <label className="block text-xs font-semibold text-slate-700">
+                Notice Flyer / Timetable Image <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+
+              {newAnnImage ? (
+                <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-2.5 flex items-center gap-3 shadow-xs">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={formatGoogleDriveImageUrl(newAnnImage) || newAnnImage}
+                    alt="Announcement attachment preview"
+                    className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 bg-white shadow-2xs"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 truncate">{newAnnImage}</p>
+                    <p className="text-[11px] text-emerald-600 font-mono mt-0.5 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Image ready to attach
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewAnnImage("");
+                      setAnnImageUploadError("");
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer mr-1 shrink-0"
+                    title="Remove image"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="relative border-2 border-dashed border-slate-200 hover:border-[#0E57A4] rounded-2xl p-4 text-center transition-all cursor-pointer group bg-[#F8FAFC] hover:bg-blue-50/30">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/jpg"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleAnnImageUpload(f);
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                    />
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#0E57A4]/10 text-[#0E57A4] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                        {isUploadingAnnImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-800 group-hover:text-[#0E57A4] transition-colors">
+                          {isUploadingAnnImage ? "Uploading notice image..." : "Upload Announcement Image / Flyer"}
+                        </p>
+                        <p className="text-[10px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    placeholder="Or paste direct image URL (e.g. /uploads/announcements/... or https://...)"
+                    value={newAnnImage}
+                    onChange={(e) => setNewAnnImage(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:bg-white focus:border-[#0E57A4] transition-colors"
+                  />
+                </div>
+              )}
+
+              {annImageUploadError && (
+                <p className="text-xs text-rose-600 font-mono mt-1 flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" /> {annImageUploadError}
+                </p>
+              )}
+            </div>
+
             <Button
               type="button"
               onClick={handleAddAnnouncement}
-              disabled={isAddingAnn || !newAnnTitle.trim() || !newAnnContent.trim()}
-              className="bg-[#F16726] hover:bg-[#d95316] text-white text-xs font-semibold gap-1.5 h-10 px-5 rounded-xl border-0 shadow-xs"
+              disabled={isAddingAnn || isUploadingAnnImage || !newAnnTitle.trim() || !newAnnContent.trim()}
+              className="bg-[#F16726] hover:bg-[#d95316] text-white text-xs font-semibold gap-1.5 h-10 px-5 rounded-xl border-0 shadow-xs cursor-pointer"
             >
               <Megaphone className="w-3.5 h-3.5" />
               {isAddingAnn ? "Posting…" : "Post Announcement"}
@@ -1785,7 +1897,7 @@ Passcode: 291799
           ) : (
             <div className="space-y-3">
               {announcements.map((ann) => (
-                <div key={ann.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-2 hover:border-slate-300 transition-colors">
+                <div key={ann.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3 hover:border-slate-300 transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
@@ -1809,6 +1921,25 @@ Passcode: 291799
                     </button>
                   </div>
                   <FormattedText content={ann.content} className="text-xs text-slate-700 font-sans pt-1" />
+
+                  {ann.imageUrl && (
+                    <div className="mt-2 relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 max-w-lg group shadow-2xs">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={formatGoogleDriveImageUrl(ann.imageUrl) || ann.imageUrl}
+                        alt={ann.title}
+                        className="w-full max-h-72 object-contain bg-slate-950/5"
+                      />
+                      <a
+                        href={formatGoogleDriveImageUrl(ann.imageUrl) || ann.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute bottom-2.5 right-2.5 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-mono font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md transition-all backdrop-blur-xs"
+                      >
+                        <ExternalLink className="w-3 h-3" /> View Full Image
+                      </a>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

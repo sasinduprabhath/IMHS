@@ -110,6 +110,7 @@ model CourseAnnouncement {
   id        String   @id @default(cuid())
   title     String
   content   String   @db.Text
+  imageUrl  String?  @db.Text
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

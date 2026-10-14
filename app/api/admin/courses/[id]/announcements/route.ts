@@ -8,6 +8,7 @@ import { z } from "zod";
 const createAnnouncementSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long"),
   content: z.string().min(1, "Content is required").max(5000, "Content too long"),
+  imageUrl: z.string().max(1000).optional().nullable(),
 });
 
 export async function POST(
@@ -29,13 +30,14 @@ export async function POST(
       return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid announcement data." }, { status: 400 });
     }
 
-    const { title, content } = parsed.data;
+    const { title, content, imageUrl } = parsed.data;
 
     const announcement = await prisma.courseAnnouncement.create({
       data: {
         courseId,
         title: sanitizeString(title, 200),
         content: sanitizeString(content, 5000),
+        imageUrl: imageUrl ? sanitizeString(imageUrl, 1000) : null,
       },
     });
 
